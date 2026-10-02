@@ -56,12 +56,14 @@ class DemoReset
         $disk->put(self::PENDING, $file);
 
         $this->emptyDatabase();
+        // Before the install, which stores the demo notes' files: clearing
+        // afterwards deleted them, leaving every demo note's file a 404.
+        $this->removeUploads();
         $this->install();
         $restored = $this->restoreKeptTables($file);
 
         $disk->delete(self::PENDING);
 
-        $this->removeUploads();
         $this->pruneKeptFiles();
 
         return $restored;

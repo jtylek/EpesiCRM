@@ -31,6 +31,8 @@ class QuickAccess
 
     private const STATE_KEY = 'quickaccess.items';
 
+    private const ENABLED_KEY = 'quickaccess.enabled';
+
     /**
      * Every sidebar item of the main panel that has a page to go to, by key.
      *
@@ -73,6 +75,17 @@ class QuickAccess
         }
     }
 
+    /** Whether the user shows the Quick Access icons in the top bar (on unless switched off). */
+    public static function enabled(): bool
+    {
+        return (bool) UiState::recall(self::ENABLED_KEY, true);
+    }
+
+    public static function saveEnabled(bool $enabled): void
+    {
+        UiState::remember(self::ENABLED_KEY, $enabled);
+    }
+
     /** @return list<string> The keys the user chose, or the defaults. */
     public static function selected(): array
     {
@@ -95,6 +108,10 @@ class QuickAccess
      */
     public static function items(): array
     {
+        if (! self::enabled()) {
+            return [];
+        }
+
         $chosen = self::selected();
 
         return array_values(array_filter(

@@ -200,7 +200,7 @@ class TaskResource extends RecordsetResource
             // Related field, restricted to Companies and Contacts: unrestricted
             // it offers every recordset with a View page, which put Tasks on
             // Mail's and Notes' own "linked from" tabs too.
-            Field::related('related', [Company::class, Contact::class])->label('Related')->notInTable(),
+            Field::related('related', [Company::class, Contact::class])->label('Related'),
 
             Field::longText('description')->notInTable(),
         ];

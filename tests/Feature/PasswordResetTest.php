@@ -117,12 +117,21 @@ class PasswordResetTest extends TestCase
     public function test_an_email_that_cannot_be_sent_says_so(): void
     {
         $this->userWithRole('employee', ['email' => 'ann@example.test']);
-        Event::listen(MessageSending::class, fn () => throw new TransportException('Connection refused'));
+        $shouldFailSending = true;
+        Event::listen(MessageSending::class, function () use (&$shouldFailSending): void {
+            if ($shouldFailSending) {
+                throw new TransportException('Connection refused');
+            }
+        });
 
-        Livewire::test(RequestPasswordReset::class)
-            ->fillForm(['email' => 'ann@example.test'])
-            ->call('request')
-            ->assertSee('The e-mail could not be sent. Ask your administrator to reset your password.');
+        try {
+            Livewire::test(RequestPasswordReset::class)
+                ->fillForm(['email' => 'ann@example.test'])
+                ->call('request')
+                ->assertSee('The e-mail could not be sent. Ask your administrator to reset your password.');
+        } finally {
+            $shouldFailSending = false;
+        }
     }
 
     /**

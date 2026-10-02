@@ -71,7 +71,7 @@ class FieldOverridesTest extends TestCase
     {
         app(FieldOverrides::class)->save('company', 'short_name', [
             'label' => 'Trading name', 'required' => true, 'filterable' => true,
-            'show_in_table' => true, 'section' => 'Identity', 'help' => 'Public trading name',
+            'section' => 'Identity', 'help' => 'Public trading name',
         ]);
         Filament::setCurrentPanel('main');
         Livewire::test(CreateCompany::class)->assertSee('Trading name')->assertSee('Public trading name')

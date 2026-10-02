@@ -4,8 +4,8 @@
     "Created by": "Utworzony przez",
     "deleted file": "usunięty plik",
     "Download": "Pobierz",
-    "Edited on": "Zmieniono",
     "Edited by": "Zmienione przez",
+    "Edited on": "Zmieniono",
     "Edited on from": "Zmieniono od",
     "Edited on until": "Zmieniono do",
     "Get link (valid for 7 days)": "Pobierz link (ważny 7 dni)",
@@ -13,8 +13,9 @@
     "New note": "Nowa notatka",
     "Note": "Notatka",
     "Notes": "Notatki",
+    "Preview": "Podgląd",
     "Record": "Rekord",
-    "The note was not saved": "Notatka nie została zapisana",
     "Sticky": "Przyklejona",
+    "The note was not saved": "Notatka nie została zapisana",
     "{1} :count file|[2,*] :count files": ":count plik|:count pliki|:count plików"
 }

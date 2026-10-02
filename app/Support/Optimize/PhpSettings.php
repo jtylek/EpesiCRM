@@ -59,6 +59,23 @@ class PhpSettings
     }
 
     /**
+     * Which PHP this is: the version, how it runs (the web server's module,
+     * PHP-FPM, LiteSpeed…) and the php.ini it loaded, which is the file to
+     * edit. Empty php.ini when PHP loaded none.
+     *
+     * @return array{version: string, sapi: string, ini: string, supported: bool}
+     */
+    public static function runtime(): array
+    {
+        return [
+            'version' => PHP_VERSION,
+            'sapi' => PHP_SAPI,
+            'ini' => (string) php_ini_loaded_file(),
+            'supported' => version_compare(PHP_VERSION, '8.2.0', '>='),
+        ];
+    }
+
+    /**
      * Every recommended setting with this server's value.
      *
      * @return list<array{setting: string, current: string, recommended: string, ok: bool, why: string}>

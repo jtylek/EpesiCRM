@@ -26,8 +26,11 @@ use Epesi\Modules\Reminders\Reminders;
 use Epesi\Modules\StickyNotes\Models\StickyNote;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 /**
  * The demo records: an own company, a manager and an employee (both with the
@@ -46,6 +49,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class DemoDataSeeder extends Seeder
 {
+    protected ?Randomizer $rng = null;
+
     protected int $notesCreated = 0;
 
     /** Generated on top of the hand-written ones: 100 companies, 100 contacts, 30 of each activity. */
@@ -453,7 +458,7 @@ class DemoDataSeeder extends Seeder
         // The hand-written records above are the ones tests and the docs
         // refer to; the rest fills the lists to a realistic size. Seeded, so
         // every installation gets the same demo.
-        mt_srand(2026);
+        $this->rng = new Randomizer(new Mt19937(2026));
 
         $activities = $this->generate([$admin, $manager, $employee], [$managerContact, $employeeContact], $admin);
 
@@ -462,7 +467,7 @@ class DemoDataSeeder extends Seeder
         ]);
         $this->favoritesAndRecent(Demo::enabled() ? [$manager, $employee] : [$admin], $activities);
 
-        mt_srand();
+        $this->rng = null;
 
         $this->notes([
             [$ourCompany, $admin, 'Office hours', '<p>Monday to Friday, 8:00–16:00. The office is closed on public holidays.</p>', RecordPermission::Public, true],
@@ -520,9 +525,9 @@ class DemoDataSeeder extends Seeder
             // still gives the same demo data.
             $phone = $this->phone($prefix);
             $address = [
-                'address_1' => mt_rand(1, 180).' '.$this->pick(self::STREETS),
+                'address_1' => $this->rand(1, 180).' '.$this->pick(self::STREETS),
                 'city' => $city,
-                'postal_code' => sprintf('%05d', mt_rand(10000, 99999)),
+                'postal_code' => sprintf('%05d', $this->rand(10000, 99999)),
                 'country' => $country,
             ];
 
@@ -546,7 +551,7 @@ class DemoDataSeeder extends Seeder
             $first = $this->pick(self::FIRST_NAMES);
             $last = self::LAST_NAMES[$i - 1];
             // A few people with no company, as in any address book.
-            $company = mt_rand(1, 10) === 1 ? null : $this->pick($companies);
+            $company = $this->rand(1, 10) === 1 ? null : $this->pick($companies);
             $domain = $company ? $domains[$company->id] : 'mail.test';
 
             // Contact e-mail is unique too: a namesake at the same company
@@ -605,12 +610,12 @@ class DemoDataSeeder extends Seeder
 
             $deadline = $i <= 10
                 ? today()->addDays(intdiv($i - 1, 2))->setTime($i % 2 ? 10 : 14, 0)
-                : now()->startOfDay()->addDays(mt_rand(-20, 40))->setTime(mt_rand(8, 17), $this->pick([0, 30]));
+                : now()->startOfDay()->addDays($this->rand(-20, 40))->setTime($this->rand(8, 17), $this->pick([0, 30]));
             $tasks[] = $task = $this->record(Task::class, [
                 'title' => strtr($this->pick(self::TASK_TITLES), $words),
                 'description' => $this->pick(self::NOTES),
                 'deadline' => $deadline,
-                'timeless' => mt_rand(1, 4) === 1,
+                'timeless' => $this->rand(1, 4) === 1,
                 'status' => $i <= 10 ? RecordStatus::Open : $status($deadline->isPast()),
                 'priority' => $priority(),
                 'permission' => $permission(),
@@ -625,7 +630,7 @@ class DemoDataSeeder extends Seeder
 
             $calledAt = $i <= 5
                 ? today()->addDays($i - 1)->setTime(13, 0)
-                : now()->startOfDay()->addDays(mt_rand(-30, 7))->setTime(mt_rand(8, 17), $this->pick([0, 15, 30, 45]));
+                : now()->startOfDay()->addDays($this->rand(-30, 7))->setTime($this->rand(8, 17), $this->pick([0, 15, 30, 45]));
             $calls[] = $call = $this->record(PhoneCall::class, [
                 'subject' => strtr($this->pick(self::CALL_SUBJECTS), $words),
                 'description' => $this->pick(self::NOTES),
@@ -643,12 +648,12 @@ class DemoDataSeeder extends Seeder
             $callEmployee = $i <= 5 && $setupUserContact ? $setupUserContact : $this->pick($staff);
             $call->employees()->attach($callEmployee->id);
 
-            $date = $i <= 5 ? today()->addDays($i <= 3 ? 0 : 1) : today()->addDays(mt_rand(-15, 30));
+            $date = $i <= 5 ? today()->addDays($i <= 3 ? 0 : 1) : today()->addDays($this->rand(-15, 30));
             $meetings[] = $meeting = $this->record(Meeting::class, [
                 'title' => strtr($this->pick(self::MEETING_TITLES), $words),
                 'description' => $this->pick(self::NOTES),
                 'date' => $date->toDateString(),
-                'time' => $i <= 5 ? ['09:00', '12:00', '15:00', '09:00', '13:00'][$i - 1] : sprintf('%02d:%02d', mt_rand(8, 16), $this->pick([0, 30])),
+                'time' => $i <= 5 ? ['09:00', '12:00', '15:00', '09:00', '13:00'][$i - 1] : sprintf('%02d:%02d', $this->rand(8, 16), $this->pick([0, 30])),
                 'duration_minutes' => $this->pick([15, 30, 30, 45, 60, 60, 90]),
                 'status' => $i <= 5 ? RecordStatus::Open : $status($date->isPast()),
                 'priority' => $priority(),
@@ -657,7 +662,7 @@ class DemoDataSeeder extends Seeder
             ]);
             $meetingEmployees = $i <= 5 && $setupUserContact
                 ? [$setupUserContact->id]
-                : collect($staff)->random(mt_rand(1, count($staff)))->pluck('id')->all();
+                : collect($staff)->random($this->rand(1, count($staff)))->pluck('id')->all();
             $meeting->employees()->attach($meetingEmployees);
             $meeting->customers()->attach($contact->id);
             if ($company) {
@@ -699,9 +704,9 @@ class DemoDataSeeder extends Seeder
                         ? '<ul>'.implode('', array_map(fn (string $line): string => '<li>'.e($line).'</li>', $lines)).'</ul>'
                         : '<p>'.e($text).'</p>',
                     $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::Private]),
-                    $title !== null && mt_rand(1, 3) === 1,
+                    $title !== null && $this->rand(1, 3) === 1,
                     // Written over the last month, not all this second.
-                    now()->subDays(mt_rand(1, 30))->setTime(mt_rand(8, 17), mt_rand(0, 59)),
+                    now()->subDays($this->rand(1, 30))->setTime($this->rand(8, 17), $this->rand(0, 59)),
                 ]]);
             }
         }
@@ -734,10 +739,10 @@ class DemoDataSeeder extends Seeder
             $picked = [];
             foreach (collect($theirs)->groupBy(fn (Model $record): string => $record->getMorphClass()) as $ofKind) {
                 $ofKind = $ofKind->all();
-                shuffle($ofKind);
+                $ofKind = $this->rng()->shuffleArray($ofKind);
                 array_push($picked, ...array_slice($ofKind, 0, 4));
             }
-            shuffle($picked);
+            $picked = $this->rng()->shuffleArray($picked);
 
             foreach (array_slice($picked, 0, $list::LIMIT) as $record) {
                 $list::add($user, $record);
@@ -775,7 +780,7 @@ class DemoDataSeeder extends Seeder
             ] as $recordClass => $resource) {
                 $records = $candidates
                     ->filter(fn (Model $record): bool => $record instanceof $recordClass)
-                    ->shuffle()
+                    ->pipe(fn (Collection $records): Collection => collect($this->rng()->shuffleArray($records->values()->all())))
                     ->take(10);
 
                 foreach ($records as $record) {
@@ -1061,7 +1066,7 @@ class DemoDataSeeder extends Seeder
             $author = $users[$i % count($users)];
             // Every fifth one is a private message to the next person.
             $to = $i % 5 === 4 ? $users[($i + 1) % count($users)] : null;
-            $at = now()->subMinutes((count(self::SHOUTS) - $i) * mt_rand(40, 200));
+            $at = now()->subMinutes((count(self::SHOUTS) - $i) * $this->rand(40, 200));
 
             $shout = new $message;
             $shout->forceFill([
@@ -1124,14 +1129,28 @@ class DemoDataSeeder extends Seeder
      * @param  array<T>  $items
      * @return T
      */
+    /**
+     * The demo's own generator: seeded for the same demo every time, and
+     * apart from PHP's global one, which anything that saves a record may draw from.
+     */
+    protected function rng(): Randomizer
+    {
+        return $this->rng ??= new Randomizer;
+    }
+
+    protected function rand(int $min, int $max): int
+    {
+        return $this->rng()->getInt($min, $max);
+    }
+
     protected function pick(array $items): mixed
     {
-        return $items[mt_rand(0, count($items) - 1)];
+        return $items[$this->rand(0, count($items) - 1)];
     }
 
     protected function phone(string $prefix): string
     {
-        return $prefix.' '.mt_rand(200, 899).' '.mt_rand(100, 999).' '.sprintf('%03d', mt_rand(0, 999));
+        return $prefix.' '.$this->rand(200, 899).' '.$this->rand(100, 999).' '.sprintf('%03d', $this->rand(0, 999));
     }
 
     protected function prefixOf(?string $country): string

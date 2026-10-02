@@ -256,6 +256,7 @@ class OptimizeTest extends TestCase
         $this->get('/administration/about')
             ->assertOk()
             ->assertSee('PHP settings')
+            ->assertSee('PHP '.PHP_VERSION)
             ->assertSee('opcache.memory_consumption');
     }
 

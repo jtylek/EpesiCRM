@@ -107,6 +107,23 @@ class About extends Page
         ]);
     }
 
+    /** "PHP 8.2.12 · apache2handler · C:\xampp\php\php.ini", with a note when epesi needs a newer PHP. */
+    protected function phpRuntimeLine(): HtmlString
+    {
+        $php = PhpSettings::runtime();
+        $parts = [
+            '<strong>PHP '.e($php['version']).'</strong>',
+            e($php['sapi']),
+            $php['ini'] !== '' ? '<code>'.e($php['ini']).'</code>' : e(__('no php.ini loaded')),
+        ];
+
+        if (! $php['supported']) {
+            $parts[] = '<span style="color:var(--danger-600);font-weight:600">'.e(__('epesi needs PHP 8.2 or newer')).'</span>';
+        }
+
+        return new HtmlString(implode(' · ', $parts));
+    }
+
     /**
      * The web server's php.ini against the production recommendation
      * (PhpSettings), collapsed when everything meets it.
@@ -138,6 +155,7 @@ class About extends Page
             ->collapsible()
             ->collapsed($below === 0)
             ->schema([
+                Text::make($this->phpRuntimeLine())->weight(FontWeight::Medium),
                 Text::make(new HtmlString('<div style="overflow-x:auto"><table style="font-size:.875rem">'.$head.$html.'</table></div>')),
             ]);
     }

@@ -329,12 +329,12 @@ class RemindersTest extends TestCase
         $withDescription = $this->remind($described, '2026-09-24 08:00:00', [$me]);
         $without = $this->remind($bare, '2026-09-25 08:00:00', [$me]);
 
-        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool => str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
+        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool =>  str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
 
         Livewire::test(MyRemindersWidget::class)
             ->assertTableColumnExists('record', $tooltipContains('>Task</span>'), $withDescription)
             ->assertTableColumnExists('record', $tooltipContains('<strong>Call the bank</strong>'), $withDescription)
-            ->assertTableColumnExists('record', $tooltipContains('Ask about &lt;b&gt;fees&lt;/b&gt;<br />\nand the card'), $withDescription)
+            ->assertTableColumnExists('record', $tooltipContains("Ask about &lt;b&gt;fees&lt;/b&gt;<br />\nand the card"), $withDescription)
             ->assertTableColumnExists('record', $tooltipContains('Deadline:</strong> 2026-09-25 09:00'), $withDescription)
             ->assertTableColumnExists('record', $tooltipContains('<strong>Someday</strong>'), $without)
             ->assertTableColumnExists('remind_at', $tooltipContains('<strong>Call the bank</strong>'), $withDescription);

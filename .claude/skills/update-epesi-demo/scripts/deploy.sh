@@ -150,6 +150,7 @@ deploy)
 test -f "\$LIVE/.env" && test -f "\$LIVE/artisan" || { echo "No epesi-laravel demo at \$LIVE yet: use first-deploy." >&2; exit 1; }
 $(unpack_staging)
 cp -p "\$LIVE/.env" "\$DEPLOY/staging/.env"
+[ -f "\$LIVE/.user.ini" ] && cp -p "\$LIVE/.user.ini" "\$DEPLOY/staging/.user.ini" || true
 cd "\$LIVE"
 \$PHP artisan down --render=epesi.demo-resetting --retry=60 || \$PHP artisan down --retry=60
 # The live storage/ (installed marker, logs, the down file) replaces the skeleton.

@@ -8,6 +8,8 @@ use App\Filament\Concerns\TranslatesPageLabels;
 use App\Support\QuickAccess;
 use BackedEnum;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -45,7 +47,10 @@ class QuickAccessSettings extends Page
 
     public function mount(): void
     {
-        $this->form->fill(['items' => QuickAccess::selected()]);
+        $this->form->fill([
+            'enabled' => QuickAccess::enabled(),
+            'items' => QuickAccess::selected(),
+        ]);
     }
 
     public function form(Schema $schema): Schema
@@ -59,7 +64,12 @@ class QuickAccessSettings extends Page
             ->components([
                 Section::make(__('Quick Access'))
                     ->schema([
+                        Toggle::make('enabled')
+                            ->label(__('Show Quick Access'))
+                            ->helperText(__('Show the module icons in the top bar.'))
+                            ->live(),
                         CheckboxList::make('items')
+                            ->hidden(fn (Get $get): bool => ! $get('enabled'))
                             ->label(__('Modules'))
                             ->options($options)
                             ->columns(['default' => 1, 'sm' => 2, 'lg' => 3])
@@ -84,7 +94,10 @@ class QuickAccessSettings extends Page
 
     public function save(): void
     {
-        $chosen = (array) ($this->form->getState()['items'] ?? []);
+        $state = $this->form->getState();
+        $chosen = (array) ($state['items'] ?? QuickAccess::selected());
+
+        QuickAccess::saveEnabled((bool) ($state['enabled'] ?? true));
 
         if (count($chosen) > QuickAccess::MAX) {
             Notification::make()

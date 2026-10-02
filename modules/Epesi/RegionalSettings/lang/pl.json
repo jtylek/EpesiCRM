@@ -3,6 +3,10 @@
     "Date format": "Format daty",
     "Default language": "Domyślny język",
     "Defaults for everyone; each user can change their own under Settings.": "Ustawienia domyślne dla wszystkich; każdy użytkownik może zmienić własne w Ustawieniach.",
+    "Gregorian": "Gregoriański",
+    "Hijri": "Hidżra",
+    "Hijri calendar": "Kalendarz Hidżry",
+    "Jalali (Solar Hijri)": "Dżalali (słoneczna Hidżra)",
     "Language": "Język",
     "Location": "Lokalizacja",
     "Regional Settings": "Ustawienia regionalne",
@@ -10,6 +14,8 @@
     "Regional settings saved": "Zapisano ustawienia regionalne",
     "Same as the system (:language)": "Jak w systemie (:language)",
     "State / Province": "Województwo",
+    "Tabular / civil": "Tabelaryczny / cywilny",
     "Time format": "Format godziny",
+    "Umm al-Qura": "Umm al-Qura",
     "Your Location": "Twoja lokalizacja"
 }

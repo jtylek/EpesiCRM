@@ -99,8 +99,10 @@ class RecordBrowsingTest extends TestCase
         Livewire::test(ListCompanies::class)
             ->assertSet('activeTab', 'all')
             ->assertSeeHtml('epesi-browse-tabs')
-            ->assertSeeHtml("\$set('activeTab', 'recent')")
+            ->assertSeeHtml('wire:model.live="activeTab"')
+            ->assertSeeHtml('<option value="recent"')
             ->assertTableColumnHidden('recordbrowser_visited_at')
+            ->call('removeTableFilters') // lists open on "My records", which these companies aren't
             ->set('activeTab', 'recent')
             ->assertCanSeeTableRecords([$beta, $alpha], inOrder: true)
             ->assertCanNotSeeTableRecords([$never])
@@ -111,6 +113,7 @@ class RecordBrowsingTest extends TestCase
 
         Livewire::test(ListCompanies::class)
             ->assertSet('activeTab', 'recent')
+            ->call('removeTableFilters')
             ->sortTable('company_name')
             ->assertCanSeeTableRecords([$alpha, $beta], inOrder: true);
 

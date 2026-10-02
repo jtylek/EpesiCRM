@@ -53,6 +53,9 @@ unaffected.
 - Additional PHP and browser regression cases now cover Jalali leap-year transitions, Hijri
   month boundaries, invalid month days, and a date where Umm al-Qura differs from civil Hijri.
   They pass on local PHP ICU 71.1 and Node ICU 78.3; deployment ICU versions still need checking.
+- A direct Edge 154 browser probe matched all 13 Jalali, Umm al-Qura, and civil Hijri reference
+  fixtures, including the supported storage endpoints and Umm al-Qura table bounds. This verifies
+  the local browser runtime only; deployed browser/ICU combinations still need checking.
 - A regional-timezone regression confirms date-only Jalali values retain their stored day while
   timestamps render on the user's local day and time.
 - Focused tests now pass for Attachment Notes date filtering, mail date filters, Meeting and Task

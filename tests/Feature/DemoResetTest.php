@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\LoginAudit;
+use App\Models\StoredFile;
 use App\Models\User;
 use App\Services\DemoReset;
 use App\Services\FileStorage;
@@ -82,7 +83,10 @@ class DemoResetTest extends TestCase
         $this->assertFalse(Company::query()->withoutGlobalScopes()->where('company_name', 'Visitor Ltd')->exists());
         $this->assertTrue(Company::query()->withoutGlobalScopes()->where('company_name', 'Acme Corp')->exists(), 'the demo data is back');
         $this->assertFalse(User::query()->where('email', 'visitor@example.test')->exists());
-        $this->assertSame([], FileStorage::disk()->allFiles());
+        $this->assertFalse(FileStorage::disk()->exists('ab/cd/upload.bin'), 'the visitor\'s upload is gone');
+        $this->assertTrue(StoredFile::query()->where('name', 'like', 'demo-note-%')->exists(), 'the demo notes have their files');
+        StoredFile::query()->where('name', 'like', 'demo-note-%')->get()
+            ->each(fn (StoredFile $file) => $this->assertTrue($file->isOnDisk(), "{$file->name} is on disk"));
 
         $this->assertSame('203.0.113.7', LoginAudit::query()->findOrFail($kept->id)->ip_address, 'same id');
         $this->assertSame($employee->id, LoginAudit::query()->findOrFail($kept->id)->user_id, 'the demo users come back with the same ids');

@@ -45,7 +45,7 @@ class MyRecordsButtonTest extends TestCase
             ->call('removeTableFilters');
 
         $this->assertSame(['label' => 'My records', 'active' => false], $list->instance()->getMyRecordsButton());
-        $this->assertSame(['value' => 'other'], $list->instance()->getInactiveToggle());
+        $this->assertSame(['value' => 'all'], $list->instance()->getInactiveToggle());
 
         $list->call('toggleMyRecords')
             ->assertCanSeeTableRecords([$mine, $done])

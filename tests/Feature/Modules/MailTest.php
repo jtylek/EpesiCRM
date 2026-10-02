@@ -610,6 +610,8 @@ class MailTest extends TestCase
         app(MailArchiver::class)->archive(Eml::make(), $this->user);
 
         $this->assertTrue(UnreadMailWidget::canView());
+        // Not on the default dashboard: the user adds it once they have a mailbox.
+        Livewire::test(\App\Filament\Pages\Dashboard::class)->callAction('addApplet', ['widget' => UnreadMailWidget::class]);
         $this->get('/')->assertOk()->assertSeeLivewire(UnreadMailWidget::class);
 
         Livewire::test(UnreadMailWidget::class)
