@@ -20,6 +20,7 @@ use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -99,7 +100,7 @@ class AttachmentResource extends Resource
     {
         $types = array_values(array_filter(array_map(
             fn (string $alias): ?string => Relation::getMorphedModel($alias),
-            AttachmentsServiceProvider::$recordTypes,
+            AttachmentsServiceProvider::recordTypes(),
         )));
 
         return parent::getEloquentQuery()->where(fn (Builder $query): Builder => $query
@@ -163,7 +164,7 @@ class AttachmentResource extends Resource
                 ])
                 ->schema([
                     Select::make('type')
-                        ->options(fn (): array => collect(AttachmentsServiceProvider::$recordTypes)
+                        ->options(fn (): array => collect(AttachmentsServiceProvider::recordTypes())
                             ->mapWithKeys(fn (string $type): array => [$type => Str::headline($type)])
                             ->all())
                         ->required()
@@ -297,19 +298,7 @@ class AttachmentResource extends Resource
                     ->label('Has Attachments')
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->whereJsonLength('epesi_attachments.files', '>', 0)),
-                SelectFilter::make('edited_by')
-                    ->label('Edited by')
-                    ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
-                    ->searchable()
-                    ->query(fn (Builder $query, array $data): Builder => $query
-                        ->when($data['value'] ?? null, fn (Builder $query, $userId): Builder => $query
-                            ->where(fn (Builder $query): Builder => $query
-                                ->whereHas('latestEdit', fn (Builder $query): Builder => $query
-                                    ->where('causer_type', (new User)->getMorphClass())
-                                    ->where('causer_id', $userId))
-                                ->orWhere(fn (Builder $query): Builder => $query
-                                    ->whereDoesntHave('latestEdit')
-                                    ->where('epesi_attachments.created_by', $userId))))),
+                static::editedByFilter(),
                 Filter::make('updated_at')
                     ->label('Edited on')
                     ->schema([
@@ -333,12 +322,30 @@ class AttachmentResource extends Resource
                         return $indicators;
                     }),
             ] : [
+                static::editedByFilter(),
                 Filter::make('sticky')
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->where('epesi_attachments.sticky', true)),
             ])
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->toolbarActions([]);
+    }
+
+    protected static function editedByFilter(): SelectFilter
+    {
+        return SelectFilter::make('edited_by')
+            ->label('Edited by')
+            ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+            ->searchable()
+            ->query(fn (Builder $query, array $data): Builder => $query
+                ->when($data['value'] ?? null, fn (Builder $query, $userId): Builder => $query
+                    ->where(fn (Builder $query): Builder => $query
+                        ->whereHas('latestEdit', fn (Builder $query): Builder => $query
+                            ->where('causer_type', (new User)->getMorphClass())
+                            ->where('causer_id', $userId))
+                        ->orWhere(fn (Builder $query): Builder => $query
+                            ->whereDoesntHave('latestEdit')
+                            ->where('epesi_attachments.created_by', $userId)))));
     }
 
     public static function getRecordTitle(?Model $record): string
@@ -450,7 +457,7 @@ class AttachmentResource extends Resource
      */
     public static function findRecord(string $type, mixed $id): ?Model
     {
-        $class = in_array($type, AttachmentsServiceProvider::$recordTypes, true) ? Relation::getMorphedModel($type) : null;
+        $class = in_array($type, AttachmentsServiceProvider::recordTypes(), true) ? Relation::getMorphedModel($type) : null;
 
         return $class && is_scalar($id) ? $class::query()->find($id) : null;
     }
@@ -516,7 +523,7 @@ class AttachmentResource extends Resource
      */
     protected static function editableLinks(Attachment $note): Collection
     {
-        $types = array_filter(AttachmentsServiceProvider::$recordTypes, fn (string $type): bool => Relation::getMorphedModel($type) !== null);
+        $types = array_filter(AttachmentsServiceProvider::recordTypes(), fn (string $type): bool => Relation::getMorphedModel($type) !== null);
 
         return $note->links()
             ->whereIn('attachable_type', $types)
@@ -534,7 +541,7 @@ class AttachmentResource extends Resource
      */
     protected static function searchRecords(string $type, string $search): array
     {
-        $class = in_array($type, AttachmentsServiceProvider::$recordTypes, true) ? Relation::getMorphedModel($type) : null;
+        $class = in_array($type, AttachmentsServiceProvider::recordTypes(), true) ? Relation::getMorphedModel($type) : null;
         $resource = $class ? Filament::getModelResource($class) : null;
 
         if ($resource === null) {
@@ -620,7 +627,7 @@ class AttachmentResource extends Resource
             }
         }
 
-        $editedOn = e($record->updated_at?->translatedFormat('M j, Y H:i:s') ?? '');
+        $editedOn = e($record->updated_at ? RegionalSetting::toUser($record->updated_at)->translatedFormat(RegionalSetting::dateTimeFormat(true)) : '');
         $editedBy = $record->latestEdit ? $record->latestEdit->causer : $record->creator;
         $editor = $editedBy instanceof User ? ' <span class="epesi-note-meta-by">'.e($editedBy->name).'</span>' : '';
         $lines[] = static::metaLine(__('Edited on'), $editedOn.$editor);
@@ -672,6 +679,7 @@ class AttachmentResource extends Resource
         $downloadUrl = route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey()]);
         $viewUrl = match (true) {
             static::isMarkdown($file) => route('epesi.attachments.markdown', ['attachment' => $record->getKey(), 'file' => $file->getKey()]),
+            static::isHtml($file) => route('epesi.attachments.html', ['attachment' => $record->getKey(), 'file' => $file->getKey()]),
             $file->isPreviewable() => route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey(), 'preview' => 1]),
             default => null,
         };
@@ -703,6 +711,11 @@ class AttachmentResource extends Resource
     protected static function isMarkdown(StoredFile $file): bool
     {
         return in_array(strtolower(pathinfo($file->name, PATHINFO_EXTENSION)), ['md', 'markdown'], true);
+    }
+
+    protected static function isHtml(StoredFile $file): bool
+    {
+        return in_array(strtolower(pathinfo($file->name, PATHINFO_EXTENSION)), ['html', 'htm'], true);
     }
 
     /**

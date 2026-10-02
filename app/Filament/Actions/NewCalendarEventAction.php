@@ -4,6 +4,7 @@ namespace App\Filament\Actions;
 
 use App\Support\Calendar\CalendarRegistry;
 use Carbon\Carbon;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
 
@@ -42,7 +43,7 @@ class NewCalendarEventAction
 
                 $date = isset($arguments['date'])
                     ? Carbon::parse($arguments['date'])
-                    : now()->addHour()->startOfHour();
+                    : RegionalSetting::nowAsWallClock()->addHour()->startOfHour();
 
                 $action->redirect($provider::calendarCreateUrl($date, (bool) ($arguments['allDay'] ?? false)));
             });

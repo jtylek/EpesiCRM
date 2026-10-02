@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'epesi'),
 
     /*
     |--------------------------------------------------------------------------
@@ -99,9 +99,23 @@ return [
     'configured_locale' => env('APP_LOCALE', 'en'),
 
     'available_locales' => [
+        'ar' => 'العربية',
+        'de' => 'Deutsch',
         'en' => 'English',
+        'es' => 'Español',
+        'fr' => 'Français',
+        'it' => 'Italiano',
+        'ja' => '日本語',
         'pl' => 'Polski',
+        'pt' => 'Português',
+        'ru' => 'Русский',
+        'zh' => '中文',
     ],
+
+    // The translations skill's script, which `epesi:package --translate` runs
+    // for every language above (the DeepL pass; its key stays with the
+    // script, never in this .env).
+    'translations_script' => env('TRANSLATIONS_SCRIPT'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

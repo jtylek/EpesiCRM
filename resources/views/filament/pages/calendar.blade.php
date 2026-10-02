@@ -14,5 +14,8 @@
         x-init="window.initEpesiCalendar($el, $wire)"
         id="epesi-calendar"
         data-locale="{{ app()->getLocale() }}"
+        data-timezone="{{ \Epesi\Modules\RegionalSettings\Models\RegionalSetting::timezoneName() }}"
+        data-date-format="{{ \Epesi\Modules\RegionalSettings\Models\RegionalSetting::dateFormat() }}"
+        data-hour12="{{ str_contains(\Epesi\Modules\RegionalSettings\Models\RegionalSetting::timeFormat(), 'A') ? 1 : 0 }}"
     ></div>
 </x-filament-panels::page>

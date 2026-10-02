@@ -9,22 +9,22 @@ return new class extends Migration
     /**
      * Port of Epesi's CRM_PhoneCall "phonecall" recordset (CRM_PhoneCallInstall::install()).
      *
-     * Simplified from the source: Epesi's Customer field is a "crm_company_contact"
-     * type (pick a whole Company or one Contact) with a chained phone-number
-     * select driven off whichever is picked; here Customer is a plain Contact
-     * FK and the phone number is a single free-text field — a real, disclosed
-     * gap, not an oversight, since a polymorphic Company-or-Contact selection
-     * has no clean Filament relationship to hang a form field off. Epesi's
-     * "Related" cross-record links, Watchdog notify-on-change subscriptions,
-     * and the Calendar-module event handler are not ported either — none of
-     * those source modules exist in this port yet.
+     * Simplified from the source: the phone number is a single free-text
+     * field rather than Epesi's chained phone-number select driven off the
+     * Customer's own numbers. Customer itself (Epesi's "crm_company_contact"
+     * type, a Company or a Contact) is `customer_type`/`customer_id`, a
+     * plain morphTo (Field::customer()) — nullable, since "Other Customer"
+     * lets a call be logged against someone not in the system. Epesi's
+     * Watchdog notify-on-change subscriptions and the Calendar-module event
+     * handler are not ported either — neither source module exists in this
+     * port yet.
      */
     public function up(): void
     {
         Schema::create('phone_calls', function (Blueprint $table) {
             $table->id();
             $table->string('subject');
-            $table->foreignId('contact_id')->nullable()->constrained()->nullOnDelete();
+            $table->nullableMorphs('customer');
             $table->boolean('other_customer')->default(false);
             $table->string('other_customer_name')->nullable();
             $table->string('phone_number')->nullable();

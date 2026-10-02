@@ -152,8 +152,11 @@ Most of these come from models living in a module rather than `app/`.
   nothing. Each CRM module registers its own alias from `register()`; `AppServiceProvider`
   still calls `enforceMorphMap()`, which merges.
 - **A `Field` means a real column.** An accessor is not a field. Meeting's `starts_at`
-  (date + time combined) is rendered by giving `date` a `viewUsing()` that reads the accessor,
-  not by declaring `starts_at`. `recordset:check` enforces this and will catch it.
+  (date + time combined) is rendered by giving `date` a `viewUsing()` and `columnUsing()` that
+  read the accessor, not by declaring `starts_at`. Its form uses one Date and Time picker,
+  hydrated from both columns, and splits the submitted value back into `date` and hidden
+  `time`. Calendar links can still supply separate `date` and `time` query parameters.
+  `recordset:check` enforces the real-column constraint.
 - **`columnUsing()` returning a *fresh* column discards what the engine set**, including
   `toggleable(isToggledHiddenByDefault:)`. Prefer modifying the component you are handed;
   if you must build a new one, re-apply the toggle state explicitly.

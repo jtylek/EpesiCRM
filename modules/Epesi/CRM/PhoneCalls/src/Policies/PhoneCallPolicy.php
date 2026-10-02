@@ -4,6 +4,7 @@ namespace Epesi\Modules\CRM\PhoneCalls\Policies;
 
 use App\Enums\RecordPermission;
 use App\Models\User;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 
 /**
@@ -47,7 +48,7 @@ class PhoneCallPolicy
         }
 
         return $phoneCall->employees()->where('user_id', $user->id)->exists()
-            || $phoneCall->contact?->user_id === $user->id;
+            || ($phoneCall->customer instanceof Contact && $phoneCall->customer->user_id === $user->id);
     }
 
     public function delete(User $user, PhoneCall $phoneCall): bool

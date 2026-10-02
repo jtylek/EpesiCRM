@@ -16,6 +16,7 @@ class DashboardTab extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'key',
         'pos',
     ];
 
@@ -24,6 +25,15 @@ class DashboardTab extends Model
         return [
             'pos' => 'integer',
         ];
+    }
+
+    /** The key of the tab only the Notes applet lives on. */
+    public const NOTES = 'notes';
+
+    /** Main, Agenda and Notes: part of every dashboard, and never deleted. */
+    public function isSystem(): bool
+    {
+        return $this->key !== null;
     }
 
     /**

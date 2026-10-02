@@ -267,6 +267,7 @@ abstract class Importer
                 $attributes = array_merge($attributes, $this->decodeTrackedValue($legacyField, $row->{"f_{$legacyField}"} ?? null));
             }
             $attributes = array_merge($attributes, $this->extraAttributes($row));
+            $attributes = ActivityTimes::rounded((new $modelClass)->getTable(), $attributes);
             $attributes = $this->withoutTakenValues($row, $attributes, $summary);
 
             /** @var Model $model */

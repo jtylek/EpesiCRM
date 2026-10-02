@@ -198,7 +198,7 @@ class CustomFieldForm
                     Select::make('minutes_step')
                         ->label('Minutes interval')
                         ->options([1 => '1', 2 => '2', 5 => '5', 10 => '10', 15 => '15', 20 => '20', 30 => '30', 60 => __('Full hours')])
-                        ->default(1)
+                        ->default(5)
                         ->selectablePlaceholder(false)
                         ->statePath('params.minutes_step')
                         ->helperText(__('Times can be picked this many minutes apart.'))

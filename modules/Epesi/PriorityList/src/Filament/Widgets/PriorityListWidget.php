@@ -4,11 +4,23 @@ namespace Epesi\Modules\PriorityList\Filament\Widgets;
 
 use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\IsApplet;
+use App\Models\User;
+use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\PriorityList\Models\Entry;
+use Epesi\Modules\PriorityList\Models\PriorityListPreference;
 use Epesi\Modules\PriorityList\PriorityList;
+use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -20,8 +32,10 @@ use Illuminate\Support\Facades\Auth;
  * It has no "how many to show" setting: the list never holds more than
  * PriorityList::LIMIT, so all of it is shown.
  */
-class PriorityListWidget extends Widget implements Applet
+class PriorityListWidget extends Widget implements Applet, HasActions, HasSchemas
 {
+    use InteractsWithActions;
+    use InteractsWithSchemas;
     use IsApplet;
 
     protected string $view = 'epesi-priority-list::widget';
@@ -32,7 +46,9 @@ class PriorityListWidget extends Widget implements Applet
 
     public static function canView(): bool
     {
-        return Auth::user()?->hasAnyRole(PriorityList::ROLES) ?? false;
+        $user = Auth::user();
+
+        return $user instanceof User && $user->hasAnyRole(PriorityList::ROLES);
     }
 
     public static function getAppletCaption(): string
@@ -50,7 +66,13 @@ class PriorityListWidget extends Widget implements Applet
      */
     public function getPriorityEntries(): Collection
     {
-        return PriorityList::entries(Auth::user())->with('record')->get();
+        return PriorityList::entries(Auth::user())
+            ->with(['record' => fn (MorphTo $morphTo) => $morphTo->morphWith([
+                Task::class => ['customers', 'customerCompanies'],
+                Meeting::class => ['customers', 'customerCompanies'],
+                PhoneCall::class => ['customer'],
+            ])])
+            ->get();
     }
 
     /** wire:sort's handler: $position is the entry's index after the drop. */
@@ -69,6 +91,51 @@ class PriorityListWidget extends Widget implements Applet
         PriorityList::complete($record);
 
         Notification::make()->title(__('Done: :record', ['record' => $label]))->success()->send();
+    }
+
+    public function requestComplete(int $entry): void
+    {
+        $record = $this->ownPriorityEntry($entry)->record;
+        $user = Auth::user();
+
+        abort_unless($user instanceof User && PriorityList::canComplete($user, $record), 403);
+
+        if (PriorityListPreference::forUser($user)->suppress_completion_confirmation) {
+            $this->completePriority($entry);
+
+            return;
+        }
+
+        $this->mountAction('confirmCompletion', ['entry' => $entry]);
+    }
+
+    public function confirmCompletionAction(): Action
+    {
+        return Action::make('confirmCompletion')
+            ->modal()
+            ->modalHeading(fn (Action $action): string => __('Close :record?', [
+                'record' => PriorityList::label($this->ownPriorityEntry((int) $action->getArguments()['entry'])->record),
+            ]))
+            ->modalDescription(__('Its status becomes Closed, and it leaves every priority list it is on.'))
+            ->modalSubmitActionLabel(__('Close'))
+            ->color('success')
+            ->schema([
+                Checkbox::make('suppress_completion_confirmation')
+                    ->label('Do not show it again'),
+            ])
+            ->action(function (array $data, Action $action): void {
+                $entryId = (int) ($action->getArguments()['entry'] ?? 0);
+                $entry = $this->ownPriorityEntry($entryId);
+                $user = Auth::user();
+
+                abort_unless($user instanceof User && PriorityList::canComplete($user, $entry->record), 403);
+
+                if ($data['suppress_completion_confirmation'] ?? false) {
+                    PriorityListPreference::forUser($user)->update(['suppress_completion_confirmation' => true]);
+                }
+
+                $this->completePriority($entryId);
+            });
     }
 
     public function removePriority(int $entry): void

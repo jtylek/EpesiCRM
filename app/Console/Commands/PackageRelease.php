@@ -26,7 +26,10 @@ class PackageRelease extends Command
 {
     protected $signature = 'epesi:package
         {--out= : output directory (default: storage/app/private/releases)}
-        {--folder= : a folder to put everything in inside the zip (default: none, the files unpack where the zip is extracted)}';
+        {--folder= : a folder to put everything in inside the zip (default: none, the files unpack where the zip is extracted)}
+        {--translate : first fill every offered language (old epesi\'s translations, then DeepL) and run the strict translation tests}
+        {--legacy= : with --translate, an old epesi checkout to import community translations from first}
+        {--test : first run the whole test suite}';
 
     protected $description = 'Build a release zip (application, vendor/ and built assets) that installs from the browser';
 
@@ -78,12 +81,37 @@ class PackageRelease extends Command
             $this->components->warn(count($clones).' packages in vendor/ are git clones, with their tests and docs (a zip about three times bigger). See "Building the package" in AI-shared/Epesi-Laravel-distro.md to replace them with their release contents.');
         }
 
+        if (($this->option('translate') || $this->option('test')) && ! is_dir(base_path('vendor/phpunit'))) {
+            $this->components->error('--translate and --test run the tests, which need the development packages. Run them before "composer install --no-dev", or package without them.');
+
+            return self::FAILURE;
+        }
+
+        if ($this->option('translate') && ! $this->translate()) {
+            return self::FAILURE;
+        }
+
+        if ($this->option('test') && ! $this->runTests(null, 'The test suite failed: no package was written.')) {
+            return self::FAILURE;
+        }
+
         $files = $this->applicationFiles();
 
         if ($files === null) {
             $this->components->error('Could not list the application\'s files with git. Build the release from a git checkout.');
 
             return self::FAILURE;
+        }
+
+        if ($this->option('translate')) {
+            // A language file the pass created isn't in git yet, but belongs
+            // in this release.
+            $new = $this->untrackedTranslationFiles();
+            $files = array_values(array_unique([...$files, ...$new]));
+
+            if ($new !== []) {
+                $this->components->warn(count($new).' new translation files are packed but not committed yet: commit them, so the next release has them too.');
+            }
         }
 
         $out = rtrim($this->option('out') ?: storage_path('app/private/releases'), '/\\');
@@ -138,6 +166,93 @@ class PackageRelease extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The translations skill, for every offered language but English: old
+     * epesi's community translations into the reviewed <code>.json (with
+     * --legacy), then the DeepL pass into <code>.machine.json, then the
+     * translation tests with TRANSLATIONS_STRICT=1. See
+     * AI-shared/Epesi-Laravel-Translations.md.
+     */
+    protected function translate(): bool
+    {
+        $script = (string) config('app.translations_script');
+
+        if ($script === '' || ! is_file($script)) {
+            $this->components->error('Set TRANSLATIONS_SCRIPT in .env to the translations skill\'s epesi_translation_coverage.py.');
+
+            return false;
+        }
+
+        // The DeepL key stays with the script, in the private notes; the
+        // script stops with its own message when it has none.
+        $locales = array_values(array_diff(array_keys((array) config('app.available_locales')), ['en']));
+        $legacy = (string) $this->option('legacy');
+
+        foreach ($locales as $locale) {
+            $this->components->info("Translating {$locale}");
+
+            // A language epesi didn't have fails the import; DeepL still covers it.
+            if ($legacy !== '' && $this->call('lang:import-epesi', ['locale' => $locale, 'path' => $legacy]) !== self::SUCCESS) {
+                $this->components->warn("No community translations imported for {$locale}.");
+            }
+
+            $machine = storage_path("framework/testing/deepl-{$locale}.json");
+
+            if (! $this->runStep(['python', $script, 'translate', $locale]) || ! $this->runStep(['python', $script, 'merge', $locale, $machine])) {
+                $this->components->error("Translating {$locale} failed: no package was written.");
+
+                return false;
+            }
+        }
+
+        return $this->runTests('TranslationsTest', 'The strict translation tests failed: no package was written.');
+    }
+
+    /**
+     * The tests, with TRANSLATIONS_STRICT=1 so an untranslated string fails.
+     */
+    protected function runTests(?string $filter, string $failure): bool
+    {
+        $command = [PHP_BINARY, 'artisan', 'test', ...($filter === null ? [] : ["--filter={$filter}"])];
+
+        if (! $this->runStep($command, ['TRANSLATIONS_STRICT' => '1'])) {
+            $this->components->error($failure);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param  list<string>  $command
+     * @param  array<string, string>  $env
+     */
+    protected function runStep(array $command, array $env = []): bool
+    {
+        $process = new Process($command, base_path(), $env === [] ? null : [...getenv(), ...$env], null, null);
+        $process->run(fn (string $type, string $buffer) => $this->output->write($buffer));
+
+        return $process->isSuccessful();
+    }
+
+    /**
+     * Language files under any lang/ that git doesn't track yet, but ignores
+     * neither: a language the translation pass just started.
+     *
+     * @return list<string>
+     */
+    protected function untrackedTranslationFiles(): array
+    {
+        $process = new Process(['git', 'ls-files', '-z', '--others', '--exclude-standard'], base_path());
+        $process->run();
+
+        return array_values(array_filter(
+            explode("\0", $process->getOutput()),
+            fn (string $path): bool => preg_match('#(^|/)lang/[^/]+\.json$#', $path) === 1,
+        ));
     }
 
     /**

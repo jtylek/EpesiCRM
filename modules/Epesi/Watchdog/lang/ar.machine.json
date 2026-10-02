@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who تم الإنشاء.",
+    ":who deleted.": ":who تم حذفه.",
+    ":who restored.": ":who تم استعادته.",
+    ":who updated.": ":who تم التحديث.",
+    ":who updated: :fields.": ":who تاريخ التحديث: :fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "احصل على إشعارات بالتغييرات التي تطرأ على كل سجل من الأنواع المختارة، وليس فقط تلك التي تراقبها.",
+    "Changed by": "تم التغيير بواسطة",
+    "Changes": "التغييرات",
+    "Has new changes": "تضمن تغييرات جديدة",
+    "Last change": "آخر تعديل",
+    "Record": "السجلات",
+    "Record types": "أنواع السجلات",
+    "Stopped watching this record": "توقف عن مراقبة هذه السجلات",
+    "System": "النظام",
+    "Watch record types": "أنواع سجلات Watch",
+    "Watched records": "السجلات المراقبة",
+    "Watching": "المراقبة",
+    "Watching this record": "مراقبة هذه السجلات"
+}

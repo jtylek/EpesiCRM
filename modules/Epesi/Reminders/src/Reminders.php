@@ -4,14 +4,17 @@ namespace Epesi\Modules\Reminders;
 
 use App\Models\User;
 use App\Support\Locale\Locales;
+use BackedEnum;
 use Carbon\CarbonInterface;
 use Closure;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Models\ReminderRecipient;
 use Epesi\Modules\Reminders\Notifications\ReminderMail;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -184,6 +187,14 @@ class Reminders
         return $type.': '.(filled($title) ? strip_tags((string) $title) : '#'.$record->getKey());
     }
 
+    /** The recordset's navigation icon, shown beside its type in My reminders. */
+    public static function typeIcon(Model $record): string|BackedEnum|Htmlable|null
+    {
+        $resource = static::resourceFor($record);
+
+        return $resource ? $resource::getNavigationIcon() : null;
+    }
+
     public static function url(Model $record): ?string
     {
         $resource = static::resourceFor($record);
@@ -281,7 +292,7 @@ class Reminders
         $start = static::startOf($record);
 
         return collect([
-            $start ? __('Starts :date (:relative)', ['date' => $start->format('Y-m-d H:i'), 'relative' => $start->diffForHumans()]) : null,
+            $start ? __('Starts :date (:relative)', ['date' => RegionalSetting::display($start), 'relative' => $start->diffForHumans()]) : null,
             filled($reminder->message) ? $reminder->message : null,
         ])->filter()->implode("\n");
     }

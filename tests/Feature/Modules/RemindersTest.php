@@ -5,10 +5,13 @@ namespace Tests\Feature\Modules;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Closure;
+use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\Pages\ViewMeeting;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
+use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Reminders\Filament\RelationManagers\RemindersRelationManager;
 use Epesi\Modules\Reminders\Filament\Widgets\MyRemindersWidget;
@@ -273,7 +276,7 @@ class RemindersTest extends TestCase
             ->assertCanSeeTableRecords([$due, $upcoming], inOrder: true)
             ->assertCanNotSeeTableRecords([$dismissed, $someoneElses, $invisible])
             ->assertSee('Task: Call the bank')
-            ->assertSee('Overdue one')
+            ->assertDontSee('Overdue one')
             ->callTableAction('dismiss', $due)
             ->assertCanNotSeeTableRecords([$due]);
 
@@ -282,23 +285,42 @@ class RemindersTest extends TestCase
         $this->get('/')->assertOk()->assertSeeLivewire(MyRemindersWidget::class);
     }
 
-    public function test_the_widget_shows_the_description_of_the_record_on_hover(): void
+    public function test_the_widget_uses_the_recordset_icon_for_each_reminder_type(): void
     {
         $me = $this->userWithRole('employee');
         $this->actingAs($me);
-        $described = Task::create(['title' => 'Call the bank', 'description' => "Ask about <b>fees</b>\nand the card"]);
+        $task = Task::create(['title' => 'Call the bank']);
+        $meeting = Meeting::create(['title' => 'Quarterly review', 'date' => '2026-09-30', 'time' => '10:00:00']);
+        $call = PhoneCall::create([
+            'subject' => 'Price negotiation',
+            'called_at' => now(),
+            'other_customer' => true,
+            'other_customer_name' => 'Acme',
+        ]);
+
+        $this->assertSame(TaskResource::getNavigationIcon(), Reminders::typeIcon($task));
+        $this->assertSame(MeetingResource::getNavigationIcon(), Reminders::typeIcon($meeting));
+        $this->assertSame(PhoneCallResource::getNavigationIcon(), Reminders::typeIcon($call));
+    }
+
+    public function test_the_widget_shows_full_record_details_on_hover(): void
+    {
+        $me = $this->userWithRole('employee');
+        $this->actingAs($me);
+        $described = Task::create(['title' => 'Call the bank', 'description' => "Ask about <b>fees</b>\nand the card", 'deadline' => '2026-09-25 09:00:00']);
         $bare = Task::create(['title' => 'Someday']);
         $withDescription = $this->remind($described, '2026-09-24 08:00:00', [$me]);
         $without = $this->remind($bare, '2026-09-25 08:00:00', [$me]);
 
-        $tooltip = fn (?string $expected): Closure => fn (TextColumn $column): bool => $column->getTooltip()?->toHtml() === $expected;
-        $expected = "Ask about &lt;b&gt;fees&lt;/b&gt;<br />\nand the card";
+        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool => str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
 
         Livewire::test(MyRemindersWidget::class)
-            ->assertTableColumnExists('record', $tooltip($expected), $withDescription)
-            ->assertTableColumnExists('remind_at', $tooltip($expected), $withDescription)
-            ->assertTableColumnExists('record', $tooltip(null), $without)
-            ->assertTableColumnExists('remind_at', $tooltip(null), $without);
+            ->assertTableColumnExists('record', $tooltipContains('>Task</span>'), $withDescription)
+            ->assertTableColumnExists('record', $tooltipContains('<strong>Call the bank</strong>'), $withDescription)
+            ->assertTableColumnExists('record', $tooltipContains('Ask about &lt;b&gt;fees&lt;/b&gt;<br />\nand the card'), $withDescription)
+            ->assertTableColumnExists('record', $tooltipContains('Deadline:</strong> 2026-09-25 09:00'), $withDescription)
+            ->assertTableColumnExists('record', $tooltipContains('<strong>Someday</strong>'), $without)
+            ->assertTableColumnExists('remind_at', $tooltipContains('<strong>Call the bank</strong>'), $withDescription);
     }
 
     public function test_only_the_author_or_a_manager_can_change_a_reminder(): void

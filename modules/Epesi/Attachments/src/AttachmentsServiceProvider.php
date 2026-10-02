@@ -8,6 +8,7 @@ use Epesi\Modules\Attachments\LegacyImport\AttachmentsImporter;
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Policies\AttachmentPolicy;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -26,16 +27,30 @@ use Illuminate\Support\ServiceProvider;
  */
 class AttachmentsServiceProvider extends ServiceProvider
 {
+    /** The recordset feature that gives a record type its Notes tab. */
+    public const FEATURE = 'notes';
+
     /**
-     * Morph aliases of the record types that get a Notes tab. Another module
-     * adds its own with Attachments::enableFor() — see that class.
+     * Morph aliases of the record types that get a Notes tab until an
+     * administrator decides otherwise (Administration → Recordsets). Another
+     * module adds its own with Attachments::enableFor() — see that class.
      *
      * @var array<int, string>
      */
-    public static array $recordTypes = ['company', 'contact', 'task', 'meeting', 'phone_call'];
+    public const DEFAULT_RECORD_TYPES = ['company', 'contact', 'task', 'meeting', 'phone_call'];
+
+    /**
+     * @return array<int, string> morph aliases that have a Notes tab now
+     */
+    public static function recordTypes(): array
+    {
+        return RecordsetFeatures::aliasesFor(self::FEATURE);
+    }
 
     public function register(): void
     {
+        RecordsetFeatures::define(self::FEATURE, 'Notes', self::DEFAULT_RECORD_TYPES);
+
         Relation::morphMap([
             'attachment' => Attachment::class,
             'attachment_link' => Models\AttachmentLink::class,
@@ -60,11 +75,13 @@ class AttachmentsServiceProvider extends ServiceProvider
         // its own record type from its own boot() is picked up regardless of
         // provider order.
         $this->app->booted(function (): void {
-            foreach (static::$recordTypes as $alias) {
+            $types = static::recordTypes();
+
+            foreach ($types as $alias) {
                 static::defineRelation($alias);
             }
 
-            RecordExtensions::addon(NotesRelationManager::class, static::$recordTypes, first: true);
+            RecordExtensions::addon(NotesRelationManager::class, $types, first: true);
         });
     }
 

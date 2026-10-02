@@ -105,8 +105,12 @@ class Locales
 
     public static function forRequest(Request $request): string
     {
-        if ($user = $request->user()) {
-            return static::forUser($user);
+        try {
+            if ($user = $request->user()) {
+                return static::forUser($user);
+            }
+        } catch (Throwable) {
+            // The setup wizard can run before the users table exists.
         }
 
         return static::browser($request) ?? static::systemDefault();

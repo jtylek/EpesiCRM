@@ -22,6 +22,14 @@ class AppearanceTest extends TestCase
 {
     use RefreshDatabase, SignsInUsers;
 
+    public function test_seeded_epesi_green_theme_uses_small_font_size(): void
+    {
+        $this->assertSame(
+            Theme::FONT_SIZE_SMALL,
+            Theme::query()->where('name', 'Epesi Green')->value('font_size'),
+        );
+    }
+
     public function test_resolves_the_users_own_choice_then_the_default_then_nothing(): void
     {
         // The seeded starter themes (2026_09_30_090100_seed_default_themes)

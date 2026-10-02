@@ -7,6 +7,8 @@ use App\Filament\Concerns\HidesPageHeading;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord as BaseCreateRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -43,7 +45,8 @@ abstract class CreateRecord extends BaseCreateRecord
             $this->data[$field->getStateName()] = match ($field->type) {
                 FieldType::Relation => $target->getKey(),
                 FieldType::Relations => [$target->getKey()],
-                FieldType::Related => [$token[0].':'.$token[1]],
+                FieldType::Related, FieldType::Customers => [$token[0].':'.$token[1]],
+                FieldType::Customer => $token[0].':'.$token[1],
             };
         }
     }
@@ -63,6 +66,13 @@ abstract class CreateRecord extends BaseCreateRecord
     protected function getHeaderActions(): array
     {
         return [
+            ...(is_subclass_of(static::getResource(), RecordsetResource::class) ? [
+                Action::make('clickToFill')
+                    ->label('Click 2 Fill')
+                    ->icon(Heroicon::OutlinedClipboardDocument)
+                    ->color('gray')
+                    ->alpineClickHandler("\$dispatch('epesi-click-to-fill-toggle')"),
+            ] : []),
             // getCreateFormAction() renders type="submit"; moved here
             // (outside the <form>), it needs formId('form') or the button
             // has no owning form and clicking it is a silent no-op.

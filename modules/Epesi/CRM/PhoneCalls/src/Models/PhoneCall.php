@@ -6,7 +6,6 @@ use App\Enums\RecordPermission;
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
 use App\Models\User;
-use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility;
@@ -15,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -22,8 +22,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 /**
  * Port of Epesi's CRM_PhoneCall "phonecall" recordset — see the
  * create_phone_calls_table migration's docblock for what's simplified/not
- * ported (Company-or-Contact Customer type, chained phone-number select,
- * Related links, Watchdog, Calendar handler).
+ * ported (chained phone-number select, Watchdog, Calendar handler).
  */
 class PhoneCall extends Model
 {
@@ -43,8 +42,8 @@ class PhoneCall extends Model
 
     protected $fillable = [
         'subject',
-        'contact_id',
-        'company_id',
+        'customer_type',
+        'customer_id',
         'other_customer',
         'other_customer_name',
         'phone_number',
@@ -67,23 +66,15 @@ class PhoneCall extends Model
     }
 
     /**
-     * The customer contact this call was with — nullable, since "Other
-     * Customer" lets a call be logged against someone not in the system.
+     * The Contact or Company this call was with (Field::customer()) —
+     * nullable, since "Other Customer" lets a call be logged against
+     * someone not in the system.
+     *
+     * @return MorphTo<Model, $this>
      */
-    public function contact(): BelongsTo
+    public function customer(): MorphTo
     {
-        return $this->belongsTo(Contact::class);
-    }
-
-    /**
-     * The customer company this call was with — the Company side of the
-     * Company-or-Contact Customer, alongside contact() rather than instead
-     * of it (see the phone_calls migration's docblock for why this is two
-     * plain FKs, not one polymorphic field).
-     */
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
+        return $this->morphTo();
     }
 
     public function employees(): BelongsToMany

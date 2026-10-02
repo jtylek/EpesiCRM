@@ -12,6 +12,7 @@ use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\ViewRecord as BaseViewRecord;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\RelationManagers\RelationManagerConfiguration;
@@ -139,7 +140,7 @@ abstract class ViewRecord extends BaseViewRecord
 
                 return Tab::make($resource::getTitleCasePluralModelLabel())
                     ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
-                    ->badge((string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
+                    ->badge(fn (): string => (string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
                     ->badgeColor(fn (?string $badge): ?string => $badge === '0' ? 'gray' : null)
                     ->schema(fn (): array => [Livewire::make($manager->relationManager, [...$managerLivewireData, ...$properties])->key($resource)]);
             }
@@ -220,6 +221,8 @@ abstract class ViewRecord extends BaseViewRecord
                 ->schema(fn (): array => $historyManager ? [
                     Livewire::make($historyManager, [...$managerLivewireData, ...$historyManager::getDefaultProperties()])->key($historyManager),
                 ] : []),
+            DeleteAction::make()
+                ->icon(Heroicon::OutlinedTrash),
         ])->color('gray');
     }
 
@@ -242,11 +245,9 @@ abstract class ViewRecord extends BaseViewRecord
             return $tab;
         }
 
-        $count = $manager::getBadge($ownerRecord, static::class)
-            ?? (string) $ownerRecord->{$manager::getRelationshipName()}()->count();
-
         return $tab
-            ->badge($count)
+            ->badge(fn (): string => $manager::getBadge($ownerRecord, static::class)
+                ?? (string) $ownerRecord->{$manager::getRelationshipName()}()->count())
             ->badgeColor($manager::getBadgeColor($ownerRecord, static::class)
                 ?? fn (?string $badge): ?string => $badge === '0' ? 'gray' : null);
     }

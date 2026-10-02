@@ -69,6 +69,30 @@ php artisan epesi:package
 Options: `--out=<dir>` writes the zip elsewhere; `--folder=<name>` wraps the files in a
 folder.
 
+**Translating and testing first.** Before writing the zip, these options run the
+translations and the tests:
+
+- `--translate` fills every language in `available_locales` but English, using the
+  translations skill (see [translations](Epesi-Laravel-Translations.md#machine-translations-the-deepl-pass)):
+  - with `--legacy=<old epesi checkout>`, it first imports the community translations into
+    the reviewed `<code>.json`;
+  - then it runs the DeepL pass into `<code>.machine.json`;
+  - then it runs `TranslationsTest` with `TRANSLATIONS_STRICT=1`.
+
+  It needs `TRANSLATIONS_SCRIPT` in `.env`, the path of the skill's script. The DeepL key
+  stays with the script, in the private notes, never in `.env`. A language file the pass
+  created is packed even though it isn't committed yet, and the command warns you to
+  commit it.
+- `--test` runs the whole suite with `TRANSLATIONS_STRICT=1`.
+
+Any failure stops the command before the zip is written. Both options need the development
+packages (PHPUnit), which the clean `--no-dev` clone above doesn't have. So for a release:
+
+1. in the development checkout, run
+   `php artisan epesi:package --translate --legacy=../epesigithub --test`;
+2. commit the translation files it wrote;
+3. build the release zip from the clean clone as above.
+
 ### Version numbers
 
 The version lives in one place: the `VERSION` file at the top of the application, currently

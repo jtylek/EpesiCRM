@@ -47,53 +47,36 @@ class IncomingLinksTest extends TestCase
             'pageClass' => ViewContact::class,
             'sourceResource' => TaskResource::class,
         ])->assertCanSeeTableRecords([$customer, $employee, $related])
-            ->assertCanNotSeeTableRecords([$private])
-            ->filterTable('linked_as', 'customers')
-            ->assertCanSeeTableRecords([$customer])
-            ->assertCanNotSeeTableRecords([$employee, $related, $private]);
+            ->assertCanNotSeeTableRecords([$private]);
     }
 
-    public function test_the_tab_offers_the_recordsets_own_filters_including_a_custom_fields_and_they_narrow_it(): void
+    public function test_the_tab_has_no_filters(): void
     {
-        $field = CustomField::create([
-            'model_type' => 'task',
-            'name' => 'urgent',
-            'label' => 'Urgent',
-            'type' => FieldType::Boolean,
-            'show_in_table' => true,
-            'filterable' => true,
-        ]);
-
         $this->actingAs($this->userWithRole('employee'));
         $contact = Contact::create(['last_name' => 'Customer', 'first_name' => 'Ann']);
-        $urgent = Task::create(['title' => 'Urgent task', $field->column => true]);
-        $urgent->customers()->attach($contact);
-        $normal = Task::create(['title' => 'Normal task', $field->column => false]);
-        $normal->customers()->attach($contact);
 
-        Livewire::test(LinkedRecordsRelationManager::class, [
+        $manager = Livewire::test(LinkedRecordsRelationManager::class, [
             'ownerRecord' => $contact,
             'pageClass' => ViewContact::class,
             'sourceResource' => TaskResource::class,
-        ])->assertCanSeeTableRecords([$urgent, $normal])
-            ->filterTable($field->column, true)
-            ->assertCanSeeTableRecords([$urgent])
-            ->assertCanNotSeeTableRecords([$normal]);
+        ]);
+
+        $this->assertSame([], $manager->instance()->getTable()->getFilters());
     }
 
-    public function test_a_companys_phone_calls_tab_has_no_company_column_or_filter(): void
+    public function test_a_companys_phone_calls_tab_has_no_customer_column_or_filter(): void
     {
         $this->actingAs($this->userWithRole('manager'));
         $company = Company::create(['company_name' => 'Acme']);
         $other = Company::create(['company_name' => 'Beta']);
-        $call = PhoneCall::create(['subject' => 'Offer', 'called_at' => '2026-09-27 10:00:00', 'company_id' => $company->id]);
-        PhoneCall::create(['subject' => 'Other offer', 'called_at' => '2026-09-27 11:00:00', 'company_id' => $other->id]);
+        $call = PhoneCall::create(['subject' => 'Offer', 'called_at' => '2026-09-27 10:00:00', 'customer_type' => 'company', 'customer_id' => $company->id]);
+        PhoneCall::create(['subject' => 'Other offer', 'called_at' => '2026-09-27 11:00:00', 'customer_type' => 'company', 'customer_id' => $other->id]);
 
         // Company also picks up the Related field, which offers every
-        // recordset by default — company_id is the single-relation field
-        // whose own column and filter should be hidden.
+        // recordset by default — customer is the Customer field whose own
+        // column and filter should be hidden.
         $fields = IncomingLinks::for($company)[PhoneCallResource::class];
-        $this->assertSame(['company_id', 'related'], collect($fields)->map->name->all());
+        $this->assertSame(['customer', 'related'], collect($fields)->map->name->all());
 
         $manager = Livewire::test(LinkedRecordsRelationManager::class, [
             'ownerRecord' => $company,
@@ -101,9 +84,9 @@ class IncomingLinksTest extends TestCase
             'sourceResource' => PhoneCallResource::class,
         ]);
         $manager->assertCanSeeTableRecords([$call])
-            ->assertTableColumnDoesNotExist('company_id');
+            ->assertTableColumnDoesNotExist('customer');
 
-        $this->assertArrayNotHasKey('company_id', $manager->instance()->getTable()->getFilters());
+        $this->assertArrayNotHasKey('customer', $manager->instance()->getTable()->getFilters());
     }
 
     public function test_edit_shows_only_to_a_user_who_may_edit_the_record_and_no_row_offers_delete(): void
@@ -140,6 +123,6 @@ class IncomingLinksTest extends TestCase
 
         Livewire::withQueryParams(['link' => 'contact:'.$contact->id])
             ->test(CreateTask::class)
-            ->assertFormSet(['customers' => [$contact->id]]);
+            ->assertFormSet(['customers' => ['contact:'.$contact->id]]);
     }
 }

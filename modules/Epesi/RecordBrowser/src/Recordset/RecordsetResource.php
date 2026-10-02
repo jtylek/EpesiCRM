@@ -14,6 +14,7 @@ use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\TrashedFilter;
@@ -149,7 +150,12 @@ abstract class RecordsetResource extends Resource
             fn (Field $field): mixed => $field->toFormComponent(),
         );
 
-        return static::extendForm($schema->components($sections));
+        return static::extendForm($schema->components([
+            View::make('epesi-recordbrowser::click-to-fill')
+                ->columnSpanFull()
+                ->visible(fn (string $operation): bool => in_array($operation, ['create', 'edit'], true)),
+            ...$sections,
+        ]));
     }
 
     public static function infolist(Schema $schema): Schema
@@ -217,14 +223,25 @@ abstract class RecordsetResource extends Resource
 
     /**
      * Two-column reading order for View, Create and Edit alike: the fields in
-     * `fields()` order run down the first column and carry on down the second,
-     * as in Epesi's two-column record view, instead of Filament's row by row.
+     * `fields()` order run down the first column and carry on down the
+     * second, as in Epesi's two-column record view, instead of Filament's row
+     * by row.
      *
-     * A grid can't flow that way around a field spanning both columns, so each
-     * stretch of ordinary fields becomes its own grid (the CSS that turns on
-     * the column flow lives with the other panel-wide View styles) and a
-     * full-width field stands between them. Below the `lg` breakpoint it is
-     * one column in `fields()` order, as before.
+     * There's no forced grouping here — a field's place is exactly its
+     * position in `fields()` (module declaration order, or an administrator's
+     * own drag-and-drop reorder over it; see FieldOverrides). Short fields
+     * first, long fields like a Memo next, and Collection fields (Phone
+     * numbers, Addresses, …) last is a *convention* for a module's own
+     * `fields()` to follow, not a rule this method enforces — an
+     * administrator who reorders fields to interleave them gets exactly that
+     * layout back, not this method silently overriding it.
+     *
+     * A grid can't flow that way around a field spanning both columns, so
+     * each stretch of ordinary fields becomes its own grid (the CSS that
+     * turns on the column flow lives with the other panel-wide View styles)
+     * and a full-width field (a Memo, a Collection) stands between them.
+     * Below the `lg` breakpoint it is one column in `fields()` order, as
+     * before.
      *
      * @param  array<int, array{0: Field, 1: mixed}>  $pairs
      * @return array<int, mixed>
@@ -269,6 +286,9 @@ abstract class RecordsetResource extends Resource
             fn (Field $field): bool => $field->isInColumnChooser(),
         ));
 
+        // Field::tableOrder() columns first; usort is stable, so the rest keep field order.
+        usort($fields, fn (Field $a, Field $b): int => ($a->getTableOrder() ?? PHP_INT_MAX) <=> ($b->getTableOrder() ?? PHP_INT_MAX));
+
         $filters = array_values(array_filter(array_map(
             fn (Field $field): mixed => $field->toTableFilter(),
             $fields,
@@ -281,6 +301,9 @@ abstract class RecordsetResource extends Resource
         $table = $table
             ->columns(array_merge(...array_map(fn (Field $field): array => $field->toTableColumns(), $fields)))
             ->filters($filters)
+            ->persistFiltersInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActions([
                 ViewAction::make()->iconButton()->tooltip(__('View')),

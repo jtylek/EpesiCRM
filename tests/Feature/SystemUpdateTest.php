@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Filament\Administration\Pages\DatabaseUpdate;
+use App\Models\Module;
 use App\Services\Setup\SystemUpdate;
+use App\Support\Modules\ModuleManifest;
 use Filament\Facades\Filament;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -75,6 +77,24 @@ class SystemUpdateTest extends TestCase
 
         $this->assertSame(['Epesi/Probe' => ['2099_01_01_000000_create_epesi_update_probe_table']], $pending);
         $this->assertSame(1, SystemUpdate::waiting());
+    }
+
+    public function test_it_brings_a_changed_module_manifest_into_the_modules_table(): void
+    {
+        $manifest = ModuleManifest::fromJson(File::get(base_path('modules/Epesi/RegionalSettings/module.json')));
+        Module::create(['panels' => ['user-settings'], 'enabled' => false, 'installed_at' => now()] + $manifest->toDatabaseRow());
+
+        $update = app(SystemUpdate::class);
+
+        $this->assertSame(['epesi/regional-settings'], array_keys($update->staleModules()));
+        $this->assertArrayHasKey('Module registrations', $update->pending());
+
+        $this->assertSame(['epesi/regional-settings'], $update->syncManifests());
+
+        $module = Module::query()->where('module_id', 'epesi/regional-settings')->first();
+        $this->assertSame($manifest->panels, $module->panels);
+        $this->assertFalse($module->enabled);
+        $this->assertSame([], $update->staleModules());
     }
 
     public function test_it_covers_the_core_app_and_every_enabled_module(): void

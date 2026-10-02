@@ -5,9 +5,11 @@
     which has no classes a module adds.
 --}}
 @use('Epesi\Modules\PriorityList\PriorityList')
+@use('Epesi\Modules\RegionalSettings\Models\RegionalSetting')
 
 @php
     $entries = $this->getPriorityEntries();
+    $regionalSettings = RegionalSetting::current();
 @endphp
 
 <x-filament-widgets::widget>
@@ -31,6 +33,7 @@
             .epesi-pl-title { font-weight: 500; overflow-wrap: anywhere; }
             a.epesi-pl-title:hover { text-decoration: underline; }
             .epesi-pl-meta { font-size: 0.75rem; opacity: 0.7; }
+            .epesi-pl-type-icon { display: inline-block; margin-right: 0.25rem; vertical-align: -0.125em; }
             .epesi-pl-overdue { color: var(--danger-600); }
             .dark .epesi-pl-overdue { color: var(--danger-400); }
             .epesi-pl .sortable-ghost { opacity: 0.4; }
@@ -50,7 +53,7 @@
                     @php
                         $record = $entry->record;
                         $url = PriorityList::url($record);
-                        $due = PriorityList::formatDue($record);
+                        $due = PriorityList::formatDue($record, $regionalSettings);
                         $details = PriorityList::details($record);
                     @endphp
                     <li class="epesi-pl-item" wire:key="priority-{{ $entry->id }}" wire:sort:item="{{ $entry->id }}">
@@ -70,6 +73,9 @@
                                 <span class="epesi-pl-title">{{ PriorityList::title($record) }}</span>
                             @endif
                             <div class="epesi-pl-meta">
+                                @if ($typeIcon = PriorityList::typeIcon($record))
+                                    <x-filament::icon :icon="$typeIcon" :size="\Filament\Support\Enums\IconSize::Small" class="epesi-pl-type-icon" />
+                                @endif
                                 {{ PriorityList::describe($record) }}
                                 @if ($due)
                                     · <span @class(['epesi-pl-overdue' => PriorityList::isOverdue($record)])>{{ $due }}</span>
@@ -83,8 +89,7 @@
                                 size="sm"
                                 :label="__('Done: close it')"
                                 :tooltip="__('Done: close it')"
-                                wire:click="completePriority({{ $entry->id }})"
-                                wire:confirm="{{ __('Close :record? Its status becomes Closed, and it leaves every priority list it is on.', ['record' => PriorityList::label($record)]) }}"
+                                wire:click="requestComplete({{ $entry->id }})"
                             />
                         @endif
                         <x-filament::icon-button
@@ -100,4 +105,5 @@
             </ol>
         @endif
     </x-filament::section>
+    <x-filament-actions::modals />
 </x-filament-widgets::widget>

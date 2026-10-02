@@ -1,0 +1,10 @@
+/* Keep actions visible on narrow cards; only the caption may shrink. */
+.fi-wi-table:has(.epesi-applet-heading) .fi-ta-header,
+.epesi-dashboard .fi-wi-widget > .fi-section > .fi-section-header { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 0.75rem; }
+.fi-wi-table:has(.epesi-applet-heading) .fi-ta-header > div:first-child:not(.fi-ta-actions),
+.epesi-dashboard .fi-section-header-text-ctn { flex: 1 1 0%; min-width: 0; text-align: start; }
+.fi-wi-table:has(.epesi-applet-heading) .fi-ta-header > .fi-ta-actions,
+.epesi-dashboard .fi-section-header-after-ctn { flex: 0 0 auto; flex-wrap: nowrap; margin-inline-start: auto; }
+.epesi-applet-heading { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.epesi-applet-heading-label,
+.epesi-dashboard .fi-section-header-heading { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -4,13 +4,12 @@ namespace Epesi\Modules\CRM\Tasks\Filament\Widgets;
 
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
-use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\AppletTooltip;
-use App\Filament\Dashboard\IsApplet;
 use Closure;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
-use Filament\Actions\Action;
+use Epesi\Modules\RecordBrowser\Filament\Widgets\RecordsetApplet;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +18,6 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
@@ -30,13 +28,11 @@ use Illuminate\Support\HtmlString;
  * copy on the dashboard can have a title of its own ("Tasks - Sales").
  * Epesi's "Advanced Filter" (a crits builder) isn't ported.
  */
-class TasksWidget extends TableWidget implements Applet
+class TasksWidget extends RecordsetApplet
 {
-    use IsApplet;
+    protected static ?string $resource = TaskResource::class;
 
     protected static ?int $sort = 2;
-
-    protected int|string|array $columnSpan = 1;
 
     public static function canView(): bool
     {
@@ -87,12 +83,14 @@ class TasksWidget extends TableWidget implements Applet
         ];
     }
 
+    protected function getAppletCreateLabel(): string
+    {
+        return __('New task');
+    }
+
     public function table(Table $table): Table
     {
-        $subtitle = $this->appletSetting('subtitle');
-
         return $table
-            ->heading(filled($subtitle) ? __('Tasks').' - '.$subtitle : __('Tasks'))
             ->query(fn (): Builder => $this->tasks())
             // One cell per task: the title, then the status badge with the
             // deadline (when it has one) after it — Status and Deadline as
@@ -111,7 +109,7 @@ class TasksWidget extends TableWidget implements Applet
                             ->tooltip(fn (Task $record): ?HtmlString => $this->details($record)),
                         TextColumn::make('deadline')
                             ->label('Deadline')
-                            ->state(fn (Task $record): ?string => $record->deadline?->format($record->timeless ? 'Y-m-d' : 'Y-m-d H:i'))
+                            ->state(fn (Task $record): ?string => RegionalSetting::display($record->deadline, (bool) $record->timeless))
                             ->prefix(fn (Task $record): ?string => $record->deadline ? __('Deadline').': ' : null)
                             ->color(fn (Task $record): ?string => $record->deadline?->isPast()
                                 && ! in_array($record->status, RecordStatus::finished(), true) ? 'danger' : null)
@@ -122,34 +120,22 @@ class TasksWidget extends TableWidget implements Applet
             ])
             ->recordUrl(fn (Task $record): string => TaskResource::getUrl('view', ['record' => $record]))
             ->recordClasses(fn (Task $record): ?string => $record->priority === RecordPriority::High ? 'epesi-applet-high-priority' : null)
-            ->headerActions([
-                Action::make('create')
-                    ->label('New task')
-                    ->tooltip(__('New task'))
-                    ->icon(Heroicon::OutlinedPlus)
-                    ->iconButton()
-                    ->color('gray')
-                    ->url(fn (): string => TaskResource::getUrl('create'))
-                    ->visible(fn (): bool => TaskResource::canCreate()),
-                Action::make('fullscreen')
-                    ->label('Fullscreen')
-                    ->tooltip(__('Fullscreen'))
-                    ->icon(Heroicon::OutlinedArrowsPointingOut)
-                    ->iconButton()
-                    ->color('gray')
-                    ->url(fn (): string => TaskResource::getUrl()),
-                $this->configureAppletAction(),
-            ])
-            ->paginated([5, 10, 25])
-            ->defaultPaginationPageOption(10)
             ->emptyStateHeading(__('No tasks'))
             ->emptyStateIcon(Heroicon::OutlinedCheckCircle);
     }
 
-    /** The description on hover, without a label: it is the only detail, and the deadline is in the record already. */
-    private function details(Task $record): ?HtmlString
+    /** The task's full details on hover. */
+    private function details(Task $record): HtmlString
     {
-        return AppletTooltip::text($record->description);
+        return AppletTooltip::details(
+            type: 'Task',
+            icon: TaskResource::getNavigationIcon(),
+            title: $record->title,
+            description: $record->description,
+            dateLabel: 'Deadline',
+            date: RegionalSetting::display($record->deadline, (bool) $record->timeless),
+            customers: AppletTooltip::customers($record),
+        );
     }
 
     /**
@@ -162,6 +148,7 @@ class TasksWidget extends TableWidget implements Applet
             ->whereHas($relation, fn (Builder $contacts): Builder => $contacts->where('user_id', $userId));
 
         return Task::query()
+            ->with(['customers', 'customerCompanies'])
             ->whereIn('status', array_map('intval', (array) $this->appletSetting('statuses')))
             ->when($this->appletSetting('related'), fn (Builder $query, string $related): Builder => match ($related) {
                 'employee' => $query->where($mine('employees')),

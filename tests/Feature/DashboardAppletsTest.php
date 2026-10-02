@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\RecordStatus;
+use App\Filament\Pages\Calendar as CalendarPage;
 use App\Filament\Widgets\AgendaWidget;
 use App\Models\User;
 use Closure;
+use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Widgets\PhoneCallsWidget;
@@ -13,6 +15,7 @@ use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Filament\Widgets\TasksWidget;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -48,6 +51,27 @@ class DashboardAppletsTest extends TestCase
         $this->colleague = Contact::create(['first_name' => 'Col', 'last_name' => 'League']);
 
         $this->actingAs($this->user);
+    }
+
+    public function test_recordset_applet_defaults_keep_the_header_and_actions_shared(): void
+    {
+        $widget = Livewire::test(TasksWidget::class, [
+            'appletId' => 123,
+            'appletSettings' => ['subtitle' => '<Sales>'],
+        ])->assertSuccessful();
+
+        $table = $widget->instance()->getTable();
+        $heading = $table->getHeading()->toHtml();
+
+        $this->assertStringContainsString('epesi-applet-heading', $heading);
+        $this->assertStringContainsString('Tasks - &lt;Sales&gt;', $heading);
+        $this->assertStringNotContainsString('<Sales>', $heading);
+        $this->assertSame([5, 10, 25], $table->getPaginationPageOptions());
+        $this->assertSame(10, $table->getDefaultPaginationPageOption());
+        $this->assertSame(['create', 'fullscreen', 'configureApplet'], array_values(array_map(
+            fn ($action): string => $action->getName(),
+            $table->getHeaderActions(),
+        )));
     }
 
     public function test_tasks_show_the_open_ones_assigned_to_me_soonest_first(): void
@@ -88,15 +112,17 @@ class DashboardAppletsTest extends TestCase
         $described->update(['description' => "Ask about the <b>quote</b>\nand the invoice"]);
         $bare = $this->phoneCall('Bare', '2026-09-24 16:00:00');
 
-        $tooltip = fn (?string $expected): Closure => fn (TextColumn $column): bool => $column->getTooltip()?->toHtml() === $expected;
+        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool => str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
         $time = fn (string $expected): Closure => fn (TextColumn $column): bool => (string) $column->getDescriptionBelow() === $expected;
         $describedTooltip = "Ask about the &lt;b&gt;quote&lt;/b&gt;<br />\nand the invoice";
 
         Livewire::test(PhoneCallsWidget::class)
             ->assertTableColumnDoesNotExist('called_at')
-            ->assertTableColumnExists('customer', $tooltip($describedTooltip), $described)
-            ->assertTableColumnExists('phone_number', $tooltip($describedTooltip), $described)
-            ->assertTableColumnExists('customer', $tooltip(null), $bare)
+            ->assertTableColumnExists('customer', $tooltipContains('>Phone Call</span>'), $described)
+            ->assertTableColumnExists('customer', $tooltipContains('<strong>Quote</strong>'), $described)
+            ->assertTableColumnExists('customer', $tooltipContains($describedTooltip), $described)
+            ->assertTableColumnExists('customer', $tooltipContains('Date and Time:</strong> 2026-09-23 15:00'), $described)
+            ->assertTableColumnExists('customer', $tooltipContains('<strong>Bare</strong>'), $bare)
             ->assertTableColumnExists('phone_number', $time('2026-09-23 15:00'), $described)
             ->assertTableColumnExists('phone_number', $time('2026-09-24 16:00'), $bare);
     }
@@ -105,20 +131,22 @@ class DashboardAppletsTest extends TestCase
     {
         $described = $this->task('Report', '2026-09-25 10:00:00', employee: $this->me);
         $described->update(['description' => 'Quarterly numbers']);
+        $described->customers()->attach($this->colleague);
         $timeless = $this->task('Someday', '2026-09-26 00:00:00', employee: $this->me);
         $timeless->update(['timeless' => true]);
         $bare = $this->task('No deadline', null, employee: $this->me);
 
-        $tooltip = fn (?string $expected): Closure => fn (TextColumn $column): bool => $column->getTooltip()?->toHtml() === $expected;
+        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool => str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
         $prefix = fn (?string $expected): Closure => fn (TextColumn $column): bool => $column->getPrefix() === $expected;
 
         Livewire::test(TasksWidget::class)
-            ->assertTableColumnExists('title', $tooltip('Quarterly numbers'), $described)
-            ->assertTableColumnExists('deadline', $tooltip('Quarterly numbers'), $described)
-            ->assertTableColumnExists('status', $tooltip('Quarterly numbers'), $described)
-            // The deadline is in the record already, so the tooltip leaves it out.
-            ->assertTableColumnExists('title', $tooltip(null), $timeless)
-            ->assertTableColumnExists('title', $tooltip(null), $bare)
+            ->assertTableColumnExists('title', $tooltipContains('>Task</span>'), $described)
+            ->assertTableColumnExists('title', $tooltipContains('<strong>Report</strong>'), $described)
+            ->assertTableColumnExists('title', $tooltipContains('Quarterly numbers'), $described)
+            ->assertTableColumnExists('title', $tooltipContains('Deadline:</strong> 2026-09-25 10:00'), $described)
+            ->assertTableColumnExists('title', $tooltipContains('<strong>Customers:</strong> Col League'), $described)
+            ->assertTableColumnExists('title', $tooltipContains('<strong>Someday</strong>'), $timeless)
+            ->assertTableColumnExists('title', $tooltipContains('<strong>No deadline</strong>'), $bare)
             // Status and the deadline sit under the title, not in columns of their own.
             ->assertTableColumnStateSet('deadline', '2026-09-25 10:00', $described)
             ->assertTableColumnStateSet('deadline', '2026-09-26', $timeless)
@@ -134,10 +162,10 @@ class DashboardAppletsTest extends TestCase
         $meeting->employees()->attach($this->me);
         $far = Meeting::create(['title' => 'Far off', 'date' => '2026-10-04', 'time' => '10:00:00', 'duration_minutes' => 60]);
         $far->employees()->attach($this->me);
-        $this->task('Report', '2026-09-25 10:00:00', employee: $this->me);
+        $report = $this->task('Report', '2026-09-25 10:00:00', employee: $this->me);
         $this->task('Closed task', '2026-09-25 11:00:00', employee: $this->me, status: RecordStatus::Closed);
         $this->task("Colleague's", '2026-09-25 12:00:00', employee: $this->colleague);
-        $this->phoneCall('Call back', '2026-09-26 10:00:00');
+        $call = $this->phoneCall('Call back', '2026-09-26 10:00:00');
 
         $this->assertSame(
             ['2026-09-24' => ['Review'], '2026-09-25' => ['Report'], '2026-09-26' => ['Call back']],
@@ -147,23 +175,78 @@ class DashboardAppletsTest extends TestCase
         $this->assertSame(['Review', 'Report', 'Call back', 'Far off'], array_merge(...array_values($this->agenda(['days' => '14']))));
         $this->assertSame(['2026-09-24' => ['Review'], '2026-09-26' => ['Call back']], $this->agenda(['types' => ['meeting', 'phone_call']]));
 
-        Livewire::test(AgendaWidget::class)
+        $widget = Livewire::test(AgendaWidget::class)
             ->assertSee('Review')
-            ->assertSee('Report');
+            ->assertSee('Report')
+            ->assertSeeHtml('epesi-agenda-type-icon')
+            ->assertDontSeeHtml('background: var(--gray-400)');
+
+        $calendarUrl = $widget->instance()->calendarUrl();
+        parse_str((string) parse_url($calendarUrl, PHP_URL_QUERY), $query);
+        $this->assertSame('listWeek', $query['view'] ?? null);
+
+        $icons = $widget->instance()->events()->flatten(1)
+            ->mapWithKeys(fn (array $row): array => [$row['type'] => $row['icon']]);
+
+        $this->assertSame(Heroicon::OutlinedCalendarDays, $icons['Meeting']);
+        $this->assertSame(Heroicon::OutlinedCheckCircle, $icons['Task']);
+        $this->assertSame(Heroicon::OutlinedPhone, $icons['Phone Call']);
+
+        $calendarEvents = Livewire::test(CalendarPage::class)->instance()->getEvents('2026-09-24', '2026-10-01');
+        $iconsByEvent = collect($calendarEvents)->mapWithKeys(fn (array $event): array => [$event['id'] => $event['typeIconHtml']]);
+
+        foreach ([
+            'meeting-'.$meeting->id,
+            'task-'.$report->id,
+            'phone_call-'.$call->id,
+        ] as $eventId) {
+            $this->assertStringContainsString('<svg', $iconsByEvent[$eventId]);
+        }
     }
 
     public function test_the_agenda_shows_the_description_on_hover(): void
     {
         $meeting = Meeting::create(['title' => 'Review', 'description' => 'Bring the <b>slides</b>', 'date' => '2026-09-24', 'time' => '14:00:00', 'duration_minutes' => 60]);
         $meeting->employees()->attach($this->me);
-        $this->task('Report', '2026-09-25 00:00:00', employee: $this->me)->update(['timeless' => true]);
+        $meeting->customers()->attach($this->colleague);
+        $company = Company::create(['company_name' => 'Alpine Field Logistics']);
+        $meeting->customerCompanies()->attach($company);
+        $task = $this->task('Report', '2026-09-25 00:00:00', employee: $this->me);
+        $task->customers()->attach($this->colleague);
+        $task->update(['timeless' => true]);
+        $call = $this->phoneCall('Call back', '2026-09-26 10:30:00');
 
         $widget = Livewire::test(AgendaWidget::class);
-        $tooltips = $widget->instance()->events()->flatten(1)->map(fn (array $row): ?string => $row['tooltip']?->toHtml())->all();
+        $tooltips = $widget->instance()->events()->flatten(1)
+            ->mapWithKeys(fn (array $row): array => [$row['event']->id => $row['tooltip']->toHtml()]);
 
-        // The title, type and time are in the row already; a task with no description has no tooltip.
-        $this->assertSame(['Bring the &lt;b&gt;slides&lt;/b&gt;', null], $tooltips);
-        $widget->assertSeeHtml(Js::from(new HtmlString($tooltips[0]))->toHtml());
+        $this->assertStringContainsString('>Meeting</span>', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('font-size: 0.8125rem', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('flex-wrap: nowrap', $tooltips['meeting-'.$meeting->id]);
+        $this->assertLessThan(
+            strpos($tooltips['meeting-'.$meeting->id], '>Meeting</span>'),
+            strpos($tooltips['meeting-'.$meeting->id], '<svg'),
+        );
+        $this->assertStringContainsString('<strong>Review</strong>', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringNotContainsString('Type:', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringNotContainsString('Title:', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('Bring the &lt;b&gt;slides&lt;/b&gt;', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringNotContainsString('Description:', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('Date and Time:</strong> 2026-09-24 14:00', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('<strong>Customers:</strong> Col League, Alpine Field Logistics', $tooltips['meeting-'.$meeting->id]);
+        $this->assertStringContainsString('<strong>Deadline:</strong> 2026-09-25', $tooltips['task-'.$task->id]);
+        $this->assertStringContainsString('<strong>Report</strong>', $tooltips['task-'.$task->id]);
+        $this->assertStringContainsString('<div>-</div>', $tooltips['task-'.$task->id]);
+        $this->assertStringContainsString('<strong>Customers:</strong> Col League', $tooltips['task-'.$task->id]);
+        $this->assertStringContainsString('>Phone Call</span>', $tooltips['phone_call-'.$call->id]);
+        $this->assertStringContainsString('<strong>Customers:</strong> Someone', $tooltips['phone_call-'.$call->id]);
+        $widget->assertSeeHtml(Js::from(new HtmlString($tooltips['meeting-'.$meeting->id]))->toHtml());
+
+        $calendarTooltips = collect(Livewire::test(CalendarPage::class)->instance()->getEvents('2026-09-24', '2026-10-01'))
+            ->mapWithKeys(fn (array $event): array => [$event['id'] => $event['tooltip']]);
+        foreach ($tooltips as $eventId => $tooltip) {
+            $this->assertSame($tooltip, $calendarTooltips[$eventId]);
+        }
     }
 
     public function test_the_agendas_plus_picks_a_type_and_opens_its_create_page_at_the_next_hour(): void

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use PharData;
 use RuntimeException;
+use Throwable;
 
 /**
  * Downloads and installs Roundcube next to the app — Epesi committed it under
@@ -208,12 +209,45 @@ class RoundcubeInstaller
     protected function deleteInstall(string $directory): void
     {
         foreach (glob($directory.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*') ?: [] as $entry) {
-            if (is_link($entry) || @readlink($entry) !== false) {
-                windows_os() ? rmdir($entry) : unlink($entry);
+            $source = realpath(dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'roundcube-plugins'.DIRECTORY_SEPARATOR.basename($entry));
+            $target = realpath($entry);
+
+            if ($source === false || $target === false || (windows_os() ? strcasecmp($source, $target) !== 0 : $source !== $target)) {
+                continue;
+            }
+
+            $removed = windows_os() ? @rmdir($entry) : @unlink($entry);
+
+            if (! $removed) {
+                throw new RuntimeException("Couldn't remove Roundcube's Epesi plugin link at {$entry}.");
             }
         }
 
-        $this->files->deleteDirectory($directory);
+        $lastException = null;
+
+        for ($attempt = 1; $attempt <= 30; $attempt++) {
+            try {
+                $this->files->deleteDirectory($directory);
+            } catch (Throwable $exception) {
+                $lastException = $exception;
+            }
+
+            clearstatcache(true, $directory);
+
+            if (! is_dir($directory)) {
+                return;
+            }
+
+            if ($attempt < 30) {
+                usleep(250_000);
+            }
+        }
+
+        if ($lastException !== null) {
+            throw $lastException;
+        }
+
+        throw new RuntimeException("Couldn't remove the Roundcube installation at {$directory}.");
     }
 
     /**

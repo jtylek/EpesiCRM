@@ -4,19 +4,18 @@ namespace Epesi\Modules\Mail\Filament\Widgets;
 
 use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\IsApplet;
+use App\Models\User;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
-use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
-use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\UnreadCounter;
+use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * The Mail applet: unread messages in each of your accounts' INBOX, and the
- * latest mail archived from your mailboxes — Epesi's CRM_Mail applet and its
- * unread-count tray notification.
+ * The Mail applet: unread messages in each of your accounts' INBOX — Epesi's
+ * CRM_Mail applet and its unread-count tray notification.
  */
 class UnreadMailWidget extends Widget implements Applet
 {
@@ -28,13 +27,11 @@ class UnreadMailWidget extends Widget implements Applet
 
     protected static ?int $sort = 4;
 
-    public const RECENT = 5;
-
     public static function canView(): bool
     {
         $user = Auth::user();
 
-        return $user !== null
+        return $user instanceof User
             && $user->hasAnyRole(['super_admin', 'manager', 'employee'])
             && MailAccount::query()->where('user_id', $user->id)->whereNotNull('imap_host')->exists();
     }
@@ -46,7 +43,7 @@ class UnreadMailWidget extends Widget implements Applet
 
     public static function getAppletDescription(): ?string
     {
-        return __('Unread mail in your accounts and recently archived mail');
+        return __('Unread mail in your accounts');
     }
 
     public function refreshCounts(): void
@@ -77,25 +74,22 @@ class UnreadMailWidget extends Widget implements Applet
         return app(UnreadCounter::class)->forAccount($account);
     }
 
-    /**
-     * @return Collection<int, Mail>
-     */
-    public function recent(): Collection
-    {
-        return Mail::query()
-            ->where('user_id', Auth::id())
-            ->latest('date')
-            ->limit(self::RECENT)
-            ->get(['id', 'subject', 'from', 'to', 'date', 'direction']);
-    }
-
-    public function mailUrl(Mail $mail): string
-    {
-        return MailResource::getUrl('view', ['record' => $mail]);
-    }
-
     public function accountsUrl(): string
     {
         return MailAccountResource::getUrl('index', panel: 'user-settings');
+    }
+
+    /** Null when the Roundcube module isn't installed — there's no mailbox page to link to. */
+    public function defaultMailboxUrl(): ?string
+    {
+        $account = $this->accounts()->first();
+
+        return $account ? $this->mailboxUrl($account) : null;
+    }
+
+    /** Null when the Roundcube module isn't installed — there's no mailbox page to link to. */
+    public function mailboxUrl(MailAccount $account): ?string
+    {
+        return class_exists(Mailbox::class) ? Mailbox::getUrl(['account' => $account->getKey()]) : null;
     }
 }

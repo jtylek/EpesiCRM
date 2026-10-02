@@ -11,7 +11,8 @@
     "provider_class": "Epesi\\Modules\\RegionalSettings\\RegionalSettingsServiceProvider",
     "plugin_class": "Epesi\\Modules\\RegionalSettings\\RegionalSettingsPlugin",
     "panels": [
-        "user-settings"
+        "user-settings",
+        "administration"
     ],
     "core": true,
     "requires": [

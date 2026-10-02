@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Setup\DatabaseSetup;
 use App\Services\Setup\Installer;
 use App\Services\Setup\InstallOptions;
+use App\Services\Setup\ModuleLoader;
 use App\Services\Setup\ModulePlan;
 use App\Services\Setup\RoundcubeSetup;
 use App\Services\Setup\SetupException;
@@ -17,10 +18,14 @@ use App\Support\Setup\FirstBoot;
 use App\Support\Setup\SetupCode;
 use App\Support\Setup\SetupState;
 use Dotenv\Dotenv;
+use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\CompanyResource;
 use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\RecordBrowser\Models\Address;
+use Epesi\Modules\RecordBrowser\Recordset\CollectionFields;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
 use Filament\Facades\Filament;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -88,6 +93,16 @@ class SetupTest extends TestCase
             ->assertOk()
             ->assertSee('epesi setup')
             ->assertSee('Load demo data');
+    }
+
+    public function test_install_options_default_to_local_smtp_on_port_25(): void
+    {
+        $options = new InstallOptions('Admin', 'admin@example.test', 'password');
+
+        $this->assertSame(InstallOptions::MAIL_SMTP, $options->mailMethod);
+        $this->assertSame('127.0.0.1', $options->smtpHost);
+        $this->assertSame(25, $options->smtpPort);
+        $this->assertSame('none', $options->smtpSecurity);
     }
 
     public function test_the_wizard_installs_modules_creates_the_administrator_and_saves_mail_settings(): void
@@ -408,6 +423,19 @@ class SetupTest extends TestCase
 
         $this->assertTrue(Company::query()->withoutGlobalScopes()->where('company_name', 'Acme Corp')->exists());
         $this->assertTrue(User::query()->where('email', 'employee@example.com')->exists());
+    }
+
+    public function test_modules_installed_during_setup_add_their_resources_to_the_live_panel(): void
+    {
+        $panel = Panel::make()->id('main');
+        Filament::shouldReceive('getPanels')->andReturn(['main' => $panel]);
+        CollectionFields::flush();
+
+        $manifest = ModuleManifest::fromJson(File::get(base_path('modules/Epesi/CRM/Companies/module.json')));
+        ModuleLoader::load([$manifest]);
+
+        $this->assertSame(CompanyResource::class, $panel->getModelResource(Company::class));
+        $this->assertSame(Address::class, CollectionFields::field(Company::class, 'addresses')?->collectionType());
     }
 
     public function test_the_administrator_finishes_with_the_module_pages(): void

@@ -10,6 +10,7 @@ use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -25,6 +26,7 @@ class TaskCalendarProvider implements CalendarEventProvider
         return Task::query()
             ->whereNotNull('deadline')
             ->whereBetween('deadline', [$start, $end])
+            ->with(['customers', 'customerCompanies'])
             ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
                 ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
                 ->orWhereHas('customers', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
@@ -40,6 +42,13 @@ class TaskCalendarProvider implements CalendarEventProvider
                 durationEditable: false,
                 finished: in_array($task->status, RecordStatus::finished(), true),
                 description: $task->description,
+                customers: $task->customers->pluck('full_name')
+                    ->merge($task->customerCompanies->pluck('company_name'))
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all(),
+                deadline: true,
             ))
             ->values();
     }
@@ -52,7 +61,8 @@ class TaskCalendarProvider implements CalendarEventProvider
     public static function calendarCreateUrl(Carbon $date, bool $allDay): string
     {
         return TaskResource::getUrl('create', [
-            'deadline' => $date->toIso8601String(),
+            // A timed deadline is an instant: the clicked wall-clock slot, as UTC.
+            'deadline' => ($allDay ? $date : RegionalSetting::fromUser($date))->toIso8601String(),
             'timeless' => $allDay ? 1 : 0,
         ]);
     }

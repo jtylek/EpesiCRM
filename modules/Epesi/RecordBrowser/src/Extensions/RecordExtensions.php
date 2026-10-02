@@ -45,6 +45,8 @@ class RecordExtensions
     /** @var array<string, array{callback: Closure, types: array<int, string>|null}> */
     protected static array $headerActions = [];
 
+    protected static ?Closure $statusActionFactory = null;
+
     /** @var array<string, array{callback: Closure, types: array<int, string>|null}> */
     protected static array $emailLinks = [];
 
@@ -68,6 +70,17 @@ class RecordExtensions
     public static function headerActions(string $key, Closure $callback, ?array $types = null): void
     {
         static::$headerActions[$key] = ['callback' => $callback, 'types' => $types];
+    }
+
+    /** @param Closure(): Action $callback */
+    public static function registerStatusAction(Closure $callback): void
+    {
+        static::$statusActionFactory = $callback;
+    }
+
+    public static function statusAction(): ?Action
+    {
+        return static::$statusActionFactory ? (static::$statusActionFactory)() : null;
     }
 
     /**
@@ -145,6 +158,7 @@ class RecordExtensions
     {
         static::$addons = [];
         static::$headerActions = [];
+        static::$statusActionFactory = null;
         static::$emailLinks = [];
     }
 

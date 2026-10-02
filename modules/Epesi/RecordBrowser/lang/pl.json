@@ -147,7 +147,7 @@
     "Work": "Służbowy",
     "X": "X",
     "Yes": "Tak",
-    "Select one recordset and clear search and Origin to reorder fields.": "Aby zmienić kolejność pól, wybierz jeden zestaw rekordów, wyczyść wyszukiwanie i filtr Pochodzenie.",
+    "Clear search and Origin to reorder fields.": "Aby zmienić kolejność pól, wyczyść wyszukiwanie i filtr Pochodzenie.",
     "Reorder fields": "Zmień kolejność pól",
     "Done reordering": "Zakończ zmianę kolejności",
     "Origin": "Pochodzenie",
@@ -161,5 +161,15 @@
     "Reset to module defaults": "Przywróć ustawienia domyślne modułu",
     "Module defaults restored": "Przywrócono ustawienia domyślne modułu",
     "These field properties are protected by the module.": "Te właściwości pola są chronione przez moduł.",
-    "A required field must remain on the form.": "Pole wymagane musi pozostać w formularzu."
+    "A required field must remain on the form.": "Pole wymagane musi pozostać w formularzu.",
+    "Click 2 Fill": "Click 2 Fill",
+    "Paste text, scan it, select words in the desired order, then click a text field to replace its contents.": "Wklej tekst, zeskanuj go, wybierz słowa w odpowiedniej kolejności, a następnie kliknij pole tekstowe, aby zastąpić jego zawartość.",
+    "Text to scan": "Tekst do zeskanowania",
+    "Scan text": "Skanuj tekst",
+    "Edit source text": "Edytuj tekst źródłowy",
+    "Features": "Funkcje",
+    "Recordset features": "Funkcje zbioru rekordów",
+    "Choose which addon modules attach to a recordset. A change applies from the next page load.": "Wybierz, które moduły dodatkowe są dołączane do zbioru rekordów. Zmiana działa od następnego załadowania strony.",
+    "Links already made stay in place when a feature is turned off; they show again when it is turned back on.": "Istniejące powiązania pozostają po wyłączeniu funkcji; po jej ponownym włączeniu znów są widoczne.",
+    "Features saved": "Zapisano funkcje"
 }

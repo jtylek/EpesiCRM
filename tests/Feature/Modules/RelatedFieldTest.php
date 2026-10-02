@@ -102,10 +102,14 @@ class RelatedFieldTest extends TestCase
             ->assertCanSeeTableRecords($tasks)
             ->assertSee('Company: Acme Ltd');
 
-        // One render loads the page's links in one query, not one per row.
+        // One render loads the page's links in one query, not one per row —
+        // matched by table position rather than mere substring, since Task's
+        // ownership scope (customers(), now a MorphToMany over this same
+        // table) legitimately mentions it in a whereHas() subquery on every
+        // Task query too.
         $linkQueries = 0;
         DB::listen(function ($query) use (&$linkQueries): void {
-            if (str_contains($query->sql, 'epesi_recordbrowser_links')) {
+            if (str_starts_with($query->sql, 'select * from "epesi_recordbrowser_links"')) {
                 $linkQueries++;
             }
         });

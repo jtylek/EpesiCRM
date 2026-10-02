@@ -4,7 +4,6 @@ namespace Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts;
 
 use App\Enums\RecordPermission;
 use App\Models\User;
-use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
@@ -15,7 +14,6 @@ use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
-use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
@@ -66,7 +64,7 @@ class ContactResource extends RecordsetResource
                     ->orderBy('last_name', $direction)
                     ->orderBy('first_name', $direction))),
             Field::text('first_name')->required()->maxLength(64)->inTable(),
-            Field::text('title')->maxLength(64),
+            Field::text('title')->maxLength(64)->notInTable(),
             Field::commonData('groups', 'Contacts_Groups', multiple: true)->label('Group')->filterable(),
 
             // Searchable and sortable through the joined column rather than the
@@ -89,16 +87,22 @@ class ContactResource extends RecordsetResource
                 )),
             Field::relations('relatedCompanies', Company::class)
                 ->label('Related Companies')
-                ->titleAttribute('company_name'),
+                ->titleAttribute('company_name')
+                ->notInTable(),
+            Field::select('permission', RecordPermission::class)
+                ->required()
+                ->default(RecordPermission::Public)
+                ->notInTable(),
+            Field::longText('memo')->notInTable(),
 
+            // Short fields first, then Memo, then the Collections below —
+            // RecordsetResource::flowIntoColumns()'s convention, so the
+            // engine's own two-column flow reads the way this list is
+            // written. An administrator can still drag any of these to
+            // interleave them differently for their own installation.
             Field::collection('emails', EmailAddress::class)
                 ->label('E-mail addresses')
                 ->inTable(),
-            Field::select('permission', RecordPermission::class)
-                ->required()
-                ->default(RecordPermission::Public),
-            Field::longText('memo'),
-
             // Work, mobile, home, fax and any other, each with the apps that
             // reach it. The list keeps a column for Work and one for Mobile.
             Field::collection('phones', PhoneNumber::class)
@@ -111,30 +115,16 @@ class ContactResource extends RecordsetResource
             // The website, LinkedIn and the like, each linking to its page.
             Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
 
-            // The linked login. Not in the infolist, and no Login tab: a login is
-            // managed in Administration → Users, where one is made from a
-            // contact. Fixed in demo mode: unlinking a demo account's contact
-            // would break its view of its own company for every visitor.
+            // The linked login. Not shown in the Main panel at all — view,
+            // form or table — for any role: a login is entirely an
+            // Administration concern, managed in Administration → Users,
+            // where one is made from a contact.
             Field::relation('user_id', User::class)
                 ->label('Linked User')
                 ->titleAttribute('email')
                 ->inView(false)
-                ->section('Login', description: 'Links this contact to a portal login. Password, username and roles are managed in Administration → Users, where a login is made from a contact.')
-                ->formUsing(fn (Select $component): Select => $component
-                    ->relationship(
-                        'user',
-                        'email',
-                        modifyQueryUsing: fn (Builder $query, ?Contact $record): Builder => $query
-                            ->whereDoesntHave('contact', fn (Builder $query) => $query
-                                ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey()))),
-                    )
-                    ->unique(ignoreRecord: true)
-                    ->disabled(fn (): bool => Demo::enabled())
-                    ->hint(fn (): ?string => Demo::enabled() ? __('Unavailable in demo mode') : null))
-                ->columnUsing(fn (): TextColumn => TextColumn::make('user.email')
-                    ->label('Login')
-                    ->placeholder(__('-'))
-                    ->toggleable(isToggledHiddenByDefault: true)),
+                ->inForm(false)
+                ->notInTable(),
         ];
     }
 }

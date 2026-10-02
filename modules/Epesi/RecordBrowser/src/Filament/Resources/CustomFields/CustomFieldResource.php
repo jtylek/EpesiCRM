@@ -19,7 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
- * Administration → Fields: add a field to an existing recordset and it appears
+ * Administration → Recordsets: add a field to an existing recordset and it appears
  * on the form, the view, the column chooser, the filters and the record's
  * history — the direct analogue of Epesi's Administration → Records Browser
  * screen (`Utils_RecordBrowser::administrator_panel()`).
@@ -39,9 +39,13 @@ class CustomFieldResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'label';
 
-    protected static ?string $navigationLabel = 'Fields';
+    protected static ?string $navigationLabel = 'Recordsets';
+
+    protected static ?string $slug = 'recordsets';
 
     protected static ?string $modelLabel = 'field';
+
+    protected static ?string $pluralModelLabel = 'Recordsets';
 
     public static function canAccess(): bool
     {

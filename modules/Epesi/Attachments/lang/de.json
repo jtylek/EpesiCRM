@@ -1,0 +1,20 @@
+{
+    "Attach to a record": "An einen Datensatz anhängen",
+    "Attached to": "Angehängt an",
+    "Created by": "Erstellt von",
+    "deleted file": "gelöschte Datei",
+    "Download": "Download",
+    "Edited by": "Bearbeitet von:",
+    "Edited on": "Bearbeitet am:",
+    "Edited on from": "Bearbeitet am von",
+    "Edited on until": "Bearbeitet bis zum",
+    "Get link (valid for 7 days)": "Link abrufen (7 Tage gültig)",
+    "Has Attachments": "Enthält Anhänge",
+    "New note": "Neue Notiz",
+    "Note": "Anmerkung",
+    "Notes": "Anmerkungen",
+    "Record": "Aufzeichnung",
+    "Sticky": "Permanent",
+    "The note was not saved": "Die Notiz wurde nicht gespeichert",
+    "{1} :count file|[2,*] :count files": "{1}:count Datei|[2,*]:count Dateien"
+}

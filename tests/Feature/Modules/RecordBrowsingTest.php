@@ -225,6 +225,16 @@ class RecordBrowsingTest extends TestCase
         $this->assertArrayHasKey($open->id, RecentRecords::visitsOf($user, 'task'));
     }
 
+    public function test_task_list_shows_its_expected_columns_by_default(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $columns = Livewire::test(ListTasks::class)->instance()->getTable()->getColumns();
+        $visible = array_keys(array_filter($columns, fn ($column): bool => ! $column->isToggledHiddenByDefault()));
+
+        $this->assertSame(['title', 'status', 'deadline', 'priority', 'employees', 'customers'], $visible);
+    }
+
     protected function company(string $name): Company
     {
         return Company::create(['company_name' => $name, 'permission' => RecordPermission::Public]);

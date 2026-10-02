@@ -1,0 +1,21 @@
+.epesi-recordset-catalogue .fi-ta-filters-header {
+    display: none;
+}
+
+.epesi-recordset-catalogue .fi-ta-filters {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    column-gap: 1rem;
+    row-gap: 0;
+}
+
+.epesi-recordset-catalogue .fi-ta-filters .fi-sc-form {
+    min-width: 0;
+}
+
+@media (max-width: 639px) {
+    .epesi-recordset-catalogue .fi-ta-filters {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 1rem;
+    }
+}

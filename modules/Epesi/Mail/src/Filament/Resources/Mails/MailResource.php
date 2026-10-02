@@ -14,6 +14,7 @@ use Epesi\Modules\Mail\Models\MailAttachment;
 use Epesi\Modules\Mail\Support\Records;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
@@ -74,7 +75,7 @@ class MailResource extends Resource
                     TextEntry::make('cc')->label('Cc')->inlineLabel()
                         ->visible(fn (Mail $record): bool => filled($record->cc))
                         ->state(fn (Mail $record): HtmlString => static::addressLinks($record->cc)),
-                    TextEntry::make('date')->label('Date')->dateTime('Y-m-d H:i')->inlineLabel(),
+                    TextEntry::make('date')->label('Date')->dateTime()->inlineLabel(),
                     TextEntry::make('subject')
                         ->label('Subject')
                         ->inlineLabel()
@@ -118,6 +119,9 @@ class MailResource extends Resource
             ->defaultSort('date', 'desc')
             ->columns(MailTable::columns())
             ->filters(MailTable::filters())
+            ->persistFiltersInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()
             ->columnManager(false)
             ->toolbarActions([
                 DeleteBulkAction::make(),
@@ -202,8 +206,8 @@ class MailResource extends Resource
 
     /**
      * @param  array<int, string>  $match  the outer regex's captures: [0]
-     *     the whole opening <a> tag, [1] its original href attribute, [3]
-     *     the mailto: value
+     *                                     the whole opening <a> tag, [1] its original href attribute, [3]
+     *                                     the mailto: value
      */
     protected static function composeLinkTag(array $match): string
     {
@@ -231,7 +235,7 @@ class MailResource extends Resource
     protected static function threadList(Mail $record): HtmlString
     {
         $rows = $record->thread->mails()->orderBy('date')->get()->map(function (Mail $mail) use ($record): string {
-            $line = sprintf('%s · %s · %s', e((string) $mail->date?->format('Y-m-d H:i')), e((string) $mail->from), e($mail->subject ?: '(no subject)'));
+            $line = sprintf('%s · %s · %s', e((string) RegionalSetting::display($mail->date)), e((string) $mail->from), e($mail->subject ?: '(no subject)'));
 
             return $mail->is($record)
                 ? '<div style="font-weight:600">'.$line.'</div>'

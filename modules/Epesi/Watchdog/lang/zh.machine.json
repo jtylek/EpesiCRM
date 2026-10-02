@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who 已创建。",
+    ":who deleted.": ":who 已删除。",
+    ":who restored.": ":who 已恢复。",
+    ":who updated.": ":who 已更新。",
+    ":who updated: :fields.": ":who 更新于：:fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "接收所选类型中所有记录的变更通知，而不仅仅是您正在关注的那些。",
+    "Changed by": "修改者：",
+    "Changes": "更改",
+    "Has new changes": "有新更改",
+    "Last change": "最后修改时间",
+    "Record": "记录",
+    "Record types": "记录类型",
+    "Stopped watching this record": "已停止监控此记录",
+    "System": "系统",
+    "Watch record types": "监控记录类型",
+    "Watched records": "被监视的记录",
+    "Watching": "监控",
+    "Watching this record": "正在关注此记录"
+}

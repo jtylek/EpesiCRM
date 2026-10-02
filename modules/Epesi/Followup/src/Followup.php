@@ -7,10 +7,13 @@ use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
 use Carbon\CarbonInterface;
 use Epesi\Modules\Attachments\Models\Attachment;
+use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -98,12 +101,19 @@ class Followup
         $followup = match ($type) {
             'task' => Task::create([...$common, 'title' => $title, 'deadline' => $when, 'timeless' => false]),
             'meeting' => Meeting::create([...$common, 'title' => $title, 'date' => $when->toDateString(), 'time' => $when->format('H:i:s')]),
+            // A phone call has one Customer, either a contact or a company
+            // (Field::customer()) — the source's first of whichever it has,
+            // contact taking priority when a Task/Meeting source has both.
             'phone_call' => PhoneCall::create([
                 ...$common,
                 'subject' => $title,
                 'called_at' => $when,
-                'contact_id' => $customers[0] ?? null,
-                'company_id' => $companies[0] ?? null,
+                'customer_type' => match (true) {
+                    isset($customers[0]) => Relation::getMorphAlias(Contact::class),
+                    isset($companies[0]) => Relation::getMorphAlias(Company::class),
+                    default => null,
+                },
+                'customer_id' => $customers[0] ?? $companies[0] ?? null,
             ]),
         };
 
@@ -123,7 +133,7 @@ class Followup
     protected static function customerContactIds(Model $source): array
     {
         return $source instanceof PhoneCall
-            ? array_values(array_filter([$source->contact_id]))
+            ? ($source->customer instanceof Contact ? [$source->customer_id] : [])
             : $source->customers()->pluck('contacts.id')->all();
     }
 
@@ -133,7 +143,7 @@ class Followup
     protected static function customerCompanyIds(Model $source): array
     {
         return $source instanceof PhoneCall
-            ? array_values(array_filter([$source->company_id]))
+            ? ($source->customer instanceof Company ? [$source->customer_id] : [])
             : $source->customerCompanies()->pluck('companies.id')->all();
     }
 

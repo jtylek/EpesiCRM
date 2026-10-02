@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who 作成済み。",
+    ":who deleted.": ":who 削除済み。",
+    ":who restored.": ":who 復元済み。",
+    ":who updated.": ":who 更新済み。",
+    ":who updated: :fields.": ":who 更新日：:fields。",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "ウォッチ対象のレコードだけでなく、選択したタイプのすべてのレコードの変更について通知を受け取ります。",
+    "Changed by": "変更者：",
+    "Changes": "変更点",
+    "Has new changes": "新しい変更点があります",
+    "Last change": "最終更新日",
+    "Record": "レコード",
+    "Record types": "レコードタイプ",
+    "Stopped watching this record": "このレコードの監視を停止しました",
+    "System": "システム",
+    "Watch record types": "Watchのレコードタイプ",
+    "Watched records": "監視対象レコード",
+    "Watching": "監視中",
+    "Watching this record": "このレコードを監視中"
+}

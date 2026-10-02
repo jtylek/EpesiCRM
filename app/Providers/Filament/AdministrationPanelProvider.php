@@ -12,6 +12,7 @@ use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Filament\Support\UpdateNotice;
 use App\Http\Middleware\DisabledInDemo;
+use App\Http\Middleware\PersistUiState;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
@@ -99,7 +100,7 @@ class AdministrationPanelProvider extends PanelProvider
                 TrackLoginAudit::class,
             ])
             // Persistent: Livewire's own requests need the language too.
-            ->middleware([SetLocale::class], isPersistent: true)
+            ->middleware([SetLocale::class, PersistUiState::class], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
             ])

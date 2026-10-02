@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RegionalSettings\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -51,6 +52,15 @@ class RegionalSetting extends Model
         'H:i' => '24h',
     ];
 
+    /** Resolved settings per signed-in user. Scoped to the request, so it never outlives one (or a test). */
+    public const RESOLVED_BINDING = 'epesi.regional-settings.resolved';
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => app(self::RESOLVED_BINDING)->exchangeArray([]));
+        static::deleted(fn () => app(self::RESOLVED_BINDING)->exchangeArray([]));
+    }
+
     /**
      * @return BelongsTo<User, $this>
      */
@@ -83,6 +93,100 @@ class RegionalSetting extends Model
             'date_format' => 'Y-m-d',
             'time_format' => 'H:i',
         ]);
+    }
+
+    /**
+     * The settings that apply to whoever is signed in right now, without
+     * creating a row the way current() does — this runs on every date a page
+     * renders, including for guests. A user with no row of their own gets the
+     * system defaults. Cached for the request.
+     */
+    public static function effective(): self
+    {
+        $resolved = app(self::RESOLVED_BINDING);
+        $key = (string) Auth::id();
+
+        if (! isset($resolved[$key])) {
+            $resolved[$key] = (Auth::id() === null ? null : static::query()->where('user_id', Auth::id())->first())
+                ?? static::defaults();
+        }
+
+        return $resolved[$key];
+    }
+
+    /**
+     * The timezone every stored (UTC) moment is shown and typed in for the
+     * signed-in user.
+     */
+    public static function timezoneName(): string
+    {
+        $timezone = static::effective()->timezone;
+
+        return in_array($timezone, timezone_identifiers_list(), true) ? $timezone : (string) config('app.timezone', 'UTC');
+    }
+
+    /** PHP date() format of the signed-in user's dates. */
+    public static function dateFormat(): string
+    {
+        return static::effective()->date_format ?: 'Y-m-d';
+    }
+
+    /** PHP date() format of the signed-in user's times; $seconds adds them. */
+    public static function timeFormat(bool $seconds = false): string
+    {
+        $format = static::effective()->time_format ?: 'H:i';
+
+        return $seconds ? str_replace('i', 'i:s', $format) : $format;
+    }
+
+    public static function dateTimeFormat(bool $seconds = false): string
+    {
+        return static::dateFormat().' '.static::timeFormat($seconds);
+    }
+
+    /**
+     * A stored moment as the signed-in user sees it: same instant, their
+     * timezone. Hand the result to ->format(static::dateTimeFormat()).
+     */
+    public static function toUser(CarbonInterface $moment): Carbon
+    {
+        return Carbon::instance($moment)->setTimezone(static::timezoneName());
+    }
+
+    /**
+     * A stored moment rendered for the signed-in user, in their timezone and
+     * formats; a $dateOnly one (a timeless task) is a calendar day, so it
+     * keeps its own date instead of being shifted.
+     */
+    public static function display(?CarbonInterface $moment, bool $dateOnly = false): ?string
+    {
+        if ($moment === null) {
+            return null;
+        }
+
+        return $dateOnly
+            ? $moment->format(static::dateFormat())
+            : static::toUser($moment)->format(static::dateTimeFormat());
+    }
+
+    /**
+     * The signed-in user's current wall-clock time as a floating value
+     * (labelled UTC, like the calendar's own dates) — what "now" reads as on
+     * their clock.
+     */
+    public static function nowAsWallClock(): Carbon
+    {
+        return Carbon::parse(static::toUser(Carbon::now())->format('Y-m-d H:i:s'), 'UTC');
+    }
+
+    /**
+     * The reverse, for a wall-clock value the user picked or dragged to: it is
+     * read in their timezone and returned as the same instant in the app's.
+     */
+    public static function fromUser(CarbonInterface $wallClock): Carbon
+    {
+        return Carbon::parse($wallClock->format('Y-m-d H:i:s'), static::timezoneName())
+            ->setTimezone((string) config('app.timezone', 'UTC'));
     }
 
     /**

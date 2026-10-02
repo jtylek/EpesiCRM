@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "发送后将此消息归档",
+    "Archive to the CRM": "归档至 CRM",
+    "Archiving failed": "归档失败",
+    "Ask your administrator to install it.": "请联系您的管理员进行安装。",
+    "Cannot move to archive from this folder": "无法从该文件夹移至归档夹",
+    "Mailbox": "邮箱",
+    "Matching contact or company not found. Click again to force archive without contact association.": "未找到匹配的联系人或公司。再次点击可强制归档，且不关联联系人。",
+    "Message already archived": "消息已归档",
+    "Set up a mail account": "设置邮件账户",
+    "Switching account — please wait…": "切换账户——请稍候……",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "邮件客户端未加载：Web 服务器将 Roundcube 的页面转发给了 Epesi，而非由其自身提供服务。请参阅中的“Web 服务器要求”:doc。",
+    "The mail client, Roundcube, isn't installed yet.": "邮件客户端 Roundcube 尚未安装。",
+    "You have no mail account with an incoming (IMAP) server yet.": "您目前尚未拥有连接到收件（IMAP）服务器的邮件账户。",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "您的邮件服务器拒绝了登录请求。请在“设置”>“邮件账户”中检查此账户。"
+}

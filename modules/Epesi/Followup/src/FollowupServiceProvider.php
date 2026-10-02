@@ -24,9 +24,11 @@ class FollowupServiceProvider extends ServiceProvider
     {
         RecordExtensions::headerActions(
             'followup',
-            fn (Model $record): array => [static::action($record)],
+            fn (Model $record): array => [static::action()->record($record)],
             array_keys(Followup::TYPES),
         );
+
+        RecordExtensions::registerStatusAction(fn (): Action => static::action());
     }
 
     /**
@@ -35,14 +37,16 @@ class FollowupServiceProvider extends ServiceProvider
      * activity — Epesi's Follow-up leightbox (Save / New Meeting / New Task /
      * New Phonecall), as one modal.
      */
-    protected static function action(Model $record): Action
+    protected static function action(): Action
     {
         return Action::make('followup')
             ->label('Close / Follow-up')
             ->icon(Heroicon::OutlinedArrowUturnRight)
             ->color('gray')
-            ->visible(fn (): bool => Followup::isOpen($record) && Gate::allows('update', $record))
+            ->visible(fn (Model $record): bool => Followup::isOpen($record) && Gate::allows('update', $record))
             ->modalHeading(__('Follow-up'))
+            ->modalSubmitAction(fn (Action $action): Action => $action->keyBindings(['ctrl+s']))
+            ->modalCancelAction(fn (Action $action): Action => $action->keyBindings(['ctrl+e']))
             ->modalSubmitActionLabel(__('Save'))
             ->schema([
                 Select::make('status')
@@ -64,7 +68,7 @@ class FollowupServiceProvider extends ServiceProvider
                     ->inline()
                     ->live(),
                 TextInput::make('title')
-                    ->default(Followup::titleOf($record))
+                    ->default(fn (Model $record): string => Followup::titleOf($record))
                     ->maxLength(255)
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),
@@ -75,7 +79,7 @@ class FollowupServiceProvider extends ServiceProvider
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),
             ])
-            ->action(function (array $data, Action $action) use ($record): void {
+            ->action(function (array $data, Action $action, Model $record): void {
                 $status = $data['status'] instanceof RecordStatus ? $data['status'] : RecordStatus::from((int) $data['status']);
 
                 $followup = Followup::close(

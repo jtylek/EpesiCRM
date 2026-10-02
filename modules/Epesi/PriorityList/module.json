@@ -12,6 +12,6 @@
     "plugin_class": "Epesi\\Modules\\PriorityList\\PriorityListPlugin",
     "panels": ["main", "administration"],
     "core": true,
-    "requires": ["epesi/recordbrowser"],
+    "requires": ["epesi/recordbrowser", "epesi/regional-settings"],
     "provides": []
 }

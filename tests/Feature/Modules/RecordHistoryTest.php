@@ -40,7 +40,8 @@ class RecordHistoryTest extends TestCase
         $call = PhoneCall::create([
             'subject' => 'Offer',
             'called_at' => '2026-10-01 10:00:00',
-            'contact_id' => $ann->id,
+            'customer_type' => 'contact',
+            'customer_id' => $ann->id,
             'status' => RecordStatus::Open,
             'priority' => RecordPriority::Medium,
             'permission' => RecordPermission::Public,
@@ -59,7 +60,7 @@ class RecordHistoryTest extends TestCase
             // Marked like a diff: the old value red, the new one green.
             ->assertSeeHtml('Status: <span class="epesi-history-old">Open</span> → <span class="epesi-history-new">In Progress</span>')
             // Created: the new values alone, no red "-" before each.
-            ->assertSeeHtml('Contact: <span class="epesi-history-new">Ann Buyer</span>')
+            ->assertSeeHtml('Customer: <span class="epesi-history-new">Ann Buyer</span>')
             ->assertSeeHtml('Other Customer (not in system): <span class="epesi-history-new">No</span>')
             ->assertSeeHtml('Subject: <span class="epesi-history-new">Offer</span>')
             ->assertDontSeeText('Subject: - →');

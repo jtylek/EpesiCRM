@@ -21,11 +21,14 @@
             'heading' => __('List page'),
             'shortcuts' => [
                 ['keys' => ['A', 'F', 'R'], 'does' => __('Switches to the All / Favorites / Recent tab')],
+                ['keys' => ['M'], 'does' => __('Switches between My records and All records')],
+                ['keys' => ['I'], 'does' => __('Cycles through Active, Inactive and All records')],
                 ['keys' => ['S'], 'does' => __('Focuses the search field')],
                 ['keys' => ['N'], 'does' => __('Opens the "New …" page')],
                 ['keys' => ['↑', '↓'], 'does' => __('Moves the highlighted row')],
                 ['keys' => ['PageUp', 'PageDown'], 'does' => __("Turns the table's page")],
                 ['keys' => ['Enter'], 'does' => __('Opens the highlighted row, or runs the search')],
+                ['keys' => ['Space'], 'does' => __('Previews the highlighted row in place, if it has one')],
             ],
         ],
         [
@@ -38,7 +41,7 @@
     ];
 @endphp
 
-<x-filament::modal id="keyboard-help" icon="heroicon-o-command-line" width="md">
+<x-filament::modal id="keyboard-help" icon="heroicon-o-command-line" width="2xl">
     <x-slot name="heading">{{ __('Keyboard help') }}</x-slot>
 
     <div class="space-y-5">
@@ -62,7 +65,7 @@
                             @endforeach
                         </div>
 
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                        <p class="text-sm text-gray-500 sm:whitespace-nowrap dark:text-gray-400">
                             {{ $shortcut['does'] }}
                         </p>
                     @endforeach

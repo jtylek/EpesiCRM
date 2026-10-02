@@ -39,7 +39,7 @@ class MailsRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('links.linkable'))
             ->defaultSort('date', 'desc')
             ->columns(MailTable::columns())
-            ->filters(MailTable::filters())
+            ->filters([])
             ->columnManager(false)
             ->recordUrl(fn (Mail $record): string => MailResource::getUrl('view', ['record' => $record]))
             ->headerActions([

@@ -4,6 +4,8 @@ namespace Epesi\Modules\RecordBrowser\Filament\Pages;
 
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
+use App\Models\User;
+use App\Support\StatusField;
 use Epesi\Modules\RecordBrowser\Browsing\BrowseMode;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
@@ -12,10 +14,13 @@ use Filament\Resources\Pages\ListRecords as BaseListRecords;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Shared base for every resource's List page — extend this instead of
@@ -117,8 +122,33 @@ abstract class ListRecords extends BaseListRecords
             ]);
         }
 
+        // A list with no Employees filter (Contacts, Companies) still gets a
+        // "My records": the ones its user created or has changed.
+        if ($table->getFilter('employees') === null
+            && $table->getFilter('employee') === null
+            && $table->getFilter('edited_by') === null
+            && $table->getFilter(self::MY_RECORDS_FILTER) === null
+            && method_exists($model = app(static::getModel()), 'activities')
+            && Schema::hasColumn($model->getTable(), 'created_by')) {
+            $table->pushFilters([
+                Filter::make(self::MY_RECORDS_FILTER)
+                    ->label('My records')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
+                        ->where($query->getModel()->qualifyColumn('created_by'), Auth::id())
+                        ->orWhereHas('activities', fn (Builder $activities): Builder => $activities
+                            ->where('causer_type', (new User)->getMorphClass())
+                            ->where('causer_id', Auth::id())))),
+            ]);
+        }
+
+        $this->applyDefaultMyRecords($table);
+
         return $table;
     }
+
+    /** The "My records" toggle filter of a list that has no Employees filter. */
+    public const MY_RECORDS_FILTER = 'my_records';
 
     /**
      * @return array<int, BrowseMode>
@@ -146,6 +176,261 @@ abstract class ListRecords extends BaseListRecords
             // A column the user sorts by wins; the visit order is only the default.
             BrowseMode::Recent => RecentRecords::onlyRecent($query, Auth::user(), latestFirst: blank($this->getTableSortColumn())),
         };
+    }
+
+    /**
+     * The "My records" quick filter (AI-shared/conventions.md):
+     * null when the list has no Employees filter to set. A list that also has a
+     * Not closed status filter (StatusField) gets the active variant.
+     *
+     * @return array{label: string, active: bool}|null
+     */
+    public function getMyRecordsButton(): ?array
+    {
+        $employees = $this->myRecordsEmployeesFilter();
+
+        if ($employees === null && $this->getTable()->getFilter(self::MY_RECORDS_FILTER)) {
+            return ['label' => __('My records'), 'active' => $this->myCreatedOrChangedAreShown()];
+        }
+
+        if ($employees === null || $this->myId($employees) === null) {
+            return null;
+        }
+
+        return [
+            'label' => __('My records'),
+            'active' => $this->myRecordsAreShown(),
+        ];
+    }
+
+    public function toggleMyRecords(): void
+    {
+        $employees = $this->myRecordsEmployeesFilter();
+        $contactId = $employees ? $this->myId($employees) : null;
+
+        if ($employees === null && $this->getTable()->getFilter(self::MY_RECORDS_FILTER)) {
+            $wasActive = $this->myCreatedOrChangedAreShown();
+            $status = $this->keptStatusState();
+
+            $this->removeTableFilters();
+
+            if ($status !== null) {
+                $this->tableFilters = $status;
+            }
+
+            if (! $wasActive) {
+                $this->tableFilters = [...($this->tableFilters ?? []), self::MY_RECORDS_FILTER => ['isActive' => true]];
+                $this->handleTableFilterUpdates();
+            }
+
+            return;
+        }
+
+        if ($employees === null || $contactId === null) {
+            return;
+        }
+
+        $wasActive = $this->myRecordsAreShown();
+        $status = $this->keptStatusState();
+
+        $this->removeTableFilters();
+
+        if ($status !== null) {
+            $this->tableFilters = $status;
+        }
+
+        if ($wasActive) {
+            $this->handleTableFilterUpdates();
+
+            return;
+        }
+
+        $filters = $this->tableFilters ?? [];
+        $filters[$employees->getName()] = $employees->isMultiple()
+            ? ['values' => [(string) $contactId]]
+            : ['value' => (string) $contactId];
+
+        $this->tableFilters = $filters;
+        $this->handleTableFilterUpdates();
+    }
+
+    /**
+     * The Active / Inactive / All select: null when the list has no
+     * closed/canceled status. `value` is "active", "inactive", "all" while the
+     * status filter is empty, or "other" while it names one particular status.
+     *
+     * @return array{value: string}|null
+     */
+    public function getInactiveToggle(): ?array
+    {
+        $status = $this->myRecordsStatusFilter();
+
+        if ($status === null) {
+            return null;
+        }
+
+        return ['value' => match ($this->tableFilters[$status->getName()]['value'] ?? null) {
+            StatusField::NOT_CLOSED => 'active',
+            StatusField::INACTIVE => 'inactive',
+            null, '' => 'all',
+            default => 'other',
+        }];
+    }
+
+    public function setStatusMode(string $mode): void
+    {
+        $status = $this->myRecordsStatusFilter();
+
+        if ($status === null) {
+            return;
+        }
+
+        $this->tableFilters = [
+            ...($this->tableFilters ?? []),
+            $status->getName() => ['value' => match ($mode) {
+                'active' => StatusField::NOT_CLOSED,
+                'inactive' => StatusField::INACTIVE,
+                default => null, // "all": no status filter
+            }],
+        ];
+        $this->handleTableFilterUpdates();
+    }
+
+    /** The I shortcut: Active -> Inactive -> All -> Active (any other status goes to Active). */
+    public function toggleStatusMode(): void
+    {
+        $this->setStatusMode(match ($this->getInactiveToggle()['value']) {
+            'active' => 'inactive',
+            'inactive' => 'all',
+            default => 'active',
+        });
+    }
+
+    /** The My records / All records select. */
+    public function setMyRecordsMode(string $mode): void
+    {
+        if (($mode === 'mine') !== $this->myRecordsAreOn()) {
+            $this->toggleMyRecords();
+        }
+    }
+
+    protected function myRecordsAreOn(): bool
+    {
+        return $this->myRecordsEmployeesFilter() === null
+            ? $this->myCreatedOrChangedAreShown()
+            : $this->myRecordsAreShown();
+    }
+
+    /** The status filter's state, which "My records" leaves alone when it resets the other filters. */
+    protected function keptStatusState(): ?array
+    {
+        $status = $this->myRecordsStatusFilter();
+
+        return $status && isset($this->tableFilters[$status->getName()])
+            ? [$status->getName() => $this->tableFilters[$status->getName()]]
+            : null;
+    }
+
+    protected function myCreatedOrChangedAreShown(): bool
+    {
+        return (bool) ($this->tableFilters[self::MY_RECORDS_FILTER]['isActive'] ?? false);
+    }
+
+    protected function myRecordsAreShown(): bool
+    {
+        $employees = $this->myRecordsEmployeesFilter();
+
+        if ($employees === null) {
+            return false;
+        }
+
+        $contactId = (string) $this->myId($employees);
+
+        $state = $this->tableFilters[$employees->getName()] ?? [];
+        $selected = array_map('strval', (array) ($state['values'] ?? $state['value'] ?? []));
+
+        return $selected === [$contactId];
+    }
+
+    protected function myRecordsEmployeesFilter(?Table $table = null): ?SelectFilter
+    {
+        foreach (['employees', 'employee', 'edited_by'] as $name) {
+            $filter = ($table ?? $this->getTable())->getFilter($name);
+
+            if ($filter instanceof SelectFilter) {
+                return $filter;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * A fresh login opens every list on "My records" (or "My active records").
+     * Only once per session: after that the filters the user left — including
+     * none at all — are the ones persisted in the session.
+     */
+    protected function applyDefaultMyRecords(Table $table): void
+    {
+        // Not "<filters key>.x": a dot would nest the marker inside the filters array.
+        $marker = 'my_records_default:'.$this->getTableFiltersSessionKey();
+
+        if (session()->has($marker)) {
+            return;
+        }
+
+        session()->put($marker, true);
+
+        if (filled($this->tableFilters) || filled(session()->get($this->getTableFiltersSessionKey()))) {
+            return;
+        }
+
+        $employees = $this->myRecordsEmployeesFilter($table);
+
+        if ($employees === null) {
+            $this->tableFilters = $table->getFilter(self::MY_RECORDS_FILTER)
+                ? [self::MY_RECORDS_FILTER => ['isActive' => true]]
+                : null;
+
+            return;
+        }
+
+        $contactId = $this->myId($employees);
+
+        if ($contactId === null) {
+            return;
+        }
+
+        $filters = [$employees->getName() => $employees->isMultiple()
+            ? ['values' => [(string) $contactId]]
+            : ['value' => (string) $contactId]];
+
+        if ($status = $this->myRecordsStatusFilter($table)) {
+            $filters[$status->getName()] = ['value' => StatusField::NOT_CLOSED];
+        }
+
+        $this->tableFilters = $filters;
+    }
+
+    protected function myRecordsStatusFilter(?Table $table = null): ?SelectFilter
+    {
+        $filter = ($table ?? $this->getTable())->getFilter('status');
+
+        return $filter instanceof SelectFilter && array_key_exists(StatusField::NOT_CLOSED, $filter->getOptions())
+            ? $filter
+            : null;
+    }
+
+    /** Notes have no Employees: their "Edited by" filter holds a user id, not a contact's. */
+    protected function myId(SelectFilter $filter): int|string|null
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        return $filter->getName() === 'edited_by' ? $user->getKey() : $user->contact?->getKey();
     }
 
     protected function getRecordType(): string

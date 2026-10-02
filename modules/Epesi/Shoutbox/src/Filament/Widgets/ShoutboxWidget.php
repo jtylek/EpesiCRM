@@ -38,7 +38,7 @@ class ShoutboxWidget extends Widget implements Applet
 
     public static function getAppletCaption(): string
     {
-        return __('Shoutbox');
+        return __('Messages');
     }
 
     public static function getAppletDescription(): ?string

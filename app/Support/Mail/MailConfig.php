@@ -41,7 +41,11 @@ class MailConfig
                 'MAIL_MAILER' => 'smtp',
                 'MAIL_SCHEME' => $security === self::SECURITY_SSL ? 'smtps' : 'smtp',
                 'MAIL_HOST' => $host,
-                'MAIL_PORT' => $port ?: ($security === self::SECURITY_SSL ? 465 : 587),
+                'MAIL_PORT' => $port ?: match ($security) {
+                    self::SECURITY_SSL => 465,
+                    self::SECURITY_TLS => 587,
+                    default => 25,
+                },
                 'MAIL_USERNAME' => $username,
                 'MAIL_PASSWORD' => $password,
             ],

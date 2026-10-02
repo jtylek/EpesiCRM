@@ -68,19 +68,14 @@ full suite or anything else long.
   `git stash`: it takes every session's uncommitted work out of the tree, not just yours.
 - Don't fix or revert another session's files to make the suite pass.
 
-## Making runs independent
+## The lock
 
-Not built yet. There are two ways to do it:
+`tests/bootstrap.php` (PHPUnit's bootstrap in `phpunit.xml`) takes an exclusive OS file lock on
+`storage/framework/testing/test-run.lock` and holds it until the process exits, even if it
+crashes. A second run prints who holds it (read from `test-run.info`, a separate file because
+Windows blocks reads of a locked one), waits, and gives up after 30 minutes. It works for any
+agent or developer, with no messaging needed, so `SendMessage` announcements are now optional.
+It doesn't fix the working-tree problem above: a run still tests everyone's edits.
 
-- **A token per run.** Laravel's parallel testing (`php artisan test --parallel`) gives each
-  process a token, and `Storage::fake()` then uses `<disk>_test_<token>` as its folder.
-  `ParallelTesting::token()` reads `$_SERVER['TEST_TOKEN']`. Setting that per process in
-  `TestCase::createApplication()` (the process id, say) and adding it to
-  `VIEW_COMPILED_PATH` would give each run its own fake disks and compiled views. As long as
-  `LARAVEL_PARALLEL_TESTING` stays unset, nothing else switches to parallel behaviour. The
-  per-run folders need removing when the run ends, or they pile up.
-- **A lock.** Take a file lock in the test bootstrap, so a second run waits for the first one
-  to finish. It's simpler, and it also covers shared state nobody has found yet. The cost is
-  that a quick filtered run waits for another session's whole suite.
-
-The token is the better choice: runs stay independent, and a session never waits on another.
+A token per run (`php artisan test --parallel`'s `TEST_TOKEN`, added to the fake disks and
+`VIEW_COMPILED_PATH`) would let runs overlap instead of queueing. Not built.

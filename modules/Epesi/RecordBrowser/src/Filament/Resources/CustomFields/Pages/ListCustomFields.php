@@ -7,6 +7,7 @@ use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldSchema;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource;
+use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\RecordsetFeatureAction;
 use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -39,6 +40,7 @@ class ListCustomFields extends ListRecords
     {
         return [
             CreateAction::make(),
+            RecordsetFeatureAction::features(fn (): ?string => $this->tableFilters['model_type']['value'] ?? null),
             $this->syncAction(),
         ];
     }

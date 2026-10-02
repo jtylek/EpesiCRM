@@ -19,10 +19,10 @@ use Illuminate\Database\Eloquent\Model;
  * Customers is dual-recordset — company OR contact).
  *
  * `company/<id>` entries in the legacy Customers multiselect resolve into
- * `customerCompanies` (task_customer_company), added alongside the
- * pre-existing contact-only `customers` pivot rather than replacing it —
- * see create_tasks_table's/add_customer_companies_to_activities's docblocks
- * for why this is two plain pivots, not one polymorphic one.
+ * `customerCompanies`, `contact/<id>` ones into `customers` — both
+ * MorphToMany relations over the same Customers field's link rows (see
+ * Task::customers()/customerCompanies() and Field::customers()), so a mixed
+ * pick lands correctly either way.
  *
  * Legacy `f_longterm` is deliberately ignored — Jasiek: won't be used. The
  * column existed briefly on the Laravel side too; see

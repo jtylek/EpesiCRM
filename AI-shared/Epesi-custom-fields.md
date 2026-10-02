@@ -365,6 +365,49 @@ Two situations call for it:
 It reports what it created, or that every field already had its column. `customfields:sync` is
 the same thing on the command line.
 
+#### Recordset features
+
+The **Features** button in the list's header (next to Repair columns). Addon modules attach
+themselves to recordsets: Mail gives a record type an E-mails tab and puts it in the "Link to
+record" selector, Attachments gives it a Notes tab. Which recordsets they attach to used to be a
+hard-coded list in each module, so a recordset from a module installed later (Projects, Tickets)
+never got either. The button opens a form: pick a recordset, tick the features it should have.
+The recordset starts on the one the list is filtered to. It lives here and not on its own page
+because a recordset is a property of the recordset, like its fields, and this screen is where an
+administrator already goes to adjust one.
+
+How it works (`RecordsetFeatures`):
+
+- A module declares its feature with `RecordsetFeatures::define($feature, $label, $defaults)` in
+  `register()`. `$defaults` are the morph aliases it is on for until an administrator decides.
+  Mail (`mail`, label "E-mails") and Attachments (`notes`, "Notes") default to company, contact,
+  task, meeting and phone call, so installs behave as they did before.
+  `Attachments::enableFor($alias)` still works and now only adds a default
+  (`RecordsetFeatures::enableByDefault()`).
+- An administrator's choice is a row in `epesi_recordbrowser_recordset_features`
+  (`model_type`, `feature`, `enabled`), and it wins over the default in either direction. Nothing
+  is seeded: a recordset nobody has touched is whatever the modules declared, which for a new
+  module's recordset is nothing, so the administrator turns features on from there.
+- Modules read `RecordsetFeatures::aliasesFor($feature)` (Mail: `MailServiceProvider::recordTypes()`,
+  Attachments: `AttachmentsServiceProvider::recordTypes()`) where they used to read a static
+  array: when defining the `mails`/`attachments` relation, registering the tab, in the "Link to
+  record" options, and in the guards that check a type is allowed. The choices are read once per
+  request and the table may not exist yet (a fresh install, tests before migrating), in which
+  case the defaults stand. A change applies from the next request, because relations and tabs
+  are registered at boot.
+- The form offers the main panel's recordsets only (`FieldOverrides::recordsets()` without
+  collection item types such as addresses).
+- Turning a feature off hides the tab and removes the type from the selector. It doesn't delete
+  links already made: they stay in the link table and show again when it is turned back on.
+- The "Link to record" search uses the recordset's own searchable fields
+  (`getGloballySearchableAttributes()`, including a collection's `addresses.city` dot paths), so
+  an enabled recordset is searchable with no code from its module. The CRM types keep their
+  fixed column list, and a resource that names none falls back to the id.
+- Not behind this: Reminders. Each type needs a start time that only code can give
+  (`Reminders::startTimeFor()`), so a toggle would enable it without making it work.
+- Not built yet: a shortcut to Features from the Mail settings, a `--features` option on
+  `make:epesi-recordset`, and a warning on the toggle that counts existing links.
+
 ### Limits and available types
 
 A recordset can carry at most 64 administrator-added fields
@@ -413,6 +456,10 @@ For everything else legacy's add-field screen offered that this one doesn't, see
 | `modules/Epesi/RecordBrowser/src/Models/Concerns/HasCustomFields.php` | The one-line opt-in trait a model adds; it registers the link fields' relationships and brings `HasFileFields`, `HasRecordLinks` and `HasCollections` along |
 | `modules/Epesi/RecordBrowser/src/Filament/Resources/CustomFields/` | Administration → Fields: the resource, form, infolist, table and the drop-column action |
 | `modules/Epesi/RecordBrowser/src/Console/CustomFieldsSyncCommand.php` (`customfields:sync`) | The command-line form of Repair columns |
+| `modules/Epesi/RecordBrowser/src/Recordset/RecordsetFeatures.php` | Which recordsets an addon module (E-mails, Notes) attaches to: declared defaults plus the administrator's choices |
+| `modules/Epesi/RecordBrowser/src/Filament/Resources/CustomFields/RecordsetFeatureAction.php` | The Features button and its form on the Recordsets list |
+| `modules/Epesi/RecordBrowser/database/migrations/2026_10_01_100000_create_recordbrowser_recordset_features_table.php` | The `epesi_recordbrowser_recordset_features` table |
+| `tests/Feature/Modules/RecordsetFeaturesTest.php` | Defaults, overrides, `enableFor()` and the Features action |
 
 [conventions.md](conventions.md#custom-fields) has the one-paragraph version, for a resource
 author wondering what `HasCustomFields` buys them.
@@ -473,9 +520,12 @@ formatted value instead, and rewrites every row when the format changes
 
 The minute interval (`->minutesStep()`, the `minutes_step` param) reaches both of Filament's
 pickers: `minutesStep()` steps the JavaScript picker's minute input and becomes `step` (in
-seconds) on the native one. A native input with a step rejects a stored value off the step, so a
-record imported at 10:07 won't save until its time is changed. That's why the CRM recordsets
-don't set one, although legacy's Meeting Time used 5 minutes.
+seconds) on the native one. The application and RecordBrowser default to five minutes;
+an explicit field interval still overrides that default. New custom fields also start at five.
+Legacy activity imports round current scheduled times to the nearest five minutes, including
+date rollover, while retaining original history and audit timestamps. Existing imported
+activities can be normalized with `import:round-times`; see
+[legacy migration](Epesi-legacy-data-migration.md#rounding-imported-activity-times).
 
 ### `file`
 

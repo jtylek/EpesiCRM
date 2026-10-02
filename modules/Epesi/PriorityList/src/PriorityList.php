@@ -5,13 +5,17 @@ namespace Epesi\Modules\PriorityList;
 use App\Enums\RecordStatus;
 use App\Filament\Dashboard\AppletTooltip;
 use App\Models\User;
+use BackedEnum;
 use Carbon\CarbonInterface;
 use Closure;
 use Epesi\Modules\PriorityList\Models\Entry;
 use Epesi\Modules\PriorityList\Models\PriorityListSetting;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -334,9 +338,19 @@ class PriorityList
         return $resolver ? (bool) $resolver($record) : false;
     }
 
-    public static function formatDue(Model $record): ?string
+    public static function formatDue(Model $record, ?RegionalSetting $regionalSettings = null): ?string
     {
-        return static::due($record)?->format(static::isAllDay($record) ? 'Y-m-d' : 'Y-m-d H:i');
+        $due = static::due($record);
+
+        if ($due === null) {
+            return null;
+        }
+
+        $regionalSettings ??= RegionalSetting::current();
+
+        return static::isAllDay($record)
+            ? $due->format($regionalSettings->date_format)
+            : $regionalSettings->formatDateTime($due);
     }
 
     public static function isOverdue(Model $record): bool
@@ -350,10 +364,20 @@ class PriorityList
         return (static::isAllDay($record) ? $due->copy()->endOfDay() : $due)->isPast();
     }
 
-    /** What its row shows on hover: the description; when it is due is in the row already. */
-    public static function details(Model $record): ?HtmlString
+    /** The full record details shown when its priority-list row is hovered. */
+    public static function details(Model $record): HtmlString
     {
-        return AppletTooltip::text($record->getAttribute('description'));
+        $dateLabel = $record->getMorphClass() === 'task' ? 'Deadline' : 'Date and Time';
+
+        return AppletTooltip::details(
+            type: static::typeLabel($record),
+            icon: static::typeIcon($record),
+            title: static::title($record),
+            description: $record->getAttribute('description'),
+            dateLabel: $dateLabel,
+            date: static::formatDue($record),
+            customers: AppletTooltip::customers($record),
+        );
     }
 
     /** "Task: Call the bank". */
@@ -365,15 +389,25 @@ class PriorityList
     /** "Task · In progress" — what the record is, and how far along. */
     public static function describe(Model $record): string
     {
+        $status = $record->getAttribute('status');
+
         return collect([
             static::typeLabel($record),
-            $record->status instanceof RecordStatus ? $record->status->getLabel() : null,
+            $status instanceof HasLabel ? $status->getLabel() : null,
         ])->filter()->implode(' · ');
     }
 
     public static function typeLabel(Model $record): string
     {
         return static::typeLabelFor($record->getMorphClass());
+    }
+
+    /** The recordset's navigation icon, shown beside its type on the list. */
+    public static function typeIcon(Model $record): string|BackedEnum|Htmlable|null
+    {
+        $resource = static::resourceFor($record);
+
+        return $resource ? $resource::getNavigationIcon() : null;
     }
 
     /** typeLabel() for an alias with no record in hand — the admin page's rows. */

@@ -92,8 +92,10 @@ class CustomFieldsTest extends TestCase
         $time = Field::time('at')->minutesStep(60)->toFormComponent();
         $this->assertSame(3600, $time->getStep());
 
-        // No interval: every minute, and no `step` forced on the native input.
-        $this->assertNull(Field::time('at')->toFormComponent()->getStep());
+        $this->assertSame(300, Field::time('at')->toFormComponent()->getStep());
+        $this->assertSame(300, Field::dateTime('at')->toFormComponent()->getStep());
+        $this->assertSame(300, DateTimePicker::make('at')->seconds(false)->getStep());
+        $this->assertSame(300, TimePicker::make('at')->seconds(false)->getStep());
     }
 
     public function test_the_suite_leaves_the_installs_cache_file_alone(): void

@@ -5,6 +5,7 @@ namespace Epesi\Modules\Reminders\Filament\RelationManagers;
 use App\Filament\Concerns\TranslatesRelationManagerLabels;
 use App\Models\User;
 use Carbon\CarbonInterface;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Reminders;
 use Filament\Actions\Action;
@@ -62,7 +63,7 @@ class RemindersRelationManager extends RelationManager
             ToggleButtons::make('timing')
                 ->label('When')
                 ->options([
-                    'before' => $start ? 'Before '.$start->format('Y-m-d H:i') : 'Before (this record has no time set)',
+                    'before' => $start ? 'Before '.RegionalSetting::display($start) : 'Before (this record has no time set)',
                     'at' => __('At a fixed date and time'),
                 ])
                 ->disableOptionWhen(fn (string $value): bool => $value === 'before' && $start === null)
@@ -89,7 +90,7 @@ class RemindersRelationManager extends RelationManager
             DateTimePicker::make('remind_at')
                 ->label('Remind at')
                 ->seconds(false)
-                ->default(fn (): string => ($start ?? now()->addHour())->copy()->startOfMinute()->toDateTimeString())
+                ->default(fn (): string => ($start ?? now()->addHour())->copy()->roundMinutes(5)->toDateTimeString())
                 ->required()
                 ->visible(fn (Get $get): bool => $get('timing') === 'at')
                 ->columnSpanFull(),
@@ -122,14 +123,14 @@ class RemindersRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitle(fn (Reminder $record): string => 'reminder at '.$record->remind_at->format('Y-m-d H:i'))
+            ->recordTitle(fn (Reminder $record): string => 'reminder at '.RegionalSetting::display($record->remind_at))
             ->modifyQueryUsing(fn (Builder $query): Builder => static::visibleReminders($query)
                 ->with(['recipients.contact', 'creator.contact']))
             ->defaultSort('remind_at')
             ->columns([
                 TextColumn::make('remind_at')
                     ->label('Remind at')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime()
                     ->description(fn (Reminder $record): string => $record->timingLabel())
                     ->color(fn (Reminder $record): ?string => $record->remind_at->isPast() ? 'gray' : null)
                     ->sortable(),

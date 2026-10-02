@@ -11,6 +11,9 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\HtmlString;
 
 /**
  * Filament's login page, except in demo mode (App\Support\Demo): then it is
@@ -24,6 +27,23 @@ use Filament\Schemas\Schema;
  */
 class Login extends BaseLogin
 {
+    /**
+     * The application's name at the very top of the login card, above the brand.
+     */
+    public function mount(): void
+    {
+        parent::mount();
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SIMPLE_PAGE_START,
+            fn (): HtmlString => new HtmlString(
+                '<div class="mb-4 text-center text-xl font-medium text-gray-500 dark:text-gray-400">'
+                .e(__('Business Information Manager')).'</div>'
+            ),
+            scopes: static::class,
+        );
+    }
+
     public function form(Schema $schema): Schema
     {
         if (! Demo::enabled()) {

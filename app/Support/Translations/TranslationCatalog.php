@@ -32,7 +32,7 @@ class TranslationCatalog
     public const TRANSLATED = 'translated';
 
     /**
-     * @return array<string, array{key: string, english: string, source: string, shipped: ?string, custom: ?string, status: string}> by key
+     * @return array<string, array{key: string, english: string, source: string, shipped: ?string, machine: bool, custom: ?string, status: string}> by key
      */
     public static function for(string $locale): array
     {
@@ -45,13 +45,16 @@ class TranslationCatalog
                 ->mapWithKeys(fn (string $file): array => [pathinfo($file, PATHINFO_FILENAME) => static::read($file)]);
             $english = $files->get(self::SOURCE_LOCALE, []);
             $shipped = $files->get($locale, []);
+            // The DeepL pass's output, under the reviewed file as in the loader.
+            $machine = $files->get("{$locale}.machine", []);
 
             foreach ($files->flatMap(fn (array $lines): array => array_keys($lines))->unique() as $key) {
                 $key = (string) $key;
                 $rows[$key] ??= static::row($key, $english[$key] ?? $key, $source);
 
-                if (filled($shipped[$key] ?? null)) {
-                    $rows[$key]['shipped'] = $shipped[$key];
+                if (filled($shipped[$key] ?? null) || filled($machine[$key] ?? null)) {
+                    $rows[$key]['shipped'] = filled($shipped[$key] ?? null) ? $shipped[$key] : $machine[$key];
+                    $rows[$key]['machine'] = ! filled($shipped[$key] ?? null);
                     $rows[$key]['source'] = $source;
                 }
             }
@@ -131,7 +134,7 @@ class TranslationCatalog
     }
 
     /**
-     * @return array{key: string, english: string, source: string, shipped: ?string, custom: ?string, status: string}
+     * @return array{key: string, english: string, source: string, shipped: ?string, machine: bool, custom: ?string, status: string}
      */
     protected static function row(string $key, string $english, string $source): array
     {
@@ -140,6 +143,7 @@ class TranslationCatalog
             'english' => $english,
             'source' => $source,
             'shipped' => null,
+            'machine' => false,
             'custom' => null,
             'status' => self::MISSING,
         ];

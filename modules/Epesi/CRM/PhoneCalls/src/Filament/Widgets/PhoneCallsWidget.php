@@ -4,18 +4,17 @@ namespace Epesi\Modules\CRM\PhoneCalls\Filament\Widgets;
 
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
-use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\AppletTooltip;
-use App\Filament\Dashboard\IsApplet;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
-use Filament\Actions\Action;
+use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RecordBrowser\Filament\Widgets\RecordsetApplet;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
@@ -25,13 +24,11 @@ use Illuminate\Support\HtmlString;
  * the user is assigned to, missed ones, today's and as far ahead as they
  * choose. On hold counts as not to make, as in Epesi.
  */
-class PhoneCallsWidget extends TableWidget implements Applet
+class PhoneCallsWidget extends RecordsetApplet
 {
-    use IsApplet;
+    protected static ?string $resource = PhoneCallResource::class;
 
     protected static ?int $sort = 3;
-
-    protected int|string|array $columnSpan = 1;
 
     /** How far ahead, in days; -1 is every future call. */
     public const FUTURE = [
@@ -79,17 +76,21 @@ class PhoneCallsWidget extends TableWidget implements Applet
         ];
     }
 
+    protected function getAppletCreateLabel(): string
+    {
+        return __('New phone call');
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->heading(__('Phone Calls'))
             ->query(fn (): Builder => $this->calls())
             ->columns([
                 TextColumn::make('customer')
                     ->label('Customer')
                     ->state(fn (PhoneCall $record): ?string => $record->other_customer
                         ? $record->other_customer_name
-                        : ($record->contact?->full_name ?? $record->company?->company_name))
+                        : ($record->customer ? LinkedRecords::title($record->customer) : null))
                     ->description(fn (PhoneCall $record): ?string => $record->subject)
                     ->tooltip(fn (PhoneCall $record): ?HtmlString => $this->details($record))
                     ->wrap(),
@@ -97,31 +98,11 @@ class PhoneCallsWidget extends TableWidget implements Applet
                 // for the customer on a phone.
                 TextColumn::make('phone_number')
                     ->label('Phone Number')
-                    ->description(fn (PhoneCall $record): ?string => $record->called_at?->format('Y-m-d H:i'))
+                    ->description(fn (PhoneCall $record): ?string => RegionalSetting::display($record->called_at))
                     ->tooltip(fn (PhoneCall $record): ?HtmlString => $this->details($record)),
             ])
             ->recordUrl(fn (PhoneCall $record): string => PhoneCallResource::getUrl('view', ['record' => $record]))
             ->recordClasses(fn (PhoneCall $record): ?string => $record->priority === RecordPriority::High ? 'epesi-applet-high-priority' : null)
-            ->headerActions([
-                Action::make('create')
-                    ->label('New phone call')
-                    ->tooltip(__('New phone call'))
-                    ->icon(Heroicon::OutlinedPlus)
-                    ->iconButton()
-                    ->color('gray')
-                    ->url(fn (): string => PhoneCallResource::getUrl('create'))
-                    ->visible(fn (): bool => PhoneCallResource::canCreate()),
-                Action::make('fullscreen')
-                    ->label('Fullscreen')
-                    ->tooltip(__('Fullscreen'))
-                    ->icon(Heroicon::OutlinedArrowsPointingOut)
-                    ->iconButton()
-                    ->color('gray')
-                    ->url(fn (): string => PhoneCallResource::getUrl()),
-                $this->configureAppletAction(),
-            ])
-            ->paginated([5, 10, 25])
-            ->defaultPaginationPageOption(10)
             ->emptyStateHeading(__('No calls to make'))
             ->emptyStateDescription(fn (): ?string => Auth::user()?->contact === null
                 ? __('Your login is not linked to a contact, so no calls are assigned to you.')
@@ -129,10 +110,18 @@ class PhoneCallsWidget extends TableWidget implements Applet
             ->emptyStateIcon(Heroicon::OutlinedPhone);
     }
 
-    /** The description on hover; the date and time are in the row already. */
-    private function details(PhoneCall $record): ?HtmlString
+    /** The call's full details on hover. */
+    private function details(PhoneCall $record): HtmlString
     {
-        return AppletTooltip::text($record->description);
+        return AppletTooltip::details(
+            type: 'Phone Call',
+            icon: PhoneCallResource::getNavigationIcon(),
+            title: $record->subject,
+            description: $record->description,
+            dateLabel: 'Date and Time',
+            date: RegionalSetting::display($record->called_at),
+            customers: AppletTooltip::customers($record),
+        );
     }
 
     /**
@@ -144,7 +133,7 @@ class PhoneCallsWidget extends TableWidget implements Applet
         $future = (int) $this->appletSetting('future');
 
         return PhoneCall::query()
-            ->with(['contact', 'company'])
+            ->with('customer')
             ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', Auth::id()))
             ->whereNotIn('status', [RecordStatus::OnHold, ...RecordStatus::finished()])
             ->unless($this->appletSetting('past'), fn (Builder $query): Builder => $query

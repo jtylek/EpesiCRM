@@ -40,6 +40,7 @@ class IncomingLinks
                 $matches = match ($field->type) {
                     FieldType::Relation, FieldType::Relations => $field->getParam('model') === $target::class,
                     FieldType::Related => in_array($target->getMorphClass(), $field->relatedRecordsets(), true),
+                    FieldType::Customer, FieldType::Customers => in_array($target::class, (array) $field->getParam('models', []), true),
                     default => false,
                 };
 
@@ -75,8 +76,11 @@ class IncomingLinks
                     match ($field->type) {
                         FieldType::Relation => $query->where($query->qualifyColumn($field->name), $target->getKey()),
                         FieldType::Relations => $query->whereHas($field->getStateName(), fn (Builder $related) => $related->whereKey($target->getKey())),
-                        FieldType::Related => $query->whereHas('recordLinks', fn (Builder $links) => $links
+                        FieldType::Related, FieldType::Customers => $query->whereHas('recordLinks', fn (Builder $links) => $links
                             ->where('field', $field->name)->where('target_type', $target->getMorphClass())->where('target_id', $target->getKey())),
+                        FieldType::Customer => $query
+                            ->where($query->qualifyColumn("{$field->name}_type"), $target->getMorphClass())
+                            ->where($query->qualifyColumn("{$field->name}_id"), $target->getKey()),
                         default => $query->whereRaw('1 = 0'),
                     };
                 });

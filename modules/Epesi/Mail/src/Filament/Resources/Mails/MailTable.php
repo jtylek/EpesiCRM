@@ -4,6 +4,7 @@ namespace Epesi\Modules\Mail\Filament\Resources\Mails;
 
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\IconSize;
@@ -14,6 +15,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Columns and filters shared by the E-mails list and every record's E-mails
@@ -36,8 +38,8 @@ class MailTable
                 ->grow(false)
                 ->width('1%'),
             TextColumn::make('date')
-                ->formatStateUsing(fn (Mail $record): ?string => $record->date?->format('Y-m-d'))
-                ->description(fn (Mail $record): ?string => $record->date?->format('H:i'))
+                ->formatStateUsing(fn (Mail $record): ?string => $record->date ? RegionalSetting::toUser($record->date)->format(RegionalSetting::dateFormat()) : null)
+                ->description(fn (Mail $record): ?string => $record->date ? RegionalSetting::toUser($record->date)->format(RegionalSetting::timeFormat()) : null)
                 ->grow(false)
                 ->sortable(),
             TextColumn::make('subject')
@@ -73,6 +75,16 @@ class MailTable
     public static function filters(): array
     {
         return [
+            SelectFilter::make('employee')
+                ->label('Employees')
+                ->relationship('employee', 'last_name')
+                ->searchable()
+                ->default(function (): ?string {
+                    $user = Auth::user();
+                    $contactId = $user?->contact?->getKey();
+
+                    return $contactId === null ? null : (string) $contactId;
+                }),
             SelectFilter::make('direction')
                 ->options([Mail::INCOMING => __('Received'), Mail::OUTGOING => 'Sent']),
             // Any part of the sender: a name or an address. Not a list of

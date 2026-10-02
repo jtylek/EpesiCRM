@@ -1,0 +1,20 @@
+{
+    "Attach to a record": "Joindre à un enregistrement",
+    "Attached to": "Associé à",
+    "Created by": "Créé par",
+    "deleted file": "fichier supprimé",
+    "Download": "Télécharger",
+    "Edited by": "Edité par",
+    "Edited on": "Editer le",
+    "Edited on from": "Modifié le à partir de",
+    "Edited on until": "Modifié jusqu'au",
+    "Get link (valid for 7 days)": "Obtenir le lien (valable 7 jours)",
+    "Has Attachments": "Contient des pièces jointes",
+    "New note": "Ajout note",
+    "Note": "Note",
+    "Notes": "Notes",
+    "Record": "Enregistrement",
+    "Sticky": "Collant",
+    "The note was not saved": "La note n'a pas été enregistrée",
+    "{1} :count file|[2,*] :count files": "{1}:count fichier|[2,*] Fichiers «:count »"
+}

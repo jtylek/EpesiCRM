@@ -138,6 +138,31 @@ class AttachmentsTest extends TestCase
             ->assertSee('Hello');
     }
 
+    public function test_notes_addon_shows_all_visible_related_notes_without_an_editor_filter(): void
+    {
+        $author = $this->userWithRole('employee');
+        $viewer = $this->userWithRole('employee');
+        $this->actingAs($author);
+        $contact = Contact::create(['first_name' => 'Ann', 'last_name' => 'Shared', 'permission' => RecordPermission::Public]);
+        $otherContact = Contact::create(['first_name' => 'Ben', 'last_name' => 'Other', 'permission' => RecordPermission::Public]);
+        $otherNote = Attachment::addTo($contact, 'Written by someone else', 'Other author');
+        $privateNote = Attachment::addTo($contact, 'Private content', 'Private note', RecordPermission::Private);
+        $unrelatedNote = Attachment::addTo($otherContact, 'On another record', 'Unrelated');
+
+        $this->actingAs($viewer);
+        $ownNote = Attachment::addTo($contact, 'Written by the viewer', 'Own note');
+
+        Livewire::test(NotesRelationManager::class, ['ownerRecord' => $contact, 'pageClass' => ViewContact::class])
+            ->assertCanSeeTableRecords([$otherNote, $ownNote])
+            ->assertCanNotSeeTableRecords([$privateNote, $unrelatedNote])
+            ->filterTable('edited_by', $viewer->id)
+            ->assertCanSeeTableRecords([$ownNote])
+            ->assertCanNotSeeTableRecords([$otherNote, $privateNote, $unrelatedNote])
+            ->resetTableFilters()
+            ->assertCanSeeTableRecords([$otherNote, $ownNote])
+            ->assertCanNotSeeTableRecords([$privateNote, $unrelatedNote]);
+    }
+
     public function test_the_tab_opens_every_note_page_as_part_of_its_record(): void
     {
         $this->actingAs($this->userWithRole('employee'));
@@ -528,6 +553,47 @@ class AttachmentsTest extends TestCase
 
         $response->assertDontSee('<script>alert(1)</script>', false);
         $response->assertDontSee('href="javascript:alert(1)"', false);
+    }
+
+    /**
+     * StoredFile::isPreviewable() excludes text/html the same way it excludes
+     * SVG — a script tag in the file would otherwise run in this app's own
+     * origin, with the viewer's session. HtmlController serves it anyway, but
+     * with `Content-Security-Policy: sandbox`, which forces an opaque,
+     * script-less origin regardless of the markup, so the script never runs.
+     */
+    public function test_an_html_file_opens_inline_sandboxed_instead_of_a_download(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
+
+        $html = app(FileStorage::class)->put('<h1>Title</h1><script>alert(1)</script>', 'notes.html');
+        $note = Attachment::create(['title' => 'Files', 'permission' => RecordPermission::Public, 'files' => [$html->id]]);
+        $note->attachTo($contact);
+
+        $this->assertFalse($html->isPreviewable());
+
+        $response = $this->get(route('epesi.attachments.html', ['attachment' => $note->id, 'file' => $html->id]))
+            ->assertOk()
+            ->assertHeader('Content-Security-Policy', 'sandbox')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->assertStringStartsWith('inline', (string) $response->headers->get('Content-Disposition'));
+    }
+
+    public function test_someone_elses_private_notes_html_file_is_hidden(): void
+    {
+        $author = $this->userWithRole('employee');
+        $other = $this->userWithRole('employee');
+        $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
+
+        $this->actingAs($author);
+        $html = app(FileStorage::class)->put('<h1>Secret</h1>', 'secret.html');
+        $note = Attachment::create(['title' => 'Private', 'permission' => RecordPermission::Private, 'files' => [$html->id]]);
+        $note->attachTo($contact);
+
+        $this->actingAs($other);
+        $this->get(route('epesi.attachments.html', ['attachment' => $note->id, 'file' => $html->id]))
+            ->assertNotFound();
     }
 
     public function test_someone_elses_private_notes_markdown_file_is_hidden(): void

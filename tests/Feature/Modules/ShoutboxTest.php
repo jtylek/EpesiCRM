@@ -125,6 +125,10 @@ class ShoutboxTest extends TestCase
         $this->actingAs($this->userWithRole('employee'));
 
         $this->get('/')->assertOk()->assertSeeLivewire(ShoutboxWidget::class);
+
+        Livewire::test(ShoutboxWidget::class)
+            ->assertSee('Fullscreen')
+            ->assertSee(Shoutbox::getUrl(), false);
     }
 
     public function test_the_page_lists_visible_messages_and_hides_deleted_ones(): void

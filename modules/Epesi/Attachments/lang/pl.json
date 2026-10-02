@@ -16,5 +16,5 @@
     "Record": "Rekord",
     "The note was not saved": "Notatka nie została zapisana",
     "Sticky": "Przyklejona",
-    "{1} :count file|[2,*] :count files": "{1} :count plik|[2,4] :count pliki|[5,*] :count plików"
+    "{1} :count file|[2,*] :count files": ":count plik|:count pliki|:count plików"
 }

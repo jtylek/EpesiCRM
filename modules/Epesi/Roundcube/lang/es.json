@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "Archiva este mensaje después de enviarlo",
+    "Archive to the CRM": "Archivo de la revista «CRM»",
+    "Archiving failed": "Error al archivar",
+    "Ask your administrator to install it.": "Pídele a tu administrador que lo instale.",
+    "Cannot move to archive from this folder": "No se puede mover a la carpeta de archivo desde esta carpeta",
+    "Mailbox": "Buzón",
+    "Matching contact or company not found. Click again to force archive without contact association.": "No se ha encontrado ningún contacto ni empresa que coincida. Haz clic de nuevo para forzar el archivo sin asociar ningún contacto.",
+    "Message already archived": "Mensaje ya archivado",
+    "Set up a mail account": "Configurar una cuenta de correo electrónico",
+    "Switching account — please wait…": "Cambiando de cuenta... Por favor, espera...",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "El cliente de correo no se ha cargado: el servidor web ha enviado las páginas de Roundcube a Epesi en lugar de servirlas él mismo. Consulta «Requisitos del servidor web» en:doc.",
+    "The mail client, Roundcube, isn't installed yet.": "El cliente de correo, Roundcube, aún no está instalado.",
+    "You have no mail account with an incoming (IMAP) server yet.": "Aún no tienes ninguna cuenta de correo con un servidor de entrada (IMAP).",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "Tu servidor de correo ha rechazado el inicio de sesión. Comprueba esta cuenta en «Configuración > Cuentas de correo»."
+}

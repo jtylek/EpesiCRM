@@ -1,0 +1,17 @@
+{
+    "id": "epesi/sticky-notes",
+    "name": "Sticky notes",
+    "description": "A dashboard tab of small colored notes, like Post-its: a title and a Markdown body, active or inactive.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Productivity",
+    "icon": "heroicon-o-pencil-square",
+    "namespace": "Epesi\\Modules\\StickyNotes\\",
+    "path": "Epesi/StickyNotes",
+    "provider_class": "Epesi\\Modules\\StickyNotes\\StickyNotesServiceProvider",
+    "plugin_class": "Epesi\\Modules\\StickyNotes\\StickyNotesPlugin",
+    "panels": ["main"],
+    "core": true,
+    "requires": [],
+    "provides": []
+}

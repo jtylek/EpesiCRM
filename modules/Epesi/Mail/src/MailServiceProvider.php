@@ -20,6 +20,7 @@ use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Epesi\Modules\Watchdog\Watchdog;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
@@ -30,15 +31,27 @@ use Illuminate\Support\ServiceProvider;
 
 class MailServiceProvider extends ServiceProvider
 {
+    /** The recordset feature that lets mail be filed under a record type. */
+    public const FEATURE = 'mail';
+
     /**
      * Record types mail can be filed under, each with an E-mails tab — the
      * port of the `rc_related` admin table (Epesi shipped company and
      * contact; activities are here too, so a message filed under a task
-     * shows on the task).
+     * shows on the task). Administration → Recordsets decides: these are
+     * only what it starts as.
      *
      * @var array<int, string>
      */
-    public static array $recordTypes = ['contact', 'company', 'task', 'meeting', 'phone_call'];
+    public const DEFAULT_RECORD_TYPES = ['contact', 'company', 'task', 'meeting', 'phone_call'];
+
+    /**
+     * @return array<int, string> morph aliases mail can be filed under now
+     */
+    public static function recordTypes(): array
+    {
+        return RecordsetFeatures::aliasesFor(self::FEATURE);
+    }
 
     public function register(): void
     {
@@ -55,6 +68,8 @@ class MailServiceProvider extends ServiceProvider
 
         $this->app->singleton(MailboxFactory::class);
         $this->app->singleton(SmtpTransportFactory::class);
+
+        RecordsetFeatures::define(self::FEATURE, 'E-mails', self::DEFAULT_RECORD_TYPES);
     }
 
     public function boot(): void
@@ -89,16 +104,18 @@ class MailServiceProvider extends ServiceProvider
         $this->app->booted(function (): void {
             $this->defineRelations();
 
-            RecordExtensions::addon(MailsRelationManager::class, static::$recordTypes);
+            $types = static::recordTypes();
+
+            RecordExtensions::addon(MailsRelationManager::class, $types);
             RecordExtensions::headerActions(
                 'mail',
                 fn (Model $record): array => [ComposeAction::make($record)->color('gray')],
-                static::$recordTypes,
+                $types,
             );
             // An address clicked on a record opens the compose page for it,
             // filed with that record — else the engine's plain mailto:.
             RecordExtensions::emailLink('mail', fn (Model $record, string $email): ?string => ComposeAction::canSend()
-                ? ComposeAction::url(in_array(RecordExtensions::aliasOf($record), static::$recordTypes, true) ? $record : null, to: $email)
+                ? ComposeAction::url(in_array(RecordExtensions::aliasOf($record), $types, true) ? $record : null, to: $email)
                 : null);
 
             if (class_exists(Watchdog::class)) {
@@ -113,7 +130,7 @@ class MailServiceProvider extends ServiceProvider
 
     protected function defineRelations(): void
     {
-        foreach (static::$recordTypes as $alias) {
+        foreach (static::recordTypes() as $alias) {
             $class = Relation::getMorphedModel($alias);
 
             if ($class) {

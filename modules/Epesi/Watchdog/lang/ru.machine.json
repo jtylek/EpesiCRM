@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who создано.",
+    ":who deleted.": ":who удалено.",
+    ":who restored.": ":who Восстановлено.",
+    ":who updated.": ":who Обновлено.",
+    ":who updated: :fields.": ":who Обновлено: :fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "Получайте уведомления об изменениях в каждой записи выбранных типов, а не только в тех, за которыми вы следите.",
+    "Changed by": "Изменено",
+    "Changes": "Изменения",
+    "Has new changes": "Внесены новые изменения",
+    "Last change": "Последнее изменение",
+    "Record": "Записи",
+    "Record types": "Типы записей",
+    "Stopped watching this record": "Прекращено отслеживание этой записи",
+    "System": "Система",
+    "Watch record types": "Типы записей Watch",
+    "Watched records": "Наблюдаемые записи",
+    "Watching": "Наблюдение",
+    "Watching this record": "Наблюдение за этой записью"
+}

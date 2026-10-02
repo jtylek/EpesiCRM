@@ -4,14 +4,15 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Actions\NewCalendarEventAction;
 use App\Filament\Dashboard\Applet;
-use App\Filament\Dashboard\AppletTooltip;
 use App\Filament\Dashboard\IsApplet;
 use App\Filament\Pages\Calendar;
 use App\Models\User;
 use App\Support\Calendar\CalendarEvent;
 use App\Support\Calendar\CalendarEventProvider;
+use App\Support\Calendar\CalendarEventTooltip;
 use App\Support\Calendar\CalendarRegistry;
 use Carbon\Carbon;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -22,6 +23,7 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
@@ -108,14 +110,14 @@ class AgendaWidget extends Widget implements Applet, HasActions, HasSchemas
      * what it shows on hover: the title, cut short on the row, then the
      * description and the time, as the other applets have them.
      *
-     * @return Collection<string, Collection<int, array{event: CalendarEvent, type: string, tooltip: ?HtmlString}>>
+     * @return Collection<string, Collection<int, array{event: CalendarEvent, type: string, icon: string|\BackedEnum|Htmlable|null, tooltip: ?HtmlString}>>
      */
     public function events(): Collection
     {
         /** @var User $user */
         $user = Auth::user();
-        $start = today();
-        $end = today()->addDays($this->days());
+        $start = RegionalSetting::nowAsWallClock()->startOfDay();
+        $end = $start->clone()->addDays($this->days());
         $types = array_map('strval', (array) $this->appletSetting('types'));
 
         return collect(CalendarRegistry::all())
@@ -128,7 +130,7 @@ class AgendaWidget extends Widget implements Applet, HasActions, HasSchemas
 
     public function calendarUrl(): string
     {
-        return Calendar::getUrl();
+        return Calendar::getUrl(['view' => 'listWeek']);
     }
 
     public function createEventAction(): Action
@@ -143,17 +145,19 @@ class AgendaWidget extends Widget implements Applet, HasActions, HasSchemas
 
     /**
      * @param  class-string<CalendarEventProvider>  $provider
-     * @return Collection<int, array{event: CalendarEvent, type: string, tooltip: ?HtmlString}>
+     * @return Collection<int, array{event: CalendarEvent, type: string, icon: string|\BackedEnum|Htmlable|null, tooltip: ?HtmlString}>
      */
     private function eventsOf(string $provider, Carbon $start, Carbon $end, User $user): Collection
     {
         $type = __($provider::calendarLabel());
+        $icon = CalendarRegistry::typeIcon($provider);
 
-        return $provider::calendarEvents($start, $end, $user, mine: true)
+        return CalendarRegistry::eventsBetween($provider, $start, $end, $user, mine: true)
             ->map(fn (CalendarEvent $event): array => [
                 'event' => $event,
                 'type' => $type,
-                'tooltip' => AppletTooltip::text($event->description),
+                'icon' => $icon,
+                'tooltip' => CalendarEventTooltip::make($event, $provider),
             ]);
     }
 }

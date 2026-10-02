@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "Архивировать это сообщение после отправки",
+    "Archive to the CRM": "Архивировать в CRM",
+    "Archiving failed": "Архивирование не удалось",
+    "Ask your administrator to install it.": "Попросите администратора установить его.",
+    "Cannot move to archive from this folder": "Невозможно переместить в архив из этой папки",
+    "Mailbox": "Почтовый ящик",
+    "Matching contact or company not found. Click again to force archive without contact association.": "Соответствующий профиль или компания не найдены. Нажмите ещё раз, чтобы принудительно архивировать без привязки к профилю.",
+    "Message already archived": "Сообщение уже заархивировано",
+    "Set up a mail account": "Настройка почтового аккаунта",
+    "Switching account — please wait…": "Переключение учетной записи — пожалуйста, подождите…",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "Почтовый клиент не загрузился: веб-сервер отправил страницы Roundcube в Epesi вместо того, чтобы обслуживать их самостоятельно. См. раздел «Требования к веб-серверу» в :doc.",
+    "The mail client, Roundcube, isn't installed yet.": "Почтовый клиент Roundcube ещё не установлен.",
+    "You have no mail account with an incoming (IMAP) server yet.": "У вас пока нет почтового аккаунта с сервером входящей почты (IMAP).",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "Ваш почтовый сервер отклонил вход в систему. Проверьте эту учетную запись в разделе «Настройки» > «Почтовые учетные записи»."
+}

@@ -8,9 +8,23 @@
  */
 .fc {
     --fc-page-bg-color: var(--gray-50);
+    /* Buttons and weekday headers follow the panel's primary accent. */
+    --fc-button-bg-color: var(--primary-600);
+    --fc-button-border-color: var(--primary-600);
+    --fc-button-text-color: #fff;
+    --fc-button-hover-bg-color: var(--primary-700);
+    --fc-button-hover-border-color: var(--primary-700);
+    --fc-button-active-bg-color: var(--primary-800);
+    --fc-button-active-border-color: var(--primary-800);
 }
 
 .dark .fc {
+    --fc-button-bg-color: var(--primary-500);
+    --fc-button-border-color: var(--primary-500);
+    --fc-button-hover-bg-color: var(--primary-600);
+    --fc-button-hover-border-color: var(--primary-600);
+    --fc-button-active-bg-color: var(--primary-700);
+    --fc-button-active-border-color: var(--primary-700);
     --fc-page-bg-color: var(--gray-950);
     --fc-border-color: var(--gray-700);
     --fc-neutral-bg-color: rgb(255 255 255 / 0.05);
@@ -18,4 +32,139 @@
     --fc-non-business-color: rgb(255 255 255 / 0.03);
     --fc-more-link-bg-color: var(--gray-700);
     --fc-list-event-hover-bg-color: rgb(255 255 255 / 0.05);
+}
+
+/* Small radius on all four corners, in every view (grid, time grid, list). */
+/*
+ * The grid is a border-collapse table, which ignores border-radius. So the
+ * rounded outline is drawn by the view container, and the table is pushed
+ * 1px outside it (clipped) so its own square outer border disappears.
+ */
+.fc .fc-view-harness {
+    border: 1px solid var(--fc-border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.fc .fc-scrollgrid {
+    margin: -1px;
+    width: calc(100% + 2px);
+}
+
+.fc .fc-list {
+    border: 0;
+}
+
+/* Weekday headers match the view-selector buttons: dark background, light text. */
+.fc .fc-col-header-cell {
+    background-color: var(--fc-button-bg-color);
+    border-color: var(--fc-button-bg-color);
+}
+
+.fc .fc-col-header-cell-cushion {
+    color: var(--fc-button-text-color);
+}
+
+.fc .epesi-calendar-event-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 100%;
+}
+
+.fc .epesi-calendar-event-type-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+.fc .epesi-calendar-event-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.epesi-calendar-tooltip {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.epesi-calendar-tooltip-type {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.epesi-calendar-tooltip-type svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+/* List view: the date sits next to the weekday instead of at the far right. */
+.fc .fc-list-day-cushion {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+    float: none !important;
+}
+
+.fc .fc-list-day-side-text::before {
+    content: '•';
+    margin-right: 0.5rem;
+}
+
+.fc .fc-list-event-graphic {
+    display: none;
+}
+
+/*
+ * The toolbar title doubles as a date picker (resources/js/calendar.js's
+ * initTitleDatePicker): clicking/activating it opens a native <input
+ * type="date"> to jump to any month/week/day. The input itself stays
+ * invisible — only its native picker popup is ever seen.
+ */
+.fc .epesi-calendar-title-clickable {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.4em 0.65em;
+    color: var(--fc-button-text-color);
+    background-color: var(--fc-button-bg-color);
+    border: 1px solid var(--fc-button-border-color);
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.5;
+    cursor: pointer;
+    border-radius: 0.25em;
+}
+
+.fc .epesi-calendar-title-clickable:hover,
+.fc .epesi-calendar-title-clickable:focus-visible {
+    color: var(--fc-button-text-color);
+    background-color: var(--fc-button-hover-bg-color);
+    border-color: var(--fc-button-hover-border-color);
+    text-decoration: none;
+}
+
+.fc .epesi-calendar-title-clickable:focus-visible {
+    outline: 2px solid var(--fc-button-border-color);
+    outline-offset: 2px;
+}
+
+.fc .epesi-calendar-title-picker {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    border: 0;
 }

@@ -33,6 +33,20 @@ weeks.
 it's for a throwaway dev database, not a live install. A real cutover truncates only the
 CRM/communication tables and leaves settings alone.
 
+## Rounding imported activity times
+
+Time selectors default to five-minute increments. The importer rounds current Meetings,
+Phone Calls and timed Task deadlines to the nearest five minutes; a meeting rounded past
+midnight moves to the following date. Date-only task deadlines, history values and audit
+timestamps retain their original values.
+
+For already-imported records, `php artisan import:round-times` previews counts without
+writing. `php artisan import:round-times --apply` saves original and replacement values under
+the local storage disk's `legacy-time-rounding/` directory, then applies changes in a
+transaction. Only records with `legacy_id` are considered, including soft-deleted records.
+The adjustment preserves record timestamps, records changes in activity history and updates
+relative reminders through the normal model events. A repeated run makes no further changes.
+
 ## The full-wipe recipe
 
 1. **Back up first.** `mysqldump` the whole app database somewhere outside the checkout (e.g.

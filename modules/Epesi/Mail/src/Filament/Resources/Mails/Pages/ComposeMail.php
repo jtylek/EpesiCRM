@@ -13,6 +13,7 @@ use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailSender;
 use Epesi\Modules\Mail\Support\Records;
 use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -234,7 +235,7 @@ class ComposeMail extends Page
         }
 
         [$type, $id] = array_pad(explode(':', $this->about, 2), 2, null);
-        abort_unless(in_array($type, MailServiceProvider::$recordTypes, true), 404);
+        abort_unless(in_array($type, MailServiceProvider::recordTypes(), true), 404);
 
         $class = Relation::getMorphedModel($type);
         abort_unless($class, 404);
@@ -280,7 +281,7 @@ class ComposeMail extends Page
         $subject = (string) $source->subject;
         $quote = sprintf(
             '<p></p><p>%s</p><blockquote>%s</blockquote>',
-            e(__('On :date, :sender wrote:', ['date' => (string) $source->date?->format('Y-m-d H:i'), 'sender' => (string) $source->from])),
+            e(__('On :date, :sender wrote:', ['date' => (string) RegionalSetting::display($source->date), 'sender' => (string) $source->from])),
             filled($source->body_html)
                 ? strip_tags((string) $source->body_html, '<p><br><div><span><b><strong><i><em><u><ul><ol><li><a><blockquote><table><tr><td><th>')
                 : nl2br(e((string) $source->body_text)),

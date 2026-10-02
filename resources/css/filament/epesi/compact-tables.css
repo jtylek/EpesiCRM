@@ -128,6 +128,40 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
         }
     }
 
+    /*
+     * Filters above content (only the Fields catalogue uses this layout):
+     * Filament stacks the "Filters" heading, the field grid and the Apply
+     * button as three full-width rows. Drop the redundant heading and lay
+     * the rest out as one row instead of three.
+     */
+    .fi-ta-filters-above-content-ctn {
+        padding-block: 0.75rem !important;
+        padding-inline: 1rem !important;
+    }
+
+    .fi-ta-filters-above-content-ctn .fi-ta-filters {
+        padding: 0 !important;
+        row-gap: 0.5rem !important;
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        column-gap: 0.75rem;
+    }
+
+    .fi-ta-filters-above-content-ctn .fi-ta-filters-heading {
+        display: none;
+    }
+
+    .fi-ta-filters-above-content-ctn .fi-ta-filters-header {
+        flex: 0 0 auto;
+        order: 3;
+        margin-inline-start: auto;
+    }
+
+    .fi-ta-filters-above-content-ctn .fi-ta-filters-actions-ctn {
+        flex: 0 0 auto;
+    }
+
     .fi-header .fi-breadcrumbs {
         margin-bottom: 0 !important;
         padding-block-start: 1rem !important;

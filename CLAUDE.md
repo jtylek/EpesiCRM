@@ -38,6 +38,8 @@ npm install                      # JS dependencies
 php artisan epesi:install        # real install: checks the server, .env, database, tables → then /setup wizard
                                  # (or skip it: the /setup wizard does all of that in the browser too)
 php artisan epesi:package        # release zip with vendor/ + public/build/, installs from the browser
+                                 # --translate [--legacy=<old epesi>]: translations skill + strict
+                                 # translation tests first; --test: whole suite first (AI-shared/Epesi-Laravel-distro.md)
 php artisan epesi:update         # after unpacking a new release: core + module migrations (also Administration → Database update)
 php cron.php                     # what the server's cron runs every minute: the due tasks, in this process
                                  # (= epesi:cron; also the /cron?token= URL; see AI-shared/cron.md, Administration → Cron)
@@ -62,8 +64,9 @@ SQLite but that's stale and not what's actually used; don't assume SQLite withou
 `module:install {--zip=}`, `module:enable`/`disable`/`uninstall`, `module:list`,
 `module:package`, `make:epesi-module`. RecordBrowser engine: `make:epesi-recordset`,
 `recordset:check [--strict]`, `customfields:sync`. Languages: `lang:import-epesi <code> <epesi path>`
-(see [AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md) — UI strings are JSON keys in `lang/` and
-each module's `lang/`; add new strings to `lang/pl.json` or the module's, or `TranslationsTest` fails). Legacy cutover: `import:legacy {tab=all}
+(see [AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md) — UI strings are English JSON keys; develop in
+English only, see "Languages" below — `TranslationsTest` reports untranslated strings, and
+fails on them only with `TRANSLATIONS_STRICT=1`). Legacy cutover: `import:legacy {tab=all}
 {--dry-run} {--no-history}`. Demo mode (`DEMO_MODE=true`, see [AI-shared/Demo-mode.md](AI-shared/Demo-mode.md)):
 `demo:reset {--force}` empties the database and reinstalls with demo data, keeping `login_audits`
 (it refuses outside demo mode; the scheduler runs it nightly); `demo:audit {--days=} {--csv}`.
@@ -82,6 +85,12 @@ compiled views under `storage/framework/testing/`, and every run tests the other
 half-finished edits too. Before running tests, read
 [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md): it asks you to tell
 the other sessions (`ListAgents`, `SendMessage`) before a run and again with the result.
+
+Other AI agents (Claude, Codex, …) and developers may be working in this checkout too. Test runs
+take a lock (`storage/framework/testing/test-run.lock`, set up in `tests/bootstrap.php`): a second
+run waits for the first, and `test-run.info` beside it names the holder. Don't delete or bypass it.
+**Commit only your own files** — never `git add -A`/`commit -a` or other agents' changes — unless
+the user says "commit all".
 
 Don't run the full suite (`composer test` / `php artisan test` with no filter) speculatively
 while iterating — it's slow and, per above, disruptive to other sessions' runs. Save it for when
@@ -190,6 +199,17 @@ field-level edit history (into the same `spatie/laravel-activitylog` table every
 uses) via per-tab `Importer` subclasses. Upsert-by-`legacy_id`; refuses to run against a
 database that already has non-imported (`legacy_id IS NULL`) rows in the target tables, to
 avoid silently corrupting id alignment.
+
+## Languages: English only while developing
+
+When making changes or developing new features, work only on the English version. Write UI
+strings as English JSON translation keys (via `__()`), and do not hand-translate them into
+Polish, German, Spanish, French or any other language. The target is ~40 languages (as many as
+the old Epesi had) — too many to translate on the fly. Translations are produced separately by a
+dedicated skill using the DeepL API, before a release; after it, run
+`TRANSLATIONS_STRICT=1 php artisan test --filter=TranslationsTest`. Until then the test marks
+itself incomplete and lists the gaps instead of failing. See
+[AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md).
 
 ## Conventions
 

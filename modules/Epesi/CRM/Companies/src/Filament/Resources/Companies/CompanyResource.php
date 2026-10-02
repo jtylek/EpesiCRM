@@ -37,28 +37,34 @@ class CompanyResource extends RecordsetResource
             // Cut short in the list, with the full name on hover — same as the
             // Company column on Contacts, so a long legal name can't push the
             // list past the page.
-            Field::text('company_name')->required()->maxLength(128)->fullWidth()->inTable()
+            Field::text('company_name')->required()->maxLength(128)->fullWidth()->inTable()->tableOrder(1)
                 ->columnUsing(fn (TextColumn $column): TextColumn => $column
                     ->limit(25, '…')
                     ->tooltip(fn (TextColumn $column, ?string $state): ?string => mb_strwidth((string) $state) > $column->getCharacterLimit() ? $state : null)),
-            Field::text('short_name')->maxLength(64),
-            Field::commonData('groups', 'Companies_Groups', multiple: true)->label('Group')->inTable()->filterable(),
-            Field::collection('emails', EmailAddress::class)
-                ->label('E-mail addresses')
-                ->inTable(),
-            Field::text('tax_id')->label('Tax ID')->maxLength(64),
+            Field::text('short_name')->maxLength(64)->notInTable(),
+            Field::commonData('groups', 'Companies_Groups', multiple: true)->label('Group')->inTable()->filterable()->tableOrder(3),
+            Field::text('tax_id')->label('Tax ID')->maxLength(64)->notInTable(),
             Field::select('permission', RecordPermission::class)
                 ->required()
-                ->default(RecordPermission::Public),
-            Field::longText('memo'),
+                ->default(RecordPermission::Public)
+                ->notInTable(),
+            Field::longText('memo')->notInTable(),
 
+            // Short fields first, then Memo, then the Collections below —
+            // RecordsetResource::flowIntoColumns()'s convention, so the
+            // engine's own two-column flow reads the way this list is
+            // written. An administrator can still drag any of these to
+            // interleave them differently for their own installation.
+            Field::collection('emails', EmailAddress::class)
+                ->label('E-mail addresses')->tableOrder(5)
+                ->inTable(),
             // The switchboard, fax and any other: the list shows the first.
-            Field::collection('phones', PhoneNumber::class)->label('Phone numbers')->inTable(),
+            Field::collection('phones', PhoneNumber::class)->label('Phone numbers')->inTable()->tableOrder(4),
             // Offices, billing, shipping: the list shows the first one's city.
             // Filterable by City/Country only — Has/Kind stay off the panel.
-            Field::collection('addresses', Address::class)->inTable()->filterable(itemFieldsOnly: true),
+            Field::collection('addresses', Address::class)->inTable()->tableOrder(2)->filterable(itemFieldsOnly: true),
             // The website, LinkedIn and the like, each linking to its page.
-            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
+            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts')->tableOrder(6),
         ];
     }
 }

@@ -1,0 +1,9 @@
+{
+    "Check that this server can reach the internet, then click Refresh.": "このサーバーがインターネットに接続できることを確認してから、「更新」をクリックしてください。",
+    "Not installed": "インストールされていません",
+    "Optional. Required only for paid modules.": "任意。有料モジュールでのみ必須です。",
+    "Refresh": "更新",
+    "Store settings": "ストアの設定",
+    "Store settings saved": "ストアの設定が保存されました",
+    "The store has no modules published yet.": "このストアには、まだ公開されているモジュールがありません。"
+}

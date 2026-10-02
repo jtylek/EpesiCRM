@@ -7,7 +7,9 @@ use App\Filament\Navigation\AlphabeticalNavigationManager;
 use App\Filament\Support\DemoAnalytics;
 use App\Filament\Support\DemoNotice;
 use App\Filament\Support\ImpersonationNotice;
+use App\Http\Responses\LoginResponse;
 use App\Listeners\FinalizeLoginAudit;
+use App\Listeners\RestoreUiState;
 use App\Models\LoginAudit;
 use App\Models\Module;
 use App\Models\StoredFile;
@@ -27,7 +29,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -43,6 +47,7 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
@@ -131,6 +136,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker->minutesStep(5));
+
         $this->preferViewOverEditOnRecordClick();
         $this->blockIdentityAutofillOnAllTextFields();
         $this->offerNoEmptyChoiceOnRequiredSelects();
@@ -147,6 +154,8 @@ class AppServiceProvider extends ServiceProvider
         $this->wrapWidePreBlocksInsteadOfOverflowing();
 
         Event::listen(Logout::class, FinalizeLoginAudit::class);
+        Event::listen(LoginEvent::class, RestoreUiState::class);
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
 
         // "This server's mail system" (config/mail.php's sendmail mailer).
         ServerMailTransport::register();
@@ -325,7 +334,7 @@ class AppServiceProvider extends ServiceProvider
     private function showVersion(): void
     {
         $label = fn (string $style): HtmlString => new HtmlString(
-            '<div style="'.$style.'font-size:.75rem;opacity:.55">'.e(Version::label()).'</div>'
+            '<div style="'.$style.'font-size:.75rem;opacity:.55"><a href="https://epesicrm.com" target="_blank" rel="noopener" style="text-decoration:underline">'.e(Version::label()).'</a></div>'
         );
 
         FilamentView::registerRenderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn (): HtmlString => $label('padding:.75rem 1.5rem;'));

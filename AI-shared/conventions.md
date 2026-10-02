@@ -75,6 +75,35 @@ the two: the page shows the title in its first row anyway.
 `tests/Feature/PageHeaderTest` checks every page registered in any panel, module pages
 included, and fails for any page that is missing one of these traits.
 
+## "My records" button on lists
+
+Every RecordBrowser-based List page (core, CRM and any module recordset, e.g. Tickets or
+Projects) shows a quick-filter button in the toolbar, so a user sees just the records of
+interest without opening the filter panel and setting it by hand.
+
+- **Records select.** "My records" (the default) / "All records", a select in the same style as
+  All / Favorites / Recent. "My records" sets the **Employees** filter to the logged-in user (Notes
+  has no Employees field, so it sets **Edited by** instead) and never touches the status filter.
+- **Active / Inactive select.** A recordset with a closed/canceled status (Tasks, Phone Calls,
+  Meetings, likewise Tickets, Projects) also gets an Active (not closed or canceled, the default) /
+  Inactive (closed or canceled only) select (`ListRecords::setStatusMode()`). If the user sets the
+  status filter some other way, the select shows "All". E-mails and Notes get no such select.
+  "My records" keeps its state when it resets the other filters.
+- **Toolbar order.** The records select, the Active / Inactive select, the All / Favorites / Recent select,
+  then the search box.
+- **Reset.** Clicking the button again resets the filters and the search (it toggles between
+  "mine" and no filter) rather than stacking on top of whatever is already set. A list with no
+  Employees (or Edited by) filter, such as Contacts and Companies, gets "My records" as a
+  toggle filter instead: the records the user created or has changed (`created_by`, or any
+  activity-log entry with the user as causer). `ListRecords::table()` adds that filter.
+- **Default after login.** The first time a list is opened in a session (a fresh login), it
+  opens with this filter already applied (`ListRecords::applyDefaultMyRecords()`). Later
+  visits keep whatever filters the user left, including none.
+- **Engine-level, not per resource.** It belongs in RecordBrowser's `ListRecords`, driven by
+  what the table's filters offer (an `employees`/`employee`/`edited_by` filter, and a status
+  filter with the `StatusField::NOT_CLOSED` option), so a new recordset gets it with no code of
+  its own. Covered by `tests/Feature/MyRecordsButtonTest`.
+
 ## Edit/Create pages and modals
 
 - One action group, not Filament's default split between header and form-bottom actions.
@@ -94,6 +123,20 @@ included, and fails for any page that is missing one of these traits.
   it warns and clones immediately on confirm (no pre-fill edit modal), then redirects to the
   new record's Edit page. Unique/identity columns that would collide (email, linked user,
   etc.) are blanked on the clone; `created_by` always attributes to whoever cloned it.
+
+## Click 2 Fill
+
+RecordsetResource forms include a collapsible Click 2 Fill panel on Create and Edit,
+including action forms using the resource schema. Its toggle sits in the page header
+beside the Save/Cancel actions. Paste text, scan it into words
+(commas and whitespace separate them), select words in the desired order, then click
+an editable text field to replace its value. Selection numbers show the order;
+filling clears the selection while retaining the source words for the next field.
+Text, email, phone, URL inputs and plain textareas participate, including custom
+fields and collection items. Select controls, rich text editors and read-only fields
+do not. Values follow the ordinary Livewire validation and Save flow; pasted text is
+kept only in the current form's browser state. The implementation follows legacy
+`Utils/RecordBrowser/click2fill.js` without its global state or HTML interpolation.
 
 ## Record Info
 

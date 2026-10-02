@@ -106,16 +106,28 @@ class HistoryRelationManager extends RelationManager
                         // alone rather than a red "-" before each. HTML, so
                         // every piece is escaped: labels and values are user data.
                         $created = $record->event === 'created';
+                        $seen = [];
 
                         return new HtmlString($changed
-                            ->map(function ($value, $key) use ($fields, $format, $old, $record, $created): string {
-                                $label = e(__(isset($fields[$key]) ? $fields[$key]->getLabel() : Str::headline($key)));
+                            ->map(function ($value, $key) use ($fields, $format, $old, $record, $created, &$seen): ?string {
+                                $field = $fields[$key] ?? null;
+
+                                // A Customer field's two logged columns
+                                // (`{name}_type`/`{name}_id`) render as one
+                                // line, from whichever key comes first.
+                                if ($field?->type === FieldType::Customer) {
+                                    if (isset($seen[$field->name])) {
+                                        return null;
+                                    }
+
+                                    $seen[$field->name] = true;
+                                }
+
+                                $label = e(__($field?->getLabel() ?? Str::headline($key)));
 
                                 // A change told from both values at once: a
                                 // long text's changed words, a note's files.
-                                $change = isset($fields[$key])
-                                    ? $fields[$key]->formatLoggedChange(data_get($old, $key), $value, $record)
-                                    : null;
+                                $change = $field?->formatLoggedChange(data_get($old, $key), $value, $record);
 
                                 if ($change !== null) {
                                     return $label.': '.$change->toHtml();
@@ -130,6 +142,7 @@ class HistoryRelationManager extends RelationManager
                                     e($format($key, $value)),
                                 );
                             })
+                            ->filter(fn (?string $line): bool => $line !== null)
                             ->implode(', '));
                     })
                     ->wrap(),
@@ -253,7 +266,20 @@ class HistoryRelationManager extends RelationManager
             default => [],
         };
 
-        return collect($fields)->keyBy(fn (Field $field): string => $field->name)->all();
+        $byName = collect($fields)->keyBy(fn (Field $field): string => $field->name);
+
+        // A Customer field logs two plain columns (`{name}_type`/`{name}_id`,
+        // a morphTo pair — see Field::customer()), not one; both map to the
+        // same Field so table() can render them as its one historyUsing()
+        // line instead of two raw ones.
+        foreach ($byName->all() as $field) {
+            if ($field->type === FieldType::Customer) {
+                $byName["{$field->name}_type"] = $field;
+                $byName["{$field->name}_id"] = $field;
+            }
+        }
+
+        return $byName->all();
     }
 
     /**

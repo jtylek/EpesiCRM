@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks;
 use App\Enums\RecordPermission;
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
+use App\Models\User;
 use App\Support\StatusField;
 use BackedEnum;
 use Carbon\Carbon;
@@ -13,13 +14,16 @@ use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class TaskResource extends RecordsetResource
@@ -46,18 +50,21 @@ class TaskResource extends RecordsetResource
             // Live, because `deadline` below reads it to decide whether to show
             // a time alongside the date.
             Field::boolean('timeless')
-                ->label('Timeless (no specific deadline time)')
+                ->label('Timeless')
                 ->inView(false)
                 ->notInTable()
                 ->formUsing(fn (Toggle $component): Toggle => $component
                     ->live()
                     ->default(fn (): bool => request()->boolean('timeless'))),
 
+            StatusField::make(),
             Field::dateTime('deadline')
                 ->inTable()
                 ->filterable()
                 ->formUsing(fn (DateTimePicker $component): DateTimePicker => $component
-                    ->displayFormat(fn (Get $get): string => $get('timeless') ? 'Y-m-d' : 'Y-m-d H:i')
+                    ->displayFormat(fn (Get $get): string => $get('timeless') ? RegionalSetting::dateFormat() : RegionalSetting::dateTimeFormat())
+                    // A timeless deadline is a calendar day, not an instant: never shift it.
+                    ->timezone(fn (Get $get): ?string => $get('timeless') ? config('app.timezone') : null)
                     ->default(fn (): ?string => request()->query('deadline')))
                 ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
                     ->formatStateUsing(fn (Task $record, ?Carbon $state): string => static::formatDeadline($record, $state)))
@@ -67,30 +74,55 @@ class TaskResource extends RecordsetResource
                         && $record->deadline->isPast()
                         && $record->status !== RecordStatus::Closed ? 'danger' : null)),
 
-            StatusField::make(),
             Field::select('priority', RecordPriority::class)
                 ->required()
+                ->inTable()
                 ->default(RecordPriority::Medium)
                 ->filterable(),
             Field::select('permission', RecordPermission::class)
                 ->required()
                 ->default(RecordPermission::Public)
-                ->filterable(),
+                ->notInTable(),
 
             // Scoped to the acting user's own company's staff — Epesi's
             // employees_crits().
             Field::relations('employees', Contact::class)
+                ->inTable()
+                ->filterable()
+                ->filterUsing(fn (SelectFilter $filter): SelectFilter => $filter
+                    ->multiple()
+                    ->default(function (): array {
+                        $user = Auth::user();
+                        $contactId = $user instanceof User ? $user->contact?->getKey() : null;
+
+                        return $contactId === null ? [] : [(string) $contactId];
+                    }))
+                ->default(function (?Task $record): array {
+                    if ($record?->exists) {
+                        return [];
+                    }
+
+                    $user = Auth::user();
+                    $contactId = $user instanceof User ? $user->contact?->getKey() : null;
+
+                    return $contactId === null ? [] : [(string) $contactId];
+                })
                 ->required()
-                ->crits(fn (Builder $query): Builder => $query->ofCompany(auth()->user()?->companyId())),
-            Field::relations('customers', Contact::class)->label('Contacts'),
-            Field::relations('customerCompanies', Company::class)->label('Companies'),
+                ->crits(function (Builder $query): Builder {
+                    $user = Auth::user();
+
+                    return $query->ofCompany($user instanceof User ? $user->companyId() : null);
+                }),
+            Field::customers('customers', [Contact::class, Company::class])
+                ->label('Customers')
+                ->inTable(),
             // Any other record the task is about — Epesi's `__RECORDSETS__`
             // Related field, restricted to Companies and Contacts: unrestricted
             // it offers every recordset with a View page, which put Tasks on
             // Mail's and Notes' own "linked from" tabs too.
-            Field::related('related', [Company::class, Contact::class])->label('Related'),
+            Field::related('related', [Company::class, Contact::class])->label('Related')->notInTable(),
 
-            Field::longText('description'),
+            Field::longText('description')->notInTable(),
         ];
     }
 
@@ -101,6 +133,8 @@ class TaskResource extends RecordsetResource
             return '-';
         }
 
-        return $record->timeless ? $state->format('Y-m-d') : $state->format('Y-m-d H:i');
+        return $record->timeless
+            ? $state->format(RegionalSetting::dateFormat())
+            : RegionalSetting::toUser($state)->format(RegionalSetting::dateTimeFormat());
     }
 }

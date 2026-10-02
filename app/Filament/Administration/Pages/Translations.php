@@ -10,6 +10,7 @@ use App\Support\Translations\CustomTranslations;
 use App\Support\Translations\TranslationCatalog;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -17,8 +18,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\EmbeddedTable;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -97,18 +96,17 @@ class Translations extends Page implements HasTable
                         ->link()
                         ->url(self::FORUM_URL, shouldOpenInNewTab: true),
                 ]),
-            Tabs::make()
-                ->key('languages')
-                ->livewireProperty('language')
-                ->contained(false)
-                ->tabs(collect(Locales::available())
-                    ->map(fn (string $name, string $code): Tab => Tab::make($name)
-                        // Each language by its own name, as everywhere else.
-                        ->translateLabel(false)
-                        ->badge(fn (): ?int => $this->missingCount($code) ?: null)
-                        ->badgeColor('warning')
-                        ->badgeTooltip(__('Not translated')))
-                    ->all()),
+            // Around forty languages ship, too many for tabs.
+            Select::make('language')
+                ->label('Language')
+                // Each language by its own name, as everywhere else.
+                ->options(Locales::available())
+                ->searchable()
+                ->selectablePlaceholder(false)
+                ->live()
+                ->helperText(fn (): ?string => ($missing = $this->missingCount($this->language))
+                    ? __(':count not translated', ['count' => $missing])
+                    : null),
             EmbeddedTable::make(),
         ]);
     }

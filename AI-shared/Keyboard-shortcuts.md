@@ -15,11 +15,14 @@ interferes with typing, or while a modal is open — the same guard on all but o
 | `/` | anywhere | Opens the quick switcher — jump to any page by name |
 | `Backspace` | anywhere | Goes back a page |
 | `A` / `F` / `R` | a List page | Switches to the All / Favorites / Recent tab, whichever the resource has |
+| `M` | a List page | Switches the records select between "My records" and "All records", where the list has one |
+| `I` | a List page | Cycles the status select through "Active", "Inactive" and "All", where the list has a status |
 | `S` | a List page | Focuses the search field |
 | `N` | a List page | Opens the "New …" page, if the resource offers one |
 | `↑` / `↓` | a List page | Moves the highlighted row |
 | `PageUp` / `PageDown` | a List page | Turns the table's page |
 | `Enter` | a List page, a row highlighted | Opens the highlighted row |
+| `Space` | a List page, a row highlighted | Previews the highlighted row in place, if it has one |
 | `Enter` | a List page, search field focused | Runs the search and lands on its first row |
 | `Ctrl`/`Cmd`+`S` | a Create or Edit page | Saves |
 | `Ctrl`/`Cmd`+`E` | a Create or Edit page | Cancels — discards the changes and leaves |
@@ -51,6 +54,10 @@ search and row browsing).
 - **A / F / R** jump straight to the All / Favorites / Recent tab (`BrowseMode`, see
   ListRecords) when the resource has it — only the modes that actually exist get a key, which
   is why the mnemonic lines up with `BrowseMode`'s own labels for free.
+- **M** switches My records / All records (`ListRecords::toggleMyRecords()`); only
+  bound when the list has that select (`getMyRecordsButton()` is not null).
+- **I** cycles Active / Inactive / All (`ListRecords::toggleStatusMode()`); only bound when the
+  list has a status filter (`getInactiveToggle()` is not null).
 - **S** focuses the table's own search field.
 - **N** opens the resource's "New …" page — the same link the header's own button is, found
   by its URL (`a[href$='/create']`) rather than its label, so it needs no resource-specific
@@ -61,9 +68,14 @@ search and row browsing).
   Ctrl/Cmd+E below, which has no such reservation.
 - **↑ / ↓** move a highlighted row the same way a mouse hovering it does (`epesi-row-active`,
   the same background `.fi-ta-row.fi-clickable:hover` already gets — not Filament's own
-  `.fi-selected`, which means a bulk-select checkbox is ticked). **Enter** opens the
-  highlighted row — the same place a click on it goes (`AppServiceProvider::
-  preferViewOverEditOnRecordClick()`'s `recordUrl`).
+  `.fi-selected`, which means a bulk-select checkbox is ticked). Every row gets a highlight,
+  not just `.fi-clickable` ones — Notes (`Epesi\Attachments\AttachmentResource`) sets
+  `->recordUrl(null)` deliberately, since its row expands a preview in place instead of
+  navigating (`preview()`). **Enter** opens the highlighted row — the same place a click on
+  it goes (`AppServiceProvider::preferViewOverEditOnRecordClick()`'s `recordUrl`), falling
+  back on a row with no such link to the same thing **Space** always does: clicking whichever
+  of the row's own `x-on:click` targets is currently visible (Notes' expand-in-place toggle) —
+  a no-op on a row that has none.
 - **PageUp / PageDown** just turn the table's page (clicking Filament's own pagination
   buttons); the highlight starts over on the next ↑/↓ once that page has loaded, rather than
   chasing the same record across pages.

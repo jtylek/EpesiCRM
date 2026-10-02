@@ -86,7 +86,11 @@ class Company extends Model
     protected static function applyExtraVisibility(Builder $query, User $user): void
     {
         if ($companyId = $user->companyId()) {
-            $query->orWhere('id', $companyId);
+            // Qualified: a caller may query Company joined to another table
+            // sharing an `id` column (e.g. Task::customerCompanies(), a
+            // MorphToMany over the shared link table, which has its own
+            // `id`) — bare `id` is ambiguous there.
+            $query->orWhere($query->qualifyColumn('id'), $companyId);
         }
     }
 

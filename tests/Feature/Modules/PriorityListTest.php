@@ -13,7 +13,12 @@ use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\PriorityList\Filament\Widgets\PriorityListWidget;
 use Epesi\Modules\PriorityList\Models\Entry;
+use Epesi\Modules\PriorityList\Models\PriorityListPreference;
 use Epesi\Modules\PriorityList\PriorityList;
+use Epesi\Modules\ProjectsTickets\Models\Project;
+use Epesi\Modules\ProjectsTickets\Models\Ticket;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -73,12 +78,44 @@ class PriorityListTest extends TestCase
     {
         $this->actingAs($this->userWithRole('employee'));
 
-        $this->assertSame(['task', 'meeting', 'phone_call'], PriorityList::recordTypes());
+        $types = ['task', 'meeting', 'phone_call'];
+
+        if (class_exists(Project::class)) {
+            $types[] = 'project';
+        }
+
+        if (class_exists(Ticket::class)) {
+            $types[] = 'ticket';
+        }
+
+        $this->assertSame($types, PriorityList::recordTypes());
 
         $company = Company::create(['company_name' => 'ACME']);
 
         Livewire::test(ViewCompany::class, ['record' => $company->getKey()])
             ->assertActionDoesNotExist('priorityListToggle');
+    }
+
+    public function test_priority_list_type_icons_match_their_recordset_icons(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+
+        $task = Task::create(['title' => 'Task']);
+        $call = PhoneCall::create(['subject' => 'Call', 'called_at' => now(), 'other_customer' => true, 'other_customer_name' => 'X']);
+        $meeting = Meeting::create(['title' => 'Meeting', 'date' => '2026-09-30', 'time' => '10:00:00']);
+
+        $this->assertSame(Heroicon::OutlinedCheckCircle, PriorityList::typeIcon($task));
+        $this->assertSame(Heroicon::OutlinedPhone, PriorityList::typeIcon($call));
+        $this->assertSame(Heroicon::OutlinedCalendarDays, PriorityList::typeIcon($meeting));
+
+        foreach ([$task, $call, $meeting] as $record) {
+            PriorityList::add($user, $record);
+        }
+
+        Livewire::test(PriorityListWidget::class)
+            ->assertSeeHtml('epesi-pl-type-icon')
+            ->assertSeeInOrder(['Task · Open', 'Phone call · Open', 'Meeting · Open']);
     }
 
     public function test_every_recordset_is_a_candidate_but_only_the_registered_ones_start_enabled(): void
@@ -229,14 +266,62 @@ class PriorityListTest extends TestCase
         $this->actingAs($me);
         $entry = $this->entry($me, $task);
 
-        Livewire::test(PriorityListWidget::class)
-            ->assertSeeHtml('wire:click="completePriority('.$entry->getKey().')"')
-            ->call('completePriority', $entry->getKey())
+        $widget = Livewire::test(PriorityListWidget::class)
+            ->assertSeeHtml('wire:click="requestComplete('.$entry->getKey().')"')
+            ->call('requestComplete', $entry->getKey())
+            ->assertActionMounted('confirmCompletion')
+            ->assertSchemaComponentExists('suppress_completion_confirmation');
+
+        $this->assertTrue($widget->instance()->mountedActionShouldOpenModal());
+        $this->assertSame('Close Task: Call the bank?', $widget->instance()->getMountedAction()->getModalHeading());
+
+        $widget->fillForm(['suppress_completion_confirmation' => false])
+            ->callMountedAction()
             ->assertNotified('Done: Task: Call the bank')
             ->assertSee('Your priority list is empty');
 
         $this->assertSame(RecordStatus::Closed, $task->fresh()->status);
         $this->assertSame(0, Entry::query()->count());
+    }
+
+    public function test_do_not_show_again_suppresses_the_modal_only_for_that_user(): void
+    {
+        $me = $this->userWithRole('employee');
+        $this->actingAs($me);
+
+        $first = Task::create(['title' => 'First']);
+        PriorityList::add($me, $first);
+        $firstEntry = $this->entry($me, $first);
+
+        $widget = Livewire::test(PriorityListWidget::class)
+            ->call('requestComplete', $firstEntry->getKey())
+            ->assertActionMounted('confirmCompletion');
+
+        $this->assertTrue($widget->instance()->mountedActionShouldOpenModal());
+
+        $widget->fillForm(['suppress_completion_confirmation' => true])
+            ->callMountedAction()
+            ->assertNotified('Done: Task: First');
+
+        $this->assertTrue(PriorityListPreference::forUser($me)->suppress_completion_confirmation);
+
+        $second = Task::create(['title' => 'Second']);
+        PriorityList::add($me, $second);
+        $secondEntry = $this->entry($me, $second);
+
+        Livewire::test(PriorityListWidget::class)
+            ->call('requestComplete', $secondEntry->getKey())
+            ->assertActionNotMounted('confirmCompletion')
+            ->assertNotified('Done: Task: Second');
+
+        $colleague = $this->userWithRole('employee');
+        $colleaguesTask = Task::create(['title' => 'Colleague task']);
+        PriorityList::add($colleague, $colleaguesTask);
+
+        $this->actingAs($colleague);
+        Livewire::test(PriorityListWidget::class)
+            ->call('requestComplete', $this->entry($colleague, $colleaguesTask)->getKey())
+            ->assertActionMounted('confirmCompletion');
     }
 
     public function test_done_is_offered_only_for_what_i_may_close_and_taking_off_the_list_always(): void
@@ -315,7 +400,23 @@ class PriorityListTest extends TestCase
         $this->assertNull(PriorityList::formatDue($noDeadline));
     }
 
-    public function test_a_row_shows_the_description_on_hover(): void
+    public function test_due_dates_use_the_current_users_regional_date_time_and_timezone(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        RegionalSetting::current()->update([
+            'date_format' => 'm/d/Y',
+            'time_format' => 'g:i A',
+            'timezone' => 'America/Los_Angeles',
+        ]);
+
+        $allDay = Task::create(['title' => 'Date only', 'deadline' => '2026-10-05 00:00:00', 'timeless' => true]);
+        $timed = Task::create(['title' => 'With time', 'deadline' => '2026-10-05 14:30:00']);
+
+        $this->assertSame('10/05/2026', PriorityList::formatDue($allDay));
+        $this->assertSame('10/05/2026 7:30 AM', PriorityList::formatDue($timed));
+    }
+
+    public function test_a_row_shows_full_record_details_on_hover(): void
     {
         $me = $this->userWithRole('employee');
         $this->actingAs($me);
@@ -325,8 +426,11 @@ class PriorityListTest extends TestCase
         PriorityList::add($me, $bare);
 
         $details = PriorityList::details($task);
-        $this->assertSame('Ask about &lt;b&gt;fees&lt;/b&gt;', (string) $details);
-        $this->assertNull(PriorityList::details($bare), 'nothing to show, so no tooltip');
+        $this->assertStringContainsString('>Task</span>', (string) $details);
+        $this->assertStringContainsString('<strong>Call the bank</strong>', (string) $details);
+        $this->assertStringContainsString('Ask about &lt;b&gt;fees&lt;/b&gt;', (string) $details);
+        $this->assertStringContainsString('Deadline:</strong> 2026-09-25 09:00', (string) $details);
+        $this->assertStringContainsString('<strong>Someday</strong>', (string) PriorityList::details($bare));
 
         Livewire::test(PriorityListWidget::class)
             ->assertSeeHtml(Js::from($details)->toHtml());

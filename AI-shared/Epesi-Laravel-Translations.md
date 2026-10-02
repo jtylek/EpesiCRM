@@ -13,6 +13,7 @@ checked, the Translations page, and the problems found and fixed while building 
 | What | Where |
 |---|---|
 | Core strings (Polish) | `lang/pl.json` |
+| Machine translations | `<code>.machine.json` beside each `<code>.json`, under it (see [Machine translations](#machine-translations-the-deepl-pass)) |
 | A module's strings | `modules/<Vendor>/<Name>/lang/pl.json` (16 modules have one) |
 | Laravel's own messages | `lang/pl/validation.php`, `auth.php`, `passwords.php`, `pagination.php` |
 | Words needing their own key | `lang/en/record_labels.php`, `lang/pl/record_labels.php` |
@@ -31,11 +32,13 @@ column. Until then, the language resolvers fail quietly and everyone gets `APP_L
 
 ## Who translates what
 
-- **Developers ship the translations.** Every string in the code has a translation in every
-  language on offer, and `TranslationsTest` fails on one that has none (see
-  [Checking translations](#checking-translations)). A new string is translated when it is
-  added, with an AI assistant, and the result is reviewed like any other change (see
-  [Adding a string](#adding-a-string)).
+- **Developers write English only.** A change or a new feature adds its strings as English
+  keys and translates nothing (see [Adding a string](#adding-a-string)). The target is about
+  40 languages, as many as the old Epesi had, which is too many to translate on the fly.
+- **A separate translation pass ships the other languages.** A dedicated skill fills the gaps
+  in every language through the DeepL API, before a release rather than with each change.
+  Until then `TranslationsTest` reports the gaps instead of failing (see
+  [Checking translations](#checking-translations)).
 - **Users send in better translations**, as a GitHub pull request against the
   `lang/<code>.json` the string is in, or as a post on the forum. The Translations page links
   to both, and downloads an installation's custom translations as a file to attach.
@@ -112,7 +115,13 @@ the message-body iframe title). Rules:
   `__('Uninstall :module?', …)` and `__('On :date, :sender wrote:', …)`.
 - **Counts use `trans_choice()`.** For example:
   `trans_choice('{0} No messages archived|{1} :count message archived|[2,*] :count messages archived', $n, ['count' => $n])`.
-  Polish supplies its own ranges (`{1}`, `[2,4]`, `[5,*]`).
+  A translation writes the language's plural forms **without conditions**, in the order of
+  Laravel's `MessageSelector::getPluralIndex()` for it, and any exact case (`{0} …`) **last**:
+  `"Zarchiwizowano :count wiadomość|Zarchiwizowano :count wiadomości|Zarchiwizowano :count wiadomości|{0} Nie zarchiwizowano żadnej wiadomości"`.
+  Ranges can't express Polish (22 pliki, but 12 and 25 plików), and Laravel ignores the
+  plural rule as soon as a condition matches. Without conditions, it picks the form by the
+  plural rule. An exact case placed first would shift the indexes; placed last, the
+  plural index never reaches it, so only its own condition selects it.
 - **HTML is built around the translation.** Keep markup out of the key, or pass it as a
   placeholder: `__('Run :command on the server…', ['command' => '<code>…</code>'])`. Escape
   a translated sentence with `e()` when it goes into an `HtmlString`.
@@ -287,22 +296,66 @@ It was built as follows:
    | Home City | Miasto zamiszkania (typo) | Miasto (dom) |
    | Notes | Notki | Notatki |
 
-3. The rest was translated by hand.
+3. The rest was translated by hand. That was before the English-only rule; new strings now
+   get their Polish from the DeepL pass.
 
 Each string was then put where it is used: into the module's `lang/pl.json` when all its
 uses are in one module, otherwise into `lang/pl.json`.
 
+## Machine translations: the DeepL pass
+
+The other languages come from a DeepL pass run before a release, not with each change. Its
+tooling is the translations skill in the private notes.
+
+- **Kept apart.** The pass writes `<code>.machine.json` next to each `<code>.json`, in
+  `lang/` and in each module's `lang/`. A rerun never touches the reviewed `<code>.json`.
+- **Loading order.** `CustomTranslationLoader` merges the machine files *under* the JSON
+  translations, in FileLoader's own path order. So a reviewed translation wins, a custom one
+  wins over both, and a string in none of them falls back to its English.
+  `TranslationCatalog` counts a machine translation as shipped and flags the row
+  `machine: true`.
+- **Reviewing one.** To correct a machine translation, add the fixed text to `<code>.json`
+  (or `lang:import-epesi` adds Epesi's). It wins from then on, and the machine entry can stay.
+- **Changed English.** The key is the English text, so editing a string leaves its old key
+  in every language and the new one untranslated. Until the next pass, the other languages
+  show the new English (Laravel's fallback). Old keys are harmless leftovers.
+- **Context.** Each string goes to DeepL with a context drawn from the code. Its role:
+  a button, a column header, a field label, an option value, help text, a notification.
+  Its module. And a `// translators: …` note, when one is on the line above the string or at
+  the end of its line. So "Open" on a button is a verb. A DeepL glossary of epesi's own nouns
+  (record, recordset, addon, company, …), built from the reviewed translations, keeps one
+  word for each. A key used both as a button and as a noun or value ("Archive") is listed
+  for review: it may need a `record_labels` key (see [Ambiguous words](#ambiguous-words)).
+  Add a translators note where the role alone would mislead.
+- **Placeholders** go to DeepL as empty XML tags (`tag_handling=xml`), so DeepL can move
+  them but never translate them. A result whose placeholders don't come back exactly is
+  set aside for review, not merged.
+- **Plurals** are built per form, following the rule under [Translated by hand](#translated-by-hand).
+  Each of the language's forms is translated from the English sentence for a sample number
+  of that form, taken from Laravel's own `getPluralIndex()` ("22 files" for Polish's second
+  form), so DeepL inflects for it. The number then becomes `:count` again. Exact cases
+  (`{0} …`) are translated as they are and go last. Every plural is listed for a check.
+
 ## Adding a language
 
-1. **Import what Epesi had:**
+1. **Import what Epesi had** (community translations, into the reviewed `<code>.json`, before
+   any DeepL pass):
 
    ```bash
    php artisan lang:import-epesi de /path/to/epesi          # or the path of de.php itself
    php artisan lang:import-epesi de /path/to/epesi --dry-run
    ```
 
-   The command reads `modules/Base/Lang/lang/de.php`, then the administrator's edits in
-   `data/Base_Lang/custom/de.php`, which take precedence.
+   The command reads, in the order of Epesi's `Base_LangCommon::build_merge()`, with a later
+   file winning:
+   - `modules/Base/Lang/lang/de.php`: the core and every module shipped with it;
+   - each module's own `modules/<…>/lang/de.php`: the Premium modules (not Epesi's
+     `modules/Tests`);
+   - the administrator's edits in `data/Base_Lang/custom/de.php` and
+     `data/Base_Lang/custom/<Module>/de.php`.
+
+   `--from=no` reads Epesi's code when it differs from the one here (`nb`). Use a clean
+   Epesi checkout: an installation's `data/Base_Lang/custom/` holds its own wording.
    - The strings to look up are the ones some language here already has: every key in
      `lang/*.json` and in each module's `lang/*.json`.
    - Each translation is written into the same directory as the string's other languages,
@@ -312,9 +365,9 @@ uses are in one module, otherwise into `lang/pl.json`.
      the case of the string it stands in for ("contacts" from Epesi's "Contacts").
    - For German it finds about 190 of roughly 490 strings.
    - Review the result (see the table above).
-2. **Find the gaps** with `TRANSLATIONS_MISSING` (below). Translate them with an AI
-   assistant, giving it the file and the strings around each one, and review the result. To
-   make the tests check the new language as well, add its code next to `'pl'` in
+2. **Fill the gaps** with the DeepL pass (see
+   [Machine translations](#machine-translations-the-deepl-pass)). `TRANSLATIONS_MISSING`
+   (below) lists them. To make the tests check the new language as well, add its code next to `'pl'` in
    `TranslationsTest`.
 3. **Add Laravel's messages** if needed: `lang/de/validation.php` and the other framework
    files.
@@ -329,12 +382,14 @@ uses are in one module, otherwise into `lang/pl.json`.
 
 - In PHP, use `__('Whole English sentence with :placeholders')`, or just `->label('…')`
   on a component, which is picked up automatically.
-- Add the Polish to the module's `lang/pl.json`, or to `lang/pl.json` for core code. Keep
-  the files sorted by key, case-insensitively. Translate it with an AI assistant, and review
-  the result: Epesi's own wrong words in the table under [Polish](#polish) are the kind of
-  mistake to look for.
+- Write English only. Don't add the string to `lang/pl.json` or any other language file:
+  the DeepL translation pass does that for every language at once. Keep the English
+  translatable for it: whole sentences with `:placeholders`, `trans_choice()` for counts,
+  no markup in the key, and a `record_labels` key for a word with two meanings
+  (see [Ambiguous words](#ambiguous-words)).
 - A new resource, page or relation manager uses the matching `Translates*Labels` trait.
-- Run `php artisan test --filter=TranslationsTest`. It fails on any string without Polish.
+- `php artisan test --filter=TranslationsTest` lists the new string as awaiting translation
+  (the test is marked incomplete, not failed).
 
 ## Checking translations
 
@@ -344,7 +399,7 @@ uses are in one module, otherwise into `lang/pl.json`.
   loads the demo data. It then opens every page and resource page of the main,
   administration and user-settings panels: list, create, view and edit for the first
   record. It also renders every relation manager and dashboard widget with Livewire. Any
-  lookup that misses (`Lang::handleMissingKeysUsing`) fails the test. It ignores:
+  lookup that misses (`Lang::handleMissingKeysUsing`) is a gap. It ignores:
   - lookups of values that are already Polish, whether Filament's own or ours.
     `translateLabel()` looks those up a second time, and the second lookup is not a gap;
   - the signed-in user's name (the user menu is labelled with it) and a Spatie exception
@@ -354,7 +409,15 @@ uses are in one module, otherwise into `lang/pl.json`.
   notifications, the setup wizard. The test reads every `__('…')`, `trans_choice('…')`,
   `->label('…')`, `->modalHeading('…')`, `->modalSubmitActionLabel('…')` and
   `Step/Tab/Fieldset::make('…')` literal in `app/`, `modules/` and the Blade views, plus
-  the setup profiles in `config/setup.php`. Each must have a Polish entry.
+  the setup profiles in `config/setup.php`. Each one without a Polish entry is a gap.
+- **Gaps are reported, not failed.** Development is English-only, so both coverage tests
+  mark themselves incomplete and list the gaps (string => where). A page that fails to open
+  still fails the crawl. After the DeepL pass, before a release, run them strictly:
+
+  ```bash
+  TRANSLATIONS_STRICT=1 php artisan test --filter=TranslationsTest
+  ```
+
 - **Language resolution:** the user's own language, the system default, a language not on
   offer, and the browser language on the login page.
 - **Notifications in the recipient's language:** a change made in English reaches a Polish
@@ -408,6 +471,28 @@ plugin registrations.
   [Ambiguous words](#ambiguous-words)). It was built on Linux, where file names are
   case-sensitive, and first failed on the Windows install. The file is now
   `record_labels.php`.
+
+## Shipped languages
+
+German, English, Spanish, French, Italian, Japanese, Polish, Portuguese (Brazilian), Russian,
+Arabic and Chinese (simplified) are offered (`available_locales`). The six added after Polish
+(ar, it, ja, pt, ru, zh) came from old Epesi's community translations
+(`lang:import-epesi`, about 440 strings each) plus a DeepL pass for the rest — see
+[Machine translations](#machine-translations-the-deepl-pass). Coverage is 100% for it/ja/ru/zh
+and over 99% for ar/pt; the few gaps are plurals DeepL could not round-trip (see below), left
+in English until reviewed by hand.
+
+- **`record_labels` group files aren't part of the DeepL pass.** `translate`/`merge` only
+  write JSON files; the status words in `lang/<code>/record_labels.php` were translated and
+  written by hand for these six languages (an addition to the skill's job, not yet automated).
+  A future language needs the same manual step, or the script extended to cover it.
+- **"open" (the status) needs a native-speaker check** in all six: DeepL kept giving the verb
+  ("to open" / an Open button) despite the context saying it's a status adjective, the same
+  confusion the Polish table above records for this exact word.
+- **Arabic and Portuguese spell out small numbers.** "1 file" becomes "ملف واحد" / "uma
+  alteração" — the digit itself doesn't survive, so the DeepL pass's plural check (which
+  needs the sample number back, to become `:count` again) correctly refuses to merge those
+  few strings rather than ship a broken plural. They stay in English until translated by hand.
 
 ## Known limits
 

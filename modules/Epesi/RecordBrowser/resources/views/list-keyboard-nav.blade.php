@@ -2,6 +2,9 @@
     Keyboard-only browsing of a List page, for once "/" (command-palette.
     blade.php) has landed you on one: A/F/R jump straight to the All /
     Favorites / Recent tab (BrowseMode) when the resource has it, S focuses
+    M switches My records / All records (ListRecords::toggleMyRecords()),
+    I cycles Active / Inactive / All when the list has a status
+    (ListRecords::toggleStatusMode()), S focuses
     the table's own search field, N opens the "New …" page, ↑/↓ move a
     highlighted row the same way a mouse hovering it does (Enter opens it,
     the same place a click would), and PageUp/PageDown just move a page —
@@ -16,12 +19,22 @@
     Guarded the same way "/" is: never while typing into a field (search's
     own Enter handling is the one exception), and never while any modal
     (ours or Filament's own) is open over the table.
+
+    A row with no ->recordUrl() (Notes/AttachmentResource: the row itself
+    expands a preview in place — see AttachmentResource::preview() — rather
+    than navigating, so it deliberately carries no `a[href]`) still gets
+    ↑/↓ highlighting; rows() matches every row, not just `.fi-clickable`
+    ones. Space always previews the highlighted row in place — clicking
+    whichever of its own `x-on:click` targets is actually visible, the same
+    element a mouse click on the row would land on — regardless of whether
+    it also has a link. Enter opens the row's link when it has one, falling
+    back to that same preview when it doesn't.
 --}}
 <div
-    x-init="skipToolbarTabStops(); watchSearchEnter();"
+    x-init="skipToolbarTabStops(); watchSearchEnter(); restoreRow();"
     x-data="{
         rows() {
-            return [...document.querySelectorAll('.fi-ta-row.fi-clickable')];
+            return [...document.querySelectorAll('.fi-ta-row')];
         },
         highlight(row) {
             this.rows().forEach((r) => r.classList.remove('epesi-row-active'));
@@ -40,14 +53,63 @@
             this.highlight(rows[next]);
         },
         open() {
-            this.rows()
-                .find((row) => row.getAttribute('wire:key') === this.activeRowKey)
-                ?.querySelector('a[href]')
+            const row = this.rows().find((row) => row.getAttribute('wire:key') === this.activeRowKey);
+            const link = row?.querySelector('a[href]');
+
+            if (link) {
+                try { sessionStorage.setItem('epesi-row:' + location.pathname, this.activeRowKey); } catch (e) {}
+                link.click();
+                return;
+            }
+
+            this.preview();
+        },
+        preview() {
+            const row = this.rows().find((row) => row.getAttribute('wire:key') === this.activeRowKey);
+
+            [...(row?.querySelectorAll('[x-on\\:click]') ?? [])]
+                .find((el) => el.offsetParent !== null)
                 ?.click();
         },
         page(direction) {
             document.querySelector(direction < 0 ? '.fi-pagination-previous-btn' : '.fi-pagination-next-btn')?.click();
             this.highlight(null);
+        },
+        {{--
+            Coming back to the list (Backspace / browser back) after Enter
+            opened a row: re-highlights that row. The key is saved by open()
+            and consumed here. Any other visit, or a remembered row that is
+            gone, lands on the first row. The table may still be loading, so
+            waits briefly for the row to appear.
+        --}}
+        restoreRow() {
+            const storageKey = 'epesi-row:' + location.pathname;
+            let key = null;
+
+            try {
+                key = sessionStorage.getItem(storageKey);
+                sessionStorage.removeItem(storageKey);
+            } catch (e) {}
+
+            const apply = (fallback = false) => {
+                const rows = this.rows();
+                const row = (key && rows.find((r) => r.getAttribute('wire:key') === key))
+                    || ((! key || fallback) ? rows[0] : null);
+
+                if (row) this.highlight(row);
+
+                return !! row;
+            };
+
+            if (apply()) return;
+
+            const observer = new MutationObserver(() => { if (apply()) observer.disconnect(); });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+            setTimeout(() => {
+                observer.disconnect();
+                if (this.activeRowKey === null) apply(true);
+            }, 3000);
         },
         {{--
             The toolbar row is search field, then the filter trigger, then
@@ -138,8 +200,15 @@
         else if (event.key === 'PageDown') { event.preventDefault(); page(1); }
         else if (event.key === 'PageUp') { event.preventDefault(); page(-1); }
         else if (event.key === 'Enter' && activeRowKey !== null) { event.preventDefault(); open(); }
+        else if (event.key === ' ' && activeRowKey !== null) { event.preventDefault(); preview(); }
         else if (event.key.toLowerCase() === 's') { event.preventDefault(); document.querySelector('.fi-ta-search-field input')?.focus(); }
         else if (event.key.toLowerCase() === 'n') { event.preventDefault(); document.querySelector('a[href$=\'/create\']')?.click(); }
+        @if ($hasMyRecords)
+        else if (event.key.toLowerCase() === 'm') { event.preventDefault(); $wire.toggleMyRecords(); }
+        @endif
+        @if ($hasStatus)
+        else if (event.key.toLowerCase() === 'i') { event.preventDefault(); $wire.toggleStatusMode(); }
+        @endif
         @foreach ($tabKeys as $key)
         else if (event.key.toLowerCase() === '{{ substr($key, 0, 1) }}') { event.preventDefault(); $wire.set('activeTab', '{{ $key }}'); }
         @endforeach

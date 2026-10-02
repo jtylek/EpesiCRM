@@ -12,6 +12,7 @@ use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * Legacy `phonecall` recordset -> Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall. Must run after
@@ -24,10 +25,9 @@ use Illuminate\Database\Eloquent\Model;
  * Phone) into whichever Contact/Company Customer resolved to, not a stored
  * number — see PhoneCallCommon_0.php's `case 1/2/3/4` switch, confirmed live
  * (every sample row here has "Other Customer"/"Other Phone" both unset and a
- * plain Customer + phone-index pair). A `company/<id>` Customer now resolves
- * into the real `company_id` FK (add_customer_companies_to_activities)
- * rather than being faked as an Other-Customer text entry — the previous
- * approach, from when PhoneCall had nowhere else to put a company link.
+ * plain Customer + phone-index pair). Resolves into the real
+ * `customer_type`/`customer_id` morphTo (Field::customer()) rather than
+ * being faked as an Other-Customer text entry.
  */
 class PhoneCallsImporter extends Importer
 {
@@ -115,8 +115,12 @@ class PhoneCallsImporter extends Importer
         }
 
         return [
-            'contact_id' => $contactId,
-            'company_id' => $companyId,
+            'customer_type' => match (true) {
+                $contactId !== null => Relation::getMorphAlias(Contact::class),
+                $companyId !== null => Relation::getMorphAlias(Company::class),
+                default => null,
+            },
+            'customer_id' => $contactId ?? $companyId,
             'other_customer' => $otherCustomer,
             'other_customer_name' => $otherCustomerName,
             'phone_number' => $phoneNumber,

@@ -128,6 +128,9 @@ class MailServerTest extends TestCase
 
         $this->saveSmtp(['security' => 'tls', 'port' => null]);
         $this->assertStringContainsString('MAIL_PORT=587', File::get($this->scratch.'/.env'));
+
+        $this->saveSmtp(['security' => 'none', 'port' => null]);
+        $this->assertStringContainsString('MAIL_PORT=25', File::get($this->scratch.'/.env'));
     }
 
     public function test_saving_the_servers_own_mail_system_or_no_mail_needs_no_smtp_details(): void

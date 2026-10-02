@@ -5,6 +5,8 @@ namespace Epesi\Modules\RecordBrowser\Filament\Pages;
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -59,6 +61,13 @@ abstract class EditRecord extends BaseEditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ...(is_subclass_of(static::getResource(), RecordsetResource::class) ? [
+                Action::make('clickToFill')
+                    ->label('Click 2 Fill')
+                    ->icon(Heroicon::OutlinedClipboardDocument)
+                    ->color('gray')
+                    ->alpineClickHandler("\$dispatch('epesi-click-to-fill-toggle')"),
+            ] : []),
             // getSaveFormAction() renders type="submit"; moved here (outside
             // the <form>), it needs formId('form') or the button has no
             // owning form and clicking it is a silent no-op.

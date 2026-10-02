@@ -8,6 +8,7 @@ use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\ApplyThemeColor;
+use App\Http\Middleware\PersistUiState;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
@@ -115,7 +116,7 @@ class MainPanelProvider extends PanelProvider
                 TrackLoginAudit::class,
             ])
             // Persistent: Livewire's own requests need the language too.
-            ->middleware([SetLocale::class], isPersistent: true)
+            ->middleware([SetLocale::class, PersistUiState::class], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
             ])

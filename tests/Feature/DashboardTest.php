@@ -13,6 +13,7 @@ use Epesi\Modules\Mail\Filament\Widgets\UnreadMailWidget;
 use Epesi\Modules\PriorityList\Filament\Widgets\PriorityListWidget;
 use Epesi\Modules\Reminders\Filament\Widgets\MyRemindersWidget;
 use Epesi\Modules\Shoutbox\Filament\Widgets\ShoutboxWidget;
+use Epesi\Modules\StickyNotes\Filament\Widgets\StickyNotesWidget;
 use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,14 +36,12 @@ class DashboardTest extends TestCase
         $this->actingAs($user);
 
         $this->assertSame([
-            [ShoutboxWidget::class],
             [PriorityListWidget::class],
-            // No mail account yet: Mail is placed above, but hidden until there is one.
+            [ShoutboxWidget::class],
             [MyRemindersWidget::class],
         ], $this->columns());
 
-        $this->assertSame(['Main', 'Agenda'], $this->tabNames($user));
-        $this->assertSame(['col' => 2, 'pos' => 0], $this->applet(UnreadMailWidget::class)->only(['col', 'pos']));
+        $this->assertSame(['Main', 'Agenda', 'Notes'], $this->tabNames($user));
 
         $agenda = DashboardTab::query()->where('name', 'Agenda')->sole();
 
@@ -51,6 +50,10 @@ class DashboardTest extends TestCase
             [TasksWidget::class],
             [PhoneCallsWidget::class],
         ], $this->columns($agenda));
+
+        $notes = DashboardTab::query()->where('name', 'Notes')->sole();
+
+        $this->assertSame([[StickyNotesWidget::class], [], []], $this->columns($notes));
     }
 
     public function test_the_default_dashboard_leaves_out_applets_that_are_not_installed(): void
@@ -205,7 +208,8 @@ class DashboardTest extends TestCase
             ]])
             ->assertHasNoFormErrors();
 
-        $this->assertSame(['Sales', 'Agenda', 'Mine'], $this->tabNames($user));
+        // Notes was left out of the form but stays, last.
+        $this->assertSame(['Sales', 'Agenda', 'Mine', 'Notes'], $this->tabNames($user));
         $sales = DashboardTab::query()->where('name', 'Sales')->sole();
         $this->assertSame(0, $sales->applets()->count());
 
@@ -230,10 +234,83 @@ class DashboardTest extends TestCase
             ]])
             ->assertHasNoFormErrors();
 
-        $this->assertSame(['Agenda', 'Mine'], $this->tabNames($user));
+        $this->assertSame(['Agenda', 'Mine', 'Notes'], $this->tabNames($user));
         $this->assertModelMissing($tasks);
 
         $undoRepeaterFake();
+    }
+
+    public function test_main_agenda_and_notes_are_system_tabs_that_cannot_be_deleted(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+        $this->columns();
+
+        $this->assertSame(['main', 'agenda', 'notes'], DashboardTab::query()->orderBy('pos')->pluck('key')->all());
+
+        $undoRepeaterFake = Repeater::fake();
+
+        // A form that leaves them out, or one that names only a new tab, deletes none of them.
+        Livewire::test(Dashboard::class)
+            ->callAction('manageTabs', ['tabs' => [['id' => null, 'name' => 'Sales']]])
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(['Sales', 'Main', 'Agenda', 'Notes'], $this->tabNames($user));
+        $this->assertSame(1, DashboardApplet::query()->where('widget', StickyNotesWidget::class)->count());
+
+        $undoRepeaterFake();
+    }
+
+    public function test_the_tabs_form_offers_no_delete_button_for_a_system_tab(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $this->columns();
+        DashboardTab::query()->create(['user_id' => auth()->id(), 'name' => 'Sales', 'pos' => 9]);
+
+        $page = Livewire::test(Dashboard::class)->mountAction('manageTabs')->instance();
+        $schema = (new \ReflectionMethod($page, 'getMountedActionSchema'))->invoke($page);
+        $repeater = collect($schema->getFlatComponents(withHidden: true))->first(fn ($component): bool => $component instanceof Repeater);
+        $visible = [];
+
+        foreach (array_keys($repeater->getRawState()) as $key) {
+            $visible[$repeater->getRawState()[$key]['name']] = $repeater->getAction('delete')(['item' => $key])->isVisible();
+        }
+
+        $this->assertSame(['Main' => false, 'Agenda' => false, 'Notes' => false, 'Sales' => true], $visible);
+    }
+
+    public function test_the_notes_applet_is_only_on_the_notes_tab(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+        $this->columns();
+        $main = DashboardTab::query()->where('key', 'main')->sole();
+        $notes = DashboardTab::query()->where('key', 'notes')->sole();
+
+        // Add applet is not there on the Notes tab.
+        Livewire::test(Dashboard::class)
+            ->set('tab', $notes->id)
+            ->assertActionHidden('addApplet');
+
+        // On another tab it is, without Notes among the choices.
+        $onMain = Livewire::test(Dashboard::class)
+            ->set('tab', $main->id)
+            ->assertActionVisible('addApplet');
+
+        $offered = (new \ReflectionMethod(Dashboard::class, 'availableApplets'))->invoke($onMain->instance());
+
+        $this->assertTrue($offered->has(PriorityListWidget::class));
+        $this->assertFalse($offered->has(StickyNotesWidget::class));
+
+        // The Notes applet can't be moved to another tab, nor another applet onto the Notes tab.
+        $tasks = $this->applet(TasksWidget::class);
+
+        Livewire::test(Dashboard::class)
+            ->call('openAppletSettings', $tasks->id)
+            ->fillForm(['tab' => $notes->id])
+            ->callMountedAction();
+
+        $this->assertFalse($tasks->fresh()->tab->is($notes));
     }
 
     public function test_the_dashboard_renders_its_columns_as_sortable_lists(): void

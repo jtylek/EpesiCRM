@@ -128,6 +128,9 @@ removed, or its purpose changes.
   README: each user's list of up to 10 next actions (GTD), the flag on View pages, the
   dashboard applet, why a hidden record takes no place, how finished records leave every
   list, and adding a record type.
+- [Reinstall-steps.md](Reinstall-steps.md) — resetting a disposable database and the marker
+  and module cache to start the browser setup cleanly, while keeping `.env`, `APP_KEY`, and
+  installed dependencies.
 - [Setup-wizard.md](Setup-wizard.md) — how a new installation is set up: `epesi:install` (the
   port of `setup.php`), the `/setup` wizard and its install steps (FirstRun), the module setup
   pages after installation and how a module adds one, scripted installs, security, recovering

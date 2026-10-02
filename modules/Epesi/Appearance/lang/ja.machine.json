@@ -1,0 +1,21 @@
+{
+    "Accent colour": "アクセントカラー",
+    "Appearance": "外観",
+    "Appearance saved": "「外観」が保存されました",
+    "Application name saved": "アプリケーション名が保存されました",
+    "Application name:": "アプリケーション名：",
+    "Comfortable": "快適",
+    "Compact": "簡潔",
+    "Default theme": "デフォルトのテーマ",
+    "Density": "密度",
+    "Font size": "フォントサイズ",
+    "Large": "大",
+    "Leave blank to keep this panel's own colour.": "このパネルの既定の色を維持するには、空白のままにしてください。",
+    "Small": "小",
+    "Theme": "テーマ",
+    "theme": "テーマ",
+    "themes": "テーマ",
+    "This panel's own colour": "このパネル固有の色",
+    "What a user gets until they choose one of their own.": "ユーザーが自分で選択するまでの間に表示される内容です。",
+    "Your administrator hasn't set up any themes yet.": "管理者はまだテーマを設定していません。"
+}

@@ -51,11 +51,9 @@
     "Message body": "Treść wiadomości",
     "Messages": "Wiadomości",
     "Not linked to any record": "Niepowiązane z żadnym rekordem",
-    "Nothing archived yet. Move messages to your archive folder, or send from a contact.": "Nic jeszcze nie zarchiwizowano. Przenieś wiadomości do folderu archiwum albo wyślij wiadomość z kontaktu.",
     "On :date, :sender wrote:": "Dnia :date :sender napisał(a):",
     "Outgoing mail (SMTP)": "Poczta wychodząca (SMTP)",
     "Received": "Odebrane",
-    "Recently archived": "Ostatnio zarchiwizowane",
     "Remove from this record": "Usuń z tego rekordu",
     "Reply": "Odpowiedz",
     "Reply all": "Odpowiedz wszystkim",
@@ -73,7 +71,7 @@
     "To": "Do",
     "unavailable": "niedostępne",
     "Unlink": "Odłącz",
-    "Unread mail in your accounts and recently archived mail": "Nieprzeczytana poczta na Twoich kontach i ostatnio zarchiwizowane wiadomości",
-    "{0} No messages archived|{1} :count message archived|[2,*] :count messages archived": "{0} Nie zarchiwizowano żadnej wiadomości|{1} Zarchiwizowano :count wiadomość|[2,4] Zarchiwizowano :count wiadomości|[5,*] Zarchiwizowano :count wiadomości",
+    "Unread mail in your accounts": "Nieprzeczytana poczta na Twoich kontach",
+    "{0} No messages archived|{1} :count message archived|[2,*] :count messages archived": "Zarchiwizowano :count wiadomość|Zarchiwizowano :count wiadomości|Zarchiwizowano :count wiadomości|{0} Nie zarchiwizowano żadnej wiadomości",
     "{1} :count file could not be read as e-mail.|[2,*] :count files could not be read as e-mail.": "{1} Nie udało się odczytać :count pliku jako wiadomości e-mail.|[2,*] Nie udało się odczytać :count plików jako wiadomości e-mail."
 }

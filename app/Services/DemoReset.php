@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Services\Setup\Installer;
 use App\Services\Setup\InstallOptions;
 use App\Support\Setup\SetupState;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -96,8 +97,26 @@ class DemoReset
     public function emptyDatabase(): void
     {
         Schema::withoutForeignKeyConstraints(function (): void {
-            foreach (Schema::getTableListing(schemaQualified: false) as $table) {
-                Schema::drop($table);
+            // SQLite ignores the switch inside a transaction (the tests'), and
+            // then a parent table can't go while a child still points at it:
+            // retry what's left until every table is gone.
+            $tables = Schema::getTableListing(schemaQualified: false);
+            while ($tables !== []) {
+                $left = [];
+
+                foreach ($tables as $table) {
+                    try {
+                        Schema::drop($table);
+                    } catch (QueryException $e) {
+                        $left[] = $table;
+                    }
+                }
+
+                if (count($left) === count($tables)) {
+                    throw $e;
+                }
+
+                $tables = $left;
             }
         });
 

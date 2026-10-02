@@ -42,9 +42,9 @@ Themes module (accent colour, density, font size) are built. The plan at the end
   themes — a colour, a density, a font size, and which one (at most one) is the default.
 - **Appearance**, in user-settings next to Regional Settings: every user picks one of the
   admin's themes, or leaves it to the default.
-- Compact density and default font size are still this app's own unconditional default: a guest,
-  a user who hasn't chosen, and a fresh install with no themes yet all get exactly today's
-  shipped look.
+- Compact density and default font size remain this app's fallback when no theme resolves: a
+  guest or a user with no available default theme gets the shipped look. A fresh install seeds
+  Epesi Green as the default theme with small font size.
 
 ## The layers
 
@@ -140,6 +140,11 @@ for all five panels, not one per panel. The files are in
 | `boxed-fields.css` | The shaded label and value boxes of inline-label fields, tighter sections, `.rb-column-flow` | main, user settings |
 | `small-card-corners.css` | `--radius-sm` on card-like containers | main, user settings, Administration, setup |
 | `auth-branding.css` | The login page's brand name larger than its heading | main, user settings, Administration, portal |
+
+`boxed-fields.css` also normalizes inline-label View rows across all panels: a shared
+minimum height follows the theme font size, badges use the same line height as text,
+and collection value cells have a 1px inset. Multiline values and multiple collection
+items can still expand their rows. These sizing rules apply to both densities.
 
 The theme **replaces** Filament's precompiled stylesheet: the same Filament CSS, compiled by
 Tailwind 4 together with epesi's sources.

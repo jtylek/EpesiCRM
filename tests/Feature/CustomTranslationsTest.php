@@ -48,6 +48,31 @@ class CustomTranslationsTest extends TestCase
         $this->assertArrayNotHasKey('Contacts', CustomTranslations::for('pl'));
     }
 
+    public function test_a_machine_translation_fills_in_under_the_reviewed_ones(): void
+    {
+        $directory = storage_path('framework/testing/'.uniqid('machine-lang-'));
+        mkdir($directory, 0777, true);
+
+        try {
+            file_put_contents("{$directory}/pl.machine.json", json_encode([
+                'Quokka report' => 'Raport kuoki',
+                'Contacts' => 'Kontakty (maszynowo)',
+                'Companies' => 'Firmy (maszynowo)',
+            ]));
+            app('translator')->addJsonPath($directory);
+            app('translator')->setLoaded([]);
+            CustomTranslations::put('pl', 'Companies', 'Klienci');
+
+            $this->assertSame('Raport kuoki', __('Quokka report', [], 'pl'), 'a string only the DeepL pass has');
+            $this->assertSame('Kontakty', __('Contacts', [], 'pl'), 'the reviewed lang/pl.json wins');
+            $this->assertSame('Klienci', __('Companies', [], 'pl'), 'and a custom one wins over both');
+            $this->assertSame('Quokka report', __('Quokka report', [], 'de'), 'another language falls back to English');
+        } finally {
+            array_map('unlink', glob("{$directory}/*") ?: []);
+            rmdir($directory);
+        }
+    }
+
     public function test_only_a_language_code_names_a_file(): void
     {
         $this->assertSame([], CustomTranslations::for('../../.env'));
@@ -71,10 +96,12 @@ class CustomTranslationsTest extends TestCase
         $this->assertSame('Open', $polish['record_labels.status.open']['english']);
         $this->assertSame(TranslationCatalog::CUSTOM, $polish['A word of our own']['status']);
 
-        // A language nothing ships yet: every string waits for a translation.
-        $german = TranslationCatalog::for('de');
-        $this->assertSame(TranslationCatalog::MISSING, $german['Companies']['status']);
-        $this->assertSame([TranslationCatalog::MISSING], array_values(array_unique(array_column($german, 'status'))));
+        // A language nothing ships yet (not a real one, so a shipped or
+        // machine translation never lands here and makes this stale): every
+        // string waits for a translation.
+        $none = TranslationCatalog::for('xx');
+        $this->assertSame(TranslationCatalog::MISSING, $none['Companies']['status']);
+        $this->assertSame([TranslationCatalog::MISSING], array_values(array_unique(array_column($none, 'status'))));
 
         // English is the strings themselves.
         $this->assertSame(TranslationCatalog::TRANSLATED, TranslationCatalog::for('en')['Companies']['status']);

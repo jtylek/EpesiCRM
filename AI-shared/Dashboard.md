@@ -23,8 +23,16 @@ The first visit creates the default dashboard from `config('dashboard.default')`
 
 | Tab | Left | Middle | Right |
 |---|---|---|---|
-| Main | Shoutbox | Priority list | Mail, My reminders |
+| Main | Priority list | Messages (Shoutbox) | My reminders |
 | Agenda | Agenda | Tasks | Phone Calls |
+| Notes | Notes (takes the whole row) | | |
+
+Main, Agenda and Notes are **system tabs** (`dashboard_tabs.key`, from `config('dashboard.keys')`):
+every dashboard has them, **Tabs** doesn't let the user delete them (a form that leaves one out
+still keeps it), and they can be renamed and reordered. Other tabs are the user's, for any applet.
+The Notes tab holds the Notes applet alone: **Add applet** is hidden there, the Notes applet
+(`APPLET_ONLY_ON_NOTES_TAB`) isn't offered by Add applet on other tabs, has no gear, and no other
+applet can be moved onto the Notes tab. Notes are added with the applet's own **+**.
 
 An applet whose module is disabled or not installed is left out, and a tab left with no
 applets is skipped. If nothing is left at all, the user gets an empty "Dashboard" tab. An
@@ -46,6 +54,25 @@ A module registers its widget in its plugin (`$panel->widgets([...])`), as the T
 Calls, Reminders, Shoutbox and Mail modules do. The Agenda is core
 (`app/Filament/Widgets/AgendaWidget.php`).
 
+Table applets extend `Epesi\Modules\RecordBrowser\Filament\Widgets\RecordsetApplet`.
+This base implements `Applet` and includes `IsApplet`. It supplies the shared icon/title
+template, configuration action, one-column span, and pagination choices of 5, 10 and 25
+(10 by default). Declare `protected static ?string $resource = YourResource::class`
+to inherit its navigation icon and create/fullscreen actions; create respects `canCreate()`.
+Override `getAppletCreateLabel()` for a specific translated create label. Without a resource,
+the header has just Configure and a generic table icon; `$appletIcon` overrides the icon.
+
+The caption defaults to `getAppletCaption()` plus the optional `subtitle` setting.
+`getAppletHeading()`, `getAppletIcon()` and `getAppletHeaderActions()` are customization
+hooks. Widgets continue to declare their queries and columns in `table()`, where they may
+override pagination or other defaults. Tasks, Phone Calls, My reminders and the Premium
+Projects and Tickets applets use this base; My reminders keeps five rows by default.
+
+The shared header styles live in `resources/css/filament/epesi/dashboard-applets.css`.
+Icons and titles stay on the left and actions on the right on one row at every screen width;
+long titles truncate. Section applets receive the same layout on the Dashboard. Table applets
+using the shared heading also receive it when rendered outside the Dashboard.
+
 | Method | Epesi | What |
 |---|---|---|
 | `getAppletCaption()` | `applet_caption()` | its name in Add applet and on its settings form |
@@ -59,7 +86,7 @@ Calls, Reminders, Shoutbox and Mail modules do. The Agenda is core
 - `$appletId` and `$appletSettings`: the Dashboard mounts the widget with them. Both are
   `#[Locked]`. They are `null` and `[]` anywhere else, for example in a test.
 - `appletSetting($name)`: the saved value, or the default.
-- The gear. A table applet adds `$this->configureAppletAction()` to its `headerActions()`.
+- The gear. `RecordsetApplet` includes it in its default header actions.
   A section applet includes `filament.dashboard.configure-applet` in the section's
   `afterHeader` slot. Either one sends a `configure-applet` event, and the Dashboard page
   opens the settings form (`Dashboard::configureAppletAction()`).
@@ -82,6 +109,7 @@ The drag handle is the title bar: `.fi-section-header` of a section widget, or
 | Agenda | `CRM_Calendar` applet | how many days from today; which Calendar providers to show. It lists only your own events (you are an employee or customer on them) that aren't closed or canceled. For that it calls each `CalendarEventProvider::calendarEvents()` with `mine: true` and skips a `CalendarEvent` marked `finished` |
 | Tasks | `CRM_Tasks` applet | an additional title ("Tasks - Sales"); which statuses (Open, In progress, On hold by default); assigned to me / where I am a contact / either / all I can see |
 | Phone Calls | `CRM_PhoneCall` applet | missed calls, today's calls, and how far ahead (no, tomorrow, 2 days, a week, all). It lists only calls you are assigned to, and leaves out On hold, Closed and Canceled |
+| Notes | none (Sticky notes module) | none. A user's own small Post-it style notes: title, Markdown body, one of four very light colors (yellow, green, blue, red). A note is deactivated, not deleted; only an inactive note can be deleted, for good. Table `epesi_sticky_notes`, per user. An applet class with a `APPLET_FULL_WIDTH` constant takes the whole row of its column |
 | My reminders, Shoutbox, Mail | Messenger, Shoutbox, CRM_Mail applets | none |
 
 The Tasks and Phone Calls applets tint a high-priority row, as Epesi did. Each also has a
@@ -89,6 +117,9 @@ The Tasks and Phone Calls applets tint a high-priority row, as Epesi did. Each a
 list. The Agenda's **+** is the Calendar's "New event" type picker
 (`App\Filament\Actions\NewCalendarEventAction`, shared with the Calendar page), opening the
 chosen type's create page at the next full hour. Its **Fullscreen** opens the Calendar.
+Shoutbox's **Fullscreen** opens the Shoutbox page. Mail's **Fullscreen** opens the user's
+default IMAP account in Mailbox, falling back to the first named IMAP account when no
+default IMAP account exists. It is hidden when there is no mailbox account or client module.
 
 ## Not ported
 

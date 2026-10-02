@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RegionalSettings;
 
+use Epesi\Modules\RegionalSettings\Filament\Pages\SystemRegionalSettings;
 use Epesi\Modules\RegionalSettings\Filament\Pages\RegionalSettings;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
@@ -21,7 +22,7 @@ class RegionalSettingsPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->pages([
-            RegionalSettings::class,
+            $panel->getId() === 'administration' ? SystemRegionalSettings::class : RegionalSettings::class,
         ]);
     }
 

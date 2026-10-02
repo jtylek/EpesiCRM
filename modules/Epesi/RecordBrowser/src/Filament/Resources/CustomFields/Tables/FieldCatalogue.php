@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -60,7 +61,7 @@ class FieldCatalogue
     public static function configure(Table $table): Table
     {
         return $table
-            ->description(__('Select one recordset and clear search and Origin to reorder fields.'))
+            ->extraAttributes(['class' => 'epesi-recordset-catalogue'])
             ->reorderable('position', fn ($livewire): bool => $livewire->canReorderFields())
             ->reorderRecordsTriggerAction(fn (Action $action, bool $isReordering): Action => $action
                 ->label($isReordering ? __('Done reordering') : __('Reorder fields'))
@@ -78,8 +79,6 @@ class FieldCatalogue
 
                 return new LengthAwarePaginator($records->slice(($page - 1) * $perPage, $perPage), $records->count(), $perPage, $page);
             })
-            ->groups(['recordset'])
-            ->defaultGroup('recordset')
             ->defaultSort('position')
             ->columns([
                 TextColumn::make('recordset')->label('Recordset')->sortable(),
@@ -91,8 +90,13 @@ class FieldCatalogue
                 IconColumn::make('required')->boolean(),
                 IconColumn::make('active')->boolean(),
             ])
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersFormColumns(['default' => 1, 'sm' => 2])
             ->filters([
-                SelectFilter::make('model_type')->label('Recordset')->options(fn (): array => collect(app(FieldOverrides::class)->recordsets())->map(fn (array $recordset): string => __($recordset['label']))->all() + CustomFieldRegistry::participatingModels()),
+                SelectFilter::make('model_type')->label('Recordset')
+                    ->options(fn (): array => collect(app(FieldOverrides::class)->recordsets())->map(fn (array $recordset): string => __($recordset['label']))->all() + CustomFieldRegistry::participatingModels())
+                    ->selectablePlaceholder(false)
+                    ->default(fn (): ?string => array_key_first(app(FieldOverrides::class)->recordsets())),
                 SelectFilter::make('origin')->label('Origin')->options(['Module' => __('Module'), 'Custom' => __('Custom')]),
             ])
             ->recordUrl(fn (array $record): ?string => $record['custom_id'] ? CustomFieldResource::getUrl('view', ['record' => $record['custom_id']]) : null)

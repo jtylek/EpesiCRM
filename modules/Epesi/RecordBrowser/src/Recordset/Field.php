@@ -13,6 +13,7 @@ use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
 use Epesi\Modules\RecordBrowser\History\TextDiff;
 use Epesi\Modules\RecordBrowser\Models\CollectionItem;
+use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -28,11 +29,14 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Facades\FilamentTimezone;
@@ -60,6 +64,8 @@ use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
 use Throwable;
+
+use function Filament\Support\generate_icon_html;
 
 /**
  * One field of a recordset, and the single source every screen is built from —
@@ -124,6 +130,9 @@ class Field
 
     /** Shown as a table column without the user turning it on. */
     protected bool $inTable = false;
+
+    /** Where the list puts the column, independent of the form's order; null leaves it after the ordered ones. */
+    protected ?int $tableOrder = null;
 
     /** Offered in the column chooser at all. */
     protected bool $tableToggleable = true;
@@ -290,6 +299,91 @@ class Field
         return static::make($name, FieldType::Relations)
             ->param('model', $model)
             ->param('relationship', $name);
+    }
+
+    /**
+     * A morphTo over several kinds of record at once — Epesi's Company-or-
+     * Contact "Customer" field type, one typeahead rather than a Relation
+     * per kind. $name is the relationship name: the table needs both
+     * `{$name}_type` and `{$name}_id` (nullable, since a token like
+     * "Other Customer" may leave both empty), and the model a `{$name}()`
+     * morphTo(). Each of $models needs a morph alias
+     * (AppServiceProvider::registerMorphAliases()). $icons overrides a
+     * kind's icon (by model class); left out, it falls back to that kind's
+     * own Filament resource navigation icon, when it has one.
+     *
+     * @param  list<class-string<Model>>  $models
+     * @param  array<class-string<Model>, string|BackedEnum>  $icons
+     */
+    public static function customer(string $name, array $models, array $icons = []): static
+    {
+        return static::make($name, FieldType::Customer)
+            ->param('models', $models)
+            ->param('icons', collect($icons)->mapWithKeys(
+                fn (string|BackedEnum $icon, string $class): array => [Relation::getMorphAlias($class) => $icon],
+            )->all())
+            // The History addon logs `{name}_type`/`{name}_id` as two plain
+            // column changes; shown from both at once (HistoryRelationManager
+            // maps both keys to this same Field and renders it once) so a
+            // pick reads "Ann Buyer", not "contact" next to a bare id.
+            ->historyUsing(function (mixed $old, mixed $new, Activity $entry) use ($name): HtmlString {
+                // $old/$new are whichever of the two logged columns triggered
+                // this call (type or id, dedup keeps only the first) — read
+                // both columns from the entry directly instead, so the title
+                // resolves correctly regardless of which one that was.
+                $typeOf = fn (string $side): ?string => data_get($entry->properties->get($side, []), "{$name}_type")
+                    ?? $entry->subject?->getAttribute("{$name}_type");
+                $idOf = fn (string $side): mixed => data_get($entry->properties->get($side, []), "{$name}_id")
+                    ?? $entry->subject?->getAttribute("{$name}_id");
+
+                $oldTitle = $entry->event === 'created' ? null : static::customerLoggedTitle($typeOf('old'), $idOf('old'));
+                $newTitle = static::customerLoggedTitle($typeOf('attributes'), $idOf('attributes')) ?? '-';
+
+                return new HtmlString($oldTitle === null
+                    ? '<span class="epesi-history-new">'.e($newTitle).'</span>'
+                    : '<span class="epesi-history-old">'.e($oldTitle).'</span> → <span class="epesi-history-new">'.e($newTitle).'</span>');
+            });
+    }
+
+    /**
+     * The plural of customer() — several picks over several kinds of record
+     * at once, e.g. Tasks/Meetings' Customers (several Contacts and/or
+     * Companies), rather than PhoneCall's one-pick Customer. Kept in the
+     * shared link table (HasRecordLinks) rather than a morphTo pair, since a
+     * single column pair can't hold several picks — the same storage
+     * Field::related() uses, just restricted to $models. Not logged by the
+     * History addon, the same pre-existing limitation Field::related() has.
+     *
+     * @param  list<class-string<Model>>  $models
+     * @param  array<class-string<Model>, string|BackedEnum>  $icons
+     */
+    public static function customers(string $name, array $models, array $icons = []): static
+    {
+        return static::make($name, FieldType::Customers)
+            ->param('models', $models)
+            ->param('icons', collect($icons)->mapWithKeys(
+                fn (string|BackedEnum $icon, string $class): array => [Relation::getMorphAlias($class) => $icon],
+            )->all());
+    }
+
+    /** The title of a Customer's logged value ("contact", 5) for the History addon — null for nothing picked. */
+    protected static function customerLoggedTitle(?string $alias, mixed $id): ?string
+    {
+        $class = $alias !== null ? Relation::getMorphedModel($alias) : null;
+        $record = $class && filled($id) ? $class::query()->find($id) : null;
+
+        return $record ? LinkedRecords::title($record) : null;
+    }
+
+    /**
+     * Autofills $phoneField from the picked record's first phone number (a
+     * `phones` Collection field, as Contact and Company both carry) when the
+     * Customer changes, and warns under the picker when it has none — Phone
+     * Calls' reason for having a Customer field at all.
+     */
+    public function suggestPhoneNumbers(string $phoneField): static
+    {
+        return $this->param('phone_field', $phoneField);
     }
 
     /**
@@ -624,6 +718,22 @@ class Field
     }
 
     /**
+     * The column's place on the list (1 is leftmost), whatever the field's place
+     * on the form. Columns without one follow the ordered ones, in field order.
+     */
+    public function tableOrder(?int $order): static
+    {
+        $this->tableOrder = $order;
+
+        return $this;
+    }
+
+    public function getTableOrder(): ?int
+    {
+        return $this->tableOrder;
+    }
+
+    /**
      * Keeps the field off the list entirely — not shown, and not offered in the
      * column chooser either. The default sits between the two: available, but
      * off until someone turns it on.
@@ -846,6 +956,8 @@ class Field
                 ->multiple($this->isMultipleValued())
                 ->searchable(),
             FieldType::Relation, FieldType::Relations => $this->relationSelect(),
+            FieldType::Customer => $this->customerSelect(),
+            FieldType::Customers => $this->customersSelect(),
             FieldType::File => $this->fileUpload(),
             FieldType::Related => $this->relatedSelect(),
             FieldType::Collection => $this->collectionRepeater(),
@@ -993,6 +1105,236 @@ class Field
     protected function relatedLabel(Model $record): string
     {
         return LinkableRecordsets::label($record->getMorphClass()).': '.LinkedRecords::title($record);
+    }
+
+    // -------------------------------------------------------------- Customer --
+
+    /**
+     * The Customer picker: one typeahead over every kind in $models, grouped
+     * by kind. Its own state is a token ("contact:5"), not a column — kept
+     * off the record (dehydrated(false)) and written to `{name}_type`/
+     * `{name}_id` after the main save (saveRelationshipsUsing), the same way
+     * Related's links are, since a single Select can't hold two columns'
+     * worth of state.
+     */
+    protected function customerSelect(): Select
+    {
+        $typeColumn = "{$this->name}_type";
+        $keyColumn = "{$this->name}_id";
+        $phoneField = $this->getParam('phone_field');
+
+        return Select::make($this->name)
+            ->searchable()
+            ->live()
+            ->allowHtml()
+            ->getSearchResultsUsing(fn (string $search): array => $this->customerSearch($search))
+            ->getOptionLabelUsing(fn (?string $state): ?string => $this->customerOptionLabel($state))
+            ->afterStateHydrated(function (Select $component, ?Model $record) use ($typeColumn, $keyColumn): void {
+                $type = $record?->getAttribute($typeColumn);
+                $id = $record?->getAttribute($keyColumn);
+                $component->state($type !== null && $id !== null ? RecordLink::tokenFor((string) $type, (int) $id) : null);
+            })
+            ->afterStateUpdated(function (?string $state, Set $set) use ($phoneField): void {
+                if ($phoneField === null) {
+                    return;
+                }
+
+                [$alias, $id] = RecordLink::parseToken($state) ?? [null, null];
+                $number = $this->customerPhoneNumber($alias, $id);
+                $set($phoneField, $number);
+
+                // A persistent inline warning (belowContent()) never renders
+                // on this Select in practice — Filament's searchable Select
+                // re-renders through a wire:partial path that skips its own
+                // child schemas on update, so it would only ever show the
+                // state from the moment the field was first mounted. A
+                // notification isn't blocked by that.
+                if ($alias !== null && $number === null) {
+                    Notification::make()
+                        ->title(__('No phone number on file for this record.'))
+                        ->warning()
+                        ->send();
+                }
+            })
+            ->dehydrated(false)
+            ->saveRelationshipsUsing(function (Model $record, ?string $state) use ($typeColumn, $keyColumn): void {
+                [$alias, $id] = RecordLink::parseToken($state) ?? [null, null];
+                $record->forceFill([$typeColumn => $alias, $keyColumn => $id])->save();
+            });
+    }
+
+    /**
+     * The plural Customers picker: the same grouped, iconed typeahead as
+     * customerSelect(), but multiple() and stored through HasRecordLinks
+     * (like relatedSelect()) instead of two forceFill()'d columns — a Select
+     * can hold several tokens, just not two columns' worth of state per pick.
+     */
+    protected function customersSelect(): Select
+    {
+        return Select::make($this->name)
+            ->multiple()
+            ->searchable()
+            ->allowHtml()
+            ->getSearchResultsUsing(fn (string $search): array => $this->customerSearch($search))
+            ->getOptionLabelsUsing(fn (array $values): array => collect($values)
+                ->mapWithKeys(fn (string $token): array => [$token => $this->customerOptionLabel($token) ?? e($token)])
+                ->all())
+            ->afterStateHydrated(fn (Select $component, ?Model $record) => $component->state(
+                $this->linkedRecordsOf($record)
+                    ->map(fn (Model $linked): string => RecordLink::tokenFor($linked->getMorphClass(), $linked->getKey()))
+                    ->all(),
+            ))
+            ->dehydrated(false)
+            ->saveRelationshipsUsing(fn (Model $record, ?array $state) => method_exists($record, 'syncRecordLinks')
+                ? $record->syncRecordLinks($this->name, $state ?? [], $this->customersRecordsets())
+                : null);
+    }
+
+    /**
+     * The morph aliases this Customers field offers — its $models, always
+     * explicit (unlike relatedRecordsets(), Customer(s) never falls back to
+     * "every linkable recordset").
+     *
+     * @return list<string>
+     */
+    public function customersRecordsets(): array
+    {
+        return collect((array) $this->getParam('models', []))
+            ->map(fn (string $class): string => Relation::getMorphAlias($class))
+            ->values()->all();
+    }
+
+    /**
+     * Records of every kind in $models matching $search, grouped by kind —
+     * each kind through its own Filament resource's global search columns
+     * and record title, so a kind with no resource (or none the user can
+     * see) is silently skipped rather than erroring.
+     *
+     * @return array<string, array<string, string>>
+     */
+    protected function customerSearch(string $search): array
+    {
+        $terms = preg_split('/\s+/u', trim($search), flags: PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($terms === []) {
+            return [];
+        }
+
+        $groups = [];
+
+        foreach ((array) $this->getParam('models', []) as $class) {
+            $alias = Relation::getMorphAlias($class);
+            $resource = LinkableRecordsets::resource($alias);
+            $columns = $resource ? array_filter($resource::getGloballySearchableAttributes(), fn (string $c): bool => ! str_contains($c, '.')) : [];
+
+            if ($columns === []) {
+                continue;
+            }
+
+            $matches = $class::query()
+                ->where(function (Builder $query) use ($columns, $terms): void {
+                    foreach ($terms as $term) {
+                        $query->where(function (Builder $termQuery) use ($columns, $term): void {
+                            foreach ($columns as $column) {
+                                $termQuery->orWhere($column, 'like', "%{$term}%");
+                            }
+                        });
+                    }
+                })
+                ->limit(10)->get();
+
+            if ($matches->isEmpty()) {
+                continue;
+            }
+
+            $groups[LinkableRecordsets::label($alias)] = $matches->mapWithKeys(
+                fn (Model $m): array => [
+                    RecordLink::tokenFor($alias, $m->getKey()) => $this->customerOptionLabel(
+                        RecordLink::tokenFor($alias, $m->getKey()),
+                        $resource ? (string) $resource::getRecordTitle($m) : (string) $m->getKey(),
+                    ),
+                ],
+            )->all();
+        }
+
+        return $groups;
+    }
+
+    /** The label for a token ("contact:5") already picked — an edit form loading, or a value just chosen. */
+    protected function customerLabel(?string $token): ?string
+    {
+        $target = $this->customerRecordOf($token);
+
+        return $target ? LinkedRecords::title($target) : null;
+    }
+
+    /** The option row and selected label, with a kind icon and escaped record title. */
+    protected function customerOptionLabel(?string $token, ?string $title = null): ?string
+    {
+        $title ??= $this->customerLabel($token);
+
+        if ($title === null) {
+            return null;
+        }
+
+        $icon = generate_icon_html($this->customerIcon($token), size: IconSize::Small)?->toHtml();
+
+        return ($icon
+            ? '<span style="display: inline-block; vertical-align: middle; margin-right: 0.375rem; line-height: 1;">'.$icon.'</span>'
+            : '')
+            .'<span style="display: inline-block; vertical-align: middle;">'.e($title).'</span>';
+    }
+
+    /** The icon for a token's kind — an explicit icons() override, else that kind's own resource's navigation icon. */
+    protected function customerIcon(?string $token): string|BackedEnum|null
+    {
+        $alias = RecordLink::parseToken($token)[0] ?? null;
+
+        if ($alias === null) {
+            return null;
+        }
+
+        $icons = (array) $this->getParam('icons', []);
+
+        if (isset($icons[$alias])) {
+            return $icons[$alias];
+        }
+
+        $resource = LinkableRecordsets::resource($alias);
+
+        return $resource && method_exists($resource, 'getNavigationIcon') ? $resource::getNavigationIcon() : null;
+    }
+
+    /** The record a token names, or null for anything that doesn't resolve (deleted, or the user can't see it). */
+    protected function customerRecordOf(?string $token): ?Model
+    {
+        [$alias, $id] = RecordLink::parseToken($token) ?? [null, null];
+        $class = $alias !== null ? Relation::getMorphedModel($alias) : null;
+
+        return $class ? $class::query()->find($id) : null;
+    }
+
+    /** The picked record's first phone number, from its `phones` Collection field — null when it has none, or none is picked. */
+    protected function customerPhoneNumber(?string $alias, mixed $id): ?string
+    {
+        $class = $alias !== null ? Relation::getMorphedModel($alias) : null;
+        $record = $class && filled($id) ? $class::query()->find($id) : null;
+
+        foreach ($record?->phones ?? [] as $phone) {
+            if (filled($phone->value)) {
+                return $phone->value;
+            }
+        }
+
+        return null;
+    }
+
+    /** The target a record's Customer field points at, through the model's own `{name}()` morphTo(). */
+    protected function customerTargetOf(Model $record): ?Model
+    {
+        $target = method_exists($record, $this->name) ? $record->{$this->name} : null;
+
+        return $target instanceof Model ? $target : null;
     }
 
     /**
@@ -1300,6 +1642,22 @@ class Field
     {
         $column = TextColumn::make($this->name);
 
+        // An e-mail address is a badge with the link icon, as an Email field is.
+        // An online account's handle is one too, opening its page in a new tab
+        // like a web address does.
+        $isAccount = is_a((string) $this->collectionType(), OnlineAccount::class, true);
+
+        $isEmail = $this->collectionListField()?->type === FieldType::Email;
+
+        if ($isAccount || $isEmail) {
+            $column = $column
+                ->badge()
+                ->size(TextSize::Medium)
+                ->icon(Heroicon::OutlinedLink)
+                ->iconPosition(IconPosition::After)
+                ->openUrlInNewTab($isAccount);
+        }
+
         return $column
             ->state(function (Model $record) use ($column): ?string {
                 $this->preloadCollection($column);
@@ -1321,7 +1679,9 @@ class Field
             })
             // Cut short with the full value on hover, as a long company name
             // or e-mail address otherwise pushes the list past the page.
-            ->limit(25, '…')
+            // (a website handle is a whole URL, so an account gets more room; an
+            // e-mail address a little)
+            ->limit($isAccount ? 50 : ($isEmail ? 35 : 25), '…')
             ->tooltip(fn (TextColumn $column, ?string $state): ?string => mb_strwidth((string) $state) > $column->getCharacterLimit() ? $state : null)
             // The same link the primary item gets on the View page (an
             // e-mail address opens compose, an online account its profile).
@@ -1592,11 +1952,12 @@ class Field
             FieldType::CommonData => TextEntry::make($this->name)
                 ->formatStateUsing(fn (mixed $state): string => $this->commonDataLabel($state)),
             FieldType::Relation, FieldType::Relations => $this->relationEntry(),
+            FieldType::Customer => $this->customerEntry(),
             FieldType::Autonumber => TextEntry::make($this->name)
                 ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
             FieldType::File => TextEntry::make($this->name)
                 ->state(fn (Model $record): ?HtmlString => $this->fileChips($record)),
-            FieldType::Related => LinkedRecords::badges(
+            FieldType::Related, FieldType::Customers => LinkedRecords::badges(
                 TextEntry::make($this->name),
                 fn (Model $record): Collection => $this->linkedRecordsOf($record),
                 $this->relatedLabel(...),
@@ -1773,11 +2134,12 @@ class Field
                 ->url(fn (?string $state): ?string => static::webAddressUrl($state))
                 ->openUrlInNewTab(),
             FieldType::Relation, FieldType::Relations => $this->relationColumn(),
+            FieldType::Customer => $this->customerColumn(),
             FieldType::Autonumber => TextColumn::make($this->name)
                 ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
             FieldType::File => TextColumn::make($this->name)
                 ->state(fn (Model $record): ?HtmlString => $this->fileChips($record, limit: 2)),
-            FieldType::Related => $this->relatedColumn(),
+            FieldType::Related, FieldType::Customers => $this->relatedColumn(),
             FieldType::Collection => $this->collectionColumn(),
             default => TextColumn::make($this->name),
         };
@@ -1810,6 +2172,28 @@ class Field
                 ->state(fn (Model $record): array => $this->relatedTitles($record)),
             fn (Model $record, string $state): ?string => $this->relatedUrl($record, $state),
         )->listWithLineBreaks()->limitList(3);
+    }
+
+    /** A badge linking to the picked record, iconed by its kind — a contact reads differently from a company at a glance. */
+    protected function customerEntry(): TextEntry
+    {
+        return LinkedRecords::style(
+            TextEntry::make($this->name)->state(fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::title($target) : null),
+            fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::url($target) : null,
+        )->icon(fn (Model $record): string|BackedEnum|null => ($target = $this->customerTargetOf($record))
+            ? $this->customerIcon(RecordLink::tokenFor($target->getMorphClass(), $target->getKey()))
+            : null);
+    }
+
+    /** The same badge as the View page's, for the list — one column standing in for what used to be a Contact column and a Company column. */
+    protected function customerColumn(): TextColumn
+    {
+        return LinkedRecords::style(
+            TextColumn::make($this->name)->state(fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::title($target) : null),
+            fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::url($target) : null,
+        )->icon(fn (Model $record): string|BackedEnum|null => ($target = $this->customerTargetOf($record))
+            ? $this->customerIcon(RecordLink::tokenFor($target->getMorphClass(), $target->getKey()))
+            : null);
     }
 
     /** The View page of the related record titled $state, when it has one. */
@@ -1845,7 +2229,7 @@ class Field
         }
 
         return ! $this->type->isRelational() && ! $this->type->isMultiple() && ! $this->isMultipleValued()
-            && ! in_array($this->type, [FieldType::Autonumber, FieldType::File], true);
+            && ! in_array($this->type, [FieldType::Autonumber, FieldType::File, FieldType::Customer], true);
     }
 
     protected function isSearchableByDefault(): bool
@@ -2171,10 +2555,10 @@ class Field
         return (int) $this->getParam('length', 255);
     }
 
-    /** Null for every minute, Filament's own default. */
+    /** Five-minute default; administrators may choose a field-specific interval. */
     protected function minutesStepParam(): ?int
     {
-        $step = (int) $this->getParam('minutes_step', 0);
+        $step = (int) $this->getParam('minutes_step', 5);
 
         return $step > 1 ? $step : null;
     }

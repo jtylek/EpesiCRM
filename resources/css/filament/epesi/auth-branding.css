@@ -13,4 +13,23 @@
     .fi-simple-header-heading {
         font-size: 1.25rem !important;
     }
+
+    /* Sign in sits closer to the first field. */
+    .fi-simple-header {
+        margin-bottom: 0.75rem !important;
+    }
+}
+
+/* "Remember me" sits midway between the password field and the Sign in button. */
+:where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal) {
+    .fi-simple-page .fi-fo-field:has(input[type="checkbox"]) {
+        margin-block: 0.5rem -0.5rem;
+    }
+}
+
+/* No required-field asterisks on the login form. */
+:where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal) {
+    .fi-simple-page .fi-fo-field-label-required-mark {
+        display: none;
+    }
 }

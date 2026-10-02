@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "送信後にこのメッセージをアーカイブする",
+    "Archive to the CRM": "CRMにアーカイブする",
+    "Archiving failed": "アーカイブに失敗しました",
+    "Ask your administrator to install it.": "管理者にインストールを依頼してください。",
+    "Cannot move to archive from this folder": "このフォルダからアーカイブへ移動できません",
+    "Mailbox": "メールボックス",
+    "Matching contact or company not found. Click again to force archive without contact association.": "一致する個人または法人が見つかりませんでした。もう一度クリックすると、個人との関連付けを行わずに強制的にアーカイブされます。",
+    "Message already archived": "メッセージはすでにアーカイブ済みです",
+    "Set up a mail account": "メールアカウントの設定",
+    "Switching account — please wait…": "アカウントの切り替え中 — しばらくお待ちください…",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "メールクライアントが読み込まれませんでした：WebサーバーがRoundcubeのページを自ら配信する代わりに、Epesiに送信してしまったためです。の「Webサーバーの要件」を参照してください:doc。",
+    "The mail client, Roundcube, isn't installed yet.": "メールクライアントのRoundcubeはまだインストールされていません。",
+    "You have no mail account with an incoming (IMAP) server yet.": "受信（IMAP）サーバーに接続されたメールアカウントはまだありません。",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "メールサーバーがログインを拒否しました。「設定」＞「メールアカウント」でこのアカウントを確認してください。"
+}

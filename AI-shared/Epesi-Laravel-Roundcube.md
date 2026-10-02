@@ -123,10 +123,12 @@ has to handle too:
 
 - **Never delete `storage/roundcube` recursively with the links still inside.** On Windows,
   `Filesystem::deleteDirectory()` follows a junction and empties its target. It would delete
-  the module's own plugin sources through `storage/roundcube/plugins/epesi_*`. PHP doesn't
-  report a junction as a link, but `readlink()` resolves it. `rmdir()` removes a junction and
-  leaves its target alone; `unlink()` does the same for a Unix symlink. The installer removes
-  the links first (`deleteInstall()`).
+  the module's own plugin sources through `storage/roundcube/plugins/epesi_*`. On XAMPP,
+  `is_link()` doesn't report a junction, and `readlink()` can return the path of an ordinary
+  directory too. The installer compares each entry's resolved path with the corresponding
+  module plugin source before removing it: `rmdir()` removes a Windows junction and leaves its
+  target alone; `unlink()` does the same for a Unix symlink. It then retries transient
+  directory-removal failures (`deleteInstall()`).
 - **A freshly extracted directory inside the project can't be renamed for a second or two**
   ("Access is denied" while a file watcher or virus scanner still has it open). The move
   into place retries for up to 30 seconds. `Filesystem::moveDirectory()` and

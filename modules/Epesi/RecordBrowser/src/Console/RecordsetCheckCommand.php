@@ -79,14 +79,20 @@ class RecordsetCheckCommand extends Command
         foreach ($resource::fields() as $field) {
             $displayed[] = $field->getStateName();
 
+            if ($field->type === FieldType::Customer) {
+                $displayed[] = "{$field->name}_type";
+                $displayed[] = "{$field->name}_id";
+            }
+
             // Derived from the key, not stored — no column to be missing.
             if ($field->type === FieldType::Autonumber) {
                 continue;
             }
 
             // Kept in the shared link table, which the model reaches through
-            // HasRecordLinks (HasCustomFields brings it).
-            if ($field->type === FieldType::Related) {
+            // HasRecordLinks (HasCustomFields brings it) — Customers is the
+            // same storage, just restricted to Field::customers()'s $models.
+            if (in_array($field->type, [FieldType::Related, FieldType::Customers], true)) {
                 if (! method_exists($model, 'recordLinks')) {
                     $this->components->twoColumnDetail(
                         "{$resource}::fields() {$field->name}",
@@ -102,6 +108,31 @@ class RecordsetCheckCommand extends Command
             // the model reaches through HasCollections.
             if ($field->type === FieldType::Collection) {
                 $problems += $this->checkCollection($resource, $model, $field);
+
+                continue;
+            }
+
+            // A morphTo pair (`{name}_type`/`{name}_id`), not one column —
+            // and the model needs the relation itself, the same as
+            // Relations below.
+            if ($field->type === FieldType::Customer) {
+                if (! method_exists($model, $field->name)) {
+                    $this->components->twoColumnDetail(
+                        "{$resource}::fields() {$field->name}",
+                        '<fg=red>a Customer field needs a matching morphTo() relationship on the model</>',
+                    );
+                    $problems++;
+                }
+
+                foreach (["{$field->name}_type", "{$field->name}_id"] as $column) {
+                    if (! in_array($column, $columns, true)) {
+                        $this->components->twoColumnDetail(
+                            "{$resource}::fields() {$field->name}",
+                            "<fg=red>no column `{$table}`.`{$column}` — is the migration missing?</>",
+                        );
+                        $problems++;
+                    }
+                }
 
                 continue;
             }

@@ -8,6 +8,7 @@ use Epesi\Modules\RecordBrowser\Console\RecordsetCheckCommand;
 use Epesi\Modules\RecordBrowser\Filament\Pages\CreateRecord;
 use Epesi\Modules\RecordBrowser\Filament\Pages\EditRecord;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
+use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
 use Epesi\Modules\RecordBrowser\History\SaveActivity;
 use Epesi\Modules\RecordBrowser\Models\Address;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
@@ -69,20 +70,38 @@ class RecordBrowserServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-recordbrowser');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
-        // Whatever an addon's action did (add, delete, unlink...), the View
+        // Whatever an addon's action or a View-page action changes, the View
         // page recounts the badges on its tabs (ViewRecord::withCountBadge()).
         Event::listen(ActionCalled::class, function (Action $action): void {
             $livewire = $action->getLivewire();
 
-            if ($livewire instanceof RelationManager) {
+            if ($livewire instanceof RelationManager || $livewire instanceof ViewRecord) {
                 $livewire->dispatch('addon-changed');
             }
         });
 
-        // A list's browse-mode tabs go in the table's toolbar, left of the
-        // search box, rather than floating above the table. The hook sits
-        // inside the toolbar's left-aligned actions, so bulk actions line up
-        // after the tabs once rows are selected.
+        // "My records": one click sets Employees to the user — see ListRecords.
+        FilamentView::registerRenderHook(
+            TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE,
+            fn (): ?View => ($page = Livewire::current()) instanceof ListRecords && ($button = $page->getMyRecordsButton())
+                ? view('epesi-recordbrowser::my-records-button', ['button' => $button])
+                : null,
+        );
+
+        // "Show inactive" / "Hide inactive": the switch beside it, on lists with a
+        // closed/canceled status.
+        FilamentView::registerRenderHook(
+            TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE,
+            fn (): ?View => ($page = Livewire::current()) instanceof ListRecords && ($toggle = $page->getInactiveToggle())
+                ? view('epesi-recordbrowser::inactive-toggle', ['toggle' => $toggle])
+                : null,
+        );
+
+        // A list's browse-mode tabs go in the table's toolbar, after "My records"
+        // and the inactive switch, left of the search box, rather than
+        // floating above the table. The hook sits inside the toolbar's
+        // left-aligned actions, so bulk actions line up after it once rows
+        // are selected.
         FilamentView::registerRenderHook(
             TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE,
             fn (): ?View => ($page = Livewire::current()) instanceof ListRecords && $page->getCachedTabs() !== []
@@ -97,7 +116,7 @@ class RecordBrowserServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             TablesRenderHook::TOOLBAR_START,
             fn (): ?View => ($page = Livewire::current()) instanceof ListRecords
-                ? view('epesi-recordbrowser::list-keyboard-nav', ['tabKeys' => array_keys($page->getCachedTabs())])
+                ? view('epesi-recordbrowser::list-keyboard-nav', ['tabKeys' => array_keys($page->getCachedTabs()), 'hasMyRecords' => $page->getMyRecordsButton() !== null, 'hasStatus' => $page->getInactiveToggle() !== null])
                 : null,
         );
 
@@ -125,7 +144,7 @@ class RecordBrowserServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::STYLES_AFTER,
             fn (): HtmlString => new HtmlString('<style>'
-                .'.epesi-browse-tabs.fi-tabs{margin:0;padding:0;background:none;box-shadow:none}'
+                .'.epesi-browse-tabs{min-width:9rem}'
                 .'.epesi-history-old,.epesi-history-new{padding-inline:.25rem;border-radius:.25rem;-webkit-box-decoration-break:clone;box-decoration-break:clone}'
                 .'.epesi-history-old{background:var(--danger-100)}'
                 .'.epesi-history-new{background:var(--success-100)}'
@@ -153,11 +172,12 @@ class RecordBrowserServiceProvider extends ServiceProvider
                 .'.epesi-collection-repeater>.fi-fo-repeater-items{grid-row:2;grid-column:1/-1;gap:.375rem}'
                 .'.epesi-collection-repeater .fi-fo-repeater-item-header{padding-block:.375rem;padding-inline:.75rem}'
                 .'.epesi-collection-repeater .fi-fo-repeater-item-content{padding:.75rem}'
-                // Same background a row's own :hover already gives it
-                // (row.css), for the row the keyboard currently has
-                // highlighted (list-keyboard-nav.blade.php).
-                .'.fi-ta-row.epesi-row-active:not(.fi-striped){background:var(--gray-50)}'
-                .'.dark .fi-ta-row.epesi-row-active:not(.fi-striped){background:rgb(255 255 255/.05)}'
+                // The row the keyboard currently has highlighted
+                // (list-keyboard-nav.blade.php), tinted with the panel's own
+                // accent color rather than the plain hover gray, so it reads
+                // as a distinct "selection" rather than just another hover.
+                .'tr.fi-ta-row.epesi-row-active{background:color-mix(in oklab,var(--primary-500) 12%,transparent) !important}'
+                .'.dark tr.fi-ta-row.epesi-row-active{background:color-mix(in oklab,var(--primary-500) 20%,transparent) !important}'
                 .'</style>'),
         );
 

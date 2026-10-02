@@ -22,6 +22,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 /**
@@ -43,9 +44,9 @@ class Shoutbox extends Page implements HasTable
 
     protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
-    protected static ?string $navigationLabel = 'Shoutbox';
+    protected static ?string $navigationLabel = 'Messages';
 
-    protected static ?string $title = 'Shoutbox';
+    protected static ?string $title = 'Messages';
 
     public static function canAccess(): bool
     {
@@ -90,14 +91,16 @@ class Shoutbox extends Page implements HasTable
                 ->visibleTo(Auth::user())
                 ->where('deleted', false)
                 ->with(['author.contact', 'recipient.contact']))
-            ->heading(__('Shoutbox'))
-            ->defaultSort('id', 'desc')
+            ->heading(__('Messages'))
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('author')
                     ->label('From')
+                    ->width('10rem')
                     ->state(fn (Message $record): string => $record->author?->displayName() ?? __('Anonymous')),
                 TextColumn::make('recipient')
                     ->label('To')
+                    ->width('10rem')
                     ->state(fn (Message $record): ?string => $record->recipient?->displayName())
                     ->placeholder(__('Everyone'))
                     ->badge()
@@ -105,11 +108,21 @@ class Shoutbox extends Page implements HasTable
                 TextColumn::make('message')
                     ->label('Message')
                     ->wrap()
+                    // A bubble in the applet's colours.
+                    ->html()
+                    ->formatStateUsing(fn (Message $record, string $state): HtmlString => new HtmlString(
+                        '<span style="display: inline-block; border-radius: 0.5rem; padding: 0.5rem 0.75rem; white-space: pre-line; overflow-wrap: anywhere; background: '.$record->bubbleBackground(Auth::user()).';">'.e($state).'</span>'
+                    ))
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Posted')
+                    ->width('11rem')
                     ->dateTime()
-                    ->sortable(),
+                    // Ordered in SQL over every message, not the page shown; the
+                    // id breaks a tie between two posted in the same second.
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query
+                        ->orderBy('created_at', $direction)
+                        ->orderBy('id', $direction)),
             ])
             ->recordActions([
                 Action::make('delete')

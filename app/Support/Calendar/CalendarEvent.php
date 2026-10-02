@@ -3,6 +3,7 @@
 namespace App\Support\Calendar;
 
 use Carbon\Carbon;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 
 /**
  * One calendar entry, already resolved to FullCalendar's plain event-object
@@ -10,6 +11,9 @@ use Carbon\Carbon;
  */
 final readonly class CalendarEvent
 {
+    /**
+     * @param  list<string>  $customers
+     */
     public function __construct(
         public string $id,
         public string $title,
@@ -22,9 +26,40 @@ final readonly class CalendarEvent
         // Closed or canceled: the dashboard's Agenda leaves these out, as
         // Epesi's applet did.
         public bool $finished = false,
-        // For the Agenda's tooltip; the Calendar page doesn't get it.
+        // Shared tooltip details for the Agenda and Calendar page.
         public ?string $description = null,
+        public array $customers = [],
+        public bool $deadline = false,
     ) {}
+
+    /**
+     * The same event with its times shifted from the stored UTC instant to
+     * the signed-in user's wall clock (floating, still labelled UTC — see
+     * toArray()). An all-day event is a calendar day, so it is left alone.
+     */
+    public function inUserTimezone(): self
+    {
+        if ($this->allDay) {
+            return $this;
+        }
+
+        $floating = fn (Carbon $moment): Carbon => Carbon::parse(RegionalSetting::toUser($moment)->format('Y-m-d H:i:s'), 'UTC');
+
+        return new self(
+            id: $this->id,
+            title: $this->title,
+            start: $floating($this->start),
+            end: $this->end ? $floating($this->end) : null,
+            allDay: $this->allDay,
+            url: $this->url,
+            color: $this->color,
+            durationEditable: $this->durationEditable,
+            finished: $this->finished,
+            description: $this->description,
+            customers: $this->customers,
+            deadline: $this->deadline,
+        );
+    }
 
     /**
      * @return array<string, mixed>

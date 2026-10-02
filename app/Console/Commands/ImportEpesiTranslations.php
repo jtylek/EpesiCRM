@@ -7,9 +7,16 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 /**
- * Seeds a language from an old epesi installation's translations —
- * modules/Base/Lang/lang/<code>.php, plus data/Base_Lang/custom/<code>.php
- * where an administrator changed them in epesi's Translations screen.
+ * Seeds a language from an old epesi installation's translations, the
+ * community's work, in the order epesi's Base_LangCommon::build_merge() used:
+ * modules/Base/Lang/lang/<code>.php (the core and every module shipped with
+ * it), then each module's own modules/<…>/lang/<code>.php (the Premium
+ * modules), then data/Base_Lang/custom/<code>.php and
+ * data/Base_Lang/custom/<Module>/<code>.php, where an administrator changed
+ * them in epesi's Translations screen. A later file wins.
+ *
+ * They are written to the reviewed <code>.json, never to <code>.machine.json:
+ * they were made by people, and win over the DeepL pass's output.
  *
  * epesi keyed its translations by the English text just as the JSON files
  * here do, so a string that reads the same in both gets epesi's
@@ -23,6 +30,7 @@ class ImportEpesiTranslations extends Command
     protected $signature = 'lang:import-epesi
         {locale : language code, e.g. de — epesi\'s file name without .php}
         {path : the epesi installation (or its lang/<code>.php file)}
+        {--from= : epesi\'s code when it differs from the locale here, e.g. --from=no for nb}
         {--dry-run : list what would be imported without writing}';
 
     protected $description = 'Import translations from an epesi installation';
@@ -37,7 +45,15 @@ class ImportEpesiTranslations extends Command
             return self::FAILURE;
         }
 
-        $epesi = $this->readEpesi((string) $this->argument('path'), $locale);
+        $from = (string) ($this->option('from') ?: $locale);
+
+        if (! preg_match('/^[a-z]{2,3}(_[A-Za-z]{2,4})?$/', $from)) {
+            $this->error("\"{$from}\" is not a language code.");
+
+            return self::FAILURE;
+        }
+
+        $epesi = $this->readEpesi((string) $this->argument('path'), $from);
 
         if ($epesi === null) {
             return self::FAILURE;
@@ -87,7 +103,7 @@ class ImportEpesiTranslations extends Command
         }
 
         $this->components->info(sprintf(
-            '%s %d translations; %d strings have none in epesi and need translating by hand.',
+            '%s %d translations; %d strings have none in epesi and are left for the DeepL pass.',
             $this->option('dry-run') ? 'Would import' : 'Imported',
             $imported,
             $untranslated,
@@ -107,10 +123,12 @@ class ImportEpesiTranslations extends Command
     {
         $files = is_file($path)
             ? [$path]
-            : array_filter([
+            : array_values(array_filter([
                 "{$path}/modules/Base/Lang/lang/{$locale}.php",
+                ...$this->moduleFiles("{$path}/modules", $locale),
                 "{$path}/data/Base_Lang/custom/{$locale}.php",
-            ], 'is_file');
+                ...(glob("{$path}/data/Base_Lang/custom/*/{$locale}.php") ?: []),
+            ], 'is_file'));
 
         if ($files === []) {
             $this->error("No epesi translations for \"{$locale}\" under {$path}.");
@@ -136,6 +154,34 @@ class ImportEpesiTranslations extends Command
         return collect($translations)
             ->mapWithKeys(fn (string $value, $key): array => [stripslashes((string) $key) => stripslashes($value)])
             ->all();
+    }
+
+    /**
+     * Each module's own lang/<code>.php, such as modules/Premium/GanttChart/lang/de.php,
+     * other than the core file in Base/Lang and epesi's own test modules
+     * (modules/Tests). Sorted, so a rerun imports the same.
+     *
+     * @return list<string>
+     */
+    protected function moduleFiles(string $modules, string $locale): array
+    {
+        if (! is_dir($modules)) {
+            return [];
+        }
+
+        $files = [];
+
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($modules, \FilesystemIterator::SKIP_DOTS)) as $file) {
+            $path = str_replace('\\', '/', $file->getPathname());
+
+            if ($file->getFilename() === "{$locale}.php" && basename(dirname($path)) === 'lang' && ! str_ends_with(dirname($path), 'modules/Base/Lang/lang') && ! str_contains($path, '/modules/Tests/')) {
+                $files[] = $path;
+            }
+        }
+
+        sort($files);
+
+        return $files;
     }
 
     /**

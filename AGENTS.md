@@ -107,9 +107,15 @@ All panels share `resources/css/filament/epesi/theme.css`. Appearance themes are
 admin-authored choices; user preferences select a theme. Read the theme notes before
 changing CSS, density, or color application.
 
-Translate new UI text using English keys and add Polish entries to the owning
-module's `lang/pl.json`, or root `lang/pl.json` for shared/core text. Reuse the
-existing label hooks and translation traits; `TranslationsTest` checks coverage.
+**Work on the English version only.** When making changes or developing new
+features, write English UI strings (as JSON translation keys) and do not
+hand-translate them into Polish, German, Spanish, French or any other language.
+The target is about 40 languages (as many as the old Epesi had), which is too
+many to translate on the fly; translations are produced separately by a
+dedicated skill using the DeepL API. Reuse the existing label hooks and
+translation traits so every new string goes through `__()` with an English key.
+`TranslationsTest` reports untranslated strings (marked incomplete) instead of
+failing; `TRANSLATIONS_STRICT=1` makes it fail, for use after the DeepL pass.
 Actions restricted in demo mode must use the existing `Demo::guard()` or
 `Demo::enabled()` mechanisms.
 
@@ -188,3 +194,24 @@ instead of duplicated explanations. Update the `AI-shared/README.md` index when 
 note is added, removed, or changes purpose. Do not include private deployment details,
 dates in prose, or brittle line-number references. Comment on non-obvious reasons,
 not obvious code behavior, and keep abstractions within the requested scope.
+
+## Other agents work in this checkout
+
+Other AI agents (Claude, Codex, …) and developers may be editing this tree and running tests
+at the same time. A test run takes the lock `storage/framework/testing/test-run.lock`
+(`tests/bootstrap.php`): a second run waits for the first instead of colliding with it, and
+`storage/framework/testing/test-run.info` names the holder. Don't delete or bypass the lock,
+and don't change the PHPUnit bootstrap. A failure outside your change may come from another
+agent's half-finished edits — check `git status` before blaming your own work.
+
+Commit only your own files. Never `git add -A`/`git commit -a` or commit other agents'
+changes — unless the user says "commit all". Don't stash, revert or "fix" another agent's files.
+See [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md).
+
+## When to run tests
+
+- While working: run scoped tests only (`php artisan test --filter=Name` or a test file path).
+- Before committing: run the full suite.
+- Also run the full suite right after a change to shared infrastructure (the RecordBrowser
+  engine, migrations, module loading, `app/Support`), since its effects reach far beyond the
+  files you touched.

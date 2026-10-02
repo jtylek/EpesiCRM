@@ -39,7 +39,7 @@ class EmailAddress extends CollectionItem
     {
         return [
             // The list's column: a record's first address.
-            Field::email('value')->label('Address')->required()->inTable()
+            Field::email('value')->label('E-mail')->required()->inTable()
                 ->formUsing(fn (TextInput $input): TextInput => $input
                     ->rule(fn (Get $get): Closure => static::uniqueRule($get))),
         ];

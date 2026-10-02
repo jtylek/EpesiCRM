@@ -1,0 +1,15 @@
+{
+    "1 week forward": "1 semaine plus tard",
+    "2 days forward": "2 jours plus tard",
+    "Customer": "Client",
+    "Include future calls": "Inclure les futurs appels",
+    "Include missed (past) calls": "Inclure les appels manqués (passés)",
+    "Include today's calls": "Ajouter les appels d'aujourd'hui",
+    "List of phone calls to do": "Listes des appels à passer",
+    "New phone call": "Nouvel appel téléphonique",
+    "No calls to make": "Pas d'appels à passer",
+    "Other Customer (not in system)": "Autre client (non enregistré dans le système)",
+    "Other Customer Name": "Autre nom Contact",
+    "Phone Number": "Numéro de téléphone",
+    "Your login is not linked to a contact, so no calls are assigned to you.": "Votre compte n'est associé à aucun contact; par conséquent, aucun appel ne vous est attribué."
+}

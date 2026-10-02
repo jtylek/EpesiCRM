@@ -4,9 +4,9 @@ namespace App\Providers\Filament;
 
 use App\Filament\Setup\Pages\FinishSetup;
 use App\Filament\Setup\Pages\InstallWizard;
+use App\Http\Middleware\ClearStaleSetupAuth;
 use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\SetLocale;
-use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -72,7 +72,7 @@ class SetupPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
+                ClearStaleSetupAuth::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,

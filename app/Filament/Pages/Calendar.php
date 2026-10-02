@@ -7,14 +7,19 @@ use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use App\Models\User;
+use App\Support\Calendar\CalendarEventTooltip;
 use App\Support\Calendar\CalendarRegistry;
 use BackedEnum;
 use Carbon\Carbon;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
+use Filament\Support\Enums\IconSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
+
+use function Filament\Support\generate_icon_html;
 
 /**
  * Merges every registered App\Support\Calendar\CalendarEventProvider's events
@@ -58,8 +63,17 @@ class Calendar extends Page
         $user = Auth::user();
 
         return collect(CalendarRegistry::all())
-            ->flatMap(fn (string $provider) => $provider::calendarEvents($start, $end, $user))
-            ->map(fn ($event) => $event->toArray())
+            ->flatMap(function (string $provider) use ($start, $end, $user): array {
+                $icon = generate_icon_html(CalendarRegistry::typeIcon($provider), size: IconSize::Small)?->toHtml();
+
+                return CalendarRegistry::eventsBetween($provider, $start, $end, $user)
+                    ->map(fn ($event): array => [
+                        ...$event->toArray(),
+                        'typeIconHtml' => $icon,
+                        'tooltip' => CalendarEventTooltip::make($event, $provider)->toHtml(),
+                    ])
+                    ->all();
+            })
             ->values()
             ->all();
     }
@@ -83,10 +97,16 @@ class Calendar extends Page
         /** @var User $user */
         $user = Auth::user();
 
+        // FullCalendar hands back wall-clock times on the user's clock; the
+        // providers store UTC. An all-day drop is a bare date and stays as is.
+        $toStored = fn (string $moment): Carbon => $allDay
+            ? Carbon::parse($moment)
+            : RegionalSetting::fromUser(Carbon::parse($moment));
+
         return $provider::calendarReschedule(
             $recordId,
-            Carbon::parse($start),
-            $end ? Carbon::parse($end) : null,
+            $toStored($start),
+            $end ? $toStored($end) : null,
             $allDay,
             $user,
         );

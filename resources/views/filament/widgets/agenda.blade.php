@@ -20,7 +20,7 @@
             </div>
         </x-slot>
 
-        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem; max-height: 28rem; overflow-y: auto;">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem; max-height: 28rem; overflow-y: auto; padding-right: 0.5rem;">
             @forelse ($this->events() as $day => $rows)
                 @php($date = \Illuminate\Support\Carbon::parse($day))
                 <div wire:key="agenda-{{ $day }}">
@@ -32,15 +32,14 @@
                         @else
                             {{ $date->translatedFormat('l') }}
                         @endif
-                        <span style="font-weight: 400; opacity: 0.6;">{{ $date->format('Y-m-d') }}</span>
+                        <span style="font-weight: 400; opacity: 0.6;">{{ $date->format(\Epesi\Modules\RegionalSettings\Models\RegionalSetting::dateFormat()) }}</span>
                     </div>
                     <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem;">
                         @foreach ($rows as $row)
                             <li style="display: flex; gap: 0.5rem; align-items: baseline;">
                                 <span style="width: 2.75rem; flex-shrink: 0; opacity: 0.75; white-space: nowrap;">
-                                    {{ $row['event']->allDay ? '' : $row['event']->start->format('H:i') }}
+                                    {{ $row['event']->allDay ? '' : $row['event']->start->format(\Epesi\Modules\RegionalSettings\Models\RegionalSetting::timeFormat()) }}
                                 </span>
-                                <span style="width: 0.5rem; height: 0.5rem; flex-shrink: 0; border-radius: 9999px; align-self: center; background: {{ $row['event']->color ?? 'var(--gray-400)' }};"></span>
                                 <a
                                     href="{{ $row['event']->url }}"
                                     style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
@@ -50,7 +49,12 @@
                                 >
                                     {{ $row['event']->title }}
                                 </a>
-                                <span style="flex-shrink: 0; font-size: 0.75rem; opacity: 0.6;">{{ $row['type'] }}</span>
+                                <span style="display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; font-size: 0.75rem; opacity: 0.6;">
+                                    @if ($row['icon'])
+                                        <x-filament::icon :icon="$row['icon']" :size="\Filament\Support\Enums\IconSize::Small" class="epesi-agenda-type-icon" />
+                                    @endif
+                                    {{ $row['type'] }}
+                                </span>
                             </li>
                         @endforeach
                     </ul>

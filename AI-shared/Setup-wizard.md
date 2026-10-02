@@ -187,8 +187,17 @@ The pages:
      (`RoundcubeSetup::notice()`). The answer is required, with no default: **Yes, download and
      install Roundcube** or **No, not now**. Nothing GPL is downloaded without a yes.
    - **Load demo data** — sample companies, contacts, calls, tasks and meetings, plus two demo
-     users (`manager@example.com`, `employee@example.com`, password `password`). Meant for
-     evaluation only.
+     users (`manager@example.com`, `employee@example.com`, password `password`). The Mail module
+     includes 100 archived sample e-mails, ten assigned to the setup administrator. Meant for
+     evaluation only. The 100 notes contain rich text; 50 have a file (25 PNGs and
+     25 PDFs). The administrator receives ten open tasks and five open calls over
+     the next five days, plus three meetings today and two tomorrow, each with an
+     in-app reminder 15 minutes before it starts. The seeder creates their contact
+     if needed before the **Your company** step, which reuses it. This contact is
+     retained when demo data is removed; the demo activities and reminders are removed.
+     Favorites and Recent lists include ten companies and ten contacts for the setup
+     administrator on a live installation, or for each demo user (manager and employee)
+     in demo mode. These are shared demo records visible to the selected users.
 2. **Administrator** — name, e-mail (the sign-in address), password (at least 8 characters)
    and confirmation. With demo data on, the two demo addresses are refused.
 3. **Mail** — how epesi sends its own e-mail (password resets, reminders):
@@ -212,11 +221,13 @@ On **Install**, `App\Services\Setup\Installer` does, in order:
 3. registers the modules through the ordinary `ModuleInstaller::registerExisting()`, which runs
    each module's migrations. The list is every `"core": true` module plus Roundcube if chosen,
    with anything they `require` pulled in, sorted so a module always comes after what it
-   requires (`App\Services\Setup\ModulePlan`). The modules are then loaded into the running
-   process (their PSR-4 namespaces and service providers, `Installer::load()`), because this
-   request started with none installed. Without that, saving the administrator's demo
-   records failed on the CRM morph aliases that the modules' providers register. The test
-   suite can't catch this, since it boots every module from its manifest;
+    requires (`App\Services\Setup\ModulePlan`). The modules are then loaded into the running
+    process (their PSR-4 namespaces, service providers and panel plugins, through
+  `ModuleLoader::load()`), because this request started with none installed. The plugins add
+  their resources to the already-built panels, so collection fields resolve while the
+  installer creates demo records. Loading the providers also registers the CRM morph aliases.
+  The test suite boots every module from its manifest, so a regression test covers this late
+  plugin registration explicitly;
 4. creates the administrator with the `super_admin` role and, if asked, runs
    `DemoDataSeeder` for them (one transaction);
 5. writes the mail settings to `.env` (`MAIL_MAILER`, and for SMTP `MAIL_SCHEME` (`smtps` for

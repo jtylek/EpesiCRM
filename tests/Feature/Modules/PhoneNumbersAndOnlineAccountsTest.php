@@ -18,6 +18,7 @@ use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -254,7 +255,7 @@ class PhoneNumbersAndOnlineAccountsTest extends TestCase
         $this->assertSame(['Mobile: +48 600 100 200 (WhatsApp, Signal)'], $entry->properties['attributes']['phones']);
     }
 
-    public function test_a_phone_call_suggests_the_contacts_and_the_companys_numbers(): void
+    public function test_picking_a_customer_autofills_the_phone_number_and_warns_when_it_has_none(): void
     {
         $this->actingAs($this->userWithRole('employee'));
 
@@ -265,11 +266,63 @@ class PhoneNumbersAndOnlineAccountsTest extends TestCase
             ['kind' => 'mobile', 'value' => '+48 600 100 200'],
             ['kind' => 'work', 'value' => '+48 22 555 01 01'],
         ]);
+        $bob = Contact::create(['last_name' => 'NoPhone', 'first_name' => 'Bob']);
 
         Livewire::test(CreatePhoneCall::class)
-            ->assertDontSeeHtml('<datalist')
-            ->fillForm(['contact_id' => $ann->id, 'company_id' => $acme->id])
-            ->assertSeeHtml('-numbers"><option value="+48 600 100 200" label="Mobile"></option><option value="+48 22 555 01 01" label="Work"></option><option value="+48 22 000 00 00" label="Acme Ltd: Work"></option></datalist>');
+            ->fillForm(['customer' => "contact:{$ann->id}"])
+            ->assertFormSet(['phone_number' => '+48 600 100 200'])
+            ->fillForm(['customer' => "company:{$acme->id}"])
+            ->assertFormSet(['phone_number' => '+48 22 000 00 00'])
+            ->fillForm(['customer' => "contact:{$bob->id}"])
+            ->assertFormSet(['phone_number' => null])
+            ->assertNotified('No phone number on file for this record.');
+    }
+
+    public function test_a_phone_call_requires_a_customer_unless_other_customer_is_selected(): void
+    {
+        $user = $this->userWithRole('employee');
+        $home = Company::create(['company_name' => 'Home']);
+        Contact::create(['first_name' => 'Ann', 'last_name' => 'Worker', 'company_id' => $home->id, 'user_id' => $user->id]);
+        $this->actingAs($user);
+
+        Livewire::test(CreatePhoneCall::class)
+            ->fillForm(['subject' => 'Follow up', 'called_at' => now()->toDateTimeString()])
+            ->call('create')
+            ->assertHasFormErrors(['customer' => 'required']);
+
+        Livewire::test(CreatePhoneCall::class)
+            ->fillForm([
+                'subject' => 'External customer follow up',
+                'called_at' => now()->toDateTimeString(),
+                'other_customer' => true,
+                'other_customer_name' => 'Walk-in customer',
+                'phone_number' => '+1 555 0100',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('phone_calls', [
+            'other_customer' => true,
+            'other_customer_name' => 'Walk-in customer',
+        ]);
+    }
+
+    public function test_the_phone_number_select_offers_every_number_of_the_picked_customer(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $ann = Contact::create(['last_name' => 'Anders', 'first_name' => 'Ann']);
+        $ann->syncCollection('phones', [
+            ['kind' => 'work', 'value' => '+1610-690-2900'],
+            ['kind' => 'mobile', 'value' => '+1484-477-8033'],
+            ['kind' => 'fax', 'value' => '610-896-6302'],
+            ['kind' => 'other', 'value' => '646-547-1026'],
+        ]);
+
+        Livewire::test(CreatePhoneCall::class)
+            ->fillForm(['customer' => "contact:{$ann->id}"])
+            ->assertFormFieldExists('phone_number', fn (Select $field): bool => count($field->getOptions()) === 4
+                && $field->getOptions()['+1484-477-8033'] === 'Mobile: +1484-477-8033');
     }
 
     public function test_the_migrations_move_the_phones_and_the_web_address(): void

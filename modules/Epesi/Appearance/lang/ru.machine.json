@@ -1,0 +1,21 @@
+{
+    "Accent colour": "Цвет выделения",
+    "Appearance": "Внешний вид",
+    "Appearance saved": "Внешний вид сохранен",
+    "Application name saved": "Название приложения сохранено",
+    "Application name:": "Название приложения:",
+    "Comfortable": "Удобный",
+    "Compact": "Кратко",
+    "Default theme": "Тема по умолчанию",
+    "Density": "Плотность",
+    "Font size": "Размер шрифта",
+    "Large": "Большой",
+    "Leave blank to keep this panel's own colour.": "Оставьте поле пустым, чтобы сохранить цвет этой панели.",
+    "Small": "Небольшой",
+    "theme": "тема",
+    "Theme": "Тема",
+    "themes": "темы",
+    "This panel's own colour": "Цвет этой панели",
+    "What a user gets until they choose one of their own.": "То, что видит пользователь, пока не выберет один из вариантов самостоятельно.",
+    "Your administrator hasn't set up any themes yet.": "Ваш администратор ещё не настроил ни одной темы."
+}

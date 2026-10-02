@@ -7,6 +7,7 @@ use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Dashboard\Applet;
 use App\Models\DashboardApplet;
 use App\Models\DashboardTab;
+use App\Support\UiState;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
@@ -24,7 +25,6 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Renderless;
-use Livewire\Attributes\Session;
 
 /**
  * Filament's own Dashboard (subclassed so its header matches every other
@@ -42,9 +42,18 @@ class Dashboard extends BaseDashboard
 
     protected string $view = 'filament.pages.dashboard';
 
-    /** The tab on show, kept for the next visit as legacy kept $_SESSION['client']['dashboard_tab']. */
-    #[Session]
+    /** The tab on show, kept for the next visit (and the next login) as legacy kept $_SESSION['client']['dashboard_tab']. */
     public ?int $tab = null;
+
+    public function mount(): void
+    {
+        $this->tab = UiState::recall('dashboard.tab');
+    }
+
+    public function updatedTab(): void
+    {
+        UiState::remember('dashboard.tab', $this->tab);
+    }
 
     protected function getHeaderActions(): array
     {
@@ -189,6 +198,8 @@ class Dashboard extends BaseDashboard
             ->label('Add applet')
             ->icon(Heroicon::OutlinedPlus)
             ->color('gray')
+            // The Notes tab holds the Notes applet and nothing else: notes are added there.
+            ->visible(fn (): bool => $this->currentTab()->key !== DashboardTab::NOTES)
             ->modalHeading(__('Add applet'))
             ->modalSubmitActionLabel(__('Add'))
             ->schema([
@@ -226,14 +237,17 @@ class Dashboard extends BaseDashboard
             ->modalSubmitActionLabel(__('Save'))
             ->fillForm(fn (): array => [
                 'tabs' => $this->dashboardTabs
-                    ->map(fn (DashboardTab $tab): array => ['id' => $tab->id, 'name' => $tab->name])
+                    ->map(fn (DashboardTab $tab): array => ['id' => $tab->id, 'name' => $tab->name, 'system' => $tab->isSystem()])
                     ->all(),
             ])
             ->schema([
                 Repeater::make('tabs')
                     ->hiddenLabel()
+                    // One line per tab: see the .epesi-tabs-repeater rules in the dashboard view.
+                    ->extraAttributes(['class' => 'epesi-tabs-repeater'])
                     ->schema([
                         Hidden::make('id'),
+                        Hidden::make('system')->dehydrated(false),
                         TextInput::make('name')
                             ->hiddenLabel()
                             ->required()
@@ -242,6 +256,8 @@ class Dashboard extends BaseDashboard
                     ->minItems(1)
                     ->addActionLabel(__('Add tab'))
                     ->deleteAction(fn (Action $action): Action => $action
+                        // Main, Agenda and Notes stay.
+                        ->hidden(fn (array $arguments, Repeater $component): bool => (bool) $this->dashboardTabs->firstWhere('id', (int) ($component->getRawState()[$arguments['item']]['id'] ?? 0))?->isSystem())
                         ->requiresConfirmation()
                         ->modalHeading(__('Delete this tab and all applets assigned to it?'))),
             ])
@@ -259,7 +275,7 @@ class Dashboard extends BaseDashboard
                 'applet' => $this->findApplet($arguments)->widget::getAppletCaption(),
             ]))
             ->modalDescription(fn (array $arguments): ?string => $this->findApplet($arguments)->widget::getAppletSettingsSchema() === []
-                && $this->dashboardTabs->count() < 2 ? __('This applet has no settings.') : null)
+                && $this->tabsFor($this->findApplet($arguments)->widget)->count() < 2 ? __('This applet has no settings.') : null)
             ->modalSubmitActionLabel(__('Save'))
             ->fillForm(function (array $arguments): array {
                 $applet = $this->findApplet($arguments);
@@ -274,10 +290,10 @@ class Dashboard extends BaseDashboard
                     ->statePath('settings'),
                 Select::make('tab')
                     ->label('Tab')
-                    ->options($this->dashboardTabs->pluck('name', 'id')->all())
+                    ->options(fn (): array => $this->tabsFor($this->findApplet($arguments)->widget)->pluck('name', 'id')->all())
                     ->required()
                     ->selectablePlaceholder(false)
-                    ->visible($this->dashboardTabs->count() > 1),
+                    ->visible(fn (): bool => $this->tabsFor($this->findApplet($arguments)->widget)->count() > 1),
             ])
             ->extraModalFooterActions(fn (array $arguments): array => [
                 Action::make('removeApplet')
@@ -285,6 +301,7 @@ class Dashboard extends BaseDashboard
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading(__('Delete this applet?'))
+                    ->visible(fn (): bool => ! $this->isNotesOnly($this->findApplet($arguments)->widget))
                     ->action(fn () => $this->findApplet($arguments)->delete())
                     ->cancelParentActions(),
             ])
@@ -292,7 +309,7 @@ class Dashboard extends BaseDashboard
                 $applet = $this->findApplet($arguments);
                 $applet->settings = $data['settings'] ?? [];
 
-                $tab = $this->dashboardTabs->firstWhere('id', (int) ($data['tab'] ?? 0));
+                $tab = $this->tabsFor($applet->widget)->firstWhere('id', (int) ($data['tab'] ?? 0));
 
                 if ($tab && ! $tab->is($applet->tab)) {
                     $applet->dashboard_tab_id = $tab->id;
@@ -309,9 +326,28 @@ class Dashboard extends BaseDashboard
     private function availableApplets(): Collection
     {
         return collect(array_keys($this->appletWidgets))
-            ->filter(fn (string $class): bool => $class::canView())
+            ->filter(fn (string $class): bool => $class::canView() && ! $this->isNotesOnly($class))
             ->mapWithKeys(fn (string $class): array => [$class => $class])
             ->sortBy(fn (string $class): string => $class::getAppletCaption(), SORT_NATURAL | SORT_FLAG_CASE);
+    }
+
+    /**
+     * The tabs an applet may be on: the Notes applet stays on the Notes tab,
+     * and no other applet goes there.
+     *
+     * @return Collection<int, DashboardTab>
+     */
+    private function tabsFor(string $widget): Collection
+    {
+        return $this->dashboardTabs->filter(fn (DashboardTab $tab): bool => $this->isNotesOnly($widget)
+            ? $tab->key === DashboardTab::NOTES
+            : $tab->key !== DashboardTab::NOTES)->values();
+    }
+
+    /** An applet that lives on the Notes tab only (it sets APPLET_ONLY_ON_NOTES_TAB). */
+    private function isNotesOnly(string $widget): bool
+    {
+        return defined($widget.'::APPLET_ONLY_ON_NOTES_TAB');
     }
 
     /**
@@ -357,6 +393,7 @@ class Dashboard extends BaseDashboard
             $tab = DashboardTab::query()->create([
                 'user_id' => Auth::id(),
                 'name' => __($name),
+                'key' => config('dashboard.keys.'.$name),
                 'pos' => $tabs->count(),
             ]);
 
@@ -389,6 +426,14 @@ class Dashboard extends BaseDashboard
                 ?? new DashboardTab(['user_id' => Auth::id()]);
 
             $tab->fill(['name' => $row['name'], 'pos' => $pos])->save();
+            $kept[] = $tab->id;
+        }
+
+        // A system tab is never deleted, whatever the form sent: one left out of it goes last.
+        $missing = $this->dashboardTabs->filter(fn (DashboardTab $tab): bool => $tab->isSystem() && ! in_array($tab->id, $kept, true));
+
+        foreach ($missing as $tab) {
+            $tab->update(['pos' => count($kept)]);
             $kept[] = $tab->id;
         }
 

@@ -3,6 +3,7 @@
 namespace App\Services\Setup;
 
 use App\Models\Module;
+use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleRegistry;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Artisan;
@@ -47,18 +48,90 @@ class SystemUpdate
     }
 
     /**
-     * Migrations not run yet, by where they come from.
+     * Registered modules whose module.json no longer matches their row in the
+     * modules table — a new release can change the panels a module registers
+     * into, its plugin or its version, and the table (what actually boots)
+     * only learns of it from here or from `module:register`.
      *
-     * @return array<string, list<string>> label => migration names
+     * @return array<string, ModuleManifest> module id => the manifest on disk
+     */
+    public function staleModules(): array
+    {
+        $stale = [];
+
+        foreach (Module::query()->get() as $module) {
+            $file = Module::directoryFor($module->path).DIRECTORY_SEPARATOR.'module.json';
+
+            if (! is_file($file)) {
+                continue;
+            }
+
+            try {
+                $manifest = ModuleManifest::fromJson((string) file_get_contents($file));
+            } catch (Throwable) {
+                continue;
+            }
+
+            foreach ($manifest->toDatabaseRow() as $column => $value) {
+                if ($module->{$column} != $value) {
+                    $stale[$module->module_id] = $manifest;
+
+                    break;
+                }
+            }
+        }
+
+        return $stale;
+    }
+
+    /**
+     * Writes the manifests found by staleModules() into the modules table,
+     * keeping each module's enabled state. Returns the ids it updated.
+     *
+     * @return list<string>
+     */
+    public function syncManifests(): array
+    {
+        $stale = $this->staleModules();
+
+        foreach ($stale as $id => $manifest) {
+            Module::query()->where('module_id', $id)->first()?->update($manifest->toDatabaseRow());
+        }
+
+        if ($stale !== []) {
+            ModuleRegistry::refresh();
+
+            foreach (['route:clear', 'view:clear', 'filament:optimize-clear'] as $command) {
+                try {
+                    Artisan::call($command);
+                } catch (Throwable) {
+                    // A cache that can't be cleared shouldn't fail the update.
+                }
+            }
+        }
+
+        return array_keys($stale);
+    }
+
+    /**
+     * What an update would do: module registrations that changed, then
+     * migrations not run yet — each by where it comes from.
+     *
+     * @return array<string, list<string>> label => migration names (or module ids)
      */
     public function pending(): array
     {
+        $pending = [];
+
+        if ($stale = array_keys($this->staleModules())) {
+            $pending[__('Module registrations')] = $stale;
+        }
+
         if (! $this->migrator->repositoryExists()) {
-            return [];
+            return $pending;
         }
 
         $ran = array_flip($this->migrator->getRepository()->getRan());
-        $pending = [];
 
         foreach ($this->paths() as $label => $folder) {
             $names = array_keys(array_diff_key($this->migrator->getMigrationFiles($folder), $ran));
@@ -104,6 +177,8 @@ class SystemUpdate
         }
 
         static::$pendingCache = null;
+
+        $this->syncManifests();
 
         $code = Artisan::call('migrate', [
             '--path' => array_values($this->paths()),

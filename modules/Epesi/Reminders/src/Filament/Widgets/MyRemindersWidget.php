@@ -2,20 +2,24 @@
 
 namespace Epesi\Modules\Reminders\Filament\Widgets;
 
-use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\AppletTooltip;
-use App\Filament\Dashboard\IsApplet;
+use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Filament\Widgets\RecordsetApplet;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Reminders;
 use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 /**
  * "My reminders" — the Messenger applet ("Messenger alarms"): the signed-in
@@ -23,13 +27,11 @@ use Illuminate\Support\HtmlString;
  * off, Epesi's turn_off()), then upcoming ones. Records the user can no
  * longer see drop out, through each record type's own ownership scope.
  */
-class MyRemindersWidget extends TableWidget implements Applet
+class MyRemindersWidget extends RecordsetApplet
 {
-    use IsApplet;
+    protected static string|\BackedEnum|null $appletIcon = Heroicon::OutlinedBell;
 
     protected static ?int $sort = 4;
-
-    protected int|string|array $columnSpan = 1;
 
     public static function canView(): bool
     {
@@ -49,17 +51,14 @@ class MyRemindersWidget extends TableWidget implements Applet
     public function table(Table $table): Table
     {
         return $table
-            ->heading(__('My reminders'))
             ->query(fn (): Builder => static::query())
             ->defaultSort('remind_at')
-            ->paginated([5, 10, 25])
             ->defaultPaginationPageOption(5)
             ->poll('60s')
-            ->headerActions([$this->configureAppletAction()])
             ->columns([
                 TextColumn::make('remind_at')
                     ->label('When')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime()
                     ->description(fn (Reminder $record): string => $record->remind_at->diffForHumans())
                     ->color(fn (Reminder $record): ?string => $record->remind_at->isPast() ? 'danger' : null)
                     ->icon(fn (Reminder $record): ?Heroicon => $record->remind_at->isPast() ? Heroicon::OutlinedBellAlert : null)
@@ -67,7 +66,7 @@ class MyRemindersWidget extends TableWidget implements Applet
                 TextColumn::make('record')
                     ->label('Reminder')
                     ->state(fn (Reminder $record): string => $record->remindable ? Reminders::label($record->remindable) : '-')
-                    ->description(fn (Reminder $record): ?string => $record->message)
+                    ->icon(fn (Reminder $record) => $record->remindable ? Reminders::typeIcon($record->remindable) : null)
                     ->url(fn (Reminder $record): ?string => $record->remindable ? Reminders::url($record->remindable) : null)
                     ->tooltip(fn (Reminder $record): ?HtmlString => $this->details($record))
                     ->wrap(),
@@ -86,10 +85,38 @@ class MyRemindersWidget extends TableWidget implements Applet
             ->emptyStateIcon(Heroicon::OutlinedBellSlash);
     }
 
-    /** The description of the record it is about, on hover, as on the other applets. */
-    private function details(Reminder $record): ?HtmlString
+    /** The full details of the record the reminder is about. */
+    private function details(Reminder $record): HtmlString
     {
-        return AppletTooltip::text($record->remindable?->getAttribute('description'));
+        $remindable = $record->remindable;
+
+        if (! $remindable) {
+            return AppletTooltip::details(
+                type: 'Reminder',
+                icon: Heroicon::OutlinedBell,
+                title: '-',
+                description: null,
+                dateLabel: 'Date and Time',
+                date: RegionalSetting::display($record->remind_at),
+            );
+        }
+
+        $label = Reminders::label($remindable);
+        $date = Reminders::startOf($remindable);
+
+        if ($remindable instanceof Task && $remindable->timeless && $date) {
+            $date = $date->copy()->startOfDay();
+        }
+
+        return AppletTooltip::details(
+            type: Str::before($label, ': '),
+            icon: Reminders::typeIcon($remindable),
+            title: Str::after($label, ': '),
+            description: $remindable->getAttribute('description'),
+            dateLabel: $remindable instanceof Task ? 'Deadline' : 'Date and Time',
+            date: RegionalSetting::display($date, $remindable instanceof Task && $remindable->timeless),
+            customers: AppletTooltip::customers($remindable),
+        );
     }
 
     /**
@@ -107,7 +134,11 @@ class MyRemindersWidget extends TableWidget implements Applet
             // whereHasMorph() runs each type's global scopes as the signed-in
             // user: someone else's private record, or a trashed one, is out.
             ->whereHasMorph('remindable', $types)
-            ->with('remindable');
+            ->with(['remindable' => fn (MorphTo $morphTo) => $morphTo->morphWith([
+                Task::class => ['customers', 'customerCompanies'],
+                Meeting::class => ['customers', 'customerCompanies'],
+                PhoneCall::class => ['customer'],
+            ])]);
     }
 
     /** Utils_MessengerCommon::turn_off(): for this user only. */

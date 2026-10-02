@@ -68,6 +68,9 @@ build() {
 
     echo "Building ${commit:0:7} in $build"
     [ -d "$build/.git" ] || git clone --quiet --no-checkout "$root" "$build"
+    # Fetch from the checkout the script is called from, not from wherever the
+    # clone was first made (a renamed or second checkout left it stale).
+    git -C "$build" remote set-url origin "$root"
     git -C "$build" fetch --quiet origin
     git -C "$build" checkout --quiet --force --detach "$commit"
     git -C "$build" clean -fdxq -e vendor/ -e node_modules/ -e .env

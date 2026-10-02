@@ -3,6 +3,8 @@
 namespace Tests\Feature\Modules;
 
 use App\Enums\RecordPermission;
+use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ListAttachments;
+use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\ListCompanies;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustomFields;
@@ -65,5 +67,32 @@ class ListKeyboardNavTest extends TestCase
         Livewire::test(ListCompanies::class)
             ->assertSeeHtml("event.key.toLowerCase() === 'n'")
             ->assertSeeHtml("a[href\$=\\'/create\\']", false);
+    }
+
+    /**
+     * Notes (AttachmentResource) sets ->recordUrl(null): its row expands a
+     * preview in place instead of navigating, so it carries no `a[href]` for
+     * Filament to mark `.fi-clickable`. Row highlighting and search must
+     * still work here, the same as on a linked list.
+     */
+    public function test_a_list_with_no_record_url_still_gets_row_highlighting_and_search(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $note = Attachment::create(['title' => 'Loose note', 'permission' => RecordPermission::Public]);
+
+        Livewire::test(ListAttachments::class)
+            ->assertSeeHtml('.fi-ta-search-field input')
+            ->assertSeeHtml("document.querySelectorAll('.fi-ta-row')")
+            ->assertSeeHtml('epesi-row-active')
+            ->assertCanSeeTableRecords([$note]);
+    }
+
+    public function test_space_previews_the_highlighted_row_in_place(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        Livewire::test(ListCompanies::class)
+            ->assertSeeHtml("event.key === ' ' && activeRowKey !== null")
+            ->assertSeeHtml('preview()');
     }
 }

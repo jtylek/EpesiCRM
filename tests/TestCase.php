@@ -19,7 +19,21 @@ abstract class TestCase extends BaseTestCase
         // the app's folder under requests compiling into it at that moment.
         $_ENV['VIEW_COMPILED_PATH'] = $_SERVER['VIEW_COMPILED_PATH'] = dirname(__DIR__).'/storage/framework/testing/views';
 
-        return parent::createApplication();
+        $app = parent::createApplication();
+
+        // RefreshDatabase runs after this method and can erase the installation
+        // if inherited environment variables or cached config override phpunit.xml.
+        $connection = $app['config']->get('database.default');
+        $database = $app['config']->get("database.connections.{$connection}", []);
+
+        if (! $app->environment('testing')
+            || ($database['driver'] ?? null) !== 'sqlite'
+            || ($database['database'] ?? null) !== ':memory:'
+            || ! empty($database['url'])) {
+            throw new \RuntimeException('Application tests require the testing environment and in-memory SQLite. Refusing to run against a persistent database. Check phpunit.xml, inherited environment variables, and cached configuration.');
+        }
+
+        return $app;
     }
 
     protected function setUp(): void

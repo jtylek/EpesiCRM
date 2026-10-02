@@ -6,15 +6,26 @@ use App\Enums\RecordPermission;
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
 use App\Models\User;
+use App\Services\FileStorage;
+use App\Support\Demo;
 use App\Support\DemoData;
 use Carbon\CarbonInterface;
+use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\CompanyResource;
 use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Browsing\Favorites;
+use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
+use Epesi\Modules\Reminders\Reminders;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -24,7 +35,8 @@ use Illuminate\Support\Facades\Schema;
  * HasOwnershipVisibility has something real to filter — then generated ones
  * up to 100 companies, 100 contacts, 30 tasks, calls and meetings, a
  * shoutbox conversation, 100 notes, ten next actions on each user's priority
- * list, and three archived e-mail conversations. Every row is remembered
+ * list, and 100 archived e-mails, including three hand-written conversations.
+ * Every row is remembered
  * (App\Support\DemoData), so Administration → Demo data can remove it all
  * again.
  *
@@ -33,6 +45,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class DemoDataSeeder extends Seeder
 {
+    protected int $notesCreated = 0;
+
     /** Generated on top of the hand-written ones: 100 companies, 100 contacts, 30 of each activity. */
     protected const COMPANIES = 97;
 
@@ -79,6 +93,12 @@ class DemoDataSeeder extends Seeder
         'Nowak', 'Kowalski', 'Wiśniewska', 'Wójcik', 'Kamińska', 'Lewandowski', 'Zielińska', 'Szymański', 'Dąbrowski', 'Król',
         'Smith', 'Johnson', 'Brown', 'Taylor', 'Miller', 'Wilson', 'Clark', 'Walker', 'Young', 'Hall',
         'Müller', 'Schmidt', 'Fischer', 'Weber', 'Dubois', 'Martin', 'García', 'Rossi', 'Bianchi', 'de Vries', "O'Brien", 'Novák',
+        'Adams', 'Baker', 'Carter', 'Davis', 'Evans', 'Foster', 'Gray', 'Harris', 'Irwin', 'Jackson', 'King', 'Lewis',
+        'Moore', 'Nelson', 'Parker', 'Reed', 'Scott', 'Turner', 'Ward', 'Wright', 'Bennett', 'Cooper', 'Edwards', 'Flores',
+        'Green', 'Hughes', 'Jenkins', 'Kelly', 'Morgan', 'Price', 'Rivera', 'Sanders', 'Wood', 'Brooks', 'Collins', 'Diaz',
+        'Ellis', 'Fisher', 'Graham', 'Howard', 'James', 'Mason', 'Ortiz', 'Perry', 'Russell', 'Stone', 'Torres', 'Bell',
+        'Cruz', 'Murphy', 'Bailey', 'Barnes', 'Cole', 'Ford', 'Hayes', 'Long', 'Powell', 'Ross', 'Simmons', 'Watkins',
+        'White', 'West', 'Grant', 'Pierce',
     ];
 
     protected const JOB_TITLES = [
@@ -277,6 +297,8 @@ class DemoDataSeeder extends Seeder
 
     public function run(User $admin): void
     {
+        $this->notesCreated = 0;
+
         $ourCompany = $this->record(Company::class, [
             'company_name' => 'Acme Corp',
             'groups' => ['manager'],
@@ -352,7 +374,8 @@ class DemoDataSeeder extends Seeder
         // cross-module data to filter, not just Companies/Contacts.
         $privateCall = $this->record(PhoneCall::class, [
             'subject' => 'Follow-up on invoice #1042',
-            'contact_id' => $bruce->id,
+            'customer_type' => $bruce->getMorphClass(),
+            'customer_id' => $bruce->id,
             'phone_number' => $bruceWorkPhone,
             'permission' => RecordPermission::Private,
             'status' => RecordStatus::Open,
@@ -364,8 +387,10 @@ class DemoDataSeeder extends Seeder
 
         $publicCall = $this->record(PhoneCall::class, [
             'subject' => 'Vendor pricing check-in',
-            'contact_id' => $tony->id,
-            'company_id' => $vendor->id,
+            'customer_type' => $tony->getMorphClass(),
+            // A call has one Customer (Field::customer()); contact takes
+            // priority when both are candidates, same as Followup::close().
+            'customer_id' => $tony->id,
             'permission' => RecordPermission::Public,
             'status' => RecordStatus::Closed,
             'priority' => RecordPriority::Medium,
@@ -429,11 +454,12 @@ class DemoDataSeeder extends Seeder
         // every installation gets the same demo.
         mt_srand(2026);
 
-        $activities = $this->generate([$admin, $manager, $employee], [$managerContact, $employeeContact]);
+        $activities = $this->generate([$admin, $manager, $employee], [$managerContact, $employeeContact], $admin);
 
         $this->priorityLists([$admin, $manager, $employee], [
             $privateCall, $publicCall, $privateTask, $publicTask, $privateMeeting, $publicMeeting, ...$activities,
         ]);
+        $this->favoritesAndRecent(Demo::enabled() ? [$manager, $employee] : [$admin], $activities);
 
         mt_srand();
 
@@ -448,7 +474,7 @@ class DemoDataSeeder extends Seeder
             [$publicMeeting, $manager, 'Agenda', '<ol><li>Results of the last quarter</li><li>Plans for the next one</li><li>Questions</li></ol>'],
         ]);
 
-        $this->mail($manager, $employee);
+        $this->mail($admin, $manager, $employee);
     }
 
     /**
@@ -458,9 +484,10 @@ class DemoDataSeeder extends Seeder
      *
      * @param  list<User>  $users  who created the records
      * @param  list<Contact>  $staff  contacts the tasks, calls and meetings are assigned to
+     * @param  User  $setupUser  gets ten open tasks, five calls and five meetings
      * @return list<Task|PhoneCall|Meeting>
      */
-    protected function generate(array $users, array $staff): array
+    protected function generate(array $users, array $staff, User $setupUser): array
     {
         $companies = [];
         $cities = [];
@@ -478,7 +505,14 @@ class DemoDataSeeder extends Seeder
             } while (isset($taken[$first]));
             $taken[$first] = true;
 
-            $name = $first.' '.$this->pick(self::COMPANY_KINDS);
+            $kind = $this->pick(self::COMPANY_KINDS);
+            $name = match ($this->pick(['industry', 'group', 'partners', 'company', 'the'])) {
+                'group' => $first.' Group',
+                'partners' => $first.' Partners',
+                'company' => $first.' & Co.',
+                'the' => 'The '.$first.' '.$kind,
+                default => $first.' '.$kind,
+            };
             $domain = strtolower(str_replace(' ', '', $first)).'.test';
 
             // In the order the columns were once drawn in, so the fixed seed
@@ -493,7 +527,7 @@ class DemoDataSeeder extends Seeder
 
             $companies[] = $company = $this->record(Company::class, [
                 'company_name' => $name,
-                'short_name' => explode(' ', $name)[0],
+                'short_name' => explode(' ', $first)[0],
                 'groups' => [$this->pick(['customer', 'customer', 'customer', 'vendor', 'other'])],
                 'permission' => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::PublicReadOnly, RecordPermission::Private]),
                 'created_by' => $this->pick($users)->id,
@@ -509,7 +543,7 @@ class DemoDataSeeder extends Seeder
 
         foreach (range(1, self::CONTACTS) as $i) {
             $first = $this->pick(self::FIRST_NAMES);
-            $last = $this->pick(self::LAST_NAMES);
+            $last = self::LAST_NAMES[$i - 1];
             // A few people with no company, as in any address book.
             $company = mt_rand(1, 10) === 1 ? null : $this->pick($companies);
             $domain = $company ? $domains[$company->id] : 'mail.test';
@@ -549,6 +583,18 @@ class DemoDataSeeder extends Seeder
             : $this->pick([RecordStatus::Open, RecordStatus::Open, RecordStatus::InProgress, RecordStatus::OnHold]);
         $priority = fn (): RecordPriority => $this->pick([RecordPriority::Low, RecordPriority::Medium, RecordPriority::Medium, RecordPriority::High]);
         $permission = fn (): RecordPermission => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::Private]);
+        // During installation the demo runs before "Your company". That step
+        // reuses this contact, keeping its activity assignments intact.
+        $setupUserContact = Contact::query()->withoutGlobalScopes()->firstOrNew(['user_id' => $setupUser->id]);
+        if (! $setupUserContact->exists) {
+            $name = explode(' ', trim($setupUser->name), 2);
+            $setupUserContact->forceFill([
+                'first_name' => $name[0],
+                'last_name' => $name[1] ?? '',
+                'created_by' => $setupUser->id,
+                'permission' => RecordPermission::Private,
+            ])->save();
+        }
         $tasks = $calls = $meetings = [];
 
         foreach (range(1, self::ACTIVITIES) as $i) {
@@ -556,58 +602,78 @@ class DemoDataSeeder extends Seeder
             $company = $contact->company_id ? collect($companies)->firstWhere('id', $contact->company_id) : null;
             $words = ['{company}' => $company?->company_name ?? $contact->last_name, '{contact}' => $contact->first_name.' '.$contact->last_name];
 
-            $deadline = now()->startOfDay()->addDays(mt_rand(-20, 40))->setTime(mt_rand(8, 17), $this->pick([0, 30]));
+            $deadline = $i <= 10
+                ? today()->addDays(intdiv($i - 1, 2))->setTime($i % 2 ? 10 : 14, 0)
+                : now()->startOfDay()->addDays(mt_rand(-20, 40))->setTime(mt_rand(8, 17), $this->pick([0, 30]));
             $tasks[] = $task = $this->record(Task::class, [
                 'title' => strtr($this->pick(self::TASK_TITLES), $words),
                 'description' => $this->pick(self::NOTES),
                 'deadline' => $deadline,
                 'timeless' => mt_rand(1, 4) === 1,
-                'status' => $status($deadline->isPast()),
+                'status' => $i <= 10 ? RecordStatus::Open : $status($deadline->isPast()),
                 'priority' => $priority(),
                 'permission' => $permission(),
                 'created_by' => $this->pick($users)->id,
             ]);
-            $task->employees()->attach($this->pick($staff)->id);
+            $taskEmployee = $i <= 10 ? $setupUserContact : $this->pick($staff);
+            $task->employees()->attach($taskEmployee->id);
             $task->customers()->attach($contact->id);
             if ($company) {
                 $task->customerCompanies()->attach($company->id);
             }
 
-            $calledAt = now()->startOfDay()->addDays(mt_rand(-30, 7))->setTime(mt_rand(8, 17), $this->pick([0, 15, 30, 45]));
+            $calledAt = $i <= 5
+                ? today()->addDays($i - 1)->setTime(13, 0)
+                : now()->startOfDay()->addDays(mt_rand(-30, 7))->setTime(mt_rand(8, 17), $this->pick([0, 15, 30, 45]));
             $calls[] = $call = $this->record(PhoneCall::class, [
                 'subject' => strtr($this->pick(self::CALL_SUBJECTS), $words),
                 'description' => $this->pick(self::NOTES),
-                'contact_id' => $contact->id,
-                'company_id' => $company?->id,
+                'customer_type' => $contact->getMorphClass(),
+                // A call has one Customer; contact takes priority when both
+                // are candidates, same as Followup::close().
+                'customer_id' => $contact->id,
                 'phone_number' => $mobiles[$contact->id],
                 'called_at' => $calledAt,
-                'status' => $status($calledAt->isPast()),
+                'status' => $i <= 5 ? RecordStatus::Open : $status($calledAt->isPast()),
                 'priority' => $priority(),
                 'permission' => $permission(),
                 'created_by' => $this->pick($users)->id,
             ]);
-            $call->employees()->attach($this->pick($staff)->id);
+            $callEmployee = $i <= 5 && $setupUserContact ? $setupUserContact : $this->pick($staff);
+            $call->employees()->attach($callEmployee->id);
 
-            $date = now()->startOfDay()->addDays(mt_rand(-15, 30));
+            $date = $i <= 5 ? today()->addDays($i <= 3 ? 0 : 1) : today()->addDays(mt_rand(-15, 30));
             $meetings[] = $meeting = $this->record(Meeting::class, [
                 'title' => strtr($this->pick(self::MEETING_TITLES), $words),
                 'description' => $this->pick(self::NOTES),
                 'date' => $date->toDateString(),
-                'time' => sprintf('%02d:%02d', mt_rand(8, 16), $this->pick([0, 30])),
+                'time' => $i <= 5 ? ['09:00', '12:00', '15:00', '09:00', '13:00'][$i - 1] : sprintf('%02d:%02d', mt_rand(8, 16), $this->pick([0, 30])),
                 'duration_minutes' => $this->pick([15, 30, 30, 45, 60, 60, 90]),
-                'status' => $status($date->isPast()),
+                'status' => $i <= 5 ? RecordStatus::Open : $status($date->isPast()),
                 'priority' => $priority(),
                 'permission' => $permission(),
                 'created_by' => $this->pick($users)->id,
             ]);
-            $meeting->employees()->attach(collect($staff)->random(mt_rand(1, count($staff)))->pluck('id')->all());
+            $meetingEmployees = $i <= 5 && $setupUserContact
+                ? [$setupUserContact->id]
+                : collect($staff)->random(mt_rand(1, count($staff)))->pluck('id')->all();
+            $meeting->employees()->attach($meetingEmployees);
             $meeting->customers()->attach($contact->id);
             if ($company) {
                 $meeting->customerCompanies()->attach($company->id);
             }
+
+            if ($i <= 10) {
+                $this->reminder($task, $setupUser);
+            }
+            if ($i <= 5) {
+                $this->reminder($call, $setupUser);
+                $this->reminder($meeting, $setupUser);
+            }
         }
 
         $this->shoutbox($users);
+        $this->stickyNotes($setupUser);
 
         // After everything above, so adding notes changed none of it.
         $records = ['company' => $companies, 'contact' => $contacts, 'task' => $tasks, 'phone_call' => $calls, 'meeting' => $meetings];
@@ -641,8 +707,7 @@ class DemoDataSeeder extends Seeder
     /**
      * Ten open tasks, phone calls and meetings on each user's priority list,
      * when the PriorityList module is installed: a mix of the three, from
-     * what is assigned to them, or — for the administrator, assigned nothing
-     * — from all of them.
+     * what is assigned to them, falling back to all open work when unassigned.
      *
      * @param  list<User>  $users
      * @param  list<Task|PhoneCall|Meeting>  $activities
@@ -676,6 +741,63 @@ class DemoDataSeeder extends Seeder
     }
 
     /**
+     * Ten demo records of each CRM type in each selected user's Favorites and Recent lists.
+     *
+     * @param  list<User>  $users
+     * @param  list<Task|PhoneCall|Meeting>  $activities
+     */
+    protected function favoritesAndRecent(array $users, array $activities): void
+    {
+        $candidates = collect($activities);
+        foreach ([Company::class, Contact::class] as $recordClass) {
+            // Pick shared demo records so employee favorites are visible, and
+            // leave the administrator's real company and contact out of the sample.
+            $model = new $recordClass;
+            $candidates = $candidates->concat($recordClass::query()->withoutGlobalScopes()
+                ->whereIn('id', DB::table('demo_records')
+                    ->where('table_name', $model->getTable())->select('record_id'))
+                ->whereIn('permission', [RecordPermission::Public, RecordPermission::PublicReadOnly])
+                ->orderBy('id')->get());
+        }
+
+        foreach ($users as $user) {
+            foreach ([
+                Company::class => CompanyResource::class,
+                Contact::class => ContactResource::class,
+                Task::class => TaskResource::class,
+                PhoneCall::class => PhoneCallResource::class,
+                Meeting::class => MeetingResource::class,
+            ] as $recordClass => $resource) {
+                $records = $candidates
+                    ->filter(fn (Model $record): bool => $record instanceof $recordClass)
+                    ->shuffle()
+                    ->take(10);
+
+                foreach ($records as $record) {
+                    Favorites::add($user, $record);
+                    RecentRecords::visit($user, $record, $resource::getRecentLimit());
+                }
+            }
+        }
+    }
+
+    protected function reminder(Model $record, User $user): void
+    {
+        if (! class_exists(Reminders::class) || ! Schema::hasTable('epesi_reminders')) {
+            return;
+        }
+
+        $reminder = $record->reminders()->create([
+            'remind_at' => Reminders::startOf($record)->copy()->subMinutes(15),
+            'before_minutes' => 15,
+            'message' => 'Review the details and prepare for this activity.',
+            'send_email' => false,
+            'created_by' => $user->id,
+        ]);
+        $reminder->recipients()->attach($user->id);
+    }
+
+    /**
      * Notes on records, when the Attachments module is installed. Each is
      * [record, author, title, note (HTML), permission = Public, sticky = false,
      * written at = now].
@@ -692,10 +814,25 @@ class DemoDataSeeder extends Seeder
 
         foreach ($notes as $spec) {
             [$record, $author, $title, $text, $permission, $sticky, $at] = $spec + [4 => RecordPermission::Public, 5 => false, 6 => null];
+            $noteNumber = ++$this->notesCreated;
+            $text .= '<h3>Next steps</h3><p><strong>Customer follow-up:</strong> Review these details with the account team and confirm the customer’s priorities before the next conversation.</p><ul><li>Check the agreed scope and delivery dates.</li><li>Record decisions and assign an owner for every outstanding action.</li><li>Share a concise progress update at the next review.</li></ul><p><em>Demo example for the full-page note preview.</em></p>';
+            $files = [];
+
+            $fileSpec = $noteNumber <= 50
+                ? ($noteNumber % 2 === 1 ? ['png', $this->demoImage()] : ['pdf', $this->demoPdf()])
+                : null;
+
+            if ($fileSpec !== null) {
+                [$extension, $contents] = $fileSpec;
+                $file = app(FileStorage::class)->put($contents, sprintf('demo-note-%03d.%s', $noteNumber, $extension));
+                $file->forceFill(['created_by' => $author->id])->save();
+                $files[] = (string) $file->getKey();
+            }
 
             $this->record($note, [
                 'title' => $title,
                 'note' => $text,
+                'files' => $files,
                 'permission' => $permission,
                 'sticky' => $sticky,
                 'created_by' => $author->id,
@@ -704,12 +841,80 @@ class DemoDataSeeder extends Seeder
         }
     }
 
+    protected function demoImage(): string
+    {
+        if (! function_exists('imagecreatetruecolor')) {
+            throw new \RuntimeException('The GD extension is required to generate demo note images.');
+        }
+
+        $image = imagecreatetruecolor(640, 400);
+        $background = imagecolorallocate($image, 246, 248, 250);
+        $header = imagecolorallocate($image, 31, 65, 77);
+        $ink = imagecolorallocate($image, 45, 57, 66);
+        $accent = imagecolorallocate($image, 28, 130, 116);
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $panel = imagecolorallocate($image, 255, 255, 255);
+
+        imagefill($image, 0, 0, $background);
+        imagefilledrectangle($image, 0, 0, 639, 76, $header);
+        imagestring($image, 5, 26, 24, 'THIS IS A DEMO IMAGE', $white);
+        imagestring($image, 3, 26, 104, 'ACME CORP | CUSTOMER ACTIVITY', $ink);
+        imagestring($image, 2, 26, 128, 'Weekly service requests', $ink);
+        imagefilledrectangle($image, 24, 154, 616, 350, $panel);
+
+        foreach ([92, 138, 108, 162, 126] as $index => $height) {
+            $left = 68 + $index * 104;
+            imagefilledrectangle($image, $left, 320 - $height, $left + 42, 320, $accent);
+            imagestring($image, 2, $left + 10, 330, 'W'.($index + 1), $ink);
+        }
+
+        imagestring($image, 3, 440, 104, 'Sample preview', $ink);
+
+        ob_start();
+        $encoded = imagepng($image);
+        $contents = ob_get_clean();
+        imagedestroy($image);
+
+        if (! $encoded || ! is_string($contents)) {
+            throw new \RuntimeException('Could not generate the demo PNG attachment.');
+        }
+
+        return $contents;
+    }
+
+    protected function demoPdf(): string
+    {
+        $stream = "BT\n/F1 22 Tf\n72 700 Td\n(This is a demo PDF) Tj\n/F1 12 Tf\n0 -32 Td\n(Sample document attached to a demo customer record.) Tj\nET\n";
+        $objects = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+            '<< /Length '.strlen($stream)." >>\nstream\n{$stream}endstream",
+        ];
+        $pdf = "%PDF-1.4\n";
+        $offsets = [];
+
+        foreach ($objects as $index => $object) {
+            $offsets[] = strlen($pdf);
+            $pdf .= ($index + 1)." 0 obj\n{$object}\nendobj\n";
+        }
+
+        $crossReferenceOffset = strlen($pdf);
+        $pdf .= "xref\n0 6\n0000000000 65535 f \n";
+
+        foreach ($offsets as $offset) {
+            $pdf .= sprintf("%010d 00000 n \n", $offset);
+        }
+
+        return $pdf."trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n{$crossReferenceOffset}\n%%EOF\n";
+    }
+
     /**
-     * Three archived conversations (self::MAILS), when the Mail module is
-     * installed. Through the module's own MailArchiver, so they are matched
-     * to the contacts and companies and threaded as a real message is.
+     * One hundred archived e-mails, when the Mail module is installed. Ten
+     * are filed by the setup user; the rest are split between the demo staff.
      */
-    protected function mail(User $manager, User $employee): void
+    protected function mail(User $admin, User $manager, User $employee): void
     {
         $archiver = 'Epesi\\Modules\\Mail\\Services\\MailArchiver';
 
@@ -717,8 +922,41 @@ class DemoDataSeeder extends Seeder
             return;
         }
 
-        foreach (self::MAILS as $message) {
-            $mail = app($archiver)->archive($this->rawMail($message), $message['by'] === 'manager' ? $manager : $employee);
+        $messages = self::MAILS;
+        $topics = ['delivery schedule', 'invoice details', 'product options', 'meeting notes', 'account update', 'service request', 'order status', 'renewal terms', 'pricing question', 'project timeline'];
+        $adminEmail = $admin->contact?->collection('emails')->first()?->value ?? 'hello@acme.test';
+
+        for ($index = 1; $index <= 94; $index++) {
+            $assignedTo = $index <= 10 ? 'admin' : ($index % 2 === 0 ? 'manager' : 'employee');
+            $topic = $topics[($index - 1) % count($topics)];
+            $from = $index % 2 === 0
+                ? 'Tony Stark <tony@stark.test>'
+                : 'Bruce Wayne <bruce@wayne.test>';
+            $to = match ($assignedTo) {
+                'admin' => 'Setup User <'.$adminEmail.'>',
+                'manager' => 'Morgan Manager <manager@example.com>',
+                default => 'Eli Employee <employee@example.com>',
+            };
+
+            $messages[] = [
+                'id' => sprintf('demo-mail-%03d@acme.test', $index),
+                'by' => $assignedTo,
+                'days' => 11 + $index,
+                'time' => sprintf('%02d:%02d', 8 + ($index % 9), ($index * 7) % 60),
+                'from' => $from,
+                'to' => $to,
+                'subject' => sprintf('Demo correspondence %03d: %s', $index, $topic),
+                'text' => sprintf("Hello,\n\nThis is a sample message about %s. Please review the details and follow up with the customer when convenient.\n\nBest regards,\n%s", $topic, $index % 2 === 0 ? 'Tony Stark' : 'Bruce Wayne'),
+            ];
+        }
+
+        foreach ($messages as $message) {
+            $user = match ($message['by']) {
+                'admin' => $admin,
+                'manager' => $manager,
+                default => $employee,
+            };
+            $mail = app($archiver)->archive($this->rawMail($message), $user);
 
             DemoData::remember($mail);
             DemoData::remember($mail->thread);
@@ -768,6 +1006,39 @@ class DemoDataSeeder extends Seeder
         }
 
         return str_replace("\n", "\r\n", implode("\n", $lines));
+    }
+
+    /**
+     * Three Markdown sticky notes for the user, one per column of the Notes
+     * tab, when the StickyNotes module is installed.
+     */
+    protected function stickyNotes(User $user): void
+    {
+        $note = 'Epesi\\Modules\\StickyNotes\\Models\\StickyNote';
+
+        if (! class_exists($note) || ! Schema::hasTable((new $note)->getTable())) {
+            return;
+        }
+
+        $notes = [
+            ['Today', 'yellow', "## Priorities\n\n1. Call **Wayne Enterprises** about the renewal\n2. Send the *updated quote* to Acme\n3. Prepare Friday's team meeting\n\n> Finish the first two before lunch."],
+            ['Ideas', 'green', "- Weekly customer **newsletter**\n- Tag contacts by `industry`\n- Follow up on every phone call within 24 hours\n\nSee [Epesi](https://epesi.org) for more."],
+            ['Meeting notes', 'blue', "### Sales sync\n\n- Pipeline reviewed\n- Two new leads assigned\n- Next review on **Monday**\n\n```\nAction: update the forecast\n```"],
+        ];
+
+        foreach ($notes as $col => [$title, $color, $body]) {
+            $sticky = new $note;
+            $sticky->forceFill([
+                'user_id' => $user->id,
+                'title' => $title,
+                'body' => $body,
+                'color' => $color,
+                'active' => true,
+                'col' => $col,
+                'position' => 0,
+            ])->save();
+            DemoData::remember($sticky);
+        }
     }
 
     /**

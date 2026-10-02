@@ -17,6 +17,8 @@
 @import './small-card-corners.css';
 @import './auth-branding.css';
 @import './history-modal.css';
+@import './dashboard-applets.css';
+@import './recordset-catalogue.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/**/*';

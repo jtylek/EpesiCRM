@@ -21,6 +21,7 @@ use epesi_archive_matcher;
 use epesi_sso_ticket;
 use Filament\Facades\Filament;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -134,6 +135,37 @@ class RoundcubeTest extends TestCase
 
         $this->assertNull($this->redeem($token), 'a ticket logs in once');
         $this->assertSame(0, DB::table('epesi_roundcube_tickets')->count());
+    }
+
+    public function test_install_cleanup_retries_a_transient_directory_removal_failure(): void
+    {
+        $directory = $this->sandbox.DIRECTORY_SEPARATOR.'previous';
+        File::ensureDirectoryExists($directory.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'acl');
+        File::put($directory.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'acl'.DIRECTORY_SEPARATOR.'acl.php', '<?php');
+
+        $files = new class extends Filesystem
+        {
+            public ?string $failPath = null;
+
+            public int $deleteAttempts = 0;
+
+            public function deleteDirectory($directory, $preserve = false)
+            {
+                if ($directory === $this->failPath && ++$this->deleteAttempts === 1) {
+                    throw new \RuntimeException('Directory is temporarily busy.');
+                }
+
+                return parent::deleteDirectory($directory, $preserve);
+            }
+        };
+        $files->failPath = $directory;
+
+        $installer = new RoundcubeInstaller($files, new RoundcubeConfigWriter);
+        $deleteInstall = new \ReflectionMethod($installer, 'deleteInstall');
+        $deleteInstall->invoke($installer, $directory);
+
+        $this->assertFalse(is_dir($directory));
+        $this->assertSame(2, $files->deleteAttempts);
     }
 
     public function test_an_expired_ticket_is_refused_and_later_purged(): void

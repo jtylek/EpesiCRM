@@ -25,6 +25,7 @@ use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Services\MailSender;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
+use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -563,7 +564,22 @@ class MailTest extends TestCase
         $this->get(MailAccountResource::getUrl('edit', ['record' => $theirs], panel: 'user-settings'))->assertNotFound();
     }
 
-    public function test_the_dashboard_widget_shows_cached_unread_counts_and_recent_mail(): void
+    public function test_the_mail_applet_fullscreen_opens_my_default_mailbox(): void
+    {
+        $this->fakeServer(new FakeMailbox);
+        $this->account(['name' => 'A secondary account']);
+        $default = $this->account(['name' => 'Z default account', 'is_default' => true]);
+        $this->account(['user_id' => $this->userWithRole('employee')->id, 'is_default' => true]);
+
+        $widget = Livewire::test(UnreadMailWidget::class)->assertSee('Fullscreen');
+
+        $this->assertSame(
+            Mailbox::getUrl(['account' => $default->id]),
+            $widget->instance()->defaultMailboxUrl(),
+        );
+    }
+
+    public function test_the_dashboard_widget_shows_cached_unread_counts_without_recent_mail(): void
     {
         $this->assertFalse(UnreadMailWidget::canView(), 'hidden until the user has a mailbox');
 
@@ -577,7 +593,10 @@ class MailTest extends TestCase
 
         Livewire::test(UnreadMailWidget::class)
             ->assertSee('3 unread')
-            ->assertSee('Offer');
+            ->assertSee('Work')
+            ->assertDontSee('me@ourcompany.test')
+            ->assertDontSee('Recently archived')
+            ->assertDontSee('Offer');
 
         $server->unseenCounts['INBOX'] = 5;
         Livewire::test(UnreadMailWidget::class)->assertSee('3 unread', false);

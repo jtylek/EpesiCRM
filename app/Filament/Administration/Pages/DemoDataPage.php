@@ -47,7 +47,7 @@ class DemoDataPage extends Page
         'tasks' => 'Tasks',
         'phone_calls' => 'Phone Calls',
         'meetings' => 'Meetings',
-        'epesi_shoutbox_messages' => 'Shoutbox',
+        'epesi_shoutbox_messages' => 'Messages',
         'epesi_attachments' => 'Notes',
         'epesi_mails' => 'E-mails',
         'epesi_mail_threads' => 'E-mail threads',

@@ -20,7 +20,10 @@
         <x-filament::section>
             <p style="font-size: 0.875rem;">
                 {{ __('You have no mail account with an incoming (IMAP) server yet.') }}
-                <x-filament::link :href="$this->accountsUrl()">{{ __('Set up a mail account') }}</x-filament::link>
+                <a href="{{ $this->accountsUrl() }}" style="display: inline-flex; align-items: center; gap: 0.35rem; margin-inline-start: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 9999px; background: color-mix(in oklab, var(--primary-500) 12%, transparent); color: var(--primary-600); font-weight: 500; text-decoration: none; white-space: nowrap;">
+                    <x-filament::icon icon="heroicon-m-link" aria-hidden="true" style="width: 0.875rem; height: 0.875rem;" />
+                    {{ __('Set up a mail account') }}
+                </a>
             </p>
         </x-filament::section>
     @else
@@ -29,19 +32,54 @@
             border every side of the frame; scoped to this page only, since
             it's rendered inside the Livewire-swapped page content.
         --}}
+        {{--
+            The account switcher (getHeaderActions()) is stretched to fill the
+            header row instead of hugging its label's width.
+        --}}
         <style>
             #fi-main-content{padding-inline:0!important}
-            .fi-page-header-main-ctn{padding-block-end:0!important}
+            {{--
+                compact-tables.css itself sets .fi-page-header-main-ctn's bottom
+                padding to 10px (not 0) for exactly this page, and at higher
+                specificity (html.epesi-compact :where(...) ...) than a bare
+                class selector here can beat — doubling the class matches its
+                specificity so the two are compared by source order (this page
+                loads after that stylesheet) instead of losing outright. Left
+                at 10px, that padding sits below the iframe's height (which
+                fills to the viewport edge via fit()), forcing the whole page
+                to scroll a few pixels.
+            --}}
+            html.epesi-compact .fi-page-header-main-ctn.fi-page-header-main-ctn{padding-block-end:0!important}
+            .fi-header-actions-ctn{width:100%}
+            .fi-header-actions-ctn>.fi-ac{width:100%}
+            .fi-full-width-dropdown-trigger{width:100%;justify-content:space-between}
+            {{-- The panel's own accent color, not a fixed blue (RecordBrowserServiceProvider tints its keyboard-nav row highlight the same way). --}}
+            .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 12%, transparent);color:var(--primary-700)}
+            .dark .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 20%, transparent);color:var(--primary-400)}
         </style>
         {{--
             wire:ignore keeps Livewire from re-rendering (and so reloading) the
             frame; new logins arrive as the epesi-roundcube-load event.
+
+            switching isn't wire:loading — a wire:loading indicator tracking
+            mountAction stayed stuck forever, most likely because switching
+            accounts re-renders this very header (getHeaderActions() changes),
+            and Livewire never fires wire:loading's own "finish" step for a
+            request whose target element got replaced by that re-render.
+            Alpine state isn't affected by that: load() sets it, and it clears
+            once the frame it just pointed at a new URL actually finishes
+            loading (the real wait — the ticket login and IMAP connect inside
+            the frame, not the quick round trip that picks the account).
         --}}
         <div
             wire:ignore
             x-data="{
                 lastLogin: 0,
                 broken: false,
+                switching: false,
+                {{-- The folder to open the mail list on once logged in, and whether that has been done. --}}
+                folder: null,
+                folderApplied: false,
                 {{--
                     Every Roundcube page has rcmail, and epesi_sso's own page
                     sets epesiRoundcube. Anything else (a Laravel 404, a page
@@ -49,6 +87,9 @@
                     Roundcube's URLs itself.
                 --}}
                 check() {
+                    this.switching = false;
+                    this.$nextTick(() => this.fit());
+
                     const frame = this.$refs.frame;
 
                     if (!frame.getAttribute('src')) {
@@ -64,6 +105,7 @@
 
                     if (!this.broken) {
                         this.bridgeCommandPalette(frame);
+                        this.bridgeFolder(frame);
                     }
                 },
                 {{--
@@ -93,7 +135,39 @@
                         window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'command-palette' } }));
                     });
                 },
-                load(url) {
+                {{--
+                    Roundcube switches folders without a page load, so the
+                    frame's own event is the way to know: each one is passed on
+                    to be kept, and the folder kept from last time is opened
+                    when the mail list first shows.
+                --}}
+                bridgeFolder(frame) {
+                    const rc = frame.contentWindow.rcmail;
+
+                    if (!rc || rc.env.task !== 'mail' || rc.env.action) {
+                        return;
+                    }
+
+                    if (!this.folderApplied && this.folder && rc.env.mailbox !== this.folder) {
+                        this.folderApplied = true;
+                        frame.contentWindow.location.href = @js(\Epesi\Modules\Roundcube\Roundcube::url(['_task' => 'mail'])) + '&_mbox=' + encodeURIComponent(this.folder);
+
+                        return;
+                    }
+
+                    this.folderApplied = true;
+                    rc.addEventListener('selectfolder', (event) => {
+                        if (event.folder && event.folder !== this.folder) {
+                            this.folder = event.folder;
+                            this.$wire.rememberFolder(event.folder);
+                        }
+                    });
+                },
+                load(url, isSwitch = false, folder = null) {
+                    this.folder = folder;
+                    this.folderApplied = false;
+                    this.switching = isSwitch;
+                    this.$nextTick(() => this.fit());
                     this.colorMode(this.$store.theme);
                     this.$refs.frame.src = url;
                 },
@@ -128,13 +202,17 @@
                     }
                 },
             }"
-            x-init="load(@js($frameUrl)); $nextTick(() => fit())"
+            x-init="load(@js($frameUrl), false, @js($this->rememberedFolder())); $nextTick(() => fit())"
             x-effect="colorMode($store.theme)"
             x-on:resize.window="fit()"
             x-on:message.window="receive($event)"
-            x-on:epesi-roundcube-load.window="load($event.detail.url)"
+            x-on:epesi-roundcube-load.window="load($event.detail.url, true, $event.detail.folder ?? null)"
             style="border: 1px solid rgb(128 128 128 / 0.25); overflow: hidden;"
         >
+            <div x-cloak x-show="switching" class="epesi-mailbox-switching" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <x-filament::loading-indicator class="h-4 w-4" />
+                {{ __('Switching account — please wait…') }}
+            </div>
             <div x-cloak x-show="broken" style="padding: 0.75rem 1rem; font-size: 0.875rem; color: rgb(220 38 38);">
                 {!! __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. See "Web server requirements" in :doc.', ['doc' => '<code>AI-shared/Epesi-Laravel-Roundcube.md</code>']) !!}
             </div>

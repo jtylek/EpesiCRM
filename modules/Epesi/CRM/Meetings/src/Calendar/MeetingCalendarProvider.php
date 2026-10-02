@@ -10,6 +10,7 @@ use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -24,6 +25,7 @@ class MeetingCalendarProvider implements CalendarEventProvider
     {
         return Meeting::query()
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->with(['customers', 'customerCompanies'])
             ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
                 ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
                 ->orWhereHas('customers', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
@@ -41,6 +43,12 @@ class MeetingCalendarProvider implements CalendarEventProvider
                 color: CalendarColor::css($meeting->status->getColor()),
                 finished: in_array($meeting->status, RecordStatus::finished(), true),
                 description: $meeting->description,
+                customers: $meeting->customers->pluck('full_name')
+                    ->merge($meeting->customerCompanies->pluck('company_name'))
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all(),
             ))
             ->values();
     }
@@ -52,9 +60,12 @@ class MeetingCalendarProvider implements CalendarEventProvider
 
     public static function calendarCreateUrl(Carbon $date, bool $allDay): string
     {
+        // The clicked slot is on the user's clock; meetings are stored in UTC.
+        $slot = RegionalSetting::fromUser($allDay ? $date->clone()->setTime(9, 0) : $date);
+
         return MeetingResource::getUrl('create', [
-            'date' => $date->toDateString(),
-            'time' => $allDay ? '09:00' : $date->format('H:i'),
+            'date' => $slot->toDateString(),
+            'time' => $slot->format('H:i'),
         ]);
     }
 
@@ -66,14 +77,15 @@ class MeetingCalendarProvider implements CalendarEventProvider
             return false;
         }
 
-        $meeting->date = $start->toDateString();
-
         // Meetings don't have an all-day concept — a drop onto an all-day
         // row/cell carries no meaningful time, so keep whatever time the
-        // meeting already had instead of zeroing it out.
-        if (! $allDay) {
-            $meeting->time = $start->format('H:i:s');
+        // meeting already had (on the user's clock) instead of zeroing it out.
+        if ($allDay && $meeting->starts_at) {
+            $start = RegionalSetting::fromUser($start->clone()->setTimeFrom(RegionalSetting::toUser($meeting->starts_at)));
         }
+
+        $meeting->date = $start->toDateString();
+        $meeting->time = $start->format('H:i:s');
 
         if ($end) {
             $meeting->duration_minutes = $start->diffInMinutes($end);

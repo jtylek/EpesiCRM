@@ -61,6 +61,8 @@ class InstallWizard extends SimplePage
 
     protected Width|string|null $maxWidth = Width::ThreeExtraLarge;
 
+    protected bool $hasTopbar = false;
+
     /** @var array<string, mixed>|null */
     public ?array $data = [];
 
@@ -89,8 +91,10 @@ class InstallWizard extends SimplePage
 
         $this->form->fill([
             'demo_data' => false,
-            'mail_method' => InstallOptions::MAIL_SENDMAIL,
-            'smtp_security' => 'tls',
+            'mail_method' => InstallOptions::MAIL_SMTP,
+            'smtp_host' => '127.0.0.1',
+            'smtp_port' => 25,
+            'smtp_security' => 'none',
         ]);
     }
 
@@ -461,7 +465,7 @@ class InstallWizard extends SimplePage
                     ->live(),
                 Grid::make(3)->visible($smtp)->schema([
                     TextInput::make('smtp_host')->label('SMTP server')->required($smtp)->maxLength(255)->columnSpan(2),
-                    TextInput::make('smtp_port')->label('Port')->integer()->placeholder(__('587')),
+                    TextInput::make('smtp_port')->label('Port')->integer()->placeholder(__('25')),
                     Select::make('smtp_security')->label('Security')
                         ->options(['tls' => 'STARTTLS', 'ssl' => 'SSL/TLS', 'none' => __('None')])
                         ->selectablePlaceholder(false),

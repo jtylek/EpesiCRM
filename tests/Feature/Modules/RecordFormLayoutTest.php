@@ -11,10 +11,11 @@ use Tests\TestCase;
 
 /**
  * The Create/Edit form flows its fields down columns the same way the View
- * page does (RecordsetResource::flowIntoColumns). Before this, the form
- * schema skipped that flow and let Filament lay fields out row by row, so a
- * record's second field (e.g. First Name) sat beside its first (Last Name)
- * instead of below it — a different reading order than View.
+ * page does (RecordsetResource::flowIntoColumns), in exactly `fields()`
+ * order. Before this, the form schema skipped that flow and let Filament lay
+ * fields out row by row, so a record's second field (e.g. First Name) sat
+ * beside its first (Last Name) instead of below it — a different reading
+ * order than View.
  */
 class RecordFormLayoutTest extends TestCase
 {
@@ -28,9 +29,11 @@ class RecordFormLayoutTest extends TestCase
 
         $html = $this->get(EditContact::getUrl(['record' => $contact]))->assertOk()->getContent();
 
-        // E-mail addresses are a full-width collection between scalar runs.
-        // The form-only Login section also keeps its own one-row run.
+        // 7 short fields (Last Name, First Name, Title, Group, Company,
+        // Related Companies, Permission) make one 2-column run of 4 rows;
+        // Memo and the Collection fields are full-width, so they fall
+        // outside it — it's the only rb-column-flow grid on the page.
         preg_match_all('/class="rb-column-flow" style="--rb-rows: (\d+)"/', $html, $runs);
-        $this->assertSame(['3', '1', '1'], $runs[1]);
+        $this->assertSame(['4'], $runs[1]);
     }
 }

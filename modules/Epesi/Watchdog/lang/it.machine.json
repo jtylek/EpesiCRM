@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who creato.",
+    ":who deleted.": ":who eliminato.",
+    ":who restored.": ":who ripristinato.",
+    ":who updated.": ":who Aggiornato.",
+    ":who updated: :fields.": ":who aggiornato: :fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "Ricevi una notifica in caso di modifiche a ogni record dei tipi selezionati, non solo a quelli che stai monitorando.",
+    "Changed by": "Modificato da",
+    "Changes": "Modifiche",
+    "Has new changes": "Sono state apportate nuove modifiche",
+    "Last change": "Ultima modifica",
+    "Record": "Record",
+    "Record types": "Tipi di record",
+    "Stopped watching this record": "Monitoraggio di questo record interrotto",
+    "System": "Sistema",
+    "Watch record types": "Tipi di record di Watch",
+    "Watched records": "Record monitorati",
+    "Watching": "Monitoraggio",
+    "Watching this record": "Monitoraggio di questo record"
+}

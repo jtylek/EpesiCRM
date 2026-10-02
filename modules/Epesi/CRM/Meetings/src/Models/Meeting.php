@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -79,14 +81,27 @@ class Meeting extends Model
         return $this->belongsToMany(Contact::class, 'meeting_employee');
     }
 
-    public function customers(): BelongsToMany
+    /**
+     * The Contact side of the Customers field (Field::customers(), a
+     * multi-pick Contact-or-Company typeahead) — kept in the shared link
+     * table (HasRecordLinks' epesi_recordbrowser_links) rather than a pivot
+     * of its own, filtered to this field's rows and this kind by
+     * withPivotValue() so attach()/sync()/pluck() etc. behave exactly like
+     * the plain BelongsToMany this used to be.
+     */
+    public function customers(): MorphToMany
     {
-        return $this->belongsToMany(Contact::class, 'meeting_customer');
+        return $this->morphToMany(Contact::class, 'source', 'epesi_recordbrowser_links', 'source_id', 'target_id')
+            ->withTimestamps()
+            ->withPivotValue(['field' => 'customers', 'target_type' => Relation::getMorphAlias(Contact::class)]);
     }
 
-    public function customerCompanies(): BelongsToMany
+    /** The Company side of the same Customers field — see customers(). */
+    public function customerCompanies(): MorphToMany
     {
-        return $this->belongsToMany(Company::class, 'meeting_customer_company');
+        return $this->morphToMany(Company::class, 'source', 'epesi_recordbrowser_links', 'source_id', 'target_id')
+            ->withTimestamps()
+            ->withPivotValue(['field' => 'customers', 'target_type' => Relation::getMorphAlias(Company::class)]);
     }
 
     public function creator(): BelongsTo

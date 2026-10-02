@@ -8,14 +8,15 @@ return new class extends Migration
 {
     /**
      * Adds the Company side of Epesi's Company-or-Contact Customer field,
-     * previously dropped (see create_tasks_table/create_meetings_table/
-     * create_phone_calls_table's docblocks) since a true dual-polymorphic
-     * relationship has no clean Filament form field to hang off it. Kept as
-     * a second, parallel field instead: Task/Meeting keep their existing
-     * Contact-only `customers` multiselect and gain a `customerCompanies`
-     * one; PhoneCall keeps its existing singular `contact_id` and gains a
-     * singular `company_id`. Neither pairing is mutually exclusive at the
-     * schema level — both may be set on the same record.
+     * previously dropped (see create_tasks_table/create_meetings_table's
+     * docblocks) since a true dual-polymorphic relationship had no clean
+     * Filament form field to hang off it — Field::customer() (see the
+     * create_phone_calls_table migration) closes that gap, but only
+     * PhoneCall has been moved onto it so far. Task/Meeting keep their
+     * existing Contact-only `customers` multiselect and gain a
+     * `customerCompanies` one instead, as a second, parallel field; neither
+     * pairing is mutually exclusive at the schema level — both may be set
+     * on the same record.
      */
     public function up(): void
     {
@@ -30,18 +31,10 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->primary(['meeting_id', 'company_id']);
         });
-
-        Schema::table('phone_calls', function (Blueprint $table) {
-            $table->foreignId('company_id')->nullable()->after('contact_id')->constrained()->nullOnDelete();
-        });
     }
 
     public function down(): void
     {
-        Schema::table('phone_calls', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('company_id');
-        });
-
         Schema::dropIfExists('meeting_customer_company');
         Schema::dropIfExists('task_customer_company');
     }

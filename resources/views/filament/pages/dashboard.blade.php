@@ -62,6 +62,13 @@
         .epesi-dashboard .fi-wi-table .fi-ta-header-cell:first-of-type { padding-inline-start: 1rem; }
         .epesi-dashboard .fi-wi-table .fi-ta-cell:first-child { padding-inline-start: 0.5rem; }
         .epesi-dashboard .fi-wi-table .fi-ta-cell:last-child { padding-inline-end: 0; }
+
+        /* The Tabs form: the reorder handle, the name and the delete button on one line. */
+        .epesi-tabs-repeater .fi-fo-repeater-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; }
+        .epesi-tabs-repeater .fi-fo-repeater-item-header { display: contents; }
+        .epesi-tabs-repeater .fi-fo-repeater-item-header-start-actions { order: 0; }
+        .epesi-tabs-repeater .fi-fo-repeater-item-content { order: 1; flex: 1; min-width: 0; padding: 0; }
+        .epesi-tabs-repeater .fi-fo-repeater-item-header-end-actions { order: 2; }
     </style>
 
     @if (array_merge(...$columns) === [])
@@ -72,6 +79,16 @@
         />
     @endif
 
+    @php($fullWidthApplets = collect(array_merge(...$columns))->filter(fn ($applet): bool => defined($applet->widget.'::APPLET_FULL_WIDTH')))
+
+    {{-- An applet with APPLET_FULL_WIDTH (the Notes) is the tab's one widget: no columns, no dragging. --}}
+    @if ($fullWidthApplets->isNotEmpty())
+        @foreach ($fullWidthApplets as $applet)
+            <div wire:key="applet-{{ $applet->id }}">
+                @livewire($applet->widget, $this->getAppletProperties($applet), key('applet-'.$applet->id.'-'.md5(json_encode($applet->settings))))
+            </div>
+        @endforeach
+    @else
     <div class="epesi-dashboard" style="--epesi-dashboard-columns: {{ $this::COLUMNS }}">
         @foreach ($columns as $column => $applets)
             <div
@@ -80,6 +97,10 @@
                 wire:sort:group-id="{{ $column }}"
                 wire:sort:group="dashboard-applets"
                 class="epesi-dashboard-column"
+                {{-- An applet with APPLET_FULL_WIDTH (the Notes) takes the whole row; the other columns drop below it. --}}
+                @if (collect($applets)->contains(fn ($applet): bool => defined($applet->widget.'::APPLET_FULL_WIDTH')))
+                    style="grid-column: 1 / -1;"
+                @endif
             >
                 @foreach ($applets as $applet)
                     <div wire:key="applet-{{ $applet->id }}" wire:sort:item="{{ $applet->id }}">
@@ -89,4 +110,5 @@
             </div>
         @endforeach
     </div>
+    @endif
 </x-filament-panels::page>

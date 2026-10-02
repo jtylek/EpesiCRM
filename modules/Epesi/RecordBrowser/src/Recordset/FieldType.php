@@ -35,6 +35,8 @@ enum FieldType: string
     case CommonData = 'commondata';
     case Relation = 'relation';
     case Relations = 'relations';
+    case Customer = 'customer';
+    case Customers = 'customers_field';
     case Email = 'email';
     case Url = 'url';
     case Phone = 'phone';
@@ -59,6 +61,8 @@ enum FieldType: string
             self::CommonData => __('Shared list'),
             self::Relation => __('Link to one record'),
             self::Relations => __('Link to many records'),
+            self::Customer => __('Contact or company'),
+            self::Customers => __('Several contacts or companies'),
             self::Email => __('E-mail'),
             self::Url => __('Web address'),
             self::Phone => __('Phone number'),
@@ -93,19 +97,21 @@ enum FieldType: string
      */
     public function isMultiple(): bool
     {
-        return in_array($this, [self::Multiselect, self::Relations, self::Related, self::Collection], true);
+        return in_array($this, [self::Multiselect, self::Relations, self::Related, self::Customers, self::Collection], true);
     }
 
     /**
      * Whether the value is a column on the record's own table — not for a
      * value derived from the key (Autonumber), nor for links kept elsewhere: a
      * pivot, or for an administrator's field the shared link table
-     * (Relations), or that table (Related), nor for a collection's items, rows
-     * of the collection type's own table.
+     * (Relations), or that table (Related, Customers), nor for a collection's
+     * items, rows of the collection type's own table. Customer is two columns
+     * (`{name}_type`/`{name}_id`, a morphTo pair) rather than one, so it's
+     * checked its own way too (RecordsetCheckCommand).
      */
     public function hasColumn(): bool
     {
-        return ! in_array($this, [self::Autonumber, self::Relations, self::Related, self::Collection], true);
+        return ! in_array($this, [self::Autonumber, self::Relations, self::Related, self::Customers, self::Collection, self::Customer], true);
     }
 
     /**
@@ -117,17 +123,19 @@ enum FieldType: string
      */
     public function fitsCollectionItem(): bool
     {
-        return ! in_array($this, [self::Relation, self::Relations, self::Related, self::File, self::Autonumber, self::Collection], true);
+        return ! in_array($this, [self::Relation, self::Relations, self::Related, self::Customers, self::File, self::Autonumber, self::Collection, self::Customer], true);
     }
 
     /**
      * Types an administrator may add from the GUI — every one, since the
      * form picks a link field's target recordset, a shared list's array and a
      * collection's type. Kept as the one place to withhold a type that a form
-     * can't offer yet.
+     * can't offer yet. Customer(s) isn't offered: its target models are a
+     * module's code-time decision (Field::customer()'s/Field::customers()'s
+     * $models), not something a GUI form picks.
      */
     public function isAdministratorDefinable(): bool
     {
-        return true;
+        return ! in_array($this, [self::Customer, self::Customers], true);
     }
 }

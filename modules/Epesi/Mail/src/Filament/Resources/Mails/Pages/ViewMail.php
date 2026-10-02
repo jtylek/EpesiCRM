@@ -7,8 +7,6 @@ use Epesi\Modules\Mail\Filament\Actions\LinkRecordAction;
 use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 
 class ViewMail extends ViewRecord
 {
@@ -24,9 +22,6 @@ class ViewMail extends ViewRecord
             ComposeAction::make(source: $mail, mode: ComposeAction::REPLY_ALL),
             ComposeAction::make(source: $mail, mode: ComposeAction::FORWARD),
             LinkRecordAction::make($mail),
-            ActionGroup::make([
-                DeleteAction::make(),
-            ]),
         ];
     }
 }

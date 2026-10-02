@@ -7,6 +7,7 @@ use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use App\Models\User;
+use App\Support\UiState;
 use BackedEnum;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Models\MailAccount;
@@ -63,9 +64,12 @@ class Mailbox extends Page
 
     public function mount(): void
     {
-        $account = $this->accounts()->first();
+        // The account in the address, else the one used last (kept past logout).
+        $requested = request()->integer('account') ?: (int) UiState::recall('mailbox.account');
+        $account = ($requested ? $this->accountQuery()->find($requested) : null) ?? $this->accounts()->first();
 
         $this->accountId = $account?->getKey();
+        UiState::remember('mailbox.account', $this->accountId);
         $this->frameUrl = $account && $this->isInstalled() ? $this->ticketUrl($account) : null;
     }
 
@@ -104,7 +108,30 @@ class Mailbox extends Page
 
         if ($account) {
             $this->accountId = $account->getKey();
+            UiState::remember('mailbox.account', $this->accountId);
             $this->load($account);
+
+            // getHeaderActions() was already cached once, from $this->accountId
+            // as it was before this method ran — Livewire's bootedInteractsWithActions()
+            // caches header actions before dispatching the action call that runs
+            // this closure. Left alone, the account selector's label and checkmark
+            // would render one switch behind the account actually loaded below.
+            $this->cachedHeaderActions = [];
+            $this->cacheInteractsWithHeaderActions();
+        }
+    }
+
+    /** The folder the account's mail client was last left on, to open it there again. */
+    public function rememberedFolder(): ?string
+    {
+        return $this->accountId ? UiState::recall('mailbox.folder.'.$this->accountId) : null;
+    }
+
+    /** The frame's folder changed: kept per account, so the next visit (or login) opens it. */
+    public function rememberFolder(string $folder): void
+    {
+        if ($this->accountId && $folder !== '' && mb_strlen($folder) <= 255) {
+            UiState::remember('mailbox.folder.'.$this->accountId, $folder);
         }
     }
 
@@ -154,8 +181,9 @@ class Mailbox extends Page
                 ->action(fn () => $this->switchAccount($account->getKey())))->all())
                 ->label($accounts->firstWhere('id', $this->accountId)?->name ?? __('Account'))
                 ->icon(Heroicon::OutlinedInboxStack)
-                ->color('gray')
-                ->button(),
+                ->color('primary')
+                ->button()
+                ->extraAttributes(['class' => 'fi-full-width-dropdown-trigger'], merge: true),
         ];
     }
 
@@ -170,9 +198,16 @@ class Mailbox extends Page
         return MailAccount::query()->where('user_id', Auth::id())->whereNotNull('imap_host');
     }
 
+    /**
+     * Keeps $frameUrl (not just the transient browser event) pointing at the
+     * account actually loaded — otherwise a re-render that rebuilds the
+     * wire:ignore frame div (x-init reruns) would reload the stale account
+     * while the header selector already shows the new one.
+     */
     protected function load(MailAccount $account): void
     {
-        $this->dispatch('epesi-roundcube-load', url: $this->ticketUrl($account));
+        $this->frameUrl = $this->ticketUrl($account);
+        $this->dispatch('epesi-roundcube-load', url: $this->frameUrl, folder: $this->rememberedFolder());
     }
 
     protected function ticketUrl(MailAccount $account): string

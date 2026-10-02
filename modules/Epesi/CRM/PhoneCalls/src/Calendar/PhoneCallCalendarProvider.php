@@ -8,8 +8,11 @@ use App\Support\Calendar\CalendarColor;
 use App\Support\Calendar\CalendarEvent;
 use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
+use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -25,9 +28,10 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
         return PhoneCall::query()
             ->whereNotNull('called_at')
             ->whereBetween('called_at', [$start, $end])
+            ->with('customer')
             ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
                 ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
-                ->orWhereHas('contact', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
+                ->orWhereHasMorph('customer', [Contact::class], fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
             ->get()
             ->map(fn (PhoneCall $phoneCall): CalendarEvent => new CalendarEvent(
                 id: self::calendarKey().'-'.$phoneCall->id,
@@ -40,6 +44,14 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
                 durationEditable: false,
                 finished: in_array($phoneCall->status, RecordStatus::finished(), true),
                 description: $phoneCall->description,
+                customers: array_values(array_filter([
+                    match (true) {
+                        $phoneCall->customer instanceof Contact => $phoneCall->customer->full_name,
+                        $phoneCall->customer instanceof Company => $phoneCall->customer->company_name,
+                        $phoneCall->other_customer => $phoneCall->other_customer_name,
+                        default => null,
+                    },
+                ])),
             ))
             ->values();
     }
@@ -52,7 +64,7 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
     public static function calendarCreateUrl(Carbon $date, bool $allDay): string
     {
         return PhoneCallResource::getUrl('create', [
-            'called_at' => $date->toIso8601String(),
+            'called_at' => RegionalSetting::fromUser($date)->toIso8601String(),
         ]);
     }
 
@@ -67,7 +79,8 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
         // PhoneCall has no all-day concept either — preserve the original
         // time-of-day rather than zeroing it if dropped on an all-day slot.
         if ($allDay) {
-            $start = $start->clone()->setTimeFrom($phoneCall->called_at);
+            // ...as the user's clock reads it, not UTC's.
+            $start = RegionalSetting::fromUser($start->clone()->setTimeFrom(RegionalSetting::toUser($phoneCall->called_at)));
         }
 
         $phoneCall->called_at = $start;
