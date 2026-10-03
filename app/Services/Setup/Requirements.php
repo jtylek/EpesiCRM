@@ -11,16 +11,18 @@ use App\Support\Setup\EnvFile;
  */
 class Requirements
 {
-    /** Extensions Laravel, Filament and the bundled modules need. */
-    public const EXTENSIONS = ['ctype', 'curl', 'fileinfo', 'intl', 'mbstring', 'openssl', 'pdo', 'tokenizer', 'xml', 'zip'];
+    /**
+     * The PHP version and extensions, shared with bootstrap/preflight.php,
+     * which checks them before Laravel loads.
+     *
+     * @return array{php: string, extensions: list<string>, database_drivers: array<string, string>}
+     */
+    public static function definition(): array
+    {
+        static $definition;
 
-    /** PDO driver per connection type offered in setup. */
-    public const DATABASE_DRIVERS = [
-        'mysql' => 'pdo_mysql',
-        'mariadb' => 'pdo_mysql',
-        'pgsql' => 'pdo_pgsql',
-        'sqlite' => 'pdo_sqlite',
-    ];
+        return $definition ??= require dirname(__DIR__, 3).'/bootstrap/requirements.php';
+    }
 
     /**
      * @return list<array{label: string, ok: bool, status: string, required: bool}>
@@ -28,16 +30,17 @@ class Requirements
     public function check(bool $envWritable = false): array
     {
         $rows = [];
+        $minimum = self::definition()['php'];
 
-        $phpOk = version_compare(PHP_VERSION, '8.2.0', '>=');
-        $rows[] = $this->row('PHP '.PHP_VERSION, $phpOk, $phpOk ? 'OK' : 'needs 8.2 or newer');
+        $phpOk = version_compare(PHP_VERSION, $minimum, '>=');
+        $rows[] = $this->row('PHP '.PHP_VERSION, $phpOk, $phpOk ? 'OK' : 'needs '.preg_replace('/\.0$/', '', $minimum).' or newer');
 
-        foreach (self::EXTENSIONS as $extension) {
+        foreach (self::definition()['extensions'] as $extension) {
             $loaded = extension_loaded($extension);
             $rows[] = $this->row("PHP extension {$extension}", $loaded, $loaded ? 'OK' : 'missing');
         }
 
-        $drivers = array_filter(array_unique(self::DATABASE_DRIVERS), 'extension_loaded');
+        $drivers = array_filter(array_unique(self::definition()['database_drivers']), 'extension_loaded');
         $rows[] = $this->row(
             'A database driver (pdo_mysql, pdo_pgsql or pdo_sqlite)',
             $drivers !== [],
@@ -104,7 +107,7 @@ class Requirements
     {
         $labels = ['mysql' => 'MySQL', 'mariadb' => 'MariaDB', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
 
-        return array_filter($labels, fn (string $label, string $connection): bool => extension_loaded(self::DATABASE_DRIVERS[$connection]), ARRAY_FILTER_USE_BOTH);
+        return array_filter($labels, fn (string $label, string $connection): bool => extension_loaded(self::definition()['database_drivers'][$connection]), ARRAY_FILTER_USE_BOTH);
     }
 
     /**

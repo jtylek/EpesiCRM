@@ -156,8 +156,10 @@ that loads `record.php` and returns its whole array, and the label crashes Filam
 
 1. A signed-in user gets their own language, set under **Settings → Regional settings →
    Language**. The placeholder reads "Same as the system (Polski)".
-2. Without one, they get the **system default**. It is set in the setup wizard's Regional
-   settings step and stored in the `user_id IS NULL` row of `epesi_regional_settings`.
+2. Without one, they get the **system default**. It starts as the language picked on the
+   setup wizard's first page (see [Setup-wizard.md](Setup-wizard.md#language-the-first-page)),
+   which the Regional settings step offers as its default, and is stored in the
+   `user_id IS NULL` row of `epesi_regional_settings`.
 3. A **guest** (the login and password-reset pages) gets the browser's language when it is
    on offer. It is matched on the primary subtag of `Accept-Language`, so `pl-PL` → `pl`.
 4. Otherwise, **`APP_LOCALE`**.

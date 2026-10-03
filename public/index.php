@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Too old a PHP or a missing extension would end in a bare HTTP 500 before the
+// setup wizard's server check could run; say what's wrong instead.
+require __DIR__.'/../bootstrap/preflight.php';
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;

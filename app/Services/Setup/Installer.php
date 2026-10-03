@@ -5,15 +5,18 @@ namespace App\Services\Setup;
 use App\Models\Module;
 use App\Models\User;
 use App\Services\Modules\ModuleInstaller;
+use App\Support\Locale\Locales;
 use App\Support\Mail\MailConfig;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Setup\EnvFile;
 use App\Support\Setup\SetupCode;
+use App\Support\Setup\SetupLocale;
 use App\Support\Setup\SetupState;
 use Database\Seeders\DemoDataSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
@@ -69,6 +72,8 @@ class Installer
 
             $installed = $this->installModules($modules);
 
+            $this->saveLanguage($options->locale);
+
             $admin = DB::transaction(function () use ($options): User {
                 $admin = User::create([
                     'name' => $options->adminName,
@@ -94,8 +99,10 @@ class Installer
                 'finish_pending' => true,
             ]);
 
-            // Installed: the one-time code has done its job.
+            // Installed: the one-time code has done its job, and the language
+            // picked on the first page is the system default now.
             SetupCode::forget();
+            SetupLocale::forget();
 
             if ($options->roundcube) {
                 $this->downloadRoundcube();
@@ -164,6 +171,25 @@ class Installer
         ModuleLoader::load($manifests);
 
         return $ids;
+    }
+
+    /**
+     * The language picked on the wizard's first page becomes the system
+     * default: the row of the RegionalSettings module that holds it, which its
+     * setup step then offers as the default of its own Language field. A
+     * language we don't offer, or an installation without that module, leaves
+     * everything as it was.
+     */
+    protected function saveLanguage(?string $locale): void
+    {
+        if ($locale === null || ! Locales::isAvailable($locale) || ! Schema::hasTable('epesi_regional_settings')) {
+            return;
+        }
+
+        DB::table('epesi_regional_settings')->updateOrInsert(
+            ['user_id' => null],
+            ['language' => $locale, 'updated_at' => now()],
+        );
     }
 
     /**

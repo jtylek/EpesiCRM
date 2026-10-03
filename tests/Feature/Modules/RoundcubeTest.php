@@ -16,6 +16,7 @@ use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Epesi\Modules\Roundcube\Roundcube;
 use Epesi\Modules\Roundcube\Services\RoundcubeConfigWriter;
 use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
+use Epesi\Modules\Roundcube\Services\RoundcubeSchema;
 use Epesi\Modules\Roundcube\Services\TicketIssuer;
 use epesi_archive_matcher;
 use epesi_sso_ticket;
@@ -160,7 +161,7 @@ class RoundcubeTest extends TestCase
         };
         $files->failPath = $directory;
 
-        $installer = new RoundcubeInstaller($files, new RoundcubeConfigWriter);
+        $installer = new RoundcubeInstaller($files, new RoundcubeConfigWriter, new RoundcubeSchema);
         $deleteInstall = new \ReflectionMethod($installer, 'deleteInstall');
         $deleteInstall->invoke($installer, $directory);
 
@@ -232,28 +233,44 @@ class RoundcubeTest extends TestCase
         Livewire::test(Mailbox::class)->assertActionHidden('installRoundcube');
     }
 
-    public function test_the_installer_finds_the_php_command_line(): void
+    /** Roundcube's tables are made from its SQL files over the app's connection: no PHP process, which shared hosts forbid. */
+    public function test_the_schema_is_created_then_updated_through_the_database_connection(): void
     {
-        $this->assertSame(PHP_BINARY, app(RoundcubeInstaller::class)->php());
-    }
+        $directory = $this->sandbox.DIRECTORY_SEPARATOR.'SQL';
+        File::ensureDirectoryExists($directory.DIRECTORY_SEPARATOR.'sqlite');
+        File::put($directory.DIRECTORY_SEPARATOR.'sqlite.initial.sql', <<<'SQL'
+-- a comment
+CREATE TABLE "system" (
+  name varchar(64) NOT NULL PRIMARY KEY,
+  value text
+);
 
-    public function test_the_php_command_line_can_be_named(): void
-    {
-        config(['epesi-roundcube.php' => '/usr/local/php85/bin/php']);
+CREATE TABLE "users" (
+  user_id integer NOT NULL PRIMARY KEY,
+  username varchar(128) NOT NULL
+);
 
-        $this->assertSame('/usr/local/php85/bin/php', app(RoundcubeInstaller::class)->php());
-    }
+CREATE INDEX "users_username_idx" ON "users" (username);
 
-    /** The web server's own binary is no command line: "lsphp" ends in "php" but isn't one. */
-    public function test_a_web_servers_php_binary_is_not_taken_for_the_command_line(): void
-    {
-        foreach (['/usr/bin/php', '/usr/bin/php8.3', 'C:/xampp/php/php.exe'] as $binary) {
-            $this->assertTrue(RoundcubeInstaller::isCommandLine($binary), $binary);
-        }
+INSERT INTO "system" (name, value) VALUES ('roundcube-version', '2025092300');
+SQL);
+        File::put($directory.DIRECTORY_SEPARATOR.'sqlite'.DIRECTORY_SEPARATOR.'2020010100.sql', 'ALTER TABLE "users" ADD COLUMN old_column text;');
+        File::put($directory.DIRECTORY_SEPARATOR.'sqlite'.DIRECTORY_SEPARATOR.'2026010100.sql', "ALTER TABLE \"users\" ADD COLUMN language varchar(16);\n");
 
-        foreach (['/opt/alt/php83/usr/bin/lsphp', '/usr/sbin/php-fpm', 'C:/xampp/apache/bin/httpd.exe'] as $binary) {
-            $this->assertFalse(RoundcubeInstaller::isCommandLine($binary), $binary);
-        }
+        $schema = new RoundcubeSchema;
+
+        $this->assertStringContainsString('Created', $schema->migrate($directory, 'rcx_'));
+        $this->assertTrue(Schema::hasTable('rcx_system'));
+        $this->assertTrue(Schema::hasTable('rcx_users'));
+        $this->assertSame('2025092300', DB::table('rcx_system')->where('name', 'roundcube-version')->value('value'));
+        $this->assertFalse(Schema::hasTable('system'), 'the prefix is applied');
+
+        $this->assertStringContainsString('Updated', $schema->migrate($directory, 'rcx_'));
+        $this->assertTrue(Schema::hasColumn('rcx_users', 'language'));
+        $this->assertFalse(Schema::hasColumn('rcx_users', 'old_column'), 'an update older than the stored version is skipped');
+        $this->assertSame('2026010100', DB::table('rcx_system')->where('name', 'roundcube-version')->value('value'));
+
+        $this->assertStringContainsString('up to date', $schema->migrate($directory, 'rcx_'));
     }
 
     public function test_the_page_frames_roundcube_logged_in_with_a_ticket(): void

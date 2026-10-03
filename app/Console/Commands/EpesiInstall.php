@@ -6,6 +6,7 @@ use App\Services\Setup\DatabaseSetup;
 use App\Services\Setup\Installer;
 use App\Services\Setup\InstallOptions;
 use App\Services\Setup\Requirements;
+use App\Support\Locale\Locales;
 use App\Support\Setup\EnvFile;
 use App\Support\Setup\SetupCode;
 use App\Support\Setup\SetupState;
@@ -39,6 +40,7 @@ class EpesiInstall extends Command
         {--admin-name= : with --admin-email and --admin-password, install without the web wizard}
         {--admin-email=}
         {--admin-password=}
+        {--language= : with --admin-email, the interface language (en, pl, de, ...); becomes the system default}
         {--mail=sendmail : sendmail, smtp or log}
         {--demo : also load the demo data}
         {--roundcube : also download and install the Roundcube webmail (GPL-3.0, from roundcube.net)}
@@ -49,6 +51,14 @@ class EpesiInstall extends Command
 
     public function handle(): int
     {
+        $language = $this->option('language') ?: null;
+
+        if ($language !== null && ! Locales::isAvailable($language)) {
+            $this->error("--language={$language} is not offered. Choose one of: ".implode(', ', array_keys(Locales::available())).'.');
+
+            return self::FAILURE;
+        }
+
         if (! $this->checkRequirements() && ! $this->option('force')) {
             $this->error('Fix the problems above and run this again (or pass --force).');
 
@@ -184,6 +194,7 @@ class EpesiInstall extends Command
                 demoData: (bool) $this->option('demo'),
                 roundcube: (bool) $this->option('roundcube'),
                 development: (bool) $this->option('dev'),
+                locale: $this->option('language') ?: null,
             ));
         } catch (Throwable $e) {
             $this->error('Setup did not finish: '.$e->getMessage());

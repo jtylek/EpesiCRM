@@ -85,10 +85,18 @@ class DatabaseSetup
     /**
      * Creates the application's tables; throws with the migrator's output
      * when it fails.
+     *
+     * Runs the migrations themselves, never database/schema/mysql-schema.sql:
+     * Laravel loads that dump by shelling out to the `mysql` client, which
+     * shared hosting may not have (or not allow to run), and a MariaDB client
+     * given --port connects over TCP, turning "localhost" into 127.0.0.1 — a
+     * user granted only @localhost (DirectAdmin, cPanel) is then refused.
      */
     public function migrate(): void
     {
-        if (Artisan::call('migrate', ['--force' => true]) !== 0) {
+        $noSchemaDump = storage_path('framework/no-schema-dump.sql');
+
+        if (Artisan::call('migrate', ['--force' => true, '--schema-path' => $noSchemaDump]) !== 0) {
             throw new SetupException(trim(Artisan::output()) ?: 'Creating the database tables failed.');
         }
     }

@@ -10,8 +10,10 @@ use App\Services\Setup\ModulePlan;
 use App\Services\Setup\Requirements;
 use App\Services\Setup\RoundcubeSetup;
 use App\Services\Setup\SetupException;
+use App\Support\Locale\Locales;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Setup\SetupCode;
+use App\Support\Setup\SetupLocale;
 use App\Support\Setup\SetupState;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
@@ -90,6 +92,7 @@ class InstallWizard extends SimplePage
         }
 
         $this->form->fill([
+            'language' => $this->currentLanguage(),
             'demo_data' => false,
             'mail_method' => InstallOptions::MAIL_SMTP,
             'smtp_host' => '127.0.0.1',
@@ -138,6 +141,7 @@ class InstallWizard extends SimplePage
             ->statePath('data')
             ->components([
                 Wizard::make(array_values(array_filter([
+                    $this->languageStep(),
                     $this->codeStep(),
                     $this->optionsStep(),
                     $this->administratorStep(),
@@ -159,6 +163,7 @@ class InstallWizard extends SimplePage
             ->statePath('database')
             ->components([
                 Wizard::make(array_values(array_filter([
+                    $this->languageStep(),
                     $this->codeStep(),
                     $this->serverStep(),
                     $this->connectionStep(),
@@ -167,6 +172,49 @@ class InstallWizard extends SimplePage
                         '<x-filament::button type="submit" size="sm" wire:loading.attr="disabled" wire:target="connectDatabase">{{ __(\'Create the tables\') }}</x-filament::button>',
                     ))),
             ]);
+    }
+
+    /**
+     * Epesi's setup.php started with its Language page too. The page and
+     * everything after it switches to the language picked here, and it
+     * becomes the system default: the Regional settings step then offers it
+     * as its own default (see Installer::saveLanguage()).
+     */
+    protected function languageStep(): Step
+    {
+        return Step::make('Language')
+            ->icon(Heroicon::OutlinedLanguage)
+            ->schema([
+                Select::make('language')
+                    ->label('Language')
+                    ->helperText(__('The rest of the setup is in this language, and it becomes the system default. Each user can choose their own later, under Settings → Regional settings.'))
+                    ->options(Locales::available())
+                    ->selectablePlaceholder(false)
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (?string $state) => $this->chooseLanguage($state)),
+            ]);
+    }
+
+    /** The language the page is showing: the one picked, else the browser's, else the system's. */
+    protected function currentLanguage(): string
+    {
+        return SetupLocale::chosen() ?? app()->getLocale();
+    }
+
+    /**
+     * Remembers the pick for the session (nothing else exists yet to keep it
+     * in) and reloads the page, so it comes back in that language.
+     */
+    public function chooseLanguage(?string $code): void
+    {
+        if ($code === null || ! Locales::isAvailable($code) || $code === SetupLocale::chosen()) {
+            return;
+        }
+
+        SetupLocale::choose($code);
+
+        $this->redirect(route('filament.setup.install'));
     }
 
     /**
@@ -288,6 +336,7 @@ class InstallWizard extends SimplePage
         $settings = config("database.connections.{$connection}", []);
 
         $this->databaseForm->fill([
+            'language' => $this->currentLanguage(),
             'connection' => $connection,
             'host' => $settings['host'] ?? 'localhost',
             'port' => (string) ($settings['port'] ?? ''),
@@ -530,6 +579,7 @@ class InstallWizard extends SimplePage
                 smtpPassword: $data['smtp_password'] ?? null,
                 demoData: (bool) ($data['demo_data'] ?? false),
                 roundcube: ($data['roundcube'] ?? 'no') === 'yes',
+                locale: $data['language'] ?? SetupLocale::chosen(),
             ));
         } catch (Throwable $e) {
             // Anything from a module's migrations to a lost database

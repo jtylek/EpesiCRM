@@ -176,11 +176,7 @@ class TranslationsTest extends TestCase
             $polish += array_filter((array) json_decode(file_get_contents($file), true), 'filled');
         }
 
-        $patterns = [
-            '/(?:__|trans_choice)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
-            '/->(?:label|modalHeading|modalSubmitActionLabel)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'\s*\)/',
-            '/(?:Step|Tab|Fieldset)::make\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
-        ];
+        $patterns = $this->stringPatterns();
 
         $missing = [];
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(base_path(), \FilesystemIterator::SKIP_DOTS));
@@ -208,6 +204,73 @@ class TranslationsTest extends TestCase
         ksort($missing);
 
         $this->reportMissing($missing, 'No Polish for these (string => where):');
+    }
+
+    /**
+     * The setup wizard is the first thing anyone sees, and the language is its
+     * first page: every string of its code, and of the pages modules add to
+     * its end, is translated in every language we offer, not just Polish.
+     * Strict regardless of TRANSLATIONS_STRICT.
+     */
+    public function test_the_setup_is_translated_in_every_language(): void
+    {
+        $files = [
+            ...glob(app_path('Filament/Setup/Pages/*.php')) ?: [],
+            ...glob(app_path('Services/Setup/*.php')) ?: [],
+            ...glob(app_path('Support/Setup/*.php')) ?: [],
+            ...glob(base_path('modules/*/*/src/Setup/*.php')) ?: [],
+            ...glob(base_path('modules/*/*/*/src/Setup/*.php')) ?: [],
+        ];
+
+        $strings = [];
+
+        foreach ($files as $file) {
+            foreach ($this->stringPatterns() as $pattern) {
+                preg_match_all($pattern, file_get_contents($file), $matches);
+
+                foreach ($matches[1] as $key) {
+                    $key = stripslashes($key);
+
+                    if (preg_match('/\p{L}/u', $key) && ! str_contains($key, '::') && ! preg_match('/^[a-z_]+(\.[a-z_]+)+$/', $key)) {
+                        $strings[$key] = str_replace(base_path().'/', '', str_replace('\\', '/', $file));
+                    }
+                }
+            }
+        }
+
+        $this->assertNotEmpty($strings);
+
+        foreach (array_keys(Locales::available()) as $locale) {
+            if ($locale === 'en') {
+                continue;
+            }
+
+            $translated = [];
+            foreach ($this->jsonFiles($locale) as $file) {
+                $translated += array_filter((array) json_decode(file_get_contents($file), true), 'filled');
+            }
+
+            $missing = array_diff_key($strings, $translated);
+
+            $this->assertSame([], $missing, "Setup strings without a {$locale} translation (string => where):
+".implode("
+", array_map(fn ($key, $where) => "{$key} => {$where}", array_keys($missing), $missing)));
+        }
+    }
+
+    /**
+     * What counts as a string the code hands to the translator: __() and
+     * trans_choice() calls, component labels, and step, tab and fieldset names.
+     *
+     * @return list<string>
+     */
+    protected function stringPatterns(): array
+    {
+        return [
+            '/(?:__|trans_choice)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
+            '/->(?:label|modalHeading|modalSubmitActionLabel)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'\s*\)/',
+            '/(?:Step|Tab|Fieldset)::make\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
+        ];
     }
 
     /**

@@ -21,7 +21,7 @@ Epesi set itself up in two stages:
 | FirstRun wizard | `/setup/install` |
 | `distros.ini` | not ported — every module epesi ships is `"core": true` and installs unconditionally, except Roundcube |
 | A module's `post_install()` / `post_install_process()` | a `SetupStep` registered with `SetupSteps::register()`, shown at `/setup/finish` |
-| Language and License pages | not ported |
+| Language page | the wizard's first page (see [Language](#language-the-first-page)); the License page isn't ported |
 
 Both stages run in the browser. Laravel can't serve a page without `.env` and an application
 key, so `public/index.php` writes those itself on the first request (see
@@ -79,10 +79,11 @@ plain message when `vendor/` is missing (a git checkout before `composer install
 **In the browser.** While the database has no tables (`SetupState::databaseReady()` is false),
 `/setup/install` shows setup.php's pages instead of FirstRun's:
 
-1. **Setup code.** See [Security](#security).
-2. **Server check.** The requirements table below, plus whether `.env` is writable. **Next**
+1. **Language.** See [Language](#language-the-first-page).
+2. **Setup code.** See [Security](#security).
+3. **Server check.** The requirements table below, plus whether `.env` is writable. **Next**
    refuses to continue while a required row fails.
-3. **Database.** Type (only the ones this PHP has a PDO driver for), then server, port,
+4. **Database.** Type (only the ones this PHP has a PDO driver for), then server, port,
    database name, user and password; for SQLite, the file, which is created if missing. It
    defaults to MySQL on `127.0.0.1:3306`, database `epesi`, user `root` (XAMPP's defaults).
    **Create the tables** connects first and shows the database's own error if that fails,
@@ -163,6 +164,31 @@ connection; and a whole-installation dump would couple independently installed m
 PHP schema migrations preserve the browser installer's existing approach and database
 portability without adding that command-line dependency.
 
+## Language: the first page
+
+Epesi's `setup.php` started with a Language page; so does this wizard (`InstallWizard::languageStep()`,
+before the setup code, on the database half and on the FirstRun half). It lists the
+`available_locales` by their own names, defaulting to the language the page is already in (the
+browser's, when we have it).
+
+- **Switching.** Picking one calls `InstallWizard::chooseLanguage()`: it keeps the choice in the
+  session (`App\Support\Setup\SetupLocale`, because before the tables exist there is nowhere else)
+  and reloads the page, which then renders in that language. `Locales::forRequest()` puts that
+  session choice ahead of the browser's language, so every later request of the wizard, Livewire's
+  own included, is in it. A language we don't offer is ignored.
+- **Keeping it.** `Installer::saveLanguage()` writes it as the system default language, the
+  `user_id IS NULL` row of `epesi_regional_settings` (RegionalSettings module; nothing happens
+  without that table), and drops the session copy. That row is what the **Regional settings**
+  step of `/setup/finish` offers as its Language default (`RegionalSettingsDefaultsStep::defaults()`),
+  and it is the language everyone gets until they choose their own. Skipping the finish pages keeps
+  it too.
+- **Scripted installs.** `php artisan epesi:install --admin-email=... --language=de`
+  (`InstallOptions::$locale`). An unknown code is refused up front.
+- **Translations.** `TranslationsTest::test_the_setup_is_translated_in_every_language` checks
+  that every string of the setup code (the wizard, its services, the module step classes) has a
+  translation in every offered language, strictly. A new setup string needs the DeepL pass before
+  the tests are green again (see [Epesi-Laravel-Translations.md](Epesi-Laravel-Translations.md)).
+
 ## Step 2: the wizard — `/setup/install`
 
 `app/Filament/Setup/Pages/InstallWizard.php`, in a small Filament panel of its own
@@ -177,6 +203,8 @@ server and database pages first.
 
 The pages:
 
+0. **Language** — always the first page, on both halves of the wizard. See
+   [Language](#language-the-first-page).
 0. **Setup code** — only if this browser session hasn't already given it on the database
    pages. See [Security](#security).
 1. **Options** — every module epesi ships is `"core": true` except Roundcube, so there is no

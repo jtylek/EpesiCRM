@@ -13,9 +13,11 @@ use App\Services\Setup\ModuleLoader;
 use App\Services\Setup\ModulePlan;
 use App\Services\Setup\RoundcubeSetup;
 use App\Services\Setup\SetupException;
+use App\Support\Locale\Locales;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Setup\FirstBoot;
 use App\Support\Setup\SetupCode;
+use App\Support\Setup\SetupLocale;
 use App\Support\Setup\SetupState;
 use Dotenv\Dotenv;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\CompanyResource;
@@ -494,6 +496,91 @@ class SetupTest extends TestCase
 
         $this->assertFalse(SetupState::finishPending());
         $this->assertNull($admin->fresh()->contact);
+    }
+
+    public function test_the_language_is_picked_first_and_the_wizard_continues_in_it(): void
+    {
+        Filament::setCurrentPanel('setup');
+
+        // The first page offers every language we ship, in its own name.
+        Livewire::test(InstallWizard::class)
+            ->assertFormSet(['language' => 'en'])
+            ->set('data.language', 'pl')
+            ->assertRedirect(route('filament.setup.install'));
+
+        $this->assertSame('pl', SetupLocale::chosen());
+
+        // Every later request, the page's own and Livewire's, is in Polish.
+        $this->get(route('filament.setup.install'))
+            ->assertOk()
+            ->assertSee('Wczytaj dane demonstracyjne')
+            ->assertDontSee('Load demo data');
+
+        Livewire::test(InstallWizard::class)->assertFormSet(['language' => 'pl']);
+    }
+
+    /** Every language's first page works and says "Language" in that language, and lists them all by their own name. */
+    public function test_the_wizard_opens_in_every_language_we_offer(): void
+    {
+        foreach (Locales::available() as $code => $name) {
+            SetupLocale::choose($code);
+
+            $page = $this->get(route('filament.setup.install'))->assertOk();
+
+            foreach (Locales::available() as $other) {
+                $page->assertSee($other, false);
+            }
+
+            $this->assertSame($code, app()->getLocale());
+            $page->assertSee(__('Language'), false);
+
+            if ($code !== 'en') {
+                $this->assertNotSame('Language', __('Language'), $code);
+            }
+        }
+    }
+
+    public function test_a_language_we_do_not_offer_is_ignored(): void
+    {
+        Filament::setCurrentPanel('setup');
+
+        Livewire::test(InstallWizard::class)
+            ->call('chooseLanguage', 'xx')
+            ->assertNoRedirect();
+
+        $this->assertNull(SetupLocale::chosen());
+    }
+
+    public function test_the_language_picked_first_becomes_the_system_default_and_the_regional_step_offers_it(): void
+    {
+        Filament::setCurrentPanel('setup');
+        SetupLocale::choose('de');
+
+        Livewire::test(InstallWizard::class)
+            ->fillForm($this->wizardData(['language' => 'de']))
+            ->call('install')
+            ->assertHasNoFormErrors()
+            ->assertRedirect(route('filament.setup.finish'));
+
+        $this->assertSame('de', RegionalSetting::defaults()->language);
+        $this->assertNull(SetupLocale::chosen(), 'the session copy is dropped once it is stored');
+
+        $this->actingAs(User::query()->where('email', 'jan@example.test')->sole());
+
+        Livewire::test(FinishSetup::class)
+            ->assertFormSet(['regional-settings-defaults.language' => 'de']);
+    }
+
+    public function test_the_install_command_takes_the_language(): void
+    {
+        $this->artisan('epesi:install', ['--language' => 'xx', '--no-interaction' => true, '--force' => true])
+            ->expectsOutputToContain('--language=xx is not offered')
+            ->assertFailed();
+
+        $admin = app(Installer::class)->install(new InstallOptions('Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG, locale: 'fr'));
+
+        $this->assertSame('fr', RegionalSetting::defaults()->language);
+        $this->assertSame('fr', Locales::forUser($admin));
     }
 
     public function test_the_module_plan_orders_requirements_first_and_skips_missing_modules(): void

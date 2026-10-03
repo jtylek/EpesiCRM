@@ -6,7 +6,8 @@ namespace App\Services\Setup;
  * Everything the setup wizard (or `epesi:install --admin-email=...`) collects —
  * FirstRun's administrator and mail settings pages, and whether to download
  * the Roundcube webmail. `development` (epesi:install --dev) keeps .env's
- * APP_ENV/APP_DEBUG instead of switching to production.
+ * APP_ENV/APP_DEBUG instead of switching to production. `locale` is the
+ * language picked first; it becomes the system default language.
  */
 final class InstallOptions
 {
@@ -29,5 +30,6 @@ final class InstallOptions
         public readonly bool $demoData = false,
         public readonly bool $roundcube = false,
         public readonly bool $development = false,
+        public readonly ?string $locale = null,
     ) {}
 }

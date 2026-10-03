@@ -84,17 +84,8 @@ module. It then calls the installer by class name, since the module may not have
 loaded when the core code was compiled. The page reloads afterwards so the menu shows
 Mailbox.
 
-Two things differ when the installer runs from a web page instead of the command line.
-`RoundcubeInstaller` handles both:
+One thing differs when the installer runs from a web page. `RoundcubeInstaller` handles it:
 
-- **`PHP_BINARY` isn't PHP.** Under Apache's mod_php (XAMPP) it is `httpd.exe`, under
-  LiteSpeed `lsphp`. Roundcube's `bin/initdb.sh` is a PHP script, so
-  `RoundcubeInstaller::php()` runs it with `PHP_BINARY` only on the CLI. Elsewhere it looks
-  for `php`/`php.exe` in `PHP_BINDIR` and next to the loaded `php.ini`
-  (`C:\xampp82\php\php.exe`), then falls back to the `PATH`. On shared hosting
-  `open_basedir` keeps those paths out of reach, so they can't be checked and the `PATH`'s
-  `php` is what runs; if that is the wrong PHP, `ROUNDCUBE_PHP` in `.env` names the right
-  one (`config/epesi-roundcube.php`'s `php`).
 - **No CA certificates.** XAMPP's PHP ships without `curl.cainfo`, so an HTTPS download fails
   certificate checks. The download verifies against
   `Composer\CaBundle\CaBundle::getSystemCaRootBundlePath()`: the system's bundle when there is
@@ -115,8 +106,14 @@ The installer:
    only loads plugins from its own `plugins/`. `static.php` serves plugin assets through the
    link because it checks an allowed path prefix, not the resolved real path.
 5. Writes `config/config.inc.php` (see below).
-6. Creates the `rc_*` tables with Roundcube's own `bin/initdb.sh --dir=SQL`, or upgrades them
-   with `bin/updatedb.sh` when they already exist.
+6. Creates the `rc_*` tables, or upgrades them when they already exist, with
+   `RoundcubeSchema`. It runs Roundcube's own SQL files (`SQL/<driver>.initial.sql`, then the
+   `SQL/<driver>/<version>.sql` updates newer than the version in `rc_system`) through
+   epesi's database connection, and applies the table prefix by the same rules as Roundcube's
+   `rcube_db::fix_table_names()`. It doesn't run `bin/initdb.sh`: that needs a PHP process, and
+   shared hosts disable `proc_open()`/`exec()` (DirectAdmin did: the setup step failed with
+   "The Process class relies on proc_open"). A web server's PHP binary is `httpd.exe` or `lsphp`
+   anyway, and finding a command-line `php` was guesswork.
 
 Two Windows traps the installer handles, which any other code touching `storage/roundcube`
 has to handle too:

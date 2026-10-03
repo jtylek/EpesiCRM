@@ -3,6 +3,7 @@
 namespace App\Support\Locale;
 
 use App\Models\User;
+use App\Support\Setup\SetupLocale;
 use Closure;
 use Illuminate\Http\Request;
 use Throwable;
@@ -113,7 +114,8 @@ class Locales
             // The setup wizard can run before the users table exists.
         }
 
-        return static::browser($request) ?? static::systemDefault();
+        // The setup wizard's own language page comes before the browser's.
+        return SetupLocale::chosen() ?? static::browser($request) ?? static::systemDefault();
     }
 
     /**

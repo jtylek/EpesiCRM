@@ -22,15 +22,6 @@ return [
 
     'public_path' => public_path('roundcube'),
 
-    /*
-     * The PHP command line that runs Roundcube's own scripts when it is
-     * installed from a web page. Left empty it is looked for next to the
-     * running PHP, and failing that taken from the PATH, which on shared
-     * hosting is not always the version you want: set ROUNDCUBE_PHP to its
-     * full path then.
-     */
-    'php' => env('ROUNDCUBE_PHP'),
-
     /* Roundcube's tables share the app's database, as they did in Epesi. */
     'table_prefix' => 'rc_',
 

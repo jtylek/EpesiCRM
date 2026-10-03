@@ -525,8 +525,9 @@ All four end in the same installer (`RoundcubeSetup` → `RoundcubeInstaller`):
 3. Links `public/roundcube` → `storage/roundcube/public_html`, and links epesi's own
    Roundcube plugins (single sign-on, filing to the CRM) into Roundcube's `plugins/`.
 4. Writes Roundcube's configuration from epesi's `.env` (database, key).
-5. Creates the `rc_*` tables with Roundcube's own `bin/initdb.sh`, run by the PHP
-   command-line binary. It finds that binary itself, even under Apache's mod_php.
+5. Creates the `rc_*` tables from Roundcube's own SQL files, through epesi's database
+   connection (`RoundcubeSchema`). No PHP process is started: shared hosts disable
+   `proc_open()` and `exec()`.
 
 Downloading, unpacking and creating the tables takes a minute or two. Keep the page open.
 
@@ -628,7 +629,7 @@ listing.
 | `app/Filament/Setup/Pages/FinishSetup.php` | `/setup/finish`, the module pages |
 | `app/Services/Setup/Installer.php`, `ModulePlan.php`, `ModuleLoader.php` | the install itself |
 | `app/Services/Setup/RoundcubeSetup.php` | Roundcube's module part and notice |
-| `modules/Epesi/Roundcube/src/Services/RoundcubeInstaller.php` | download, links, config, tables |
+| `modules/Epesi/Roundcube/src/Services/RoundcubeInstaller.php`, `RoundcubeSchema.php` | download, links, config; tables |
 | `app/Console/Commands/EpesiInstall.php` | the same setup with a shell |
 | `config/setup.php` | profiles, setup code path, `SETUP_TOKEN`, marker path |
 | `app/Services/Setup/SystemUpdate.php` | pending migrations (core and enabled modules) and running them |
