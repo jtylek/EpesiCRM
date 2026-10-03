@@ -289,7 +289,7 @@ class InstallWizard extends SimplePage
 
         $this->databaseForm->fill([
             'connection' => $connection,
-            'host' => $settings['host'] ?? '127.0.0.1',
+            'host' => $settings['host'] ?? 'localhost',
             'port' => (string) ($settings['port'] ?? ''),
             'name' => $current === $connection ? ($settings['database'] ?? 'epesi') : 'epesi',
             'username' => $settings['username'] ?? 'root',

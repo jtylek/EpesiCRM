@@ -5,6 +5,8 @@ and a kickstarter for custom ERP systems.
 
 Built on **Laravel 12 + Filament 5**.
 
+**Website:** <https://epesicrm.com> - free and open source CRM, MIT licensed, self-hosted, no per-seat fees.
+
 This is not a migration of the old codebase; it's a new application that reimplements
 Epesi's modules and behavior on modern foundations, built module by module against the real
 legacy source rather than from general Laravel/Filament conventions alone.

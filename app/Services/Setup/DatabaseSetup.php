@@ -75,6 +75,11 @@ class DatabaseSetup
     public function save(array $settings): void
     {
         (new EnvFile)->set($settings);
+
+        // A cached config would keep serving the old .env values to the next
+        // request (and to the migrate subprocess); the in-memory config set by
+        // connect() is untouched.
+        Artisan::call('config:clear');
     }
 
     /**

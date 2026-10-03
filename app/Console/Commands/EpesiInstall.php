@@ -126,7 +126,7 @@ class EpesiInstall extends Command
         } else {
             $defaults = config("database.connections.{$connection}", []);
             $input = [
-                'host' => $this->value('db-host', 'Database server', $defaults['host'] ?? '127.0.0.1'),
+                'host' => $this->value('db-host', 'Database server', $defaults['host'] ?? 'localhost'),
                 'port' => $this->value('db-port', 'Port', (string) ($defaults['port'] ?? '')),
                 'database' => $this->value('db-database', 'Database name', $defaults['database'] ?? 'epesi'),
                 'username' => $this->value('db-username', 'Database user', $defaults['username'] ?? 'root'),

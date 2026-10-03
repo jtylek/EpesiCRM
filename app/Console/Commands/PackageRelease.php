@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Update\CorePackage;
 use App\Support\Version;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -41,7 +42,7 @@ class PackageRelease extends Command
      */
     protected const EXCLUDE = [
         // Notes for developers and their AI assistants.
-        'AI-shared/', '.claude/', 'CLAUDE.md', 'PORTING.md', 'README.md',
+        'AI-shared/', '.claude/', 'AGENTS.md', 'CLAUDE.md', 'PORTING.md', 'README.md',
         // Git and editor settings.
         '.editorconfig', '.gitattributes', '.gitignore', 'database/.gitignore',
         'tests/', 'phpunit.xml',
@@ -131,9 +132,11 @@ class PackageRelease extends Command
         }
 
         $count = 0;
+        $manifest = [];
 
         foreach ($files as $relative) {
             $zip->addFile(base_path($relative), $prefix.$relative);
+            $manifest[$relative] = hash_file('sha256', base_path($relative));
             $count++;
         }
 
@@ -148,6 +151,7 @@ class PackageRelease extends Command
                 }
 
                 $zip->addFile($entry->getPathname(), $prefix.$directory.'/'.$relative);
+                $manifest[$directory.'/'.$relative] = hash_file('sha256', $entry->getPathname());
                 $count++;
             }
         }
@@ -155,8 +159,16 @@ class PackageRelease extends Command
         // A different one in every zip: unpacked over an installation, it
         // tells FrameworkCaches::guard() that the cached config and routes
         // belong to the files it replaced.
-        $zip->addFromString($prefix.'bootstrap/release-id', $name.'-'.gmdate('YmdHis').'-'.bin2hex(random_bytes(4))."\n");
+        $releaseId = $name.'-'.gmdate('YmdHis').'-'.bin2hex(random_bytes(4))."\n";
+        $zip->addFromString($prefix.'bootstrap/release-id', $releaseId);
+        $manifest['bootstrap/release-id'] = hash('sha256', $releaseId);
         $count++;
+
+        // What an installation applying this release as an update compares with
+        // (App\Services\Update\CorePackage): a checksum per file.
+        ksort($manifest);
+        $lines = array_map(fn (string $path, string $hash): string => $hash.'  '.$path, array_keys($manifest), $manifest);
+        $zip->addFromString($prefix.CorePackage::MANIFEST, implode("\n", $lines)."\n");
 
         $this->components->task("Writing {$count} files", fn () => $zip->close());
 

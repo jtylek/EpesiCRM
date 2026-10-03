@@ -408,6 +408,33 @@ it. Without cron, epesi runs without them.
   install older than the switch to `sync`, change it to `sync` (see [cron.md](cron.md)). An
   install older than `CACHE_STORE=auto` says `CACHE_STORE=file`; change it to `auto` to use
   memcached where the server has it.
+
+  **Updating from the Epesi Store (one click).** From 2.0.0RC2 on, **Administration → Epesi
+  Store** shows an **Update epesi to X** button when the store offers a newer core release (it
+  needs `MODULES_INSTALL_ENABLED=true`, like installing a module). It downloads the zip,
+  checks its SHA-256 against the catalog, and `App\Services\Update\CoreUpdater` applies it
+  (steps 2 and 3 above, then **Database update**). `php artisan epesi:update-core <zip>` does
+  the file step from a zip on disk, for hosts where the web server can't write to the
+  application's folders. How it works:
+  - `CorePackage` validates the zip before anything is written: no `..`/absolute/drive paths,
+    no symlinks, only a release's folders and files, and `update/MANIFEST.txt`
+    (`<sha256>  <path>` per file, written by `epesi:package`) must list exactly the files in
+    the archive. A version that isn't newer than the installed one is refused.
+  - Only files whose checksum differs are extracted (to `storage/app/private/core-update/`),
+    each old file is moved into `core-update/backup-<from>-<time>/` before the new one goes
+    in, and any failure puts every file back. `VERSION` is written last. The latest backup is
+    kept, older ones deleted.
+  - Files the release no longer ships are removed (and backed up) only inside `app/`,
+    `vendor/`, `routes/`, `config/`, `resources/views/`, `public/build/` and the module
+    folders the release carries. `.env`, `.htaccess`, `storage/`, `bootstrap/cache/` and
+    modules installed from the Store are never touched.
+  - Maintenance mode is on while files are replaced; afterwards the compiled caches are
+    cleared. Migrations are *not* run in that request (it still runs the old code); the next
+    request sends administrators to Database update.
+  - The store serves the core as a product with id `epesi/core` (StoreServer: publish the
+    `epesi:package` zip as a release of it); the catalog returns it under `core`, not in
+    `modules`. Build the zip without `--folder` and from a `composer install --no-dev` tree.
+  - The first release containing this is 2.0.0RC2, so an install of RC1 updates by hand once.
 - **If setup stopped part-way,** open the address again. The wizard continues where it
   stopped, and running **Install** again is safe.
 
@@ -539,6 +566,9 @@ needs is in place:
   [Version numbers](#version-numbers);
 - **a checksum:** `epesi-2.0.zip.sha256`, written by `epesi:package`. Upload it next to the
   zip.
+- **no dev packages:** build the zip from `composer install --no-dev` (about 17 MB instead of
+  45 MB with PHPUnit and the rest), then `composer install` again on a dev machine. The
+  `publish-sourceforge` skill does the build and the upload.
 
 Still to write for each release: short release notes. They cover what changed, a reminder to
 run **Administration → Database update** after updating a 2.x installation, and for 1.x users
@@ -609,6 +639,7 @@ listing.
 | `php-production.ini` | the recommended `php.ini` settings, compared on Administration → About (see [Epesi-optimization.md](Epesi-optimization.md)) |
 | `bootstrap/release-id` (in the zip only) | the build id that tells `FrameworkCaches::guard()` a new release was unpacked |
 | `app/Support/Optimize/*`, `config/optimize.php`, `app/Console/Commands/EpesiOptimize.php` | the caches cron builds, and `CACHE_STORE=auto` (see [Epesi-optimization.md](Epesi-optimization.md)) |
+| `app/Services/Update/{CorePackage,CoreUpdater}.php`, `app/Console/Commands/EpesiUpdateCore.php` | applying a core release zip over the installation (Store "Update epesi", `epesi:update-core`) |
 | `database/seeders/DemoDataSeeder.php` | the demo data |
 | `app/Support/DemoData.php`, `app/Filament/Administration/Pages/DemoDataPage.php` | remembering and removing it (Administration → Demo data) |
 

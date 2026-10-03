@@ -2,13 +2,17 @@
 
 namespace Epesi\Modules\Store\Filament\Pages;
 
+use App\Filament\Administration\Pages\DatabaseUpdate;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use App\Models\Module;
 use App\Services\Modules\ModuleException;
 use App\Services\Modules\ModuleInstaller;
+use App\Services\Update\CoreUpdater;
+use App\Services\Update\UpdateException;
 use App\Support\Modules\VersionConstraint;
+use App\Support\Version;
 use BackedEnum;
 use Epesi\Modules\Store\Models\StoreSetting;
 use Epesi\Modules\Store\Services\StoreClient;
@@ -49,6 +53,9 @@ class Store extends Page implements HasTable
 
     protected ?string $catalogError = null;
 
+    /** @var array<string, mixed>|null the core release the store offers */
+    protected ?array $core = null;
+
     public function getTitle(): string
     {
         return __('Epesi Store');
@@ -62,6 +69,7 @@ class Store extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
+            $this->updateCoreAction(),
             $this->settingsAction(),
             Action::make('refresh')
                 ->label('Refresh')
@@ -160,6 +168,69 @@ class Store extends Page implements HasTable
             });
     }
 
+    /**
+     * The store's core release, when it is newer than this installation.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function coreUpdate(): ?array
+    {
+        $this->records();
+
+        return $this->core !== null && version_compare((string) $this->core['version'], Version::current(), '>')
+            ? $this->core
+            : null;
+    }
+
+    /**
+     * Updates epesi itself: the release is downloaded, checksum-verified and
+     * validated by CoreUpdater, which backs up what it replaces and rolls back
+     * on failure. The database is migrated afterwards, from Database update,
+     * with the new code.
+     */
+    protected function updateCoreAction(): Action
+    {
+        return Action::make('updateCore')
+            ->label(fn (): string => __('Update epesi to :version', ['version' => $this->coreUpdate()['version'] ?? '']))
+            ->icon(Heroicon::OutlinedArrowUpCircle)
+            ->color('warning')
+            ->visible(fn (): bool => $this->coreUpdate() !== null)
+            ->requiresConfirmation()
+            ->modalDescription(fn (): string => 'epesi '.($this->coreUpdate()['version'] ?? '').' ('.round(($this->coreUpdate()['size'] ?? 0) / 1048576, 1).' MB) will be downloaded from the store and put over this installation, which is at '.Version::current().'. The files it replaces are kept as a backup, and the update is undone if it fails part-way. Afterwards you update the database. Take a database backup first. It runs with the same privileges as the application itself.')
+            ->action(function (): void {
+                if (! config('modules.install_enabled')) {
+                    Notification::make()->danger()->title(__('Updating is disabled'))->body(__('Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.'))->send();
+
+                    return;
+                }
+
+                $core = $this->coreUpdate();
+                $file = null;
+
+                try {
+                    $file = app(StoreClient::class)->download($core['download_url'], $core['sha256']);
+                    $result = app(CoreUpdater::class)->apply($file);
+                } catch (ModuleException|UpdateException $exception) {
+                    Notification::make()->danger()->title(__('Not updated'))->body($exception->getMessage())->persistent()->send();
+
+                    return;
+                } finally {
+                    if ($file && is_file($file)) {
+                        unlink($file);
+                    }
+                }
+
+                Notification::make()
+                    ->success()
+                    ->title(__('epesi updated to :version', ['version' => $result['to']]))
+                    ->body(__('The files are in place. Now update the database.'))
+                    ->persistent()
+                    ->send();
+
+                $this->redirect(DatabaseUpdate::getUrl());
+            });
+    }
+
     protected function settingsAction(): Action
     {
         return Action::make('settings')
@@ -192,7 +263,9 @@ class Store extends Page implements HasTable
         }
 
         try {
-            $modules = app(StoreClient::class)->catalog();
+            $payload = app(StoreClient::class)->payload();
+            $modules = $payload['modules'];
+            $this->core = $payload['core'];
             $this->catalogError = null;
         } catch (ModuleException $exception) {
             $this->catalogError = $exception->getMessage();

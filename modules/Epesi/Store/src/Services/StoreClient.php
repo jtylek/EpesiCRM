@@ -16,14 +16,35 @@ use Throwable;
  */
 class StoreClient
 {
-    public const API_URL = 'https://store.epe.si/store-api';
+    public const API_URL = 'https://store.epe.si/manage/store-api';
 
     public const TIMEOUT_SECONDS = 20;
+
+    /** A core release is tens of megabytes. */
+    public const DOWNLOAD_TIMEOUT_SECONDS = 300;
 
     /**
      * @return array<int, array<string, mixed>>
      */
     public function catalog(): array
+    {
+        return $this->payload()['modules'];
+    }
+
+    /**
+     * The core release the store offers, or null when it offers none.
+     *
+     * @return array{version: string, sha256: string, size: int, changelog: ?string, download_url: string}|null
+     */
+    public function core(): ?array
+    {
+        return $this->payload()['core'];
+    }
+
+    /**
+     * @return array{modules: array<int, array<string, mixed>>, core: array<string, mixed>|null}
+     */
+    public function payload(): array
     {
         $licenceKey = StoreSetting::current()->licence_key;
 
@@ -46,7 +67,12 @@ class StoreClient
             throw new ModuleException('The store returned an unexpected response.');
         }
 
-        return array_values(array_filter($modules, 'is_array'));
+        $core = $response->json('core');
+
+        return [
+            'modules' => array_values(array_filter($modules, 'is_array')),
+            'core' => is_array($core) && filled($core['version'] ?? null) && filled($core['download_url'] ?? null) && filled($core['sha256'] ?? null) ? $core : null,
+        ];
     }
 
     /**
@@ -56,7 +82,7 @@ class StoreClient
     public function download(string $url, string $expectedSha256): string
     {
         try {
-            $response = Http::timeout(self::TIMEOUT_SECONDS)->get($url);
+            $response = Http::timeout(self::DOWNLOAD_TIMEOUT_SECONDS)->get($url);
         } catch (Throwable $exception) {
             throw new ModuleException('Download failed: '.$exception->getMessage(), previous: $exception);
         }
