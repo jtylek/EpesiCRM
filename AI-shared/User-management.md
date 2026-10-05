@@ -175,7 +175,7 @@ return to the administrator.
 ### The way back
 
 `App\Filament\Support\ImpersonationNotice` renders a bar at the top of the content: "You are
-logged in as Karina Tylek. **Back to Janusz Tylek**". It uses display names, so the linked
+logged in as Jane Doe. **Back to Janusz Tylek**". It uses display names, so the linked
 contact's name where there is one.
 
 - **Shown in every panel.** `AppServiceProvider::boot()` registers the bar globally on

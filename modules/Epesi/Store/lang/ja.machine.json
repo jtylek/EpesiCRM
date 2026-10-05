@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "このサーバーがインターネットに接続できることを確認してから、「更新」をクリックしてください。",
+    "epesi updated to :version": "epesiが更新されました :version",
     "Not installed": "インストールされていません",
+    "Not updated": "更新されていません",
     "Optional. Required only for paid modules.": "任意。有料モジュールでのみ必須です。",
     "Refresh": "更新",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "ブラウザからの更新を有効にするには、.env ファイルで MODULES_INSTALL_ENABLED=true を設定してください。",
     "Store settings": "ストアの設定",
     "Store settings saved": "ストアの設定が保存されました",
-    "The store has no modules published yet.": "このストアには、まだ公開されているモジュールがありません。"
+    "The files are in place. Now update the database.": "ファイルは所定の場所に配置済みです。次に、データベースを更新してください。",
+    "The store has no modules published yet.": "このストアには、まだ公開されているモジュールがありません。",
+    "Update epesi to :version": "epesiを次のように更新してください。 :version",
+    "Updating is disabled": "更新は無効になっています"
 }

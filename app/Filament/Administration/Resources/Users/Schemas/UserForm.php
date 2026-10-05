@@ -2,6 +2,7 @@
 
 namespace App\Filament\Administration\Resources\Users\Schemas;
 
+use App\Models\User;
 use Closure;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Filament\Forms\Components\Select;
@@ -10,6 +11,9 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 /**
  * Shared by both CreateUser and EditUser (via UserResource::form()).
@@ -72,9 +76,41 @@ class UserForm
                             ->multiple()
                             ->searchable()
                             ->preload()
+                            ->rule(fn (?Model $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                                if ($reason = self::whySuperAdminStays($record, (array) $value)) {
+                                    $fail($reason);
+                                }
+                            })
                             ->columnSpanFull(),
                     ]),
             ]);
+    }
+
+    /**
+     * Why a save that leaves $roleIds on $user can't go through, or null:
+     * nobody takes super_admin from their own account, so no one can lock
+     * themselves out of the Administration panel (which only a super_admin
+     * opens) with a click — and since only a super_admin gets here, another
+     * one always remains. A Policy can't say this: super_admin passes every
+     * Gate check (AI-shared/User-management.md).
+     *
+     * @param  array<int, mixed>  $roleIds
+     */
+    public static function whySuperAdminStays(?Model $user, array $roleIds): ?string
+    {
+        if (! $user instanceof User || ! $user->hasRole('super_admin')) {
+            return null;
+        }
+
+        $superAdmin = Role::query()->where('name', 'super_admin')->first();
+
+        if ($superAdmin === null || in_array($superAdmin->getKey(), array_map('intval', $roleIds), true)) {
+            return null;
+        }
+
+        return $user->is(Auth::user())
+            ? __('You cannot remove super_admin from your own account.')
+            : null;
     }
 
     /**

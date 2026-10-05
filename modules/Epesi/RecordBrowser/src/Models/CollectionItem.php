@@ -143,6 +143,16 @@ abstract class CollectionItem extends Model
             ->required(static::kindRequired());
     }
 
+    /**
+     * Whether the form shows an item as one line — reorder handle, kind, the
+     * fields, delete — rather than a collapsible card: a type of a few short
+     * fields (an e-mail address, a phone number). An address stays a card.
+     */
+    public static function inlineRow(): bool
+    {
+        return false;
+    }
+
     /** What the type calls its kind: "Service" for an online account. */
     public static function kindFieldLabel(): string
     {
@@ -265,6 +275,38 @@ abstract class CollectionItem extends Model
      * @return list<array{label: string, url: ?string}>
      */
     public function links(): array
+    {
+        return [];
+    }
+
+    /**
+     * Whether something else depends on this item, so it can be neither
+     * removed nor changed (only its kind): an e-mail address a login signs in
+     * with. syncCollection() and the form's card both honour it.
+     */
+    public function isLocked(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Badges the View page and the card's heading show after the summary, as
+     * a fact about the item: "Login" on the address a contact signs in with.
+     *
+     * @return list<string>
+     */
+    public function flags(): array
+    {
+        return [];
+    }
+
+    /**
+     * Status badges the View page shows after the flags, each a label and a
+     * Filament badge colour: "Verified" / "Not verified" on an e-mail address.
+     *
+     * @return list<array{label: string, color: string}>
+     */
+    public function statusBadges(): array
     {
         return [];
     }

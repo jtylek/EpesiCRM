@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "اطمینان حاصل کنید که این سرور می‌تواند به اینترنت دسترسی داشته باشد، سپس روی «تازهسازی» کلیک کنید.",
+    "epesi updated to :version": "epesi به‌روزرسانی شد به :version",
     "Not installed": "نصب نشده",
+    "Not updated": "به‌روزرسانی نشده",
     "Optional. Required only for paid modules.": "اختیاری. فقط برای ماژول‌های پولی الزامی است.",
     "Refresh": "تازهسازی",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "برای اجازه دادن به به‌روزرسانی‌ها از طریق مرورگر، مقدار MODULES_INSTALL_ENABLED را در فایل .env روی true تنظیم کنید.",
     "Store settings": "تنظیمات فروشگاه",
     "Store settings saved": "تنظیمات فروشگاه ذخیره شد",
-    "The store has no modules published yet.": "فروشگاه هنوز هیچ ماژولی منتشر نکرده است."
+    "The files are in place. Now update the database.": "فایل‌ها در جای خود قرار دارند. اکنون پایگاه داده را به‌روزرسانی کنید.",
+    "The store has no modules published yet.": "فروشگاه هنوز هیچ ماژولی منتشر نکرده است.",
+    "Update epesi to :version": "epesi را به‌روزرسانی کنید به :version",
+    "Updating is disabled": "به‌روزرسانی غیرفعال است"
 }

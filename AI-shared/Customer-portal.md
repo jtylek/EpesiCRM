@@ -92,6 +92,34 @@ Two Filament details make this work, both easy to "simplify" back into a bug:
   `Contact::getActivitylogOptions()` (`LogsActivity`), the customer as causer, same as any other
   edit to that contact.
 
+## E-mail addresses (`App\Support\Auth\PortalEmails`)
+
+`emails` is not on the Edit form: a customer's addresses have their own section on the page, each
+change made at once, because one of them is the address they sign in with (`users.email`).
+
+- The login address is **Primary** and always shown **Verified** (the administrator sent the link
+  to it). It can't be removed. If the contact has no such item (an administrator used Change
+  Username), `ensurePrimary()` adds one.
+- A password reset (`PasswordReset` event, listener in `AppServiceProvider`) sets
+  `users.email_verified_at` and `verified_at` on the login address's item.
+- An address the customer adds is unverified (`epesi_recordbrowser_email_addresses.verified_at`,
+  null) and a signed 24-hour link (`portal.verify-email`, no sign-in needed: the link reaching
+  the mailbox is the proof, hash of the address included so an edited address voids it) is
+  e-mailed to it. "Send link again" repeats it.
+- **Make Primary** works only on a verified address and asks for the customer's current password
+  (a stolen open session can't redirect the login): it changes `users.email` and moves the item
+  first. The old login address becomes an ordinary, removable one.
+- `EmailAddress` clears `verified_at` whenever its value changes, wherever it is edited. The
+  column isn't a Field, so no form can set it.
+- An address another record or login already uses can't be added.
+- **In the main panel too.** The address a login signs in with is a locked collection item
+  (`CollectionItem::isLocked()`, `EmailAddress` answers it from the owner's `user_id` and
+  `users.email`): the View page shows a **Login** badge on it and the Edit card is headed
+  "(Login)", its value is disabled and it has no Delete button. `syncCollection()` enforces the
+  same whatever is posted — a locked item is kept, and only its kind can change — so a save that
+  leaves it out or edits it changes nothing. Any other collection type can opt in by overriding
+  `isLocked()` / `flags()`.
+
 ## Password reset / new-account e-mail (`App\Support\Auth\NewAccountMailer`)
 
 Used to hard-code the `main` panel. `panelFor(User $user)` now tries `main` then `portal` and uses

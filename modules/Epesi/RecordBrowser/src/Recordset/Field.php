@@ -23,6 +23,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -36,11 +37,11 @@ use Filament\Schemas\Components\Component as SchemaComponent;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
-use Filament\Support\Facades\FilamentTimezone;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\IconColumn;
@@ -1522,7 +1523,15 @@ class Field
             // A saved item starts collapsed to its label, which already says
             // what it holds ("Work: +48 22 555 01 01"), to keep a record's
             // form short; a card just added opens to be filled in.
-            ->collapsed(fn (?Schema $item): bool => filled(data_get($item?->getRawState(), 'id')))
+            ->collapsed(fn (?Schema $item): bool => $type !== null && ! $type::inlineRow() && filled(data_get($item?->getRawState(), 'id')))
+            // A type of a few short fields is one line per item: handle, kind, fields, delete.
+            ->table(fn (): ?array => $type === null || ! $type::inlineRow() ? null : array_map(
+                fn (Field $field): TableColumn => TableColumn::make($field->getLabel())
+                    ->markAsRequired($field->isRequired())
+                    // Wide enough for a kind ("Business") not to wrap letter by letter.
+                    ->width($field->name === 'kind' ? '11rem' : null),
+                [$type::kindField(), ...array_values(array_filter($type::resolvedFields(), fn (Field $field): bool => $field->isInForm()))],
+            ))
             // One row above the cards (the epesi-collection-repeater styles):
             // Add first, then Collapse all and Expand all as one toggle, which
             // starts from how the cards start.
@@ -1543,7 +1552,15 @@ class Field
                 ->alpineClickHandler('allCollapsed = false')
                 ->extraAttributes(['x-show' => 'allCollapsed']))
             ->itemLabel(fn (array $state): ?string => $type === null ? null : $this->collectionItemLabel($type, $state))
+            // An item something depends on (CollectionItem::isLocked()) has no Delete.
+            ->deleteAction(fn (Action $action): Action => $action->hidden(
+                fn (array $arguments, Repeater $component): bool => $type !== null
+                    && filled($id = data_get($component->getRawState(), ($arguments['item'] ?? '').'.id'))
+                    && ($type::query()->find($id)?->isLocked() ?? false),
+            ))
             ->addActionLabel($type === null ? null : $type::addActionLabel())
+            // Under a table the button would be centred; left, as the cards' Add is.
+            ->addActionAlignment(Alignment::Start)
             ->dehydrated(false)
             ->loadStateFromRelationshipsUsing(fn (Repeater $component, Model $record) => $component->state($this->collectionState($record)))
             // The cards as they stand, the form having been validated: an
@@ -1599,6 +1616,10 @@ class Field
 
         $label = implode(': ', array_filter([$item->kindLabel(), $item->summary()], filled(...)));
 
+        if ($label !== '' && filled($state['id'] ?? null) && $flags = $type::query()->find($state['id'])?->flags()) {
+            $label .= ' ('.implode(', ', $flags).')';
+        }
+
         return $label === '' ? null : $label;
     }
 
@@ -1640,6 +1661,8 @@ class Field
                 'summary' => $item->summary(),
                 'url' => $item->url(),
                 'links' => $item->links(),
+                'flags' => $item->flags(),
+                'statuses' => $item->statusBadges(),
                 'extra' => $item->extraValues(),
             ])->all(),
         ])->render());

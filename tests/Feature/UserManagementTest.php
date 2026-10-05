@@ -331,6 +331,30 @@ class UserManagementTest extends TestCase
             ->assertSeeText('Roles: employee → employee, manager');
     }
 
+    public function test_nobody_can_take_super_admin_from_their_own_account(): void
+    {
+        $superAdmin = Role::findByName('super_admin')->id;
+        $employee = Role::findByName('employee')->id;
+
+        Livewire::test(EditUser::class, ['record' => $this->admin->getKey()])
+            ->fillForm(['roles' => [$employee]])
+            ->call('save')
+            ->assertHasFormErrors(['roles']);
+        $this->assertTrue($this->admin->refresh()->hasRole('super_admin'));
+
+        // Adding roles to it is fine, and so is changing someone else's.
+        Livewire::test(EditUser::class, ['record' => $this->admin->getKey()])
+            ->fillForm(['roles' => [$superAdmin, $employee]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertTrue($this->admin->refresh()->hasRole(['super_admin', 'employee']));
+
+        Livewire::test(EditUser::class, ['record' => $this->ann->getKey()])
+            ->fillForm(['roles' => [$employee]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+    }
+
     public function test_saving_with_the_same_roles_logs_no_role_change(): void
     {
         Livewire::test(EditUser::class, ['record' => $this->ann->getKey()])

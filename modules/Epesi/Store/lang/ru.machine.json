@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "Убедитесь, что этот сервер имеет доступ к Интернету, затем нажмите «Обновить».",
+    "epesi updated to :version": "epesi обновлено до версии :version",
     "Not installed": "Не установлено",
+    "Not updated": "Не обновлено",
     "Optional. Required only for paid modules.": "Необязательно. Требуется только для платных модулей.",
     "Refresh": "Обновить",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "Установите MODULES_INSTALL_ENABLED=true в файле .env, чтобы разрешить обновления из браузера.",
     "Store settings": "Настройки магазина",
     "Store settings saved": "Настройки магазина сохранены",
-    "The store has no modules published yet.": "В магазине пока не опубликовано ни одного модуля."
+    "The files are in place. Now update the database.": "Файлы уже находятся на месте. Теперь обновите базу данных.",
+    "The store has no modules published yet.": "В магазине пока не опубликовано ни одного модуля.",
+    "Update epesi to :version": "Обновите epesi до :version",
+    "Updating is disabled": "Обновление отключено"
 }

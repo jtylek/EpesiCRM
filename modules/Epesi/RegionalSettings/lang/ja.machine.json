@@ -1,7 +1,13 @@
 {
     "Defaults for everyone; each user can change their own under Settings.": "すべてのユーザーに共通のデフォルト設定ですが、各ユーザーは「設定」から自分用の設定を変更できます。",
+    "Gregorian": "グレゴリオ暦",
+    "Hijri": "ヒジュラ暦",
+    "Hijri calendar": "ヒジュラ暦",
+    "Jalali (Solar Hijri)": "ジャラリ（太陽暦ヒジュラ暦）",
     "Location": "場所",
     "Regional settings saved": "地域設定が保存されました",
     "Same as the system (:language)": "system (:language) と同じ",
-    "State / Province": "州 / 県"
+    "State / Province": "州 / 県",
+    "Tabular / civil": "表形式 / 一般",
+    "Umm al-Qura": "ウム・アル・クーラ"
 }

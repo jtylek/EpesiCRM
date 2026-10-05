@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "בדוק שהשרת הזה יכול להתחבר לאינטרנט, ולאחר מכן לחץ על \"רענן\".",
+    "epesi updated to :version": "epesi עודכן ל- :version",
     "Not installed": "לא מותקן",
+    "Not updated": "לא עודכן",
     "Optional. Required only for paid modules.": "אופציונלי. נדרש רק עבור מודולים בתשלום.",
     "Refresh": "רענן",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "הגדר MODULES_INSTALL_ENABLED=true בקובץ .env כדי לאפשר עדכונים מהדפדפן.",
     "Store settings": "הגדרות החנות",
     "Store settings saved": "הגדרות החנות נשמרו",
-    "The store has no modules published yet.": "בחנות אין עדיין מודולים שפורסמו."
+    "The files are in place. Now update the database.": "הקבצים כבר נמצאים במקומם. כעת יש לעדכן את מסד הנתונים.",
+    "The store has no modules published yet.": "בחנות אין עדיין מודולים שפורסמו.",
+    "Update epesi to :version": "עדכן את epesi ל- :version",
+    "Updating is disabled": "העדכון מושבת"
 }

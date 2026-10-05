@@ -171,8 +171,12 @@ class MailServer extends Page
                 config(['mail.mailers.smtp.timeout' => 10, 'mail.mailers.sendmail.timeout' => 10]);
 
                 try {
-                    Mail::raw(
-                        __('If you are reading this, it means that your e-mail server configuration at :url is working properly.', ['url' => url('/')]),
+                    Mail::send(
+                        [
+                            'html' => 'mail.test',
+                            'raw' => __('If you are reading this, it means that your e-mail server configuration at :url is working properly.', ['url' => url('/')]),
+                        ],
+                        ['url' => url('/')],
                         fn ($message) => $message->to($email)->subject(__('E-mail configuration test')),
                     );
                 } catch (Throwable $exception) {

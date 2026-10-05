@@ -2,13 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\PanelLogin;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Filament\Portal\Pages\MyContact;
+use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
+use App\Support\Appearance\AppName;
+use App\Support\Appearance\CurrentTheme;
+use Filament\Auth\Pages\Login;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -16,11 +21,14 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -46,14 +54,18 @@ class PortalPanelProvider extends PanelProvider
         return $panel
             ->id('portal')
             ->path('portal')
-            ->login()
+            ->login(PanelLogin::class)
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
-            ->brandName(fn (): string => __('epesi customer portal'))
+            ->brandName(fn (): string => AppName::portal())
+            // The same look as the main panel (colour, density, font size from the
+            // default theme in Administration → Themes), so the customer portal's login
+            // page looks like the main one's: ApplyThemeColor and the appearance script.
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::Amber,
                 'gray' => Color::Neutral,
             ])
             ->viteTheme('resources/css/filament/epesi/theme.css')
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             // One page, nothing to navigate between.
             ->navigation(false)
             ->pages([MyContact::class])
@@ -63,6 +75,7 @@ class PortalPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
+                ApplyThemeColor::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,

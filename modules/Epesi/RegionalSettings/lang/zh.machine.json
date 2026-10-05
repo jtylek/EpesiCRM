@@ -1,7 +1,13 @@
 {
     "Defaults for everyone; each user can change their own under Settings.": "这些是适用于所有用户的默认设置；每位用户均可在“设置”中修改自己的设置。",
+    "Gregorian": "公历",
+    "Hijri": "伊斯兰历",
+    "Hijri calendar": "伊斯兰历",
+    "Jalali (Solar Hijri)": "贾拉利历（太阳希吉拉历）",
     "Location": "位置",
     "Regional settings saved": "区域设置已保存",
     "Same as the system (:language)": "与系统 (:language) 相同",
-    "State / Province": "州 / 省"
+    "State / Province": "州 / 省",
+    "Tabular / civil": "表格体 / 文言体",
+    "Umm al-Qura": "乌姆·库拉"
 }

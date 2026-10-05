@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "Verifica che questo server possa connettersi a Internet, quindi fai clic su Aggiorna.",
+    "epesi updated to :version": "epesi aggiornato a :version",
     "Not installed": "Non installato",
+    "Not updated": "Non aggiornato",
     "Optional. Required only for paid modules.": "Facoltativo. Richiesto solo per i moduli a pagamento.",
     "Refresh": "Aggiorna",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "Imposta MODULES_INSTALL_ENABLED=true nel file .env per consentire gli aggiornamenti dal browser.",
     "Store settings": "Impostazioni dello Store",
     "Store settings saved": "Impostazioni dello Store salvate",
-    "The store has no modules published yet.": "Lo Store non ha ancora moduli pubblicati."
+    "The files are in place. Now update the database.": "I file sono già presenti. Ora aggiorna il database.",
+    "The store has no modules published yet.": "Lo Store non ha ancora moduli pubblicati.",
+    "Update epesi to :version": "Aggiornare epesi a :version",
+    "Updating is disabled": "L'aggiornamento è disabilitato"
 }

@@ -204,6 +204,17 @@ class DashboardAppletsTest extends TestCase
         }
     }
 
+    public function test_the_calendar_shows_only_my_records(): void
+    {
+        $mine = $this->task('Mine', '2026-09-25 10:00:00', employee: $this->me);
+        $theirs = $this->task("Colleague's", '2026-09-25 12:00:00', employee: $this->colleague);
+
+        $ids = collect(Livewire::test(CalendarPage::class)->instance()->getEvents('2026-09-24', '2026-10-01'))->pluck('id');
+
+        $this->assertTrue($ids->contains('task-'.$mine->id));
+        $this->assertFalse($ids->contains('task-'.$theirs->id));
+    }
+
     public function test_the_agenda_shows_the_description_on_hover(): void
     {
         $meeting = Meeting::create(['title' => 'Review', 'description' => 'Bring the <b>slides</b>', 'date' => '2026-09-24', 'time' => '14:00:00', 'duration_minutes' => 60]);

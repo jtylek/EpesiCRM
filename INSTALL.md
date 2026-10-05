@@ -37,6 +37,23 @@ Restart Apache after changing its configuration. As a test, `http://localhost/ep
 should show the setup wizard even when the rewrite doesn't work. Best of all is a
 (sub)domain or virtual host whose document root is epesi's `public/` folder.
 
+## nginx
+
+nginx ignores `.htaccess`, so epesi's `public/` folder must be the site's document root
+(on aaPanel: Website → Settings → Site directory → Running directory `/public`). Then add the
+rewrite rule that sends everything which isn't a real file to `index.php`:
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+`config/nginx.conf.example` in the zip is a complete server block. Without that rule the setup page
+loads but stays empty: the Livewire script is served by a route, not from disk, and returns 404.
+Open the site at its root (`http://crm.example.com/`), with no `/public` in the address.
+
+Also allow PHP's `exec`, `proc_open`, `putenv` and `symlink` (on aaPanel they are in the PHP
+version's "Disabled functions" list): the Roundcube download needs them.
+
 ## Scheduled tasks (optional but recommended)
 
 Have the server's cron (or Windows Task Scheduler) run this every minute:

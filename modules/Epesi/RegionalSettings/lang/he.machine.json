@@ -1,7 +1,13 @@
 {
     "Defaults for everyone; each user can change their own under Settings.": "הגדרות ברירת המחדל חלות על כולם; כל משתמש יכול לשנות את ההגדרות שלו תחת \"הגדרות\".",
+    "Gregorian": "לוח השנה הגרגוריאני",
+    "Hijri": "היג'רי",
+    "Hijri calendar": "לוח השנה ההיג'רי",
+    "Jalali (Solar Hijri)": "ג'לאלי (לוח השנה הסולארי ההיג'רי)",
     "Location": "מיקום",
     "Regional settings saved": "הגדרות אזוריות נשמרו",
     "Same as the system (:language)": "זהה ל-system (:language)",
-    "State / Province": "מדינה / מחוז"
+    "State / Province": "מדינה / מחוז",
+    "Tabular / civil": "טבלאי / אזרחי",
+    "Umm al-Qura": "אום אל-קורה"
 }

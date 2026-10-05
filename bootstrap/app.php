@@ -9,6 +9,14 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Env;
+
+// .env values stay in this request ($_ENV/$_SERVER) instead of the process
+// environment. Under a threaded web server (Apache mod_php on Windows, XAMPP)
+// all sites share one process: with putenv() a second epesi on the same Apache
+// — an installation calling the Epesi Store, say — would read this one's
+// database and APP_KEY, because dotenv never overrides a variable that is set.
+Env::disablePutenv();
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

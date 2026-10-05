@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Update\CorePackage;
+use App\Services\Update\UpdateException;
 use App\Support\Version;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -171,6 +172,21 @@ class PackageRelease extends Command
         $zip->addFromString($prefix.CorePackage::MANIFEST, implode("\n", $lines)."\n");
 
         $this->components->task("Writing {$count} files", fn () => $zip->close());
+
+        // The zip must pass the check an installation runs before updating
+        // from it (Epesi Store, epesi:update-core): a top-level file that
+        // CorePackage::FILES doesn't list would make every installed updater
+        // refuse it. A --folder zip is for unpacking by hand, never an update.
+        if ($folder === '') {
+            try {
+                (new CorePackage($file))->close();
+            } catch (UpdateException $exception) {
+                File::delete($file);
+                $this->components->error('The release would be refused as an update: '.$exception->getMessage().' Move the file into one of '.implode(', ', CorePackage::FOLDERS).'/.');
+
+                return self::FAILURE;
+            }
+        }
 
         // `sha256sum -c epesi-2.0.zip.sha256` checks a download against it.
         // "\n", not PHP_EOL: built on Windows, a "\r" would become part of

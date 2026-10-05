@@ -1,0 +1,32 @@
+# Epesi on nginx (nginx ignores .htaccess, so these rules take its place).
+#
+# The document root must be epesi's public/ folder. Adjust server_name, root and
+# the PHP socket (fastcgi_pass), or, on a panel such as aaPanel or Plesk, set the
+# site's running/document directory to public/ and put only the two "location"
+# blocks of the rewrite rules in the panel's URL rewrite box.
+
+server {
+    listen 80;
+    server_name crm.example.com;
+    root /var/www/epesi/public;
+    index index.php;
+
+    client_max_body_size 64M;
+
+    # Everything that isn't a real file goes to Laravel. This includes the
+    # Livewire and Filament scripts, which are served by routes, not from disk.
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+
+    # Dotfiles (.env, .git, ...) are never served; .well-known stays open for certificates.
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+}

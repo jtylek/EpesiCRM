@@ -27,7 +27,7 @@ class Requirements
     /**
      * @return list<array{label: string, ok: bool, status: string, required: bool}>
      */
-    public function check(bool $envWritable = false): array
+    public function check(bool $envWritable = false, bool $phpIni = true): array
     {
         $rows = [];
         $minimum = self::definition()['php'];
@@ -62,16 +62,29 @@ class Requirements
         $modules = is_writable(base_path('modules'));
         $rows[] = $this->row('modules/ writable', $modules, $modules ? 'OK' : 'not writable (installing modules from the web page won\'t work)', required: false);
 
-        // Speed, not a requirement: warnings only. Only in the browser, since
-        // the command line's php.ini isn't the web server's.
-        if (! app()->runningInConsole()) {
+        // The Roundcube download and cron's tasks need these; a panel such as
+        // aaPanel or a shared host often disables them. Only in the browser,
+        // since the command line's php.ini isn't the web server's.
+        if ($phpIni && ! app()->runningInConsole()) {
+            $blocked = self::disabledFunctions(['exec', 'proc_open', 'putenv', 'symlink']);
+
+            $rows[] = $this->row(
+                'PHP functions exec, proc_open, putenv, symlink',
+                $blocked === [],
+                $blocked === [] ? 'OK' : __('disabled: :functions (remove them from "disable_functions" in php.ini or the control panel; Roundcube needs them)', ['functions' => implode(', ', $blocked)]),
+                required: false,
+            );
+        }
+
+        // Speed, not a requirement: warnings only.
+        if ($phpIni && ! app()->runningInConsole()) {
             $below = PhpSettings::belowRecommendation();
 
             foreach ($below as $setting) {
                 $rows[] = $this->row(
                     "php.ini {$setting['setting']}",
                     false,
-                    __(':current, :recommended recommended (see php-production.ini)', ['current' => $setting['current'], 'recommended' => $setting['recommended']]),
+                    __(':current, :recommended recommended (see config/php-production.ini)', ['current' => $setting['current'], 'recommended' => $setting['recommended']]),
                     required: false,
                 );
             }
@@ -82,6 +95,19 @@ class Requirements
         }
 
         return $rows;
+    }
+
+    /**
+     * Which of these functions this PHP has switched off (disable_functions).
+     *
+     * @param  list<string>  $functions
+     * @return list<string>
+     */
+    public static function disabledFunctions(array $functions): array
+    {
+        $disabled = array_filter(array_map('trim', explode(',', (string) ini_get('disable_functions'))));
+
+        return array_values(array_filter($functions, fn (string $function): bool => in_array($function, $disabled, true) || ! function_exists($function)));
     }
 
     /**

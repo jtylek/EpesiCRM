@@ -975,6 +975,11 @@ to agree with the order, and the order alone can't contradict itself.
 
 The form shows a `Repeater` of the type's fields plus Kind, one card per item, reorderable.
 
+- **One line per item for a type of a few short fields.** `CollectionItem::inlineRow()` true
+  (e-mail address, phone number, online account) makes the repeater a Filament table repeater:
+  reorder handle, Kind, the fields and Delete in one row, no cards, no collapsing, no Collapse
+  all. An address has too many fields for a line: it stays a two-column card. An item `isLocked()` has no Delete and a disabled value
+  (the e-mail a login signs in with).
 - **Collapsed.** A saved item's card starts collapsed to its label ("Work: +48 22 555 01 01"),
   which says what it holds, so a record's form stays short. A card just added opens, and so does
   one holding a validation error (Filament's own `expand` event).

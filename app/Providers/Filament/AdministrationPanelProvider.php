@@ -7,7 +7,9 @@ use App\Filament\Administration\Pages\Cron;
 use App\Filament\Administration\Pages\DatabaseUpdate;
 use App\Filament\Administration\Pages\DemoDataPage;
 use App\Filament\Administration\Pages\MailServer;
+use App\Filament\Administration\Pages\ServerCheck;
 use App\Filament\Administration\Pages\Translations;
+use App\Filament\Auth\PanelLogin;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Filament\Support\UpdateNotice;
@@ -20,6 +22,7 @@ use App\Support\Appearance\CurrentTheme;
 use App\Support\Modules\ModuleRegistry;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Actions\Action;
+use Filament\Auth\Pages\Login;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -58,7 +61,7 @@ class AdministrationPanelProvider extends PanelProvider
         return $panel
             ->id('administration')
             ->path('administration')
-            ->login()
+            ->login(PanelLogin::class)
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->brandName(fn (): string => __('epesi administration'))
             ->colors([
@@ -73,7 +76,7 @@ class AdministrationPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Administration/Resources'), for: 'App\Filament\Administration\Resources')
-            ->pages([About::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, Translations::class])
+            ->pages([About::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, ServerCheck::class, Translations::class])
             ->renderHook(PanelsRenderHook::CONTENT_START, fn () => UpdateNotice::render())
             // A user's chosen theme's density, applied before first paint —
             // see App\Support\Appearance\CurrentTheme. Not the accent

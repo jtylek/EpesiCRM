@@ -220,7 +220,7 @@ class OptimizeTest extends TestCase
 
     public function test_php_production_ini_holds_exactly_the_recommended_settings(): void
     {
-        $file = parse_ini_file(base_path('php-production.ini'), false, INI_SCANNER_RAW);
+        $file = parse_ini_file(config_path('php-production.ini'), false, INI_SCANNER_RAW);
         $expected = array_map(fn (array $recommendation): string => $recommendation[0], PhpSettings::RECOMMENDED);
         ksort($file);
         ksort($expected);
@@ -249,11 +249,11 @@ class OptimizeTest extends TestCase
         $this->assertCount(count(PhpSettings::RECOMMENDED), PhpSettings::compare());
     }
 
-    public function test_about_shows_the_php_settings(): void
+    public function test_server_check_shows_the_php_settings(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
 
-        $this->get('/administration/about')
+        $this->get('/administration/server-check')
             ->assertOk()
             ->assertSee('PHP settings')
             ->assertSee('PHP '.PHP_VERSION)

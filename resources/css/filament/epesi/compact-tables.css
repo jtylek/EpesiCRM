@@ -10,7 +10,7 @@
  * is "comfortable" (App\Support\Appearance\CurrentTheme::appearanceScript(),
  * see AI-shared/Epesi-custom-themes.md).
  */
-html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration) {
+html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal) {
     /*
      * Filament's 4rem topbar, down to 3rem: still room for its 2.25rem search
      * box and avatar. The topbar, the sticky sidebar's offset and the sidebar
@@ -245,7 +245,7 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
  * `dark` and `epesi-compact` are both on <html> at once, so they need to
  * compound on it instead, which a flat rule says directly.
  */
-html.epesi-compact.dark :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration)
+html.epesi-compact.dark :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal)
     .fi-ta-header-ctn:has(> .fi-ta-header):not(:has(> .fi-ta-filters-above-content-ctn)) {
     border-bottom-color: #ffffff1a;
 }

@@ -5,7 +5,7 @@
     address does), the item's own badges (a phone number's messengers, each
     opening its app) and the administrator's fields after it.
 
-    @var list<array{kind: ?string, summary: string, url: ?string, links: list<array{label: string, url: ?string}>, extra: array<string, string>}> $items
+    @var list<array{kind: ?string, summary: string, url: ?string, links: list<array{label: string, url: ?string}>, flags: list<string>, statuses: list<array{label: string, color: string}>, extra: array<string, string>}> $items
 --}}
 <div class="epesi-collection-items">
     @foreach ($items as $item)
@@ -18,6 +18,12 @@
             @else
                 <span>{{ $item['summary'] }}</span>
             @endif
+            @foreach ($item['flags'] as $flag)
+                <x-filament::badge color="warning" icon="heroicon-o-key">{{ $flag }}</x-filament::badge>
+            @endforeach
+            @foreach ($item['statuses'] ?? [] as $status)
+                <x-filament::badge :color="$status['color']">{{ $status['label'] }}</x-filament::badge>
+            @endforeach
             @foreach ($item['links'] as $link)
                 @if (filled($link['url']))
                     {{-- An app's own scheme (viber://) opens the app, not a tab. --}}

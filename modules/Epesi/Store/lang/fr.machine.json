@@ -1,0 +1,8 @@
+{
+    "epesi updated to :version": "epesi mis à jour vers :version",
+    "Not updated": "Non mis à jour",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "Définissez MODULES_INSTALL_ENABLED=true dans le fichier .env pour autoriser les mises à jour depuis le navigateur.",
+    "The files are in place. Now update the database.": "Les fichiers sont en place. Mettez maintenant à jour la base de données.",
+    "Update epesi to :version": "Mettez à jour epesi pour :version",
+    "Updating is disabled": "La mise à jour est désactivée"
+}

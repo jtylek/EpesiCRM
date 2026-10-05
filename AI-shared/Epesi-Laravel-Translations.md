@@ -127,7 +127,7 @@ the message-body iframe title). Rules:
   a translated sentence with `e()` when it goes into an `HtmlString`.
 - **Blade inside a PHP string.** The setup wizard's submit buttons are
   `Blade::render('…{{ __(\'Install\') }}…')`. The inner quotes must be escaped.
-- **Data is never translated.** That covers record titles, user names, CommonData entries,
+- **Data is never translated.** That covers record titles, user names,
   e-mail subjects and bodies.
 - **Technical values stay plain strings.** Examples: `STARTTLS`, `SSL/TLS`, `993 / 143`,
   `SHA-256`.
@@ -502,8 +502,14 @@ in English until reviewed by hand.
   :label"), which gives "Utwórz firma" instead of "Utwórz firmę". Filament has no case
   forms. Where it matters, a resource can set its own action labels.
 - **Shield's navigation group** ("Filament Shield") comes from Shield's configuration.
-- **CommonData entries** (countries, groups) are data and stay as entered. Epesi translated
-  its CommonData lists; that would need a translation column on `common_data`.
+- **CommonData entries** (countries, zones, groups) are translated when read:
+  `CommonDataRepository::array()` and `value()` pass each stored value through `__()`, so the
+  names come from the module's `lang/<code>.json` (and `lang/<code>.json`). The administration
+  editor reads the stored value untranslated (`raw()`). The reads are cached per language, since
+  the cache key carries the locale (`CommonDataTranslationTest`). A name with no translation
+  shows in English: a legacy-imported country list can hold names the files don't have yet.
+  Editing a translation on the Translations page does not clear the cache, so a CommonData
+  name can lag by up to a day.
 - **Stored text keeps its language.** Follow-up notes and reply quotes stay in the language
   of the user who wrote them.
 - **Custom translations live on one server.** They are files under `storage/`. An

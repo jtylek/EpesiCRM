@@ -17,12 +17,14 @@ use App\Models\StoredFileContent;
 use App\Models\User;
 use App\Services\Cron\CronLog;
 use App\Services\LegacyImport\ImporterRegistry;
+use App\Support\Auth\PortalEmails;
 use App\Support\Demo;
 use App\Support\Mail\ServerMailTransport;
 use App\Support\NoIdentityAutofill;
 use App\Support\RetryingFilesystem;
 use App\Support\Translations\CustomTranslationLoader;
 use App\Support\Version;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -31,7 +33,6 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
-use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -50,6 +51,7 @@ use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -164,6 +166,8 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Logout::class, FinalizeLoginAudit::class);
         Event::listen(LoginEvent::class, RestoreUiState::class);
+        // The reset link went to the login address, so it proves the mailbox is theirs.
+        Event::listen(PasswordReset::class, fn (PasswordReset $event) => $event->user instanceof User ? PortalEmails::verifyLogin($event->user) : null);
         $this->app->bind(LoginResponseContract::class, LoginResponse::class);
 
         // "This server's mail system" (config/mail.php's sendmail mailer).

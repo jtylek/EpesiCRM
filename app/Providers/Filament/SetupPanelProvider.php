@@ -48,6 +48,57 @@ class SetupPanelProvider extends PanelProvider
         );
     }
 
+    /**
+     * The wizard is drawn by Livewire, whose script is served by a route, not
+     * from disk. A server that doesn't send unknown addresses to index.php
+     * (nginx without try_files, or the page opened as .../public/ on a server
+     * that ignores .htaccess) answers it with 404, and the card stays empty
+     * with no error. Plain JavaScript, so it runs when Livewire doesn't: says
+     * what to fix, with the script's own HTTP status.
+     */
+    protected function scriptWatchdog(): HtmlString
+    {
+        $text = json_encode([
+            'title' => __('The setup page could not load its script'),
+            'body' => __('The web server answered :status for :url. It must send every address that is not a file to index.php.'),
+            'nginx' => __('On nginx: make epesi\'s public/ folder the document root (aaPanel: Running directory /public) and add this rule (aaPanel: URL rewrite, laravel5). Then open the site\'s address without /public.'),
+            'started' => __(':status (but the script did not start)'),
+            'none' => __('no answer'),
+            'apache' => __('On Apache: open the site\'s address without /public, and check that mod_rewrite is on and AllowOverride All is set.'),
+        ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+
+        return new HtmlString(<<<HTML
+            <script>
+            (function () {
+                var t = {$text};
+                window.addEventListener('load', function () {
+                    setTimeout(function () {
+                        if (window.Livewire) return;
+                        var script = document.querySelector('script[src*="livewire"]');
+                        var url = script ? script.getAttribute('src') : '';
+                        var show = function (status) {
+                            var box = document.createElement('div');
+                            box.setAttribute('role', 'alert');
+                            box.style.cssText = 'max-width:46rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid #f59e0b;border-radius:.5rem;background:#fffbeb;color:#78350f;font:15px/1.5 system-ui,sans-serif';
+                            var add = function (tag, text) { var el = document.createElement(tag); el.textContent = text; box.appendChild(el); return el; };
+                            add('strong', t.title);
+                            add('p', t.body.replace(':status', status).replace(':url', url.split('?')[0]));
+                            add('p', t.nginx);
+                            add('pre', 'location / {\\n    try_files \$uri \$uri/ /index.php?\$query_string;\\n}').style.cssText = 'background:#fef3c7;padding:.5rem .75rem;overflow-x:auto';
+                            add('p', t.apache);
+                            document.body.insertBefore(box, document.body.firstChild);
+                        };
+                        if (!url) return show('?');
+                        fetch(url, { method: 'HEAD', cache: 'no-store' })
+                            .then(function (r) { show(r.ok ? t.started.replace(':status', r.status) : String(r.status)); })
+                            .catch(function () { show(t.none); });
+                    }, 5000);
+                });
+            })();
+            </script>
+            HTML);
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -60,6 +111,7 @@ class SetupPanelProvider extends PanelProvider
             ])
             ->viteTheme('resources/css/filament/epesi/theme.css')
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => $this->compactWizardHeaderStyles())
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => $this->scriptWatchdog())
             // Not at the panel root: that is Filament's own "go to the first
             // page" route, which for a panel with no navigation leads back to
             // itself. routes/web.php sends /setup here instead.

@@ -74,6 +74,11 @@ class PhoneNumber extends CollectionItem
         ];
     }
 
+    public static function inlineRow(): bool
+    {
+        return true;
+    }
+
     public static function kinds(): string
     {
         return 'Phone_Kinds';

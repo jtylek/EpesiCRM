@@ -9,7 +9,7 @@
  * `--radius-xl`, so a container Filament adds later keeps that larger radius
  * until it is listed here, rather than every corner changing at once.
  */
-:where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-setup) {
+:where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal, .fi-panel-setup) {
     .fi-section:not(.fi-section-not-contained),
     .fi-section:not(.fi-section-not-contained) > .fi-section-content-ctn,
     .fi-ta-ctn,

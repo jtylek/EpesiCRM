@@ -8,6 +8,7 @@ use App\Support\Modules\ModuleManifest;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use RuntimeException;
+use Throwable;
 
 /**
  * Adds the Roundcube webmail (the Mailbox page) in one step, for someone who
@@ -104,6 +105,24 @@ class RoundcubeSetup
             (string) config('epesi-roundcube.release.sha256'),
             function (string $line): void {},
         );
+    }
+
+    /**
+     * A failure's message for the person who clicked: a PHP function the host
+     * has switched off ("Call to undefined function exec()") is named with
+     * what to do about it, instead of the bare PHP error.
+     */
+    public static function explain(Throwable $e): string
+    {
+        $message = $e->getMessage();
+
+        if (preg_match('/undefined function (?:[\w\\\\]+\\\\)?(\w+)\(\)/', $message, $match)
+            || preg_match('/(proc_open|exec|putenv|symlink)\(\) has been disabled/', $message, $match)
+            || str_contains($message, 'relies on proc_open')) {
+            return __('PHP function :function is disabled on this server. Remove it from "disable_functions" in php.ini (aaPanel: App Store → PHP → Settings → Disabled functions; on shared hosting, ask the host), restart PHP, and try again.', ['function' => ($match[1] ?? 'proc_open').'()']);
+        }
+
+        return $message;
     }
 
     /**

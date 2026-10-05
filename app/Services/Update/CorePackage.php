@@ -26,7 +26,12 @@ class CorePackage
     /** Top-level folders a release holds. */
     public const FOLDERS = ['app', 'bootstrap', 'config', 'database', 'lang', 'modules', 'public', 'resources', 'routes', 'storage', 'update', 'vendor'];
 
-    /** Top-level files a release holds. */
+    /**
+     * Top-level files a release holds. Frozen as of 2.0.0RC2: every installed
+     * updater refuses a zip with a top-level file or folder it doesn't list,
+     * so a new file goes into one of FOLDERS (config/nginx.conf.example), never
+     * at the top. epesi:package checks its zip against this before writing it.
+     */
     public const FILES = ['.env.example', '.htaccess', 'INSTALL.md', 'LICENSE', 'VERSION', 'artisan', 'composer.json', 'cron.php', 'index.php'];
 
     protected ZipArchive $zip;

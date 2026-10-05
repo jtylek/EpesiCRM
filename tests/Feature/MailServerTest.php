@@ -184,6 +184,12 @@ class MailServerTest extends TestCase
         $this->assertSame($this->admin->email, $message->getTo()[0]->getAddress());
         $this->assertSame('admin@example.test', $message->getFrom()[0]->getAddress());
         $this->assertSame('E-mail configuration test', $message->getSubject());
+
+        // Formatted like the other epesi mail, with the logo inline, and a plain-text part.
+        $this->assertStringContainsString('<h1', $message->getHtmlBody());
+        $this->assertStringContainsString('cid:', $message->getHtmlBody());
+        $this->assertCount(1, $message->getAttachments());
+        $this->assertStringContainsString('is working properly', $message->getTextBody());
     }
 
     public function test_the_test_uses_what_the_form_says_without_saving_it(): void

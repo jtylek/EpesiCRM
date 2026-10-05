@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\LeaveImpersonationController;
+use App\Http\Controllers\VerifyContactEmailController;
 use App\Http\Controllers\WebAppManifestController;
+use App\Http\Middleware\DisabledInDemo;
 use Illuminate\Support\Facades\Route;
 
 // The "main" Filament panel is mounted at the root path (see
@@ -28,3 +30,10 @@ Route::get('/manifest.webmanifest', WebAppManifestController::class)
 Route::get('/cron', CronController::class)
     ->withoutMiddleware('web')
     ->name('cron');
+
+// The link in the e-mail that verifies an address a customer added in the
+// portal (PortalEmails): signed, so it needs no sign-in. 404 in demo mode,
+// like the portal.
+Route::get('/portal-verify-email/{email}/{hash}', VerifyContactEmailController::class)
+    ->middleware(['signed', 'throttle:10,1', DisabledInDemo::class])
+    ->name('portal.verify-email');

@@ -1,9 +1,15 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "请确认该服务器能否连接到互联网，然后点击“刷新”。",
+    "epesi updated to :version": "epesi 已更新至 :version",
     "Not installed": "未安装",
+    "Not updated": "未更新",
     "Optional. Required only for paid modules.": "可选。仅付费模块需要。",
     "Refresh": "刷新",
+    "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "请在 .env 文件中将 MODULES_INSTALL_ENABLED 设置为 true，以允许通过浏览器进行更新。",
     "Store settings": "商店设置",
     "Store settings saved": "“商店”设置已保存",
-    "The store has no modules published yet.": "该商店目前尚未发布任何模块。"
+    "The files are in place. Now update the database.": "文件已就位。现在请更新数据库。",
+    "The store has no modules published yet.": "该商店目前尚未发布任何模块。",
+    "Update epesi to :version": "将 epesi 更新为 :version",
+    "Updating is disabled": "更新功能已禁用"
 }

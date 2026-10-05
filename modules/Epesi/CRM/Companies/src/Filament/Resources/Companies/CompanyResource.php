@@ -60,11 +60,11 @@ class CompanyResource extends RecordsetResource
                 ->inTable(),
             // The switchboard, fax and any other: the list shows the first.
             Field::collection('phones', PhoneNumber::class)->label('Phone numbers')->inTable()->tableOrder(4),
+            // The website, LinkedIn and the like, each linking to its page.
+            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts')->tableOrder(6),
             // Offices, billing, shipping: the list shows the first one's city.
             // Filterable by City/Country only — Has/Kind stay off the panel.
             Field::collection('addresses', Address::class)->inTable()->tableOrder(2)->filterable(itemFieldsOnly: true),
-            // The website, LinkedIn and the like, each linking to its page.
-            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts')->tableOrder(6),
         ];
     }
 }

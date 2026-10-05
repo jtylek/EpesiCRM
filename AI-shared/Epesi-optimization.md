@@ -189,12 +189,14 @@ compares, rather than setting them. OPcache's sizes are fixed when PHP starts: n
 `.htaccess`, `.user.ini` nor `ini_set()` can change them, and on shared hosting only the host
 can.
 
-- **`php-production.ini`** at the top of the epesi folder ships in the release zip. It holds the
-  recommended lines with comments, ready to paste into `php.ini`, and says where that file is
-  on Linux, XAMPP, cPanel and DirectAdmin. The top-level `.htaccess` keeps it off the web.
+- **`config/php-production.ini`** ships in the release zip. It holds the recommended lines with
+  comments, ready to paste into `php.ini`, and says where that file is on Linux, XAMPP, cPanel
+  and DirectAdmin. It is in `config/`, not at the top: an RC2 updater refuses a zip with a
+  top-level file it doesn't know (`CorePackage::FILES`). Laravel loads only `*.php` from `config/`.
 - **`App\Support\Optimize\PhpSettings`** holds the same values, how to compare each one, and why
   it matters. `OptimizeTest` fails when the file and the class disagree.
-- **Administration → About** has a "PHP settings" section: each setting with this server's
+- **Administration → Server Check** has a "PHP settings" section (beside the requirements, web
+  server, PHP and extension details): each setting with this server's
   value, the recommendation and the reason, read in the web server's PHP. It is collapsed when
   everything is met.
 - **The setup wizard's server check** lists each setting below the recommendation as a warning,

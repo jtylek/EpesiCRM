@@ -1,7 +1,13 @@
 {
     "Defaults for everyone; each user can change their own under Settings.": "پیش‌فرض برای همه؛ هر کاربر می‌تواند تنظیمات خود را در بخش «تنظیمات» تغییر دهد.",
+    "Gregorian": "گرگوری",
+    "Hijri": "هجری",
+    "Hijri calendar": "تقویم هجری",
+    "Jalali (Solar Hijri)": "جلالی (شمسی هجری)",
     "Location": "مکان",
     "Regional settings saved": "تنظیمات منطقه‌ای ذخیره شد",
     "Same as the system (:language)": "همانند سیستم (:language)",
-    "State / Province": "ایالت / استان"
+    "State / Province": "ایالت / استان",
+    "Tabular / civil": "جدولی / رسمی",
+    "Umm al-Qura": "ام‌القری"
 }

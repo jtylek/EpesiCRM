@@ -7,13 +7,9 @@ use App\Support\Demo;
 use App\Support\Locale\Locales;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
-use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
-use Filament\Support\Facades\FilamentView;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\HtmlString;
 
 /**
  * Filament's login page, except in demo mode (App\Support\Demo): then it is
@@ -25,25 +21,8 @@ use Illuminate\Support\HtmlString;
  * and never one with super_admin, so the demo login can't open more than the
  * list offers.
  */
-class Login extends BaseLogin
+class Login extends PanelLogin
 {
-    /**
-     * The application's name at the very top of the login card, above the brand.
-     */
-    public function mount(): void
-    {
-        parent::mount();
-
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::SIMPLE_PAGE_START,
-            fn (): HtmlString => new HtmlString(
-                '<div class="mb-4 text-center text-xl font-medium text-gray-500 dark:text-gray-400">'
-                .e(__('Business Information Manager')).'</div>'
-            ),
-            scopes: static::class,
-        );
-    }
-
     public function form(Schema $schema): Schema
     {
         if (! Demo::enabled()) {

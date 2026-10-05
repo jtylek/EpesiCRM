@@ -1,7 +1,13 @@
 {
     "Defaults for everyone; each user can change their own under Settings.": "Impostazioni predefinite per tutti; ogni utente può modificare le proprie in «Impostazioni».",
+    "Gregorian": "Gregoriano",
+    "Hijri": "Hijri",
+    "Hijri calendar": "Calendario islamico",
+    "Jalali (Solar Hijri)": "Jalali (calendario solare hijri)",
     "Location": "Posizione",
     "Regional settings saved": "Impostazioni regionali salvate",
     "Same as the system (:language)": "Come il sistema (:language)",
-    "State / Province": "Stato / Provincia"
+    "State / Province": "Stato / Provincia",
+    "Tabular / civil": "Formato tabellare / civile",
+    "Umm al-Qura": "Umm al-Qura"
 }

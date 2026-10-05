@@ -5,6 +5,7 @@ namespace App\Services\Setup;
 use App\Models\Module;
 use App\Models\User;
 use App\Services\Modules\ModuleInstaller;
+use App\Support\Demo;
 use App\Support\Locale\Locales;
 use App\Support\Mail\MailConfig;
 use App\Support\Modules\ModuleManifest;
@@ -131,7 +132,7 @@ class Installer
             app(RoundcubeSetup::class)->download();
         } catch (Throwable $e) {
             report($e);
-            $this->warnings[] = __('Roundcube could not be downloaded (:reason). Everything else is installed. To try again, open Mailbox in the menu and click "Download and install Roundcube".', ['reason' => $e->getMessage()]);
+            $this->warnings[] = __('Roundcube could not be downloaded (:reason). Everything else is installed. To try again, open Mailbox in the menu and click "Download and install Roundcube".', ['reason' => RoundcubeSetup::explain($e)]);
         }
     }
 
@@ -197,6 +198,11 @@ class Installer
      * APP_DEBUG=true would show configuration values, the database password
      * among them, on every error page. `epesi:install --dev` keeps a
      * developer's settings.
+     *
+     * It also allows updates and module installs from the browser
+     * (Administration → Epesi Store): whoever runs setup becomes the
+     * super_admin who can use them, and on most hosts they couldn't change
+     * .env to switch it on. The demo keeps it off (demo:reset comes here too).
      */
     protected function configureEnvironment(InstallOptions $options): void
     {
@@ -205,6 +211,10 @@ class Installer
         }
 
         $values = ['APP_ENV' => 'production', 'APP_DEBUG' => 'false'];
+
+        if (! Demo::enabled()) {
+            $values['MODULES_INSTALL_ENABLED'] = 'true';
+        }
         $env = new EnvFile;
 
         if (! $env->writable()) {

@@ -5,18 +5,20 @@ namespace App\Filament\Portal\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Support\Auth\PortalEmails;
 use BackedEnum;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Models\Address;
-use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
@@ -107,6 +109,14 @@ class MyContact extends Page
                             ->columnSpanFull()
                             ->visible(fn (): bool => $this->editing),
                     ]),
+                // Not part of the form: each change is made at once (and a new
+                // address needs verifying), since one of them is the login.
+                Section::make(__('E-mail addresses'))
+                    ->description(__('The Primary address is the one you sign in with. A new address has to be verified, with the link e-mailed to it, before it can become the Primary one.'))
+                    ->headerActions([$this->addEmailAction()])
+                    ->schema([
+                        View::make('filament.portal.emails')->viewData(fn (): array => ['rows' => $this->emailRows()]),
+                    ]),
             ]);
     }
 
@@ -131,10 +141,9 @@ class MyContact extends Page
             Field::text('last_name')->required()->maxLength(64),
             Field::text('first_name')->required()->maxLength(64),
             Field::text('title')->maxLength(64),
-            Field::collection('emails', EmailAddress::class)->label('E-mail addresses'),
             Field::collection('phones', PhoneNumber::class)->label('Phone numbers'),
-            Field::collection('addresses', Address::class),
             Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
+            Field::collection('addresses', Address::class),
         ];
     }
 
@@ -203,5 +212,108 @@ class MyContact extends Page
 
                 Notification::make()->title(__('Saved'))->success()->send();
             });
+    }
+
+    /** @return array<int, array{id: int, value: string, primary: bool, verified: bool}> */
+    public function emailRows(): array
+    {
+        return PortalEmails::rows(Auth::user(), $this->contact)->all();
+    }
+
+    protected function addEmailAction(): Action
+    {
+        return Action::make('addEmail')
+            ->label(__('Add e-mail address'))
+            ->icon(Heroicon::OutlinedPlus)
+            ->modalHeading(__('Add e-mail address'))
+            ->modalDescription(__('A link to verify it will be e-mailed to this address.'))
+            ->modalSubmitActionLabel(__('Add and send link'))
+            ->schema([
+                TextInput::make('email')
+                    ->label(__('E-mail'))
+                    ->email()
+                    ->required()
+                    ->maxLength(255)
+                    ->rule(fn (): \Closure => function (string $attribute, mixed $value, \Closure $fail): void {
+                        if ($reason = PortalEmails::whyNotAdd(Auth::user(), (string) $value)) {
+                            $fail($reason);
+                        }
+                    }),
+            ])
+            ->action(function (array $data): void {
+                Gate::authorize('update', $this->contact);
+
+                $this->notifySent(PortalEmails::add(Auth::user(), $this->contact, $data['email']), $data['email']);
+            });
+    }
+
+    public function resendEmailVerificationAction(): Action
+    {
+        return Action::make('resendEmailVerification')
+            ->label(__('Send link again'))
+            ->icon(Heroicon::OutlinedEnvelope)
+            ->link()
+            ->action(function (array $arguments): void {
+                Gate::authorize('update', $this->contact);
+
+                $item = $this->contact->collection('emails')->find($arguments['id'] ?? null);
+
+                if ($item === null || $item->verified_at !== null) {
+                    return;
+                }
+
+                $this->notifySent(PortalEmails::sendVerification($item), $item->value);
+            });
+    }
+
+    public function makeEmailPrimaryAction(): Action
+    {
+        return Action::make('makeEmailPrimary')
+            ->label(__('Make Primary'))
+            ->icon(Heroicon::OutlinedStar)
+            ->link()
+            ->modalHeading(__('Make Primary'))
+            ->modalDescription(__('This address becomes the one you sign in with. Enter your password to confirm.'))
+            ->schema([
+                TextInput::make('password')
+                    ->label(__('Password'))
+                    ->password()
+                    ->revealable()
+                    ->required()
+                    ->currentPassword(),
+            ])
+            ->action(function (array $arguments): void {
+                Gate::authorize('update', $this->contact);
+
+                $why = PortalEmails::makePrimary(Auth::user(), $this->contact, (int) ($arguments['id'] ?? 0));
+
+                $why === null
+                    ? Notification::make()->title(__('Saved'))->success()->send()
+                    : Notification::make()->title($why)->danger()->send();
+            });
+    }
+
+    public function removeEmailAction(): Action
+    {
+        return Action::make('removeEmail')
+            ->label(__('Remove'))
+            ->icon(Heroicon::OutlinedTrash)
+            ->link()
+            ->color('danger')
+            ->requiresConfirmation()
+            ->action(function (array $arguments): void {
+                Gate::authorize('update', $this->contact);
+
+                PortalEmails::remove(Auth::user(), $this->contact, (int) ($arguments['id'] ?? 0))
+                    ? Notification::make()->title(__('Saved'))->success()->send()
+                    : Notification::make()->title(__('The Primary address can not be removed.'))->danger()->send();
+            });
+    }
+
+    protected function notifySent(string $status, string $address): void
+    {
+        $status === PortalEmails::SENT
+            ? Notification::make()->title(__('A link to verify :email was sent', ['email' => $address]))->success()->send()
+            : Notification::make()->title(__('The e-mail could not be sent. Try again later.'))->danger()->send();
     }
 }

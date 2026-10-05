@@ -44,3 +44,6 @@ Thumbs.db
 
 # VS Code local-history extension (can contain old .env snapshots with secrets)
 /.history
+
+# OpenSSL random-state file, left behind by openssl on Windows
+/.rnd

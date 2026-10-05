@@ -53,6 +53,10 @@ class Calendar extends Page
      * as FullCalendar's event source — no separate JSON controller endpoint
      * needed, unlike Epesi's CRM_CalendarCommon::fullcalendar_events().
      *
+     * Only the user's own records (employee or customer on them): every view
+     * asks for a range, and with many users and events the whole company's
+     * events would be too many to query and draw.
+     *
      * @return array<int, array<string, mixed>>
      */
     public function getEvents(string $start, string $end): array
@@ -67,7 +71,7 @@ class Calendar extends Page
             ->flatMap(function (string $provider) use ($start, $end, $user): array {
                 $icon = generate_icon_html(CalendarRegistry::typeIcon($provider), size: IconSize::Small)?->toHtml();
 
-                return CalendarRegistry::eventsBetween($provider, $start, $end, $user)
+                return CalendarRegistry::eventsBetween($provider, $start, $end, $user, mine: true)
                     ->map(fn ($event): array => [
                         ...$event->toArray(),
                         'typeIconHtml' => $icon,

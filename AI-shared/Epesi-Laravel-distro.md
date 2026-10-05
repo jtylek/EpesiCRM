@@ -266,7 +266,7 @@ similar. It needs no shell access.
 - **Apache with `.htaccess` and mod_rewrite**, which almost every shared host has. On an
   nginx-only host, see [Where to put the files](#2-where-to-put-the-files).
 - **Cron jobs**, for mail fetching and reminders. Most panels have them.
-- **OPcache**, ideally with the sizes in `php-production.ini`. Not required, but every page is
+- **OPcache**, ideally with the sizes in `config/php-production.ini`. Not required, but every page is
   much slower without it. Administration → About shows how the server compares, and the setup
   wizard warns about each setting below the recommendation. On shared hosting, ask the host
   for the OPcache sizes; the panel's PHP settings page covers the rest.
@@ -321,6 +321,22 @@ Addresses with `/public` in them, from before, keep working.
 > the server ignores `.htaccess` (nginx, or `AllowOverride None`), and your settings would be
 > readable by anyone once setup has written them. Stop, delete the files, and use option A.
 > Without mod_rewrite, the `.htaccess` serves nothing at all ("Forbidden" everywhere).
+
+**nginx (aaPanel and similar): only option A, plus one rewrite rule.** nginx never reads
+`.htaccess`, so a document root at the epesi folder reaches the folder's `index.php`, which
+shows the two settings for this server with its real path filled in:
+1. Document root = `public/` (aaPanel: Settings → Site directory → Running directory `/public`;
+   untick "Anti-XSS attack (open_basedir)", which would lock PHP inside `public/`).
+2. `location / { try_files $uri $uri/ /index.php?$query_string; }` (aaPanel: URL rewrite →
+   laravel5). Without it the wizard's HTML loads but its card stays empty: the Livewire script
+   (`/livewire-<hash>/livewire.min.js`) is served by a route, and nginx answers 404. The setup
+   panel shows a box naming the status after 5 seconds (`SetupPanelProvider::scriptWatchdog()`).
+
+Don't open `…/public/` on nginx with the root at the epesi folder: the first page loads, but
+every route behind it returns 404. aaPanel's PHP also disables `exec`/`proc_open`/`putenv`/`symlink`
+by default. Setup still finishes, but the Roundcube download fails until they're removed from
+Disabled functions. The server check lists them, and `RoundcubeSetup::explain()` turns
+the PHP error into that advice. `config/nginx.conf.example` in the zip is a full server block.
 
 In both cases, make sure the web server can write to `storage/`, `bootstrap/cache/` and the
 epesi folder itself (for `.env`). On most shared hosts, PHP runs as your own account, so
@@ -411,7 +427,9 @@ it. Without cron, epesi runs without them.
 
   **Updating from the Epesi Store (one click).** From 2.0.0RC2 on, **Administration → Epesi
   Store** shows an **Update epesi to X** button when the store offers a newer core release (it
-  needs `MODULES_INSTALL_ENABLED=true`, like installing a module). It downloads the zip,
+  needs `MODULES_INSTALL_ENABLED=true`, like installing a module; setup writes it into `.env`
+  of every installed system from 2.0.0RC3 on, except in demo mode and `--dev`. An install set
+  up with RC2 or earlier has `false` and needs it changed by hand once). It downloads the zip,
   checks its SHA-256 against the catalog, and `App\Services\Update\CoreUpdater` applies it
   (steps 2 and 3 above, then **Database update**). `php artisan epesi:update-core <zip>` does
   the file step from a zip on disk, for hosts where the web server can't write to the
@@ -558,8 +576,9 @@ notes and listings must say so, and an installer's upgrade button must not offer
 ### SourceForge: ready
 
 SourceForge only hosts downloads, and the zip is exactly what someone downloads, unpacks and
-sets up in the browser. Publish 2.0 as a new release in the existing epesi project. What it
-needs is in place:
+sets up in the browser. Publish 2.0 in the existing epesi project. **All 2.0 releases go into one
+folder, `v2.0`** (from RC5 on; `v2.0RC1` to `v2.0RC3` are older folders, left as they are), and the
+project's default download is set by hand on the file to promote. What it needs is in place:
 - **`LICENSE`** at the top of the zip: MIT with epesi's copyright line, and a note that the
   packages in `vendor/` keep their own licenses and that Roundcube (GPL-3.0) is downloaded
   separately;
@@ -637,7 +656,7 @@ listing.
 | `app/Filament/Support/UpdateNotice.php` | the "database changes are waiting" bar on Administration pages |
 | `app/Http/Middleware/RedirectToDatabaseUpdate.php` | sends administrators to the update, shows everyone else `resources/views/epesi/updating.blade.php` |
 | `app/Console/Commands/EpesiUpdate.php` | `epesi:update` |
-| `php-production.ini` | the recommended `php.ini` settings, compared on Administration → About (see [Epesi-optimization.md](Epesi-optimization.md)) |
+| `config/php-production.ini` | the recommended `php.ini` settings, compared on Administration → About (see [Epesi-optimization.md](Epesi-optimization.md)) |
 | `bootstrap/release-id` (in the zip only) | the build id that tells `FrameworkCaches::guard()` a new release was unpacked |
 | `app/Support/Optimize/*`, `config/optimize.php`, `app/Console/Commands/EpesiOptimize.php` | the caches cron builds, and `CACHE_STORE=auto` (see [Epesi-optimization.md](Epesi-optimization.md)) |
 | `app/Services/Update/{CorePackage,CoreUpdater}.php`, `app/Console/Commands/EpesiUpdateCore.php` | applying a core release zip over the installation (Store "Update epesi", `epesi:update-core`) |

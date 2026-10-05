@@ -39,7 +39,7 @@ class InstallRoundcubeAction
                     report($e);
                     Notification::make()
                         ->title(__('Roundcube could not be installed'))
-                        ->body($e->getMessage())
+                        ->body(RoundcubeSetup::explain($e))
                         ->danger()
                         ->persistent()
                         ->send();

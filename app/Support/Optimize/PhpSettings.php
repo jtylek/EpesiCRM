@@ -4,8 +4,8 @@ namespace App\Support\Optimize;
 
 /**
  * The php.ini settings recommended for a production server, and how this
- * server's compare (AI-shared/Epesi-optimization.md). php-production.ini in
- * the epesi folder holds the same values, ready to copy into php.ini;
+ * server's compare (AI-shared/Epesi-optimization.md). config/php-production.ini
+ * in the epesi folder holds the same values, ready to copy into php.ini;
  * OptimizeTest keeps the two in step.
  *
  * Most of them only php.ini itself can set: OPcache's sizes are fixed when

@@ -58,6 +58,11 @@ class OnlineAccount extends CollectionItem
         ];
     }
 
+    public static function inlineRow(): bool
+    {
+        return true;
+    }
+
     public static function kinds(): string
     {
         return 'Online_Account_Kinds';

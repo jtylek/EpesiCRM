@@ -5,6 +5,7 @@ namespace Epesi\Modules\Appearance;
 use App\Models\User;
 use App\Support\Appearance\AppName;
 use App\Support\Appearance\CurrentTheme;
+use App\Support\Logo;
 use Epesi\Modules\Appearance\Models\AppearanceSetting;
 use Epesi\Modules\Appearance\Models\Theme;
 use Epesi\Modules\Appearance\Models\UserAppearance;
@@ -32,6 +33,7 @@ class AppearanceServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-appearance');
 
         // Only from here does App\Support\Appearance\CurrentTheme resolve to
@@ -50,8 +52,14 @@ class AppearanceServiceProvider extends ServiceProvider
             ] : null;
         }));
 
-        // Same reasoning, for the one global setting that isn't a Theme.
-        AppName::resolveUsing(fn (): string => once(fn (): string => AppearanceSetting::appName()));
+        // Same reasoning, for the global titles that aren't a Theme.
+        AppName::resolveUsing(fn (string $kind): string => once(fn (): string => match ($kind) {
+            AppName::LOGIN => AppearanceSetting::loginTitle(),
+            AppName::PORTAL => AppearanceSetting::portalTitle(),
+            default => AppearanceSetting::appName(),
+        }));
+
+        Logo::resolveUsing(fn (string $target): array => once(fn (): array => AppearanceSetting::logoUrls($target)));
 
         foreach ([Theme::class, UserAppearance::class, AppearanceSetting::class] as $model) {
             $model::saved(fn () => Once::flush());

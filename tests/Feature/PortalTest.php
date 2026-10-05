@@ -5,13 +5,18 @@ namespace Tests\Feature;
 use App\Filament\Administration\Resources\Users\Pages\CreateUser;
 use App\Filament\Portal\Pages\MyContact;
 use App\Models\User;
+use App\Support\Auth\PortalEmails;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -112,7 +117,6 @@ class PortalTest extends TestCase
             ->assertFormSet([
                 'first_name' => 'Joe',
                 'last_name' => 'Marcozzi',
-                'emails' => [['id' => $this->contact->emails->sole()->id, 'kind' => 'work', 'value' => 'joe@acme.test']],
             ]);
 
         $undoRepeaterFake();
@@ -215,6 +219,118 @@ class PortalTest extends TestCase
 
         $mail = $this->sentMail()->sole();
         $this->assertStringContainsString('/portal/password-reset/reset', $mail->getOriginalMessage()->getTextBody());
+    }
+
+    public function test_the_login_address_is_primary_and_verified_and_cannot_be_removed(): void
+    {
+        $this->actingAs($this->customer);
+        $primary = $this->contact->emails->sole();
+
+        $this->assertSame(
+            [['id' => $primary->id, 'value' => 'joe@acme.test', 'primary' => true, 'verified' => true]],
+            Livewire::test(MyContact::class)->instance()->emailRows(),
+        );
+
+        Livewire::test(MyContact::class)
+            ->callAction(TestAction::make('removeEmail')->arguments(['id' => $primary->id]))
+            ->assertNotified('The Primary address can not be removed.');
+
+        $this->assertSame(1, $this->contact->refresh()->emails()->count());
+    }
+
+    public function test_an_added_address_is_unverified_and_gets_a_verification_link(): void
+    {
+        $this->actingAs($this->customer);
+
+        Livewire::test(MyContact::class)
+            ->callAction('addEmail', ['email' => 'Joe@Home.test'])
+            ->assertHasNoActionErrors()
+            ->assertNotified('A link to verify Joe@Home.test was sent');
+
+        $added = EmailAddress::query()->where('value', 'joe@home.test')->sole();
+        $this->assertNull($added->verified_at);
+        $this->assertStringContainsString('/portal-verify-email/'.$added->id.'/', $this->sentMail()->sole()->getOriginalMessage()->getTextBody());
+
+        // Not verified: it can't become the login address.
+        $this->assertNotNull(PortalEmails::makePrimary($this->customer, $this->contact, $added->id));
+        $this->assertSame('joe@acme.test', $this->customer->refresh()->email);
+    }
+
+    public function test_an_address_already_used_by_someone_else_cannot_be_added(): void
+    {
+        $this->actingAs($this->customer);
+        Contact::create(['first_name' => 'Ann', 'last_name' => 'Other'])
+            ->syncCollection('emails', [['value' => 'ann@acme.test']]);
+
+        Livewire::test(MyContact::class)
+            ->callAction('addEmail', ['email' => 'ann@acme.test'])
+            ->assertHasActionErrors(['email']);
+    }
+
+    public function test_the_link_verifies_the_address_and_then_it_can_become_the_login(): void
+    {
+        PortalEmails::add($this->customer, $this->contact, 'joe@home.test');
+        $added = EmailAddress::query()->where('value', 'joe@home.test')->sole();
+
+        $url = URL::temporarySignedRoute('portal.verify-email', now()->addHour(), ['email' => $added->id, 'hash' => sha1('joe@home.test')]);
+        $this->get($url)->assertRedirect();
+        $this->assertNotNull($added->refresh()->verified_at);
+
+        // A tampered link does nothing.
+        $other = EmailAddress::query()->where('value', 'joe@acme.test')->sole();
+        $other->update(['verified_at' => null]);
+        $this->get(route('portal.verify-email', ['email' => $other->id, 'hash' => 'x']))->assertForbidden();
+        $this->assertNull($other->refresh()->verified_at);
+
+        $this->assertNull(PortalEmails::makePrimary($this->customer, $this->contact, $added->id));
+        $this->assertSame('joe@home.test', $this->customer->refresh()->email);
+        $this->assertSame('joe@home.test', $this->contact->refresh()->primaryEmail());
+
+        // The old login address is an ordinary one now: removable.
+        $this->assertTrue(PortalEmails::remove($this->customer, $this->contact, $other->id));
+    }
+
+    public function test_making_an_address_primary_asks_for_the_password(): void
+    {
+        $this->customer->update(['password' => 'secret-pass-1']);
+        PortalEmails::add($this->customer, $this->contact, 'joe@home.test');
+        $added = EmailAddress::query()->where('value', 'joe@home.test')->sole();
+        $added->forceFill(['verified_at' => now()])->save();
+        $this->actingAs($this->customer);
+
+        $action = TestAction::make('makeEmailPrimary')->arguments(['id' => $added->id]);
+
+        Livewire::test(MyContact::class)
+            ->callAction($action, ['password' => 'wrong'])
+            ->assertHasActionErrors(['password']);
+        $this->assertSame('joe@acme.test', $this->customer->refresh()->email);
+
+        Livewire::test(MyContact::class)
+            ->callAction($action, ['password' => 'secret-pass-1'])
+            ->assertHasNoActionErrors();
+        $this->assertSame('joe@home.test', $this->customer->refresh()->email);
+    }
+
+    public function test_changing_an_address_makes_it_unverified_again(): void
+    {
+        PortalEmails::add($this->customer, $this->contact, 'joe@home.test');
+        $added = EmailAddress::query()->where('value', 'joe@home.test')->sole();
+        $added->forceFill(['verified_at' => now()])->save();
+
+        $added->update(['value' => 'joe@elsewhere.test']);
+
+        $this->assertNull($added->refresh()->verified_at);
+    }
+
+    public function test_a_password_reset_verifies_the_login_address(): void
+    {
+        $this->customer->forceFill(['email_verified_at' => null])->save();
+        $this->assertNull($this->contact->emails->sole()->verified_at);
+
+        event(new PasswordReset($this->customer));
+
+        $this->assertNotNull($this->customer->refresh()->email_verified_at);
+        $this->assertNotNull($this->contact->emails()->first()->verified_at);
     }
 
     /**

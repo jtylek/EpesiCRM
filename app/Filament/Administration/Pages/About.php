@@ -5,18 +5,25 @@ namespace App\Filament\Administration\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
-use App\Support\Optimize\PhpSettings;
+use App\Services\Modules\ModuleException;
+use App\Support\Logo;
 use App\Support\Version;
 use BackedEnum;
+use Epesi\Modules\Store\Models\StoreSetting;
+use Epesi\Modules\Store\Services\Diagnostics;
+use Epesi\Modules\Store\Services\Registration;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Callout;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Schema as SchemaBuilder;
 use Illuminate\Support\HtmlString;
 
 /**
@@ -49,16 +56,28 @@ class About extends Page
 
     protected static ?int $navigationSort = -1;
 
+    public function mount(): void
+    {
+        if (! self::storeAvailable()) {
+            return;
+        }
+
+        Diagnostics::rememberWebServer();
+
+        // The e-mail may have been confirmed since: show the registration as it is now.
+        if (StoreSetting::current()->isPending()) {
+            app(Registration::class)->refreshStatus();
+        }
+    }
+
     public function content(Schema $schema): Schema
     {
         return $schema->components([
             Section::make()
                 ->compact()
                 ->schema([
-                    Text::make(Version::label())
-                        ->size(TextSize::Large)
-                        ->weight(FontWeight::Bold),
-                    Text::make(__('Version :version', ['version' => Version::current()])),
+                    Html::make(fn (): HtmlString => $this->header()),
+                    ...$this->registration(),
                 ]),
             Callout::make(__('Support'))
                 ->description(__('Report a bug or ask a question on GitHub, or join the discussion on the forum.'))
@@ -80,7 +99,6 @@ class About extends Page
                         ->link()
                         ->url(self::WEBSITE_URL, shouldOpenInNewTab: true),
                 ]),
-            $this->phpSettingsSection(),
             Section::make(__('License'))
                 ->compact()
                 ->headerActions([
@@ -92,7 +110,7 @@ class About extends Page
                 ])
                 ->schema([
                     Text::make(__('epesi is released under the MIT License')),
-                    Text::make(__('Copyright © :year by Janusz Tylek and Karina Tylek', ['year' => now()->year])),
+                    Text::make(__('Copyright © :year by Janusz Tylek', ['year' => now()->year])),
                     Text::make(__('Third-party packages, including the optional Roundcube webmail, keep their own licenses.')),
                     Text::make(__('By using this software you automatically agree to this End User License Agreement [EULA].'))
                         ->weight(FontWeight::Medium),
@@ -107,56 +125,73 @@ class About extends Page
         ]);
     }
 
-    /** "PHP 8.2.12 · apache2handler · C:\xampp\php\php.ini", with a note when epesi needs a newer PHP. */
-    protected function phpRuntimeLine(): HtmlString
+    /**
+     * The logo, its tagline under it, then "epesi" in bold with the version on the same line.
+     */
+    private function header(): HtmlString
     {
-        $php = PhpSettings::runtime();
-        $parts = [
-            '<strong>PHP '.e($php['version']).'</strong>',
-            e($php['sapi']),
-            $php['ini'] !== '' ? '<code>'.e($php['ini']).'</code>' : e(__('no php.ini loaded')),
-        ];
+        // White in dark mode (Filament's `dark` class on <html>), gray otherwise.
+        $style = 'font-size:.875rem';
 
-        if (! $php['supported']) {
-            $parts[] = '<span style="color:var(--danger-600);font-weight:600">'.e(__('epesi needs PHP 8.2 or newer')).'</span>';
-        }
-
-        return new HtmlString(implode(' · ', $parts));
+        return new HtmlString(
+            '<style>.epesi-about-text{color:var(--gray-500)}.dark .epesi-about-text{color:#fff}</style>'
+            // The tagline is as wide as the logo: a bigger font, and the last (only) line justified to fill the rest.
+            .'<div style="display:inline-block">'
+            .Logo::html('3.5rem')
+            .'<div class="epesi-about-text" style="font-size:1.1rem;margin-top:.25rem;font-weight:700;text-align-last:justify">'
+            .e(__('Business Information Manager')).'</div></div>'
+            .'<div class="epesi-about-text" style="'.$style.';margin-top:.75rem"><strong style="font-size:1.125rem;font-weight:700;margin-right:.5rem">epesi</strong>'
+            .e(__('Version :version', ['version' => Version::current()])).'</div>'
+        );
     }
 
     /**
-     * The web server's php.ini against the production recommendation
-     * (PhpSettings), collapsed when everything meets it.
+     * Registered or not, and the way to register: the Epesi Store (a core
+     * module) serves updates and its catalog to registered installations.
+     *
+     * @return array<int, Text|Actions>
      */
-    protected function phpSettingsSection(): Section
+    protected function registration(): array
     {
-        $rows = PhpSettings::compare();
-        $below = count(array_filter($rows, fn (array $row): bool => ! $row['ok']));
+        if (! self::storeAvailable()) {
+            return [];
+        }
 
-        $html = collect($rows)->map(function (array $row): string {
-            $color = $row['ok'] ? 'var(--success-600)' : 'var(--warning-600)';
+        $setting = StoreSetting::current();
 
-            return '<tr>'
-                .'<td style="padding:.15rem 1rem .15rem 0"><code>'.e($row['setting']).'</code></td>'
-                .'<td style="padding:.15rem 1rem .15rem 0;color:'.$color.';font-weight:600">'.e($row['current']).'</td>'
-                .'<td style="padding:.15rem 1rem .15rem 0">'.e($row['recommended']).'</td>'
-                .'<td style="padding:.15rem 0;color:var(--gray-500)">'.e($row['why']).'</td></tr>';
-        })->implode('');
+        if ($setting->isRegistered()) {
+            return [Text::make(__('You are running registered version.'))->color('success')];
+        }
 
-        $head = '<tr style="text-align:start"><th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('Setting')).'</th>'
-            .'<th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('This server')).'</th>'
-            .'<th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('Recommended')).'</th><th></th></tr>';
+        return [
+            Text::make($setting->isPending()
+                ? __('Registration pending: confirm the link sent to :email.', ['email' => $setting->registered_email ?? __('your e-mail')])
+                : __('You are running unregistered version.'))
+                ->color('warning'),
+            Actions::make([
+                Action::make('register')
+                    ->label($setting->isPending() ? __('Open the registration form') : __('Register your Epesi'))
+                    ->icon(Heroicon::OutlinedCheckBadge)
+                    ->link()
+                    ->action(function (): void {
+                        try {
+                            $url = app(Registration::class)->start(auth()->user());
+                        } catch (ModuleException $exception) {
+                            Notification::make()->danger()->title(__('The Epesi Store could not be reached'))->body($exception->getMessage())->send();
 
-        return Section::make(__('PHP settings'))
-            ->description($below === 0
-                ? __('This server meets every recommended php.ini setting.')
-                : __(':count of the recommended php.ini settings are not met. The file php-production.ini in the epesi folder holds them, ready to copy into php.ini. On shared hosting, the OPcache sizes can only be changed by the host.', ['count' => $below]))
-            ->compact()
-            ->collapsible()
-            ->collapsed($below === 0)
-            ->schema([
-                Text::make($this->phpRuntimeLine())->weight(FontWeight::Medium),
-                Text::make(new HtmlString('<div style="overflow-x:auto"><table style="font-size:.875rem">'.$head.$html.'</table></div>')),
-            ]);
+                            return;
+                        }
+
+                        $this->redirect($url);
+                    }),
+            ])->key('registration'),
+        ];
+    }
+
+    /** The Store module's tables exist (not before its migrations ran). */
+    protected static function storeAvailable(): bool
+    {
+        return class_exists(StoreSetting::class)
+            && rescue(fn (): bool => SchemaBuilder::hasColumn('epesi_store_settings', 'registration_status'), false, report: false);
     }
 }

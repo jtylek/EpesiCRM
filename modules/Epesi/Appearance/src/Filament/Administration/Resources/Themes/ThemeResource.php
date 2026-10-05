@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * Administration → Themes: named looks (an accent colour and a density) an
@@ -36,6 +37,14 @@ class ThemeResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSwatch;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    // First under "Appearance", ahead of Logo & Title (a sort below -1 pins an item).
+    protected static ?int $navigationSort = -2;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('Appearance');
+    }
 
     public static function form(Schema $schema): Schema
     {

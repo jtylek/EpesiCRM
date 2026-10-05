@@ -104,6 +104,26 @@ class CollectionsTest extends TestCase
         $undoRepeaterFake();
     }
 
+    public function test_the_short_types_are_one_row_each(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $undoRepeaterFake = Repeater::fake();
+        $contact = ContactResource::getModel()::create(['last_name' => 'Buyer', 'first_name' => 'Ann']);
+        $contact->syncCollection('addresses', [['kind' => 'business', 'city' => 'Warsaw', 'country' => 'PL']]);
+        $contact->syncCollection('phones', [['kind' => 'work', 'value' => '+48 600 100 200']]);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@buyer.test']]);
+        $contact->syncCollection('online_accounts', [['kind' => 'website', 'value' => 'www.buyer.test']]);
+
+        // The short types are a table repeater (CollectionItem::inlineRow()):
+        // handle, kind, fields and delete on one line, nothing to collapse.
+        $page = Livewire::test(EditContact::class, ['record' => $contact->getRouteKey()]);
+
+        // E-mail, phone and online accounts; an address stays a card.
+        $this->assertSame(3, substr_count($page->html(), '<thead>'));
+
+        $undoRepeaterFake();
+    }
+
     public function test_saved_items_start_collapsed_and_a_new_one_open(): void
     {
         $this->actingAs($this->userWithRole('employee'));

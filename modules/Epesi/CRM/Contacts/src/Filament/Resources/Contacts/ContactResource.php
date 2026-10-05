@@ -13,12 +13,23 @@ use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class ContactResource extends RecordsetResource
@@ -53,6 +64,38 @@ class ContactResource extends RecordsetResource
         return $record instanceof Contact ? $record->full_name : parent::getRecordTitle($record);
     }
 
+    /**
+     * Create only, as in legacy Epesi: tick "Create company", name it, and the
+     * new company is made with the contact in one step (CreateContact) and
+     * takes the contact's addresses. Neither input is saved on the contact.
+     */
+    protected static function extendForm(Schema $schema): Schema
+    {
+        $components = $schema->getComponents();
+
+        $createCompany = Grid::make(1)
+            ->columnSpanFull()
+            ->visible(fn (string $operation): bool => $operation === 'create' && Gate::allows('create', Company::class))
+            ->schema([
+                Checkbox::make('create_company')
+                    ->label('Create company')
+                    ->hintIcon(Heroicon::OutlinedInformationCircle, tooltip: __('Also creates a new company with this contact\'s addresses and sets it as the contact\'s company.'))
+                    ->live()
+                    ->dehydrated(false)
+                    ->afterStateUpdated(fn (Set $set, bool $state) => $state ? $set('company_id', null) : null),
+                TextInput::make('new_company_name')
+                    ->label('Company Name')
+                    ->required()
+                    ->maxLength(128)
+                    ->visible(fn (Get $get): bool => (bool) $get('create_company'))
+                    ->dehydrated(false),
+            ]);
+
+        array_splice($components, 1, 0, [$createCompany]);
+
+        return $schema->components($components);
+    }
+
     public static function fields(): array
     {
         return [
@@ -76,6 +119,10 @@ class ContactResource extends RecordsetResource
                 ->titleAttribute('company_name')
                 ->inTable()
                 ->filterable()
+                // Taken by the company "Create company" makes (extendForm()).
+                ->formUsing(fn (Select $component): Select => $component
+                    ->disabled(fn (Get $get): bool => (bool) $get('create_company'))
+                    ->dehydrated(fn (Get $get): bool => ! $get('create_company')))
                 ->columnUsing(fn (): TextColumn => LinkedRecords::style(
                     TextColumn::make('company.company_name')
                         ->label('Company')
@@ -93,6 +140,17 @@ class ContactResource extends RecordsetResource
                 ->required()
                 ->default(RecordPermission::Public)
                 ->notInTable(),
+            // The roles of the contact's login, View only. Like the Autonumber it
+            // borrows its type from, it has no column of its own: it is read off
+            // the linked user, and nothing is posted or saved for it.
+            Field::make('roles', FieldType::Autonumber)
+                ->inForm(false)
+                ->notInTable()
+                ->searchable(false)
+                ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
+                    ->state(fn (Contact $record): array => $record->user?->getRoleNames()->map(fn (string $role): string => Str::headline($role))->all() ?? [])
+                    ->badge()
+                    ->color('warning')),
             Field::longText('memo')->notInTable(),
 
             // Short fields first, then Memo, then the Collections below —
@@ -109,11 +167,11 @@ class ContactResource extends RecordsetResource
                 ->label('Phone numbers')
                 ->columnsForKinds(['work' => 'Work Phone', 'mobile' => 'Mobile Phone'])
                 ->inTable(),
+            // The website, LinkedIn and the like, each linking to its page.
+            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
             // Business, home and any other: the list shows the first one's city.
             // Filterable by City/Country only — Has/Kind stay off the panel.
             Field::collection('addresses', Address::class)->inTable()->filterable(itemFieldsOnly: true),
-            // The website, LinkedIn and the like, each linking to its page.
-            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
 
             // The linked login. Not shown in the Main panel at all — view,
             // form or table — for any role: a login is entirely an

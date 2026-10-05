@@ -48,7 +48,7 @@ class CommonDataRepository
     {
         $order = $this->validateOrder($order);
 
-        return $this->remember("array:{$path}:{$order}:".(int) $translate, function () use ($path, $order, $translate): array {
+        return $this->remember("array:{$path}:{$order}:".$this->variant($translate), function () use ($path, $order, $translate): array {
             $parent = $this->node($path);
 
             if (! $parent) {
@@ -83,7 +83,7 @@ class CommonDataRepository
      */
     public function value(string $path, bool $translate = true): ?string
     {
-        return $this->remember("value:{$path}:".(int) $translate, function () use ($path, $translate): ?string {
+        return $this->remember("value:{$path}:".$this->variant($translate), function () use ($path, $translate): ?string {
             $value = $this->node($path)?->value;
 
             if ($value === null) {
@@ -271,6 +271,17 @@ class CommonDataRepository
     {
         // Always ahead of the last one, even for two writes in a millisecond.
         Cache::forever(self::VERSION_KEY, max((int) Cache::get(self::VERSION_KEY, 0) + 1, static::now()));
+    }
+
+    /**
+     * What a cached read depends on besides its path: translated reads differ
+     * per language, so the locale is part of their key. Without it the first
+     * language to read a list fills the cache and every other user gets that
+     * language for the next day.
+     */
+    protected function variant(bool $translate): string
+    {
+        return $translate ? app()->getLocale() : 'raw';
     }
 
     protected function remember(string $key, callable $callback): mixed

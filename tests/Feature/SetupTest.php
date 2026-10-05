@@ -137,6 +137,7 @@ class SetupTest extends TestCase
         $this->assertStringContainsString('APP_NAME=epesi', $env, 'other keys are kept');
         $this->assertStringContainsString('APP_ENV=production', $env);
         $this->assertStringContainsString('APP_DEBUG=false', $env);
+        $this->assertStringContainsString('MODULES_INSTALL_ENABLED=true', $env, 'the Store can update an installed system');
 
         SetupState::flush();
         $this->assertTrue(SetupState::isInstalled());

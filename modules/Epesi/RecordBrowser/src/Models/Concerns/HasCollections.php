@@ -137,6 +137,25 @@ trait HasCollections
                 $item = new $type;
                 $values = array_intersect_key($data, array_flip($item->getFillable()));
 
+                // An item something depends on stays, as it is but for its kind,
+                // whatever was posted (or left out: a disabled input isn't posted).
+                $lockedId = is_numeric($data['id'] ?? null) ? (int) $data['id'] : null;
+                $locked = $lockedId !== null && ! isset($kept[$lockedId]) ? $existing->get($lockedId) : null;
+
+                if ($locked?->isLocked()) {
+                    $locked->fill(array_intersect_key($values, ['kind' => true]));
+                    $locked->position = ++$position;
+
+                    if ($locked->isDirty()) {
+                        $locked->save();
+                        $changed = true;
+                    }
+
+                    $kept[$lockedId] = $locked;
+
+                    continue;
+                }
+
                 if (! $this->collectionItemHasValues($values)) {
                     continue;
                 }
@@ -165,6 +184,14 @@ trait HasCollections
             }
 
             foreach ($existing as $id => $item) {
+                if (! isset($kept[$id]) && $item->isLocked()) {
+                    $kept[$id] = $item;
+                    $item->position = ++$position;
+                    $item->save();
+
+                    continue;
+                }
+
                 if (! isset($kept[$id])) {
                     $item->delete();
                     $changed = true;
