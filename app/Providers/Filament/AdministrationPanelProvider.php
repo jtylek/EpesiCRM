@@ -77,13 +77,18 @@ class AdministrationPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Administration/Resources'), for: 'App\Filament\Administration\Resources')
             ->pages([About::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, ServerCheck::class, Translations::class])
+            // About, Epesi Store, Modules and Database update sit above the
+            // groups, in that order (their navigationSort is below -1, which
+            // AlphabeticalNavigationManager keeps); the groups follow.
+            ->navigationGroups(['Server Setup', 'Data'])
             ->renderHook(PanelsRenderHook::CONTENT_START, fn () => UpdateNotice::render())
-            // A user's chosen theme's density, applied before first paint —
-            // see App\Support\Appearance\CurrentTheme. Not the accent
+            // Always the compact density, whatever the signed-in user's own
+            // theme says (their font size still applies), applied before
+            // first paint — see App\Support\Appearance\CurrentTheme. Not the accent
             // colour: this panel keeps its own fixed Epesi Green so it stays
             // recognisable regardless of the signed-in user's own theme
             // (ApplyThemeColor is wired into main and user-settings only).
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user(), alwaysCompact: true))
             ->plugins([
                 FilamentShieldPlugin::make(),
                 ...ModuleRegistry::pluginsFor('administration'),

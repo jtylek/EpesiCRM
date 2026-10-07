@@ -106,10 +106,24 @@ class CustomFieldRegistry
      */
     public static function columnsFor(string $model): array
     {
-        return array_column(
-            array_filter(static::forModel($model), fn (array $definition): bool => FieldType::from((string) $definition['type'])->hasColumn()),
-            'column',
-        );
+        $columns = [];
+
+        foreach (static::forModel($model) as $definition) {
+            $type = FieldType::from((string) $definition['type']);
+
+            if (! $type->hasColumn()) {
+                continue;
+            }
+
+            $columns[] = (string) $definition['column'];
+
+            // A Currency field's code: `cf_12_currency` beside `cf_12`.
+            if ($type === FieldType::Currency) {
+                $columns[] = $definition['column'].'_currency';
+            }
+        }
+
+        return $columns;
     }
 
     /**

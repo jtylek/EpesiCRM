@@ -17,6 +17,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use UnitEnum;
 
 /**
  * Administration → which record types can go on a priority list. Every
@@ -30,6 +31,8 @@ class PriorityListManagement extends Page implements HasTable
     use HidesPageHeading;
     use InteractsWithTable;
     use TranslatesPageLabels;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Data';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
 

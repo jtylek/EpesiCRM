@@ -4,8 +4,8 @@ namespace App\Filament\Administration\Resources\LoginAudits\Tables;
 
 use App\Models\LoginAudit;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LoginAuditsTable
 {
@@ -46,13 +46,8 @@ class LoginAuditsTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('user_id')
-                    ->label('User')
-                    ->relationship('user', 'email')
-                    ->searchable()
-                    ->preload(),
-            ])
+            ->modifyQueryUsing(fn (Builder $query, $livewire): Builder => $query
+                ->when(filled($livewire->auditUser ?? null), fn (Builder $q) => $q->where('user_id', $livewire->auditUser)))
             ->defaultSort('ended_at', 'desc');
     }
 }

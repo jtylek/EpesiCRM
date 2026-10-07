@@ -10,6 +10,7 @@
     "Set up a mail account": "הגדרת חשבון דואר אלקטרוני",
     "Switching account — please wait…": "מעבר בין חשבונות — אנא המתן…",
     "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "תוכנת הדואר האלקטרוני לא נטענה: שרת האינטרנט שלח את דפי Roundcube ל-Epesi במקום להציג אותם בעצמו. ראו \"דרישות שרת האינטרנט\" ב:doc-.",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.": "תוכנת הדואר האלקטרוני לא נטענה: שרת האינטרנט שלח את דפי Roundcube ל-Epesi במקום להציג אותם בעצמו. על שרת האינטרנט להציג את הספרייה:dir כקובצי טקסט רגילים, כולל כתובות ה-URL של הספרייה (?_task=mail) וכתובות ה-URL של static.php/... בקשו מהמנהל שלכם להתאים את תצורת שרת האינטרנט.",
     "The mail client, Roundcube, isn't installed yet.": "תוכנת הדואר האלקטרוני Roundcube עדיין לא הותקנה.",
     "You have no mail account with an incoming (IMAP) server yet.": "עדיין אין לך חשבון דואר עם שרת נכנס (IMAP).",
     "Your mail server refused the login. Check this account under Settings > Mail accounts.": "שרת הדואר שלך דחה את הכניסה. בדוק את החשבון הזה תחת 'הגדרות' > 'חשבונות דואר'."

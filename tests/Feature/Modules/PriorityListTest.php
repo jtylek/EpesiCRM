@@ -18,6 +18,7 @@ use Epesi\Modules\PriorityList\PriorityList;
 use Epesi\Modules\ProjectsTickets\Models\Project;
 use Epesi\Modules\ProjectsTickets\Models\Ticket;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
+use Epesi\Modules\SalesOpportunity\Models\SalesOpportunity;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -88,7 +89,11 @@ class PriorityListTest extends TestCase
             $types[] = 'ticket';
         }
 
-        $this->assertSame($types, PriorityList::recordTypes());
+        if (class_exists(SalesOpportunity::class)) {
+            $types[] = 'sales_opportunity';
+        }
+
+        $this->assertEqualsCanonicalizing($types, PriorityList::recordTypes());
 
         $company = Company::create(['company_name' => 'ACME']);
 

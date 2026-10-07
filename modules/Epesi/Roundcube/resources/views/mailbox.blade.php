@@ -214,7 +214,7 @@
                 {{ __('Switching account — please wait…') }}
             </div>
             <div x-cloak x-show="broken" style="padding: 0.75rem 1rem; font-size: 0.875rem; color: rgb(220 38 38);">
-                {!! __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. See "Web server requirements" in :doc.', ['doc' => '<code>AI-shared/Epesi-Laravel-Roundcube.md</code>']) !!}
+                {{ __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.', ['dir' => 'public/epesi-webmail']) }}
             </div>
             <iframe
                 x-ref="frame"

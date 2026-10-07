@@ -24,6 +24,9 @@ removed, or its purpose changes.
   working tree) and what they don't, telling the other sessions before and after a test run,
   how to run tests meanwhile, and two ways to make runs independent (a token per run, or a
   lock).
+- [Epesi-currencies.md](Epesi-currencies.md) — the core Currencies module: ISO-coded currencies,
+  the dated home currency, the ECB/NBP daily rate cache (N rows a day, cross rates derived on
+  read) and `RateResolver`, the one place the booking-rate precedence lives.
 - [conventions.md](conventions.md) — UI and code conventions applied across every resource in
   this app (navigation, page actions, terminology, custom fields).
 - [cron.md](cron.md) — the one cron entry (`cron.php` every minute) that runs epesi's

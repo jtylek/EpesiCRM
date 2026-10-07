@@ -256,6 +256,68 @@ class LegacyImportTest extends TestCase
         $this->assertSame(1, MailAccount::count());
     }
 
+    public function test_wipe_is_a_dry_run_by_default_and_needs_confirmation_and_a_fresh_backup(): void
+    {
+        $this->coreRecords();
+        $database = DB::connection()->getDatabaseName();
+        $backup = $this->dataDir.'/dump.sql';
+        File::put($backup, '-- dump');
+        activity()->performedOn(Company::create(['company_name' => 'Gone']))->log('created');
+        activity('module')->log('settings history stays');
+        $before = Company::withTrashed()->count();
+
+        $this->artisan('import:legacy:wipe')->assertSuccessful();
+        $this->assertSame($before, Company::withTrashed()->count(), 'dry run changes nothing');
+
+        $this->artisan('import:legacy:wipe', ['--force' => true, '--backup' => $backup])->assertFailed();
+        $this->artisan('import:legacy:wipe', ['--force' => true, '--confirm' => 'other', '--backup' => $backup])->assertFailed();
+        $this->artisan('import:legacy:wipe', ['--force' => true, '--confirm' => $database])->assertFailed();
+        touch($backup, time() - 2 * 86400);
+        $this->artisan('import:legacy:wipe', ['--force' => true, '--confirm' => $database, '--backup' => $backup])->assertFailed();
+        $this->assertSame($before, Company::withTrashed()->count(), 'every refusal leaves the data alone');
+
+        touch($backup);
+        $this->artisan('import:legacy:wipe', ['--force' => true, '--confirm' => $database, '--backup' => $backup])->assertSuccessful();
+
+        $this->assertSame(0, Company::withTrashed()->count());
+        $this->assertSame(0, Contact::withTrashed()->count());
+        $this->assertSame(0, Task::withTrashed()->count());
+        $this->assertSame(0, DB::table('activity_log')->where('subject_type', 'company')->count());
+        $this->assertGreaterThan(0, User::count(), 'users are settings, not wiped');
+        $this->assertSame(1, DB::table('activity_log')->where('log_name', 'module')->count(), 'module history stays');
+    }
+
+    public function test_users_reimport_keeps_an_email_legacy_offers_unchanged_and_never_downgrades_to_invalid(): void
+    {
+        $this->legacy()->create('user_login', function (Blueprint $t) {
+            $t->integer('id');
+            $t->string('login');
+            $t->integer('active')->default(1);
+        });
+        $this->legacy()->create('user_password', function (Blueprint $t) {
+            $t->integer('user_login_id');
+            $t->string('mail')->nullable();
+        });
+        $l = DB::connection('legacy');
+        $l->table('user_login')->insert([['id' => 1, 'login' => 'jasiek'], ['id' => 2, 'login' => 'ghost'], ['id' => 3, 'login' => 'clash']]);
+        // jasiek: legacy mail equals what the app already has; ghost: blank in legacy; clash: legacy offers jasiek's address.
+        $l->table('user_password')->insert([
+            ['user_login_id' => 1, 'mail' => 'j@epe.si'],
+            ['user_login_id' => 2, 'mail' => ''],
+            ['user_login_id' => 3, 'mail' => 'j@epe.si'],
+        ]);
+
+        User::factory()->create(['email' => 'j@epe.si'])->forceFill(['legacy_id' => 1])->save();
+        User::factory()->create(['email' => 'ghost@real.test'])->forceFill(['legacy_id' => 2])->save();
+
+        $this->artisan('import:legacy', ['tab' => 'users'])->assertSuccessful();
+
+        $email = fn (int $legacyId): string => User::where('legacy_id', $legacyId)->sole()->email;
+        $this->assertSame('j@epe.si', $email(1), 'own address offered back by legacy is not "taken"');
+        $this->assertSame('ghost@real.test', $email(2), 'blank legacy mail keeps the local address');
+        $this->assertSame('clash@imported.invalid', $email(3), 'another user\'s address still falls back');
+    }
+
     /**
      * @return array{0: User, 1: Contact, 2: Company, 3: Task}
      */

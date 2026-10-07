@@ -62,6 +62,12 @@ class Requirements
         $modules = is_writable(base_path('modules'));
         $rows[] = $this->row('modules/ writable', $modules, $modules ? 'OK' : 'not writable (installing modules from the web page won\'t work)', required: false);
 
+        // Installing Roundcube links public/epesi-webmail to its public_html; as the
+        // web server user that fails with "symlink(): Permission denied" when
+        // public/ isn't writable. Optional: Roundcube is a module.
+        $public = is_writable(public_path());
+        $rows[] = $this->row('public/ writable', $public, $public ? 'OK' : 'not writable (installing Roundcube from the web page won\'t work)', required: false);
+
         // The Roundcube download and cron's tasks need these; a panel such as
         // aaPanel or a shared host often disables them. Only in the browser,
         // since the command line's php.ini isn't the web server's.

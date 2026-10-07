@@ -6,12 +6,9 @@ use App\Models\User;
 use App\Services\FileStorage;
 use App\Services\LegacyImport\ImportSummary;
 use App\Services\LegacyImport\LegacyIdMap;
+use App\Services\LegacyImport\LegacyRecordRefs;
 use App\Services\LegacyImport\LegacyValue;
-use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\CRM\Meetings\Models\Meeting;
-use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
-use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Models\MailThread;
@@ -43,14 +40,11 @@ use Illuminate\Support\Str;
  */
 class MailImporter
 {
-    /** Legacy recordset name of a "Related" token => this app's model. */
-    protected const RELATED = [
-        'contact' => Contact::class,
-        'company' => Company::class,
-        'task' => Task::class,
-        'crm_meeting' => Meeting::class,
-        'phonecall' => PhoneCall::class,
-    ];
+    /**
+     * What a "Related" token's legacy recordset became here: whatever importer
+     * brings it over, core or a module's.
+     */
+    protected LegacyRecordRefs $refs;
 
     protected ImportSummary $summary;
 
@@ -79,9 +73,11 @@ class MailImporter
             $this->summary->warn('LEGACY_DATA_DIR is not set: attachments and encrypted account passwords are skipped (point it at the legacy install\'s data/ directory)');
         }
 
-        foreach ([User::class, Contact::class, Company::class, Task::class, Meeting::class, PhoneCall::class] as $class) {
+        foreach ([User::class, Contact::class] as $class) {
             $this->maps[$class] = LegacyIdMap::for($class);
         }
+
+        $this->refs = LegacyRecordRefs::fromImporters();
 
         $this->importAccounts();
         $this->importMails();
@@ -354,10 +350,7 @@ class MailImporter
             return null;
         }
 
-        $class = self::RELATED[$tab] ?? null;
-        $newId = $class ? $this->maps[$class]->get($id) : null;
-
-        return $newId ? $class::query()->withoutGlobalScopes()->find($newId) : null;
+        return $this->refs->record($tab, $id);
     }
 
     protected function importAttachments(Mail $mail, int $legacyMailId, ?string $date): void

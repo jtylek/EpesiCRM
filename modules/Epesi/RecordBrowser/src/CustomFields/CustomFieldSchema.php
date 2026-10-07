@@ -62,12 +62,37 @@ class CustomFieldSchema
         $table = $this->tableFor($field);
 
         if (Schema::hasColumn($table, (string) $field->column)) {
+            $this->addCurrencyColumn($table, $field);
+
             return;
         }
 
         $this->assertUnderLimit($field);
 
         Schema::table($table, fn (Blueprint $blueprint) => $this->define($blueprint, $field));
+
+        $this->addCurrencyColumn($table, $field);
+    }
+
+    /**
+     * A Currency field's second column, `cf_N_currency`: the amount's ISO
+     * code. Nullable like the amount; added on its own so a field changed from
+     * Decimal to Currency gets it too.
+     */
+    protected function addCurrencyColumn(string $table, CustomField $field): void
+    {
+        $column = static::currencyColumnOf($field);
+
+        if ($field->type !== FieldType::Currency || Schema::hasColumn($table, $column)) {
+            return;
+        }
+
+        Schema::table($table, fn (Blueprint $blueprint) => $blueprint->char($column, 3)->nullable());
+    }
+
+    public static function currencyColumnOf(CustomField $field): string
+    {
+        return $field->column.'_currency';
     }
 
     /**
@@ -95,6 +120,8 @@ class CustomFieldSchema
         }
 
         Schema::table($table, fn (Blueprint $blueprint) => $this->define($blueprint, $field)->change());
+
+        $this->addCurrencyColumn($table, $field);
     }
 
     /**
@@ -124,11 +151,16 @@ class CustomFieldSchema
 
         $table = $this->tableFor($field);
 
-        if (! Schema::hasColumn($table, (string) $field->column)) {
+        $columns = array_values(array_filter(
+            [(string) $field->column, static::currencyColumnOf($field)],
+            fn (string $column): bool => ($column === $field->column || $field->type === FieldType::Currency) && Schema::hasColumn($table, $column),
+        ));
+
+        if ($columns === []) {
             return;
         }
 
-        Schema::table($table, fn (Blueprint $blueprint) => $blueprint->dropColumn((string) $field->column));
+        Schema::table($table, fn (Blueprint $blueprint) => $blueprint->dropColumn($columns));
     }
 
     /**
@@ -153,7 +185,8 @@ class CustomFieldSchema
                 continue;
             }
 
-            if (Schema::hasColumn($table, (string) $field->column)) {
+            if (Schema::hasColumn($table, (string) $field->column)
+                && ($field->type !== FieldType::Currency || Schema::hasColumn($table, static::currencyColumnOf($field)))) {
                 continue;
             }
 
@@ -177,7 +210,9 @@ class CustomFieldSchema
             FieldType::Email->value => [FieldType::Text, FieldType::LongText],
             FieldType::Url->value => [FieldType::Text, FieldType::LongText],
             FieldType::Phone->value => [FieldType::Text, FieldType::LongText],
-            FieldType::Integer->value => [FieldType::Decimal],
+            // An amount gains a currency column, which starts empty.
+            FieldType::Integer->value => [FieldType::Decimal, FieldType::Currency],
+            FieldType::Decimal->value => [FieldType::Currency],
             FieldType::Select->value => [FieldType::Text, FieldType::LongText],
         ];
 
@@ -207,7 +242,8 @@ class CustomFieldSchema
             FieldType::Text, FieldType::Email, FieldType::Url, FieldType::Phone, FieldType::Select => $blueprint->string($column, (int) ($params['length'] ?? 255)),
             FieldType::LongText => $blueprint->text($column),
             FieldType::Integer => $blueprint->bigInteger($column),
-            FieldType::Decimal => $blueprint->decimal($column, 15, (int) ($params['decimals'] ?? 2)),
+            // A Currency field's amount; addCurrencyColumn() adds its code.
+            FieldType::Decimal, FieldType::Currency => $blueprint->decimal($column, 15, (int) ($params['decimals'] ?? 2)),
             FieldType::Date => $blueprint->date($column),
             FieldType::DateTime => $blueprint->dateTime($column),
             FieldType::Time => $blueprint->time($column),

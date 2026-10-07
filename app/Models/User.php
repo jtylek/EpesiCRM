@@ -10,6 +10,8 @@ use Database\Factories\UserFactory;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use IFRS\Models\Entity;
+use IFRS\Traits\IFRSUser;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -22,7 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, HasLocalePreference
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, LogsActivity, Notifiable;
+    use HasFactory, HasRoles, IFRSUser, LogsActivity, Notifiable;
 
     /**
      * The roles that open epesi's main panel. Other roles have their own,
@@ -30,7 +32,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
      * (Administration → Users still creates their login; see
      * AI-shared/Customer-portal.md) — or none yet, until one is built.
      */
-    public const MAIN_PANEL_ROLES = ['super_admin', 'manager', 'employee'];
+    public const MAIN_PANEL_ROLES = ['super_admin', 'manager', 'employee', 'accountant'];
 
     /**
      * The History of a user: who changed the name, e-mail address or active
@@ -55,6 +57,21 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
                 UserActivity::passwordChanged($user);
             }
         });
+    }
+
+    /**
+     * The accounting entity (eloquent-ifrs) the user posts to. The ledger
+     * reads it off the signed-in user; epesi keeps a single entity per
+     * install, so every user shares it whatever their entity_id says. Null
+     * until Accounting has set its ledger up.
+     */
+    public function getEntityAttribute(): ?Entity
+    {
+        if ($this->getRelationValue('entity') === null && ($entity = Entity::query()->oldest('id')->first()) !== null) {
+            $this->setRelation('entity', $entity);
+        }
+
+        return $this->getRelationValue('entity');
     }
 
     /**

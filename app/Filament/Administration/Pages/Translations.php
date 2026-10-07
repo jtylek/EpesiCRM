@@ -23,12 +23,14 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use UnitEnum;
 
 /**
  * The Translations tab of Epesi's Base/Lang/Administrator: every string of
@@ -51,6 +53,8 @@ class Translations extends Page implements HasTable
     public const GITHUB_URL = 'https://github.com/jtylek/epesiCRM';
 
     public const FORUM_URL = 'https://forum.epe.si/';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Server Setup';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLanguage;
 
@@ -156,6 +160,7 @@ class Translations extends Page implements HasTable
             ])
             ->searchable()
             ->recordAction('translate')
+            ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActions([
                 $this->translateAction(),
                 $this->revertAction(),

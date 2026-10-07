@@ -5,6 +5,7 @@ namespace Epesi\Modules\Appearance\Filament\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use BackedEnum;
 use Epesi\Modules\Appearance\Models\Theme;
 use Epesi\Modules\Appearance\Models\UserAppearance;
@@ -26,6 +27,7 @@ class Appearance extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSwatch;
 

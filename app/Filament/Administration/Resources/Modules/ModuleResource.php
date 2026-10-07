@@ -29,6 +29,9 @@ class ModuleResource extends Resource
 
     protected static ?string $model = Module::class;
 
+    // Pinned third in the sidebar, after About and Epesi Store.
+    protected static ?int $navigationSort = -3;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPuzzlePiece;
 
     protected static ?string $recordTitleAttribute = 'name';

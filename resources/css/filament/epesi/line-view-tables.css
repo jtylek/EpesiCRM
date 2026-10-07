@@ -1,0 +1,14 @@
+/* Read-only line tables in view modals (e.g. invoice line): full width, wrapped text. */
+.epesi-line-table,
+.epesi-line-table .fi-ta-content-ctn,
+.epesi-line-table .fi-ta-table {
+    width: 100%;
+}
+
+.epesi-line-table + .epesi-line-table {
+    margin-top: 1rem;
+}
+
+.epesi-line-table .fi-ta-text-item {
+    white-space: pre-line;
+}

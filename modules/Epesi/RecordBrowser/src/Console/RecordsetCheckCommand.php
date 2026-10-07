@@ -84,6 +84,20 @@ class RecordsetCheckCommand extends Command
                 $displayed[] = "{$field->name}_id";
             }
 
+            if ($field->type === FieldType::Currency) {
+                $displayed[] = $field->currencyColumn();
+
+                // The amount's column is checked below like any other; its
+                // currency code lives in a second one.
+                if (! in_array($field->currencyColumn(), $columns, true)) {
+                    $this->components->twoColumnDetail(
+                        "{$resource}::fields() {$field->name}",
+                        "<fg=red>no column `{$table}`.`{$field->currencyColumn()}` — a Currency field needs its char(3) currency column too</>",
+                    );
+                    $problems++;
+                }
+            }
+
             // Derived from the key, not stored — no column to be missing.
             if ($field->type === FieldType::Autonumber) {
                 continue;

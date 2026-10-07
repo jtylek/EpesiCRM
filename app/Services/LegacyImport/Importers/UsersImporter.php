@@ -56,6 +56,14 @@ class UsersImporter
             // logins like j@epe.si into jasiek@imported.invalid, since
             // legacy's own user_password.mail was blank for them).
             if ($isNew || $mail !== '') {
+                // $seenEmails holds every address already in the table, the
+                // user's own included. Without releasing it, legacy offering
+                // the very address this user already has counted as "taken"
+                // and fell through to <login>@imported.invalid (found
+                // 2026-10-06: 12 staff logins clobbered on a re-import).
+                if (! $isNew) {
+                    unset($seenEmails[$user->email]);
+                }
                 $user->email = $this->uniqueEmail($mail, $login->login, $seenEmails);
             }
 

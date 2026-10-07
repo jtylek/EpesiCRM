@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\RecordPermission;
 use App\Enums\RecordStatus;
+use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ListAttachments;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ListContacts;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
@@ -79,6 +80,33 @@ class MyRecordsButtonTest extends TestCase
         $button = Livewire::test(ListAttachments::class)->instance()->getMyRecordsButton();
 
         $this->assertSame('My records', $button['label']);
+    }
+
+    public function test_notes_offer_all_my_and_my_encrypted_notes(): void
+    {
+        $me = $this->userWithRole('manager');
+        $this->actingAs($me);
+
+        $plain = Attachment::create(['title' => 'Plain', 'note' => 'x', 'permission' => RecordPermission::Public]);
+        $secret = Attachment::create(['title' => 'Secret', 'note' => "a
+b", 'legacy_encrypted' => true, 'permission' => RecordPermission::Public]);
+
+        $list = Livewire::test(ListAttachments::class)->call('removeTableFilters');
+
+        $this->assertSame(['all', 'mine', 'encrypted'], array_keys($list->instance()->getMyRecordsButton()['options']));
+        $this->assertSame('all', $list->instance()->getMyRecordsButton()['value']);
+
+        $list->call('setMyRecordsMode', 'encrypted')
+            ->assertCanSeeTableRecords([$secret])
+            ->assertCanNotSeeTableRecords([$plain]);
+        $this->assertSame('encrypted', $list->instance()->getMyRecordsButton()['value']);
+
+        $list->call('setMyRecordsMode', 'mine')
+            ->assertCanSeeTableRecords([$secret, $plain]);
+        $this->assertSame('mine', $list->instance()->getMyRecordsButton()['value']);
+
+        $list->call('setMyRecordsMode', 'encrypted')->call('setMyRecordsMode', 'all');
+        $this->assertSame('all', $list->instance()->getMyRecordsButton()['value']);
     }
 
     public function test_contacts_get_a_my_records_filter_for_records_i_created_or_changed(): void

@@ -115,9 +115,10 @@ class HistoryRelationManager extends RelationManager
                                 $field = $fields[$key] ?? null;
 
                                 // A Customer field's two logged columns
-                                // (`{name}_type`/`{name}_id`) render as one
-                                // line, from whichever key comes first.
-                                if ($field?->type === FieldType::Customer) {
+                                // (`{name}_type`/`{name}_id`), and a Currency
+                                // field's (`{name}`/`{name}_currency`), render
+                                // as one line, from whichever key comes first.
+                                if (in_array($field?->type, [FieldType::Customer, FieldType::Currency], true)) {
                                     if (isset($seen[$field->name])) {
                                         return null;
                                     }
@@ -278,6 +279,10 @@ class HistoryRelationManager extends RelationManager
             if ($field->type === FieldType::Customer) {
                 $byName["{$field->name}_type"] = $field;
                 $byName["{$field->name}_id"] = $field;
+            }
+
+            if ($field->type === FieldType::Currency) {
+                $byName[$field->currencyColumn()] = $field;
             }
         }
 

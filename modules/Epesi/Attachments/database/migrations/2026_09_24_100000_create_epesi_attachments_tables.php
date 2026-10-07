@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Schema;
  * the private disk with their names alongside; since 2026_09_27_010000 they
  * are StoredFile ids in the shared file storage (App\Services\FileStorage).
  *
- * Not ported: `crypted` (per-note password encryption) — see the module
- * README section in the port notes.
+ * `legacy_encrypted` marks imported legacy notes that remain encrypted with
+ * Epesi's per-note password scheme. The ciphertext stays in `note`; plaintext
+ * is only held transiently after a successful password check.
  */
 return new class extends Migration
 {

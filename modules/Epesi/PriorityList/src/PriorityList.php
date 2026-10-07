@@ -47,7 +47,7 @@ class PriorityList
     /**
      * Morph alias => how its due date is read.
      *
-     * @var array<string, array{due: (Closure(Model): ?CarbonInterface)|null, allDay: (Closure(Model): bool)|null}>
+     * @var array<string, array{due: (Closure(Model): ?CarbonInterface)|null, allDay: (Closure(Model): bool)|null, followupUrl: (Closure(Model): ?string)|null, summary: (Closure(Model): ?string)|null}>
      */
     protected static array $types = [];
 
@@ -60,10 +60,19 @@ class PriorityList
      *
      * @param  (Closure(Model): ?CarbonInterface)|null  $due
      * @param  (Closure(Model): bool)|null  $allDay
+     * @param  (Closure(Model): ?string)|null  $followupUrl
+     * @param  (Closure(Model): ?string)|null  $summary
      */
-    public static function enableFor(string $alias, ?Closure $due = null, ?Closure $allDay = null): void
+    public static function enableFor(string $alias, ?Closure $due = null, ?Closure $allDay = null, ?Closure $followupUrl = null, ?Closure $summary = null): void
     {
-        static::$types[$alias] = ['due' => $due, 'allDay' => $allDay];
+        static::$types[$alias] = ['due' => $due, 'allDay' => $allDay, 'followupUrl' => $followupUrl, 'summary' => $summary];
+    }
+
+    public static function followupUrl(Model $record): ?string
+    {
+        $resolver = static::$types[$record->getMorphClass()]['followupUrl'] ?? null;
+
+        return $resolver && Gate::allows('update', $record) ? $resolver($record) : null;
     }
 
     /**
@@ -390,10 +399,12 @@ class PriorityList
     public static function describe(Model $record): string
     {
         $status = $record->getAttribute('status');
+        $summary = static::$types[$record->getMorphClass()]['summary'] ?? null;
 
         return collect([
             static::typeLabel($record),
             $status instanceof HasLabel ? $status->getLabel() : null,
+            $summary ? $summary($record) : null,
         ])->filter()->implode(' · ');
     }
 

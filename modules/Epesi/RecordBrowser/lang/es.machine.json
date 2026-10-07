@@ -1,0 +1,8 @@
+{
+    ":field currency": ":field moneda",
+    ":field from :value": ":field de :value",
+    ":field in :value": ":field en :value",
+    ":field until :value": ":field hasta :value",
+    "Amount with currency": "Importe con moneda",
+    "The address this person signs in with. It can not be changed or removed here.": "La dirección con la que esta persona inicia sesión. No se puede modificar ni eliminar desde aquí."
+}

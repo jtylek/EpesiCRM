@@ -64,11 +64,12 @@ class AttachmentsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'attachments');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-attachments');
 
         Gate::policy(Attachment::class, AttachmentPolicy::class);
 
         if ($this->app->runningInConsole()) {
-            $this->app->make(ImporterRegistry::class)->register('attachments', AttachmentsImporter::class);
+            $this->app->make(ImporterRegistry::class)->register('attachments', AttachmentsImporter::class, last: true);
         }
 
         // After every provider has booted, so a module enabling Notes for

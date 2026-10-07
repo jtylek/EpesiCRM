@@ -14,6 +14,7 @@ use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord as BaseEditRecord;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Shared base for every resource's Edit page — extend this instead of
@@ -73,7 +74,9 @@ abstract class EditRecord extends BaseEditRecord
             // owning form and clicking it is a silent no-op.
             $this->getSaveFormAction()->label('Save')->icon(Heroicon::OutlinedCheck)->color('success')->formId('form'),
             ViewAction::make()->label('Cancel')->color('gray')->icon(Heroicon::OutlinedXMark),
-            DeleteAction::make()->icon(Heroicon::OutlinedTrash),
+            DeleteAction::make()->icon(Heroicon::OutlinedTrash)
+                // Shield's Gate::before lets super_admin past the policy, so a frozen record's own rule is asked here.
+                ->hidden(fn (Model $record): bool => method_exists($record, 'wasPosted') && $record->wasPosted()),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

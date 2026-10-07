@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RecordBrowser;
 
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RelatedModules;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -28,7 +29,7 @@ class RecordBrowserPlugin implements Plugin
         $panel->discoverResources(
             in: __DIR__.'/Filament/Resources',
             for: 'Epesi\\Modules\\RecordBrowser\\Filament\\Resources',
-        );
+        )->pages([RelatedModules::class]);
     }
 
     public function boot(Panel $panel): void {}

@@ -48,10 +48,10 @@ class CurrentTheme
      * meta tags and reapply them after navigation, including cached
      * back/forward visits.
      */
-    public static function appearanceScript(?User $user): Htmlable
+    public static function appearanceScript(?User $user, bool $alwaysCompact = false): Htmlable
     {
         $appearance = static::forUser($user);
-        $density = ($appearance['compact'] ?? true) ? 'compact' : 'comfortable';
+        $density = ($alwaysCompact || ($appearance['compact'] ?? true)) ? 'compact' : 'comfortable';
         $fontSize = $appearance['font_size'] ?? 'default';
 
         return new HtmlString('<meta name="epesi-density" content="'.$density.'">'.

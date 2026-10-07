@@ -63,7 +63,7 @@ class Followup
                 return null;
             }
 
-            $followup = static::createFollowup($record, $followupType, $followupTitle ?: static::titleOf($record), $when ?? now()->addDay());
+            $followup = static::schedule($record, $followupType, $followupTitle ?: static::titleOf($record), $when ?? now()->addDay());
 
             if (static::attachmentsAvailable()) {
                 Attachment::addTo($followup, __('Follow-up after: :record', ['record' => static::describe($record)]));
@@ -77,6 +77,19 @@ class Followup
     public static function titleOf(Model $record): string
     {
         return (string) ($record instanceof PhoneCall ? $record->subject : $record->title);
+    }
+
+    public static function schedule(Model $source, string $type, string $title, CarbonInterface $when): Model
+    {
+        return DB::transaction(function () use ($source, $type, $title, $when): Model {
+            $followup = static::createFollowup($source, $type, $title, $when);
+            // Keep the deal/project context through successive follow-ups.
+            $followup->syncRecordLinks('related', $source->linkedRecords('related')
+                ->map(fn (Model $record): string => $record->getMorphClass().':'.$record->getKey())->all());
+            event(new FollowupScheduled($source, $followup));
+
+            return $followup;
+        });
     }
 
     protected static function describe(Model $record): string

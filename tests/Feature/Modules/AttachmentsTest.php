@@ -12,7 +12,9 @@ use Epesi\Modules\Attachments\Filament\Resources\Attachments\AttachmentResource;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\CreateAttachment;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\EditAttachment;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ListAttachments;
+use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ViewAttachment;
 use Epesi\Modules\Attachments\Models\Attachment;
+use Epesi\Modules\Attachments\Services\LegacyNoteCipher;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
@@ -861,5 +863,88 @@ class AttachmentsTest extends TestCase
             ->assertHasFormErrors(['files']);
 
         $this->assertSame([], $mine->fresh()->files ?? []);
+    }
+
+    public function test_an_encrypted_legacy_note_is_edited_after_its_password_and_saved_decrypted(): void
+    {
+        require_once base_path('vendor/phpseclib/mcrypt_compat/lib/mcrypt.php');
+
+        $this->actingAs($this->userWithRole('employee'));
+        $plain = '<p>Secret</p>';
+        $iv = random_bytes(32);
+        $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
+        mcrypt_generic_init($td, substr(sha1('Right#1'), 0, mcrypt_enc_get_key_size($td)), $iv);
+        $cipher = mcrypt_generic($td, $plain.md5($plain));
+        $note = Attachment::create([
+            'title' => 'Locked',
+            'note' => base64_encode($cipher)."\n".base64_encode($iv)."\nhint",
+            'legacy_encrypted' => true,
+            'legacy_password_hint' => 'hint',
+            'permission' => RecordPermission::Public,
+        ]);
+
+        $page = Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
+            ->assertFormSet(fn (array $state): bool => ! str_contains(json_encode($state['note']), 'hint'))
+            ->assertActionMounted('unlockLegacyNote');
+
+        // Saving before the password is entered changes nothing.
+        try {
+            $page->call('save');
+        } catch (\Throwable) {
+        }
+        $this->assertTrue($note->fresh()->legacy_encrypted);
+        $this->assertStringContainsString('hint', $note->fresh()->note);
+
+        // A wrong password is an error in the dialog, which stays open.
+        $page->setActionData(['password' => 'wrong'])->callMountedAction()
+            ->assertHasActionErrors(['password'])
+            ->assertActionMounted('unlockLegacyNote');
+        $this->assertTrue($note->fresh()->legacy_encrypted);
+
+        $page->setActionData(['password' => 'Right#1'])->callMountedAction()
+            ->assertFormSet(fn (array $state): bool => str_contains(json_encode($state['note']), 'Secret'))
+            ->fillForm(['title' => 'Unlocked', 'encrypt_note' => false, 'attach_to' => [['type' => 'contact', 'id' => Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann'])->id]]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $fresh = $note->fresh();
+        $this->assertFalse($fresh->legacy_encrypted);
+        $this->assertNull($fresh->legacy_password_hint);
+        $this->assertStringContainsString('Secret', $fresh->note);
+    }
+
+    public function test_an_encrypted_legacy_note_is_decrypted_from_the_encryption_row_on_its_view_page(): void
+    {
+        require_once base_path('vendor/phpseclib/mcrypt_compat/lib/mcrypt.php');
+
+        $this->actingAs($this->userWithRole('employee'));
+        $note = Attachment::create([
+            'title' => 'Locked',
+            'note' => app(LegacyNoteCipher::class)->encrypt('<p>Secret</p>', 'Right#1', 'hint'),
+            'legacy_encrypted' => true,
+            'legacy_password_hint' => 'hint',
+            'permission' => RecordPermission::Public,
+        ]);
+        $decrypt = TestAction::make('decryptLegacyNote')->schemaComponent('legacy_encrypted', 'infolist');
+
+        $page = Livewire::test(ViewAttachment::class, ['record' => $note->getKey()])
+            ->assertActionDoesNotExist('decryptLegacyNote')
+            ->assertActionVisible($decrypt)
+            ->assertDontSee('Secret');
+
+        // A wrong password is an error in the dialog, which stays open to retry or cancel.
+        $page->mountAction($decrypt)
+            ->setActionData(['password' => 'wrong'])
+            ->callMountedAction()
+            ->assertHasActionErrors(['password' => __('Invalid password')])
+            ->assertActionMounted($decrypt)
+            ->assertDontSee('Secret');
+
+        $page->setActionData(['password' => 'Right#1'])
+            ->callMountedAction()
+            ->assertHasNoActionErrors()
+            ->assertSee('Secret')
+            ->assertSee(__('Password is correct'))
+            ->assertDontSee(__('Decrypt note'));
     }
 }

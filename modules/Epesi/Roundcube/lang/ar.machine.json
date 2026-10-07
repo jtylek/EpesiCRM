@@ -10,6 +10,7 @@
     "Set up a mail account": "إعداد حساب بريد إلكتروني",
     "Switching account — please wait…": "تغيير الحساب — يرجى الانتظار…",
     "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "لم يتم تحميل عميل البريد: أرسل خادم الويب صفحات Roundcube إلى Epesi بدلاً من عرضها بنفسه. انظر «متطلبات خادم الويب» في :doc.",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.": "لم يتم تحميل عميل البريد: أرسل خادم الويب صفحات Roundcube إلى Epesi بدلاً من تقديمها بنفسه. يجب أن يقدم خادم الويب :dirالدليل كملفات عادية، بما في ذلك عناوين URL الخاصة بالدليل (?_task=mail) وعناوين URL الخاصة بـ static.php/... اطلب من المسؤول تعديل إعدادات خادم الويب.",
     "The mail client, Roundcube, isn't installed yet.": "لم يتم تثبيت عميل البريد الإلكتروني Roundcube بعد.",
     "You have no mail account with an incoming (IMAP) server yet.": "ليس لديك حساب بريد إلكتروني متصل بخادم استلام (IMAP) حتى الآن.",
     "Your mail server refused the login. Check this account under Settings > Mail accounts.": "رفض خادم البريد الخاص بك عملية تسجيل الدخول. تحقق من هذا الحساب ضمن «الإعدادات» > «حسابات البريد»."

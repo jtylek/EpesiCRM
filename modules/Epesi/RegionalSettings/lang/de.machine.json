@@ -1,8 +1,12 @@
 {
+    "Default currency": "Standardwährung",
     "Gregorian": "Gregorianisch",
     "Hijri": "Hijri",
     "Hijri calendar": "Hijri-Kalender",
+    "Home currency (:code)": "Heimatwährung (:code)",
     "Jalali (Solar Hijri)": "Jalali (Solar-Hijri)",
+    "Preselected for amounts on new records.": "Voreinstellung für Beträge bei neuen Aufzeichnungen.",
+    "Same as the system (:code)": "Entspricht dem System (:code)",
     "Tabular / civil": "Tabellarisch / zivil",
     "Umm al-Qura": "Umm al-Qura"
 }

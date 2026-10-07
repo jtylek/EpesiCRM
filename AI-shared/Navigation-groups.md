@@ -10,7 +10,7 @@ protected static string|UnitEnum|null $navigationGroup = 'CRM';
 ```
 
 Every CRM recordset (Companies, Contacts, Meetings, Phone Calls, Tasks), the Calendar,
-Mailbox, E-mails, Mail accounts, Notes, Shoutbox and Watched all set this to `'CRM'`, so they
+Mailbox, E-mails, Notes, Shoutbox and Watched all set this to `'CRM'`, so they
 collapse under one "CRM" heading instead of each being its own top-level row — `Epesi/Store`'s
 `Premium/StoreServer` module already did the same for its own "Store Server" group before this.
 Only Dashboard stays outside any group, which is what keeps it pinned above the groups as the
@@ -41,3 +41,19 @@ three down to `.25rem`/`0`/`.375rem` respectively, alongside its existing
 `.fi-sidebar-group-items{row-gap:0}` for the items inside a group. The collapse chevron
 (`.fi-icon-btn`, nominally 2.25rem square) stays clickable at the tighter padding — it
 self-cancels most of its own footprint with a negative margin.
+
+## The administration panel
+
+The administration panel has a fixed order, declared in `AdministrationPanelProvider`:
+
+1. Four ungrouped items pinned on top by a `$navigationSort` below -1 (the one value
+   `AlphabeticalNavigationManager` doesn't flatten): About (-5), Epesi Store (-4), Modules (-3),
+   Database update (-2).
+2. A **Server Setup** group: Cron, Mail Server, Regional Settings, Server Check, Translations.
+3. A **Data** group: Common Data, Currencies, Exchange Rates, Priority list types, Recordsets, Related modules.
+
+The group order is the panel's `->navigationGroups([...])`; inside a group the items stay
+alphabetical. A new administration page joins a group with `$navigationGroup = 'Server Setup'` or
+`'Data'`. **Related modules** (`RecordBrowser`'s `RelatedModules` page) lists every recordset
+with the addon modules attached to it, with an Edit action per row. It replaced the "Features"
+button that used to be on the Recordsets list.

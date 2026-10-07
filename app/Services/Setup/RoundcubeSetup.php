@@ -49,7 +49,7 @@ class RoundcubeSetup
     public function installed(): bool
     {
         return Module::query()->where('module_id', self::MODULE_ID)->where('enabled', true)->exists()
-            && is_file(rtrim((string) config('epesi-roundcube.public_path', public_path('roundcube')), '\\/').DIRECTORY_SEPARATOR.'index.php');
+            && is_file(rtrim((string) config('epesi-roundcube.public_path', public_path('epesi-webmail')), '\\/').DIRECTORY_SEPARATOR.'index.php');
     }
 
     /**

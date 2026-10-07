@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Models\User;
 use App\Support\Appearance\AppName;
 use Epesi\Modules\Appearance\Filament\Administration\Pages\LogoAndTitle;
 use Epesi\Modules\Appearance\Filament\Administration\Resources\Themes\Pages\CreateTheme;
@@ -74,6 +75,8 @@ class AppearanceTest extends TestCase
     public function test_login_pages_use_the_login_title_and_the_portal_its_own(): void
     {
         AppearanceSetting::current()->update(['login_title' => 'Acme sign in', 'portal_title' => 'Acme clients']);
+        // An installed epesi has users; without one the login pages send to setup.
+        User::factory()->create();
 
         $this->get('/login')->assertSee('Acme sign in');
         $this->get('/administration/login')->assertSee('Acme sign in');
@@ -366,6 +369,16 @@ class AppearanceTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('<meta name="epesi-density" content="comfortable">', false);
+    }
+
+    public function test_the_administration_panel_is_always_compact(): void
+    {
+        Theme::create(['name' => 'Comfy', 'density' => Theme::DENSITY_COMFORTABLE, 'is_default' => true]);
+        $this->actingAs($this->userWithRole('super_admin'));
+
+        $this->get('/administration/about')
+            ->assertOk()
+            ->assertSee('<meta name="epesi-density" content="compact">', false);
     }
 
     public function test_default_font_size_is_the_default_when_no_theme_is_in_effect(): void

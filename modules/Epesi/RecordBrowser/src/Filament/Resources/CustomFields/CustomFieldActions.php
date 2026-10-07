@@ -5,6 +5,7 @@ namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldSchema;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
@@ -32,7 +33,9 @@ class CustomFieldActions
                 && Schema::hasColumn($table, (string) $record->column))
             ->requiresConfirmation()
             ->modalHeading(fn (CustomField $record): string => __('Drop :field?', ['field' => $record->label]))
-            ->modalDescription(fn (CustomField $record): string => "This removes the column {$record->modelTable()}.{$record->column} and every value stored in it, on every record. There is no undo.")
+            ->modalDescription(fn (CustomField $record): string => $record->type === FieldType::Currency
+                ? "This removes the columns {$record->modelTable()}.{$record->column} and {$record->column}_currency and every value stored in them, on every record. There is no undo."
+                : "This removes the column {$record->modelTable()}.{$record->column} and every value stored in it, on every record. There is no undo.")
             ->modalSubmitActionLabel(__('Drop the column'))
             ->action(function (CustomField $record): void {
                 try {

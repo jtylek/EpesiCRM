@@ -5,12 +5,14 @@ namespace Epesi\Modules\RegionalSettings\Filament\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use App\Support\Demo;
 use App\Support\Locale\Locales;
 use BackedEnum;
 use Carbon\Carbon;
 use DateTimeZone;
 use Epesi\Modules\CommonData\Facades\CommonData;
+use Epesi\Modules\Currencies\Services\CurrencyRepository;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -34,6 +36,7 @@ class RegionalSettings extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 
@@ -56,7 +59,7 @@ class RegionalSettings extends Page
     {
         $this->form->fill(RegionalSetting::current()->only([
             'language',
-            'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
+            'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state', 'currency',
         ]));
     }
 
@@ -91,8 +94,10 @@ class RegionalSettings extends Page
                         ]))
                         ->required($systemDefaults),
                 ]),
+            // Two columns, not three: each field's label sits beside it
+            // (UsesEpesiFormLayout), which needs the width.
             Section::make(__('Date & Time'))
-                ->columns(3)
+                ->columns(2)
                 ->schema([
                     Select::make('timezone')
                         ->options(array_combine(
@@ -162,6 +167,18 @@ class RegionalSettings extends Page
                             ->maxLength(64)
                             ->visible(fn (Get $get): bool => static::zonesFor($get('country')) === []),
                     ])->columns(1),
+                ]),
+            Section::make(__('Currency'))
+                ->schema([
+                    Select::make('currency')
+                        ->label('Default currency')
+                        ->options(fn (): array => app(CurrencyRepository::class)->options())
+                        ->searchable()
+                        ->native(false)
+                        ->placeholder(fn (): string => $systemDefaults
+                            ? __('Home currency (:code)', ['code' => app(CurrencyRepository::class)->home()])
+                            : __('Same as the system (:code)', ['code' => RegionalSetting::defaults()->currency ?: app(CurrencyRepository::class)->home()]))
+                        ->helperText(__('Preselected for amounts on new records.')),
                 ]),
         ];
     }

@@ -88,9 +88,14 @@ abstract class ViewRecord extends BaseViewRecord
      */
     protected function getAllRelationManagers(): array
     {
+        $resource = static::getResource();
+        $ownFirst = is_subclass_of($resource, RecordsetResource::class) && $resource::ownAddonsFirst();
+        $pinned = RecordExtensions::firstAddonsFor($this->getRecord());
+        $own = parent::getAllRelationManagers();
+
         return [
-            ...RecordExtensions::firstAddonsFor($this->getRecord()),
-            ...parent::getAllRelationManagers(),
+            ...($ownFirst ? $own : $pinned),
+            ...($ownFirst ? $pinned : $own),
             ...RecordExtensions::addonsFor($this->getRecord()),
         ];
     }
@@ -222,7 +227,9 @@ abstract class ViewRecord extends BaseViewRecord
                     Livewire::make($historyManager, [...$managerLivewireData, ...$historyManager::getDefaultProperties()])->key($historyManager),
                 ] : []),
             DeleteAction::make()
-                ->icon(Heroicon::OutlinedTrash),
+                ->icon(Heroicon::OutlinedTrash)
+                // Shield's Gate::before lets super_admin past the policy, so a frozen record's own rule is asked here.
+                ->hidden(fn (Model $record): bool => method_exists($record, 'wasPosted') && $record->wasPosted()),
         ])->color('gray');
     }
 

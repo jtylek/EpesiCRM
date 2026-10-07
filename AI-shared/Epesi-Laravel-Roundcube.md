@@ -40,7 +40,7 @@ than rebuilding a webmail client in Livewire. That choice brings:
 Mailbox page (Filament, main panel)
   └─ issues a one-time ticket (DB row, 60 s, token stored hashed, credentials encrypted
      with a key derived from APP_KEY)
-  └─ <iframe src="{app}/roundcube/index.php?_task=login&_epesi_ticket=…">
+  └─ <iframe src="{app}/epesi-webmail/index.php?_task=login&_epesi_ticket=…">
         Roundcube 1.7.x, served straight by the web server (not through Laravel)
           ├─ epesi_sso: redeems the ticket → IMAP login, per-account SMTP, identity;
           │             password login disabled
@@ -99,7 +99,7 @@ The installer:
    2026-09-06, which needs PHP 8.1–8.5.
 2. Verifies the checksum and refuses on a mismatch. It then extracts with `PharData` into
    `storage/roundcube/`.
-3. Links `public/roundcube` → `storage/roundcube/public_html`, with `Filesystem::link()`.
+3. Links `public/epesi-webmail` → `storage/roundcube/public_html`, with `Filesystem::link()`.
    That is a directory junction on Windows, so no admin rights are needed.
 4. Links each plugin directory under `modules/Epesi/Roundcube/roundcube-plugins/` into
    `storage/roundcube/plugins/`, so the plugins stay live with the module's code. Roundcube
@@ -149,7 +149,7 @@ why it can't be committed). `storage/` is the only place in the project that fit
 - **Not `public/`.** Only `public_html` has to be reachable from the web. Everything else
   must not be served. `config/config.inc.php` holds the database password and the derived
   keys. `vendor/`, `bin/`, `SQL/` and `installer/` are code and scripts, not web pages. So the
-  whole copy sits in `storage/`, and `public/roundcube` is only a link to its `public_html`.
+  whole copy sits in `storage/`, and `public/epesi-webmail` is only a link to its `public_html`.
   That is the layout Roundcube is built for: `public_html` as the one document root.
 - **Writable.** The installer creates, replaces and deletes the whole tree on every install
   and upgrade. `storage/` is the directory the app is expected to write to, on any
@@ -323,7 +323,7 @@ page, which is shown before any login, when there is no ticket to read a languag
   the panel's precompiled stylesheet has no classes a module adds.
 - **Empty states:**
   - no account: a link to Settings → Mail accounts;
-  - Roundcube not installed (no `public/roundcube/index.php`): "run `php artisan
+  - Roundcube not installed (no `public/epesi-webmail/index.php`): "run `php artisan
     roundcube:install`".
 - **Messages from the iframe:** an Alpine `message` listener checks the origin and that the
   source is the iframe, then handles two messages. `archived` runs the fetcher and shows a
@@ -338,13 +338,29 @@ A Logout listener (`EndRoundcubeSession`) deletes the `rc_session` row named by 
 `epesi_roundcube_sessid` cookie. That cookie is in `EncryptCookies::except()`, because Laravel
 would otherwise fail to decrypt a cookie it didn't write and pass on null.
 
+## Permissions: `public/` must be writable by the web user
+
+Installing from the browser runs as the web server user (e.g. `nfsnobody` on XAMPP/Linux), and
+its last step creates the `public/epesi-webmail` link. If `public/` isn't writable by that user the
+install stops with `symlink(): Permission denied` (the installer's message now names the
+directory). Make `public/` writable (`sudo chmod o+w public`), or create the link once by hand
+or run `php artisan roundcube:install` as the directory's owner; an existing link that points
+at `storage/roundcube/public_html` is accepted. The setup wizard and Administration → Server
+check list `public/ writable` as an optional requirement (`Requirements::check()`).
+
 ## Web server requirements
 
-Roundcube runs outside Laravel, so the web server must serve `public/roundcube/` as real files.
+The link is named `epesi-webmail`, not `roundcube`, because hosting panels such as DirectAdmin
+alias `/roundcube` globally to their own Roundcube: on eurolider.epesi.cloud that alias answered
+the Mailbox iframe with a stock Roundcube (default config, no `epesi_sso`), so nothing logged in.
+An install made before the rename still has `public/roundcube`; re-run `php artisan roundcube:install`
+(or the Administration button) to create the new link, then delete the old one.
+
+Roundcube runs outside Laravel, so the web server must serve `public/epesi-webmail/` as real files.
 That includes two kinds of URL:
-- its directory URLs (`…/roundcube/?_task=mail`), because Roundcube builds its links from the
+- its directory URLs (`…/epesi-webmail/?_task=mail`), because Roundcube builds its links from the
   directory;
-- path-info asset URLs (`…/roundcube/static.php/skins/…`).
+- path-info asset URLs (`…/epesi-webmail/static.php/skins/…`).
 
 Setups differ:
 - **Apache with Laravel's stock `public/.htaccess`:** already works, since it passes existing
@@ -359,10 +375,10 @@ Setups differ:
   the existing rules. Apache then needs a restart from the XAMPP Control Panel; it runs as a
   console process there, not as a Windows service.
   ```
-  RewriteRule ^/epesi-laravel/roundcube(/.*)?$ "C:/xampp82/htdocs/epesi-laravel/public/roundcube$1" [L]
+  RewriteRule ^/epesi-laravel/epesi-webmail(/.*)?$ "C:/xampp82/htdocs/epesi-laravel/public/epesi-webmail$1" [L]
   ```
 
-`.gitignore` covers `/storage/roundcube` and `/public/roundcube`.
+`.gitignore` covers `/storage/roundcube` and `/public/epesi-webmail`.
 
 ## Deliberately not carried over
 
@@ -415,4 +431,4 @@ Roundcube itself is only exercised by hand, in the browser:
 - sending goes through the account's SMTP server;
 - Archive moves a message and it appears under E-mails, linked to its contact;
 - CRM contacts autocomplete in compose;
-- after logging out, `…/roundcube/` asks to be opened from Epesi.
+- after logging out, `…/epesi-webmail/` asks to be opened from Epesi.

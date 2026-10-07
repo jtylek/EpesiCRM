@@ -1,0 +1,3 @@
+{
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.": "Klient poczty nie załadował się: serwer WWW przesłał strony Roundcube do Epesi zamiast udostępniać je samodzielnie. Serwer WWW musi udostępniać katalog:dir jako zwykłe pliki, w tym adresy URL katalogów (?_task=mail) oraz adresy URL typu static.php/... Poproś administratora o dostosowanie konfiguracji serwera WWW."
+}

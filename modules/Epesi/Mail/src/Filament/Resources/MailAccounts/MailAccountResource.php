@@ -34,7 +34,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Mailer\Transport\Smtp\SmtpTransport;
 use Throwable;
-use UnitEnum;
 
 /**
  * "Mail accounts" — rc_accounts. Each user sees and manages only their own.
@@ -46,8 +45,6 @@ class MailAccountResource extends Resource
     protected static ?string $model = MailAccount::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
-
-    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $navigationLabel = 'Mail accounts';
 

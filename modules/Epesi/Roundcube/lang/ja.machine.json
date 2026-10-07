@@ -10,6 +10,7 @@
     "Set up a mail account": "メールアカウントの設定",
     "Switching account — please wait…": "アカウントの切り替え中 — しばらくお待ちください…",
     "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "メールクライアントが読み込まれませんでした：WebサーバーがRoundcubeのページを自ら配信する代わりに、Epesiに送信してしまったためです。の「Webサーバーの要件」を参照してください:doc。",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.": "メールクライアントが読み込まれませんでした。WebサーバーがRoundcubeのページを自ら配信する代わりに、Epesiに送信してしまったためです。Webサーバーは、ディレクトリURL（?_task=mail）やstatic.php/...などのURLを含め、ディレクトリ:dir内のファイルをプレーンファイルとして配信する必要があります。管理者にWebサーバーの設定を調整するよう依頼してください。",
     "The mail client, Roundcube, isn't installed yet.": "メールクライアントのRoundcubeはまだインストールされていません。",
     "You have no mail account with an incoming (IMAP) server yet.": "受信（IMAP）サーバーに接続されたメールアカウントはまだありません。",
     "Your mail server refused the login. Check this account under Settings > Mail accounts.": "メールサーバーがログインを拒否しました。「設定」＞「メールアカウント」でこのアカウントを確認してください。"

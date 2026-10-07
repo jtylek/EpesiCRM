@@ -1,3 +1,27 @@
 {
-    "Preview": "Vista previa"
+    "After editing, enter the password again to keep this note encrypted.": "Tras editarlo, vuelve a introducir la contraseña para mantener esta nota cifrada.",
+    "All notes": "Todas las notas",
+    "Confirm Password": "Confirmar contraseña",
+    "Decrypt": "Descifrar",
+    "Decrypt note": "Nota de descifrado",
+    "Decrypt note to edit it": "Descifra la nota para editarla",
+    "Encrypt this note with a password": "Cifra esta nota con una contraseña",
+    "Encrypted note": "Nota cifrada",
+    "Encrypted notes": "Notas cifradas",
+    "Encrypted. Password hint: :hint": "Cifrado. Pista para la contraseña: :hint",
+    "Encryption": "Cifrado",
+    "Invalid password": "Contraseña no válida",
+    "My encrypted notes": "Mis notas cifradas",
+    "My notes": "Mis notas",
+    "Note password": "Nota: contraseña",
+    "Password confirmation does not match.": "La confirmación de la contraseña no coincide.",
+    "Password Hint": "Pista para la contraseña",
+    "Password hint: :hint": "Pista para la contraseña: :hint",
+    "Password is correct": "La contraseña es correcta",
+    "Password protected": "Protegido con contraseña",
+    "Please provide a password to encrypt this note.": "Introduce una contraseña para cifrar esta nota.",
+    "Preview": "Vista previa",
+    "This note is password protected. Enter its password using Decrypt note.": "Esta nota está protegida con contraseña. Introduce la contraseña mediante la opción «Descifrar nota».",
+    "This note is password protected. Enter its password with the Decrypt note action.": "Esta nota está protegida con contraseña. Introduce la contraseña mediante la acción «Descifrar nota».",
+    "This note is password protected. Hint: :hint": "Esta nota está protegida con contraseña. Pista: :hint"
 }

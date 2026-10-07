@@ -28,6 +28,7 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 use function Illuminate\Support\php_binary;
 
@@ -43,6 +44,8 @@ class Cron extends Page implements HasTable
     use HidesPageHeading;
     use InteractsWithTable;
     use TranslatesPageLabels;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Server Setup';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 

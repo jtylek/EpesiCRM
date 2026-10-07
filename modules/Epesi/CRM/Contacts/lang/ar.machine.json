@@ -1,5 +1,7 @@
 {
     "Address and contact details": "العنوان وتفاصيل جهة الاتصال",
+    "Also creates a new company with this contact's addresses and sets it as the contact's company.": "كما يقوم بإنشاء شركة جديدة باستخدام عناوين جهات الاتصال هذه ويحددها كشركة تابعة لجهة الاتصال.",
+    "Create company": "إنشاء شركة",
     "Home Address": "عنوان المنزل",
     "Linked User": "المستخدم المرتبط",
     "Your company": "شركتك",

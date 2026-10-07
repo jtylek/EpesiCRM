@@ -8,6 +8,7 @@ use App\Support\Files\FileChip;
 use BackedEnum;
 use Closure;
 use Epesi\Modules\CommonData\Facades\CommonData;
+use Epesi\Modules\Currencies\Services\CurrencyRepository;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
@@ -34,6 +35,8 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Components\FusedGroup;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Contracts\HasLabel;
@@ -209,6 +212,25 @@ class Field
     public static function decimal(string $name, int $decimals = 2): static
     {
         return static::make($name, FieldType::Decimal)->param('decimals', $decimals);
+    }
+
+    /**
+     * An amount and the currency it is in: two columns, `{$name}`
+     * (`decimal(15, $decimals)`) and `{$name}_currency` (`char(3)`, an ISO
+     * code from the Currencies module). The amount sorts, filters by range and
+     * sums in SQL, which legacy's one encoded string `amount__currencyid`
+     * couldn't. Nothing converts between currencies here: a document that
+     * books at a rate freezes it itself (RateResolver).
+     */
+    public static function currency(string $name, int $decimals = 2): static
+    {
+        return static::make($name, FieldType::Currency)->param('decimals', $decimals);
+    }
+
+    /** A Currency field's second column: the amount's ISO currency code. */
+    public function currencyColumn(): string
+    {
+        return "{$this->name}_currency";
     }
 
     public static function boolean(string $name): static
@@ -902,7 +924,7 @@ class Field
             FieldType::Boolean => 'boolean',
             FieldType::Date => 'date',
             FieldType::DateTime => 'datetime',
-            FieldType::Decimal => 'decimal:'.((int) $this->getParam('decimals', 2)),
+            FieldType::Decimal, FieldType::Currency => 'decimal:'.((int) $this->getParam('decimals', 2)),
             FieldType::Integer => 'integer',
             FieldType::Multiselect => 'array',
             FieldType::CommonData => $this->isMultipleValued() ? 'array' : null,
@@ -916,16 +938,20 @@ class Field
 
     public function toFormComponent(): mixed
     {
-        $component = $this->buildFormComponent()
-            ->label($this->getLabel())
-            ->required($this->required)
-            ->helperText($this->help);
+        // A group of two inputs, not one: it takes no required() or default()
+        // of its own, so currencyGroup() passes those to the amount.
+        $component = $this->type === FieldType::Currency
+            ? $this->currencyGroup()->label($this->getLabel())->markAsRequired($this->required)->helperText($this->help)
+            : $this->buildFormComponent()
+                ->label($this->getLabel())
+                ->required($this->required)
+                ->helperText($this->help);
 
         if ($this->isFullWidth()) {
             $component = $component->columnSpanFull();
         }
 
-        if ($this->default !== null) {
+        if ($this->default !== null && $this->type !== FieldType::Currency) {
             $component = $component->default($this->default);
         }
 
@@ -1086,7 +1112,7 @@ class Field
 
         foreach ($this->relatedRecordsets() as $alias) {
             $resource = LinkableRecordsets::resource($alias);
-            $columns = array_filter($resource::getGloballySearchableAttributes(), fn (string $column): bool => ! str_contains($column, '.'));
+            $columns = $resource::getPickerSearchAttributes();
 
             if ($columns === []) {
                 continue;
@@ -1144,6 +1170,107 @@ class Field
     protected function relatedLabel(Model $record): string
     {
         return LinkableRecordsets::label($record->getMorphClass()).': '.LinkedRecords::title($record);
+    }
+
+    // -------------------------------------------------------------- Currency --
+
+    /**
+     * The amount and its currency side by side, each bound to its own column.
+     * The currency starts at the user's default (Regional Settings), else the
+     * home currency, and is required once there is an amount. A record still
+     * holding a currency that has since been deactivated keeps it on offer.
+     */
+    protected function currencyGroup(): FusedGroup
+    {
+        $currencies = fn (): CurrencyRepository => app(CurrencyRepository::class);
+
+        return FusedGroup::make([
+            TextInput::make($this->name)
+                ->label($this->getLabel())
+                ->numeric()
+                ->required($this->required)
+                ->default($this->default)
+                ->columnSpan(2),
+
+            Select::make($this->currencyColumn())
+                ->label(__('Currency'))
+                ->options(fn (?string $state): array => $currencies()->options()
+                    + (filled($state) ? [$state => $state] : []))
+                ->default(fn (): string => $currencies()->defaultCode())
+                ->required(fn (Get $get): bool => filled($get($this->name)))
+                ->selectablePlaceholder(false),
+        ])->columns(3);
+    }
+
+    /** "1,234.50 PLN", or null for no amount: an amount without a currency shows as a bare number. */
+    public function formatMoney(mixed $amount, ?string $currency): ?string
+    {
+        if ($amount === null || $amount === '' || ! is_numeric($amount)) {
+            return null;
+        }
+
+        return app(CurrencyRepository::class)->format($amount, $currency, filled($currency) ? null : (int) $this->getParam('decimals', 2));
+    }
+
+    /**
+     * An amount range plus a currency. The range compares numbers only, so
+     * across mixed currencies "over 1,000" means over 1,000 of whatever each
+     * row is in; picking a currency makes it exact.
+     */
+    protected function currencyFilter(): Filter
+    {
+        $column = $this->name;
+        $currencyColumn = $this->currencyColumn();
+        $label = __($this->getLabel());
+
+        return Filter::make($column)
+            ->schema([
+                TextInput::make('from')->label(__(':field from', ['field' => $label]))->numeric(),
+                TextInput::make('until')->label(__(':field until', ['field' => $label]))->numeric(),
+                Select::make('currency')
+                    ->label(__(':field currency', ['field' => $label]))
+                    ->options(fn (): array => app(CurrencyRepository::class)->options(activeOnly: false)),
+            ])
+            ->query(fn (Builder $query, array $data): Builder => $query
+                ->when(filled($data['from'] ?? null), fn (Builder $q): Builder => $q->where($column, '>=', $data['from']))
+                ->when(filled($data['until'] ?? null), fn (Builder $q): Builder => $q->where($column, '<=', $data['until']))
+                ->when(filled($data['currency'] ?? null), fn (Builder $q): Builder => $q->where($currencyColumn, $data['currency'])))
+            ->indicateUsing(function (array $data) use ($label): array {
+                $indicators = [];
+
+                foreach (['from' => __(':field from :value'), 'until' => __(':field until :value'), 'currency' => __(':field in :value')] as $key => $text) {
+                    if (filled($data[$key] ?? null)) {
+                        $indicators[] = Indicator::make(strtr($text, [':field' => $label, ':value' => $data[$key]]))->removeField($key);
+                    }
+                }
+
+                return $indicators;
+            });
+    }
+
+    /**
+     * One History line for both columns: "10.00 PLN → 12.00 EUR". A column the
+     * entry didn't log was unchanged, so it reads from the other side, and
+     * from the record as it is now when neither side has it.
+     */
+    protected function loggedCurrencyChange(Activity $entry): HtmlString
+    {
+        $old = (array) $entry->properties->get('old', []);
+        $new = (array) $entry->properties->get('attributes', []);
+
+        $side = function (array $mine, array $other, string $key) use ($entry): mixed {
+            return array_key_exists($key, $mine) ? $mine[$key] : ($other[$key] ?? $entry->subject?->getAttribute($key));
+        };
+
+        $newText = $this->formatMoney($side($new, $old, $this->name), $side($new, $old, $this->currencyColumn())) ?? '-';
+
+        if ($entry->event === 'created') {
+            return new HtmlString('<span class="epesi-history-new">'.e($newText).'</span>');
+        }
+
+        $oldText = $this->formatMoney($side($old, $new, $this->name), $side($old, $new, $this->currencyColumn())) ?? '-';
+
+        return new HtmlString('<span class="epesi-history-old">'.e($oldText).'</span> → <span class="epesi-history-new">'.e($newText).'</span>');
     }
 
     // -------------------------------------------------------------- Customer --
@@ -1264,7 +1391,7 @@ class Field
         foreach ((array) $this->getParam('models', []) as $class) {
             $alias = Relation::getMorphAlias($class);
             $resource = LinkableRecordsets::resource($alias);
-            $columns = $resource ? array_filter($resource::getGloballySearchableAttributes(), fn (string $c): bool => ! str_contains($c, '.')) : [];
+            $columns = $resource ? $resource::getPickerSearchAttributes() : [];
 
             if ($columns === []) {
                 continue;
@@ -2045,6 +2172,8 @@ class Field
                 ->formatStateUsing(fn (mixed $state): string => $this->commonDataLabel($state)),
             FieldType::Relation, FieldType::Relations => $this->relationEntry(),
             FieldType::Customer => $this->customerEntry(),
+            FieldType::Currency => TextEntry::make($this->name)
+                ->formatStateUsing(fn (mixed $state, Model $record): ?string => $this->formatMoney($state, $record->getAttribute($this->currencyColumn()))),
             FieldType::Autonumber => TextEntry::make($this->name)
                 ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
             FieldType::File => TextEntry::make($this->name)
@@ -2229,6 +2358,11 @@ class Field
                 ->openUrlInNewTab(),
             FieldType::Relation, FieldType::Relations => $this->relationColumn(),
             FieldType::Customer => $this->customerColumn(),
+            // Sorts by the number alone: across mixed currencies, 100 EUR
+            // and 100 PLN sit side by side.
+            FieldType::Currency => TextColumn::make($this->name)
+                ->formatStateUsing(fn (mixed $state, Model $record): ?string => $this->formatMoney($state, $record->getAttribute($this->currencyColumn())))
+                ->alignEnd(),
             FieldType::Autonumber => TextColumn::make($this->name)
                 ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
             FieldType::File => TextColumn::make($this->name)
@@ -2362,11 +2496,12 @@ class Field
                 ->preload(),
             in_array($this->type, [FieldType::Date, FieldType::DateTime], true) => $this->rangeFilter(
                 fn (string $name, string $label): mixed => RegionalSetting::calendarSystem() === 'gregorian'
-                    ? DatePicker::make($name)->label($label)
-                    : $this->calendarDateInput($name)->label($label),
+                    ? DatePicker::make($name)->label($label)->translateLabel(false)
+                    : $this->calendarDateInput($name)->label($label)->translateLabel(false),
             ),
+            $this->type === FieldType::Currency => $this->currencyFilter(),
             in_array($this->type, [FieldType::Integer, FieldType::Decimal], true) => $this->rangeFilter(
-                fn (string $name, string $label): TextInput => TextInput::make($name)->label($label)->numeric(),
+                fn (string $name, string $label): TextInput => TextInput::make($name)->label($label)->translateLabel(false)->numeric(),
             ),
             // Which recordsets it links to — a record filter can come later.
             $this->type === FieldType::Related => SelectFilter::make($this->name)
@@ -2482,6 +2617,7 @@ class Field
             FieldType::Select, FieldType::Multiselect => implode(', ', array_map(fn (mixed $one): string => $this->optionLabel($one), (array) $value)),
             FieldType::CommonData => implode(', ', array_map(fn (mixed $one): string => $this->commonDataLabel($one), (array) $value)),
             FieldType::Relation => $this->loggedRelatedTitle($value),
+            FieldType::Currency => $this->formatMoney($value, null) ?? '-',
             // A date is logged either as it was typed or as midnight UTC:
             // either way it is the day that was meant, so no time zone shift.
             FieldType::Date => RegionalSetting::display(Carbon::parse($value), dateOnly: true) ?? '-',
@@ -2505,6 +2641,10 @@ class Field
             $change = ($this->historyUsing)($old, $new, $entry, $whole);
 
             return $change === null ? null : new HtmlString($change instanceof Htmlable ? $change->toHtml() : $change);
+        }
+
+        if ($this->type === FieldType::Currency) {
+            return $this->loggedCurrencyChange($entry);
         }
 
         if ($this->type === FieldType::File) {

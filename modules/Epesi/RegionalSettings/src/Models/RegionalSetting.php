@@ -30,6 +30,7 @@ class RegionalSetting extends Model
         'hijri_variant',
         'country',
         'state',
+        'currency',
     ];
 
     /**

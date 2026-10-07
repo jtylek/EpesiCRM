@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Throwable;
+use UnitEnum;
 
 /**
  * What a system administrator wants to know about the server epesi runs on:
@@ -31,6 +32,8 @@ class ServerCheck extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Server Setup';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedServerStack;
 

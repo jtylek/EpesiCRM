@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Store\Models;
 
+use App\Casts\Encrypted;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -59,7 +60,7 @@ class StoreSetting extends Model
     protected function casts(): array
     {
         return [
-            'instance_secret' => 'encrypted',
+            'instance_secret' => Encrypted::class,
             'registered_at' => 'datetime',
             'last_check_at' => 'datetime',
             'url_mismatch' => 'boolean',

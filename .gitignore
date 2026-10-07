@@ -29,6 +29,7 @@
 /public/hot
 # Roundcube, downloaded by `php artisan roundcube:install`, and its web-root link.
 /public/roundcube
+/public/epesi-webmail
 /public/storage
 /storage/*.key
 /storage/pail

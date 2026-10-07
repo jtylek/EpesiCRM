@@ -97,11 +97,19 @@ class StoredFile extends Model
      */
     public function response(?string $name = null, array $headers = [], string $disposition = 'attachment'): StreamedResponse
     {
-        return FileStorage::disk()->response($this->content->path(), $name ?? $this->name, $headers, $disposition);
+        return FileStorage::disk()->response($this->content->path(), $this->headerName($name), $headers, $disposition);
     }
 
     public function download(?string $name = null): StreamedResponse
     {
-        return FileStorage::disk()->download($this->content->path(), $name ?? $this->name);
+        return FileStorage::disk()->download($this->content->path(), $this->headerName($name));
+    }
+
+    /** A Content-Disposition filename can't hold "/" or "\" (legacy names sometimes do). */
+    private function headerName(?string $name): string
+    {
+        $name = str_replace(['/', '\\'], '_', $name ?? $this->name);
+
+        return $name === '' ? 'file' : $name;
     }
 }

@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * Administration → Recordsets: add a field to an existing recordset and it appears
@@ -34,6 +35,8 @@ class CustomFieldResource extends Resource
     use TranslatesResourceLabels;
 
     protected static ?string $model = CustomField::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Data';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTableCells;
 

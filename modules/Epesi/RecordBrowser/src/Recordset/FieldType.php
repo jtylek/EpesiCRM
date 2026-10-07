@@ -10,9 +10,10 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * field, so renaming a case is a stored-data change and needs a migration.
  *
  * Some of Epesi's types aren't cases here: `hidden` is `->onlyInTable()`/
- * `active = false`, and `page_split` is `Field::section()`. `currency` and
- * `calculated` have no equivalent yet — Decimal drops a currency value's
- * currency, and an accessor-backed field has no column to sort or search on.
+ * `active = false`, and `page_split` is `Field::section()`. `calculated` has
+ * no equivalent yet: an accessor-backed field has no column to sort or search
+ * on. Currency is an amount and an ISO code in two columns (`{name}`,
+ * `{name}_currency`), not legacy's one encoded string `amount__currencyid`.
  * A select over several named recordsets (`contact,company`) becomes one
  * Relation(s) field per target; one over any recordset (`__RECORDSETS__`) is
  * Related. Collection has no legacy counterpart: what a record has none or
@@ -26,6 +27,7 @@ enum FieldType: string
     case LongText = 'long_text';
     case Integer = 'integer';
     case Decimal = 'decimal';
+    case Currency = 'currency';
     case Boolean = 'boolean';
     case Date = 'date';
     case DateTime = 'datetime';
@@ -52,6 +54,7 @@ enum FieldType: string
             self::LongText => __('Long text'),
             self::Integer => __('Integer'),
             self::Decimal => __('Decimal'),
+            self::Currency => __('Amount with currency'),
             self::Boolean => __('Checkbox'),
             self::Date => __('Date'),
             self::DateTime => __('Date and time'),
@@ -118,12 +121,12 @@ enum FieldType: string
      * Types a collection item (an address) can take, for the fields an
      * administrator adds to one: a value in a column of the item's own table.
      * Not a link, a file or a number derived from the key, which need a
-     * record of their own to hang on, and not a collection inside a
-     * collection.
+     * record of their own to hang on, not a collection inside a collection,
+     * and not an amount with its currency, which is two columns.
      */
     public function fitsCollectionItem(): bool
     {
-        return ! in_array($this, [self::Relation, self::Relations, self::Related, self::Customers, self::File, self::Autonumber, self::Collection, self::Customer], true);
+        return ! in_array($this, [self::Relation, self::Relations, self::Related, self::Customers, self::File, self::Autonumber, self::Collection, self::Customer, self::Currency], true);
     }
 
     /**

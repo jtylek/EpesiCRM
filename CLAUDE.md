@@ -156,6 +156,8 @@ skips loading modules entirely as a recovery switch if one throws.
 Existing modules: `Epesi/RecordBrowser` (core),
 `Epesi/Store` (core, `panels: ["administration"]`: browses a module catalog and installs from
 it; the catalog server it talks to is a separate module kept outside this repository),
+`Epesi/Currencies` (core, administration: currencies, the dated home currency and daily ECB/NBP
+exchange rates through `RateResolver`; see [AI-shared/Epesi-currencies.md](AI-shared/Epesi-currencies.md)),
 and the five CRM recordsets under `Epesi/CRM` — `Contacts`, `Companies`, `Tasks`, `Meetings`,
 `PhoneCalls`, all `"core": true` and all built on the engine. `Epesi/Roundcube` embeds the
 Roundcube webmail on a Mailbox page; Roundcube itself is downloaded by `php artisan

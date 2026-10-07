@@ -41,9 +41,9 @@ class FollowupServiceProvider extends ServiceProvider
      * activity — Epesi's Follow-up leightbox (Save / New Meeting / New Task /
      * New Phonecall), as one modal.
      */
-    protected static function action(): Action
+    public static function whenField(): DateTimePicker|TextInput
     {
-        $when = RegionalSetting::calendarSystem() === 'gregorian'
+        return RegionalSetting::calendarSystem() === 'gregorian'
             ? DateTimePicker::make('when')->seconds(false)
             : TextInput::make('when')
                 ->placeholder('YYYY-MM-DD HH:MM')
@@ -57,6 +57,11 @@ class FollowupServiceProvider extends ServiceProvider
                         $fail(__('Enter a valid date and time in YYYY-MM-DD HH:MM format.'));
                     }
                 })]);
+    }
+
+    protected static function action(): Action
+    {
+        $when = static::whenField();
 
         return Action::make('followup')
             ->label('Close / Follow-up')

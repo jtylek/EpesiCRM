@@ -7,7 +7,6 @@ use Composer\CaBundle\CaBundle;
 use Epesi\Modules\Roundcube\Roundcube;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Process;
 use PharData;
 use RuntimeException;
 use Throwable;
@@ -155,13 +154,15 @@ class RoundcubeInstaller
             $source = realpath(dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'roundcube-plugins'.DIRECTORY_SEPARATOR.basename($entry));
             $target = realpath($entry);
 
-            if ($source === false || $target === false || (windows_os() ? strcasecmp($source, $target) !== 0 : $source !== $target)) {
+            // A link whose target is gone (the checkout was moved or renamed) is ours too.
+            $dangling = is_link($entry) && $target === false;
+            $ours = $source !== false && $target !== false && (windows_os() ? strcasecmp($source, $target) === 0 : $source === $target);
+
+            if (! $dangling && ! $ours) {
                 continue;
             }
 
-            $removed = windows_os() ? @rmdir($entry) : @unlink($entry);
-
-            if (! $removed) {
+            if (! $this->removeLink($entry)) {
                 throw new RuntimeException("Couldn't remove Roundcube's Epesi plugin link at {$entry}.");
             }
         }
@@ -205,6 +206,8 @@ class RoundcubeInstaller
         foreach ($this->files->directories(dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'roundcube-plugins') as $plugin) {
             $target = Roundcube::path('plugins'.DIRECTORY_SEPARATOR.basename($plugin));
 
+            $this->removeDanglingLink($target);
+
             if (! file_exists($target)) {
                 $this->makeLink($plugin, $target);
             }
@@ -212,6 +215,8 @@ class RoundcubeInstaller
 
         $public = Roundcube::publicPath();
         $webRoot = Roundcube::path('public_html');
+
+        $this->removeDanglingLink($public);
 
         if (! file_exists($public)) {
             $this->makeLink($webRoot, $public);
@@ -221,14 +226,52 @@ class RoundcubeInstaller
         }
     }
 
+    protected function removeLink(string $link): bool
+    {
+        return windows_os() ? @rmdir($link) : @unlink($link);
+    }
+
+    /** A link left pointing nowhere by a moved or renamed checkout: file_exists() is false for it, so it would block a new one. */
+    protected function removeDanglingLink(string $link): void
+    {
+        if (is_link($link) && ! file_exists($link) && ! $this->removeLink($link)) {
+            throw new RuntimeException("Couldn't remove the stale link {$link}.");
+        }
+    }
+
     /** Filesystem::link() doesn't report a failed `mklink`, so check. */
     protected function makeLink(string $target, string $link): void
     {
-        $this->files->link($target, $link);
+        try {
+            if (windows_os()) {
+                $this->files->link($target, $link); // an NTFS junction can only hold an absolute path
+            } elseif (! @symlink($this->relativePath(dirname($link), $target), $link)) {
+                throw new RuntimeException(error_get_last()['message'] ?? 'symlink() failed');
+            }
+        } catch (Throwable $e) {
+            $parent = dirname($link);
+
+            throw new RuntimeException("Couldn't link {$link} to {$target}: {$e->getMessage()}. The web server user must be able to write to {$parent} — make it writable, or run `php artisan roundcube:install` as the directory's owner.", 0, $e);
+        }
+
         clearstatcache();
 
         if (realpath($link) !== realpath($target)) {
             throw new RuntimeException("Couldn't link {$link} to {$target}.");
         }
+    }
+
+    /** $target as a path relative to the directory $from, so the link survives moving the whole checkout. */
+    protected function relativePath(string $from, string $target): string
+    {
+        $from = explode(DIRECTORY_SEPARATOR, trim(realpath($from) ?: $from, DIRECTORY_SEPARATOR));
+        $to = explode(DIRECTORY_SEPARATOR, trim(realpath($target) ?: $target, DIRECTORY_SEPARATOR));
+
+        while ($from && $to && $from[0] === $to[0]) {
+            array_shift($from);
+            array_shift($to);
+        }
+
+        return implode('/', [...array_fill(0, count($from), '..'), ...$to]);
     }
 }

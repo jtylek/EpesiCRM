@@ -68,7 +68,7 @@
                             @endif
                         >
                             @if ($url)
-                                <a class="epesi-pl-title" href="{{ $url }}">{{ PriorityList::title($record) }}</a>
+                                <a class="epesi-pl-title" {{ \Filament\Support\generate_href_html($url) }}>{{ PriorityList::title($record) }}</a>
                             @else
                                 <span class="epesi-pl-title">{{ PriorityList::title($record) }}</span>
                             @endif
@@ -82,6 +82,9 @@
                                 @endif
                             </div>
                         </div>
+                        @if ($followupUrl = PriorityList::followupUrl($record))
+                            <x-filament::icon-button tag="a" :href="$followupUrl" wire:navigate icon="heroicon-o-arrow-uturn-right" color="gray" size="sm" :label="__('Stage / Follow-up')" :tooltip="__('Stage / Follow-up')" />
+                        @endif
                         @if (PriorityList::canComplete(auth()->user(), $record))
                             <x-filament::icon-button
                                 icon="heroicon-m-check"

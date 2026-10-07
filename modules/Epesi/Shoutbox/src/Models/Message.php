@@ -19,6 +19,7 @@ class Message extends Model
         'to_user_id',
         'message',
         'deleted',
+        'legacy_id',
     ];
 
     protected function casts(): array

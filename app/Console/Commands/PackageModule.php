@@ -65,6 +65,12 @@ class PackageModule extends Command
 
         foreach (File::allFiles($directory, hidden: false) as $item) {
             /** @var SplFileInfo $item */
+            // distro/ is where a module's own release zips are written (see the
+            // pack-module-epesi-store skill); never pack them into the next one.
+            if (str_starts_with(str_replace('\\', '/', $item->getRelativePathname()), 'distro/')) {
+                continue;
+            }
+
             $zip->addFile(
                 $item->getPathname(),
                 $manifest->path.'/'.str_replace('\\', '/', $item->getRelativePathname()),

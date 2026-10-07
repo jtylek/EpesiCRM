@@ -40,6 +40,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Navigation\NavigationManager;
+use Filament\Pages\BasePage;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Component as SchemaComponent;
 use Filament\Support\Enums\Alignment;
@@ -151,6 +152,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->preferViewOverEditOnRecordClick();
         $this->blockIdentityAutofillOnAllTextFields();
+        $this->useEpesiFormLayoutOnResourcePages();
         $this->offerNoEmptyChoiceOnRequiredSelects();
         $this->translateAllLabels();
         $this->putModalActionsOnHeadingLine();
@@ -331,6 +333,19 @@ class AppServiceProvider extends ServiceProvider
     {
         TextInput::configureUsing(fn (TextInput $component) => $component->extraInputAttributes(NoIdentityAutofill::attributes()));
         Textarea::configureUsing(fn (Textarea $component) => $component->extraInputAttributes(NoIdentityAutofill::attributes()));
+    }
+
+    /**
+     * The Epesi form layout (each label in a shaded box beside its field,
+     * boxed-fields.css) on every resource's Create, Edit and View page in
+     * every panel. BasePage keeps the flag in one static that no page
+     * subclass redeclares, so this one call sets it for all of them. A
+     * standalone page builds its own form and opts in with
+     * App\Filament\Concerns\UsesEpesiFormLayout.
+     */
+    private function useEpesiFormLayoutOnResourcePages(): void
+    {
+        BasePage::inlineLabels();
     }
 
     /**

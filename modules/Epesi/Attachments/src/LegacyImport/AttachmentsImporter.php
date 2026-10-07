@@ -6,16 +6,10 @@ use App\Enums\RecordPermission;
 use App\Services\FileStorage;
 use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\ImportSummary;
-use App\Services\LegacyImport\LegacyIdMap;
+use App\Services\LegacyImport\LegacyRecordRefs;
 use App\Services\LegacyImport\LegacyValue;
 use Epesi\Modules\Attachments\Models\Attachment;
-use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\CRM\Meetings\Models\Meeting;
-use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
-use Epesi\Modules\CRM\Tasks\Models\Task;
-use Epesi\Modules\ProjectsTickets\Models\Project;
-use Epesi\Modules\ProjectsTickets\Models\Ticket;
+use Epesi\Modules\Attachments\Services\LegacyNoteCipher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -28,13 +22,12 @@ use Illuminate\Support\Facades\DB;
  * own pathFor()) and its links.
  *
  * `f_attached_to` names the legacy recordset a note is attached to
- * ("premium_expense/1809", "company/5", sometimes several) — only the ones
- * this app has a model for (TARGETS below) can be linked. Roughly two thirds
- * of a real install's attachments point at recordsets not ported yet
- * (Premium Expenses, Invoice, Payments, Sales Opportunity, Knowledge Base,
- * Vacation, Vehicles) — those notes are still imported (title/note/files),
- * just left with no link, and counted in the summary rather than silently
- * dropped; there is nowhere to link them until those modules exist.
+ * ("company/5", sometimes several). A link resolves through whichever
+ * importer brings that recordset over (LegacyRecordRefs), core or a module's,
+ * so a module that imports a recordset gets its notes linked too. Notes
+ * pointing at a recordset nothing imports are still imported (title/note/
+ * files), just left with no link, and counted in the summary rather than
+ * silently dropped.
  *
  * `files` and `attached_to` are relation/derived data, not simple columns,
  * so — like every importer's pivots, and Mail's own links/attachments — they
@@ -43,19 +36,11 @@ use Illuminate\Support\Facades\DB;
  */
 class AttachmentsImporter extends Importer
 {
-    /** Legacy recordset name (as it appears in `f_attached_to`) => this app's model. */
-    protected const TARGETS = [
-        'contact' => Contact::class,
-        'company' => Company::class,
-        'task' => Task::class,
-        'crm_meeting' => Meeting::class,
-        'phonecall' => PhoneCall::class,
-        'premium_projects' => Project::class,
-        'premium_tickets' => Ticket::class,
-    ];
-
-    /** @var array<class-string, LegacyIdMap> */
-    protected array $maps = [];
+    /**
+     * What a legacy recordset name in `f_attached_to` became here: whatever
+     * importer brings that recordset over, core or a module's.
+     */
+    protected LegacyRecordRefs $refs;
 
     protected ?string $dataDir;
 
@@ -73,9 +58,7 @@ class AttachmentsImporter extends Importer
         $dir = config('epesi-attachments.legacy_data_dir');
         $this->dataDir = filled($dir) ? rtrim((string) $dir, '/\\') : null;
 
-        foreach (self::TARGETS as $class) {
-            $this->maps[$class] = LegacyIdMap::for($class);
-        }
+        $this->refs = LegacyRecordRefs::fromImporters();
     }
 
     public function legacyTab(): string
@@ -104,6 +87,11 @@ class AttachmentsImporter extends Importer
 
         $summary = parent::run($withHistory);
 
+        $encryptedCount = Attachment::query()->where('legacy_encrypted', true)->count();
+        if ($encryptedCount > 0) {
+            $summary->warn("{$encryptedCount} legacy encrypted note(s) remain password-protected; ciphertext and password hints are retained. Install phpseclib/mcrypt_compat to enable decryption.");
+        }
+
         if ($this->dataDir === null) {
             $summary->warn('LEGACY_DATA_DIR is not set: attachment files are skipped (point it at the legacy install\'s data/ directory)');
         } elseif ($this->filesSkipped > 0) {
@@ -115,7 +103,7 @@ class AttachmentsImporter extends Importer
         }
 
         if ($this->unresolvedTargets > 0) {
-            $summary->warn("{$this->unresolvedTargets} attachment link(s) pointed at a record that wasn't imported (yet) — rerun \"import:legacy attachments\" after \"projects\"/\"tickets\" have run, if this was a registration-order issue, not a genuine gap");
+            $summary->warn("{$this->unresolvedTargets} attachment link(s) pointed at a record that wasn't imported (yet) — rerun \"import:legacy attachments\" once the records they're attached to are imported, if this was an ordering issue, not a genuine gap");
         }
 
         return $summary;
@@ -136,8 +124,8 @@ class AttachmentsImporter extends Importer
         $raw = $raw === '' ? null : $raw;
 
         return match ($legacyField) {
-            'title' => ['title' => $raw],
-            'note' => ['note' => $raw === null ? null : html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)],
+            'title' => ['title' => $raw === null ? null : html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)],
+            'note' => $raw === null ? ['note' => null] : ['note' => html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)],
             'permission' => ['permission' => $raw !== null ? (int) $raw : RecordPermission::Public->value],
             'sticky' => ['sticky' => (bool) $raw],
             default => [],
@@ -146,7 +134,32 @@ class AttachmentsImporter extends Importer
 
     protected function extraAttributes(object $row): array
     {
-        return ['files' => $this->importFiles($row)];
+        $encrypted = (bool) ($row->f_crypted ?? false);
+        $note = (string) ($row->f_note ?? '');
+
+        // Imported before: an encrypted note keeps what it is here now, its
+        // ciphertext or, decrypted since, its text. Writing the ciphertext
+        // again would undo a decryption (and Attachment refuses it anyway).
+        $existing = $encrypted ? Attachment::withTrashed()->where('legacy_id', $row->id)->first(['note', 'legacy_encrypted', 'legacy_password_hint']) : null;
+
+        if ($existing !== null) {
+            return [
+                'files' => $this->importFiles($row),
+                'legacy_encrypted' => $existing->legacy_encrypted,
+                'legacy_password_hint' => $existing->legacy_password_hint,
+                'note' => $existing->note,
+            ];
+        }
+
+        // The hint is plain text legacy stored through htmlspecialchars() ("J&amp;S").
+        $hint = $encrypted ? app(LegacyNoteCipher::class)->hint($note) : null;
+
+        return [
+            'files' => $this->importFiles($row),
+            'legacy_encrypted' => $encrypted,
+            'legacy_password_hint' => $hint === null ? null : html_entity_decode($hint, ENT_QUOTES | ENT_HTML5),
+            'note' => $encrypted ? $note : ($note === '' ? null : html_entity_decode($note, ENT_QUOTES | ENT_HTML5)),
+        ];
     }
 
     protected function syncPivots(object $row, Model $model): void
@@ -155,15 +168,13 @@ class AttachmentsImporter extends Importer
         $model->links()->delete();
 
         foreach (LegacyValue::typedRefMulti($row->f_attached_to ?? null) as $ref) {
-            $class = self::TARGETS[$ref['type']] ?? null;
-
-            if ($class === null) {
+            if (! $this->refs->ports($ref['type'])) {
                 $this->unportedTargets[$ref['type']] = ($this->unportedTargets[$ref['type']] ?? 0) + 1;
 
                 continue;
             }
 
-            $newId = $this->maps[$class]->get($ref['id']);
+            $newId = $this->refs->id($ref['type'], $ref['id']);
 
             if ($newId === null) {
                 $this->unresolvedTargets++;
@@ -171,6 +182,7 @@ class AttachmentsImporter extends Importer
                 continue;
             }
 
+            $class = $this->refs->modelFor($ref['type']);
             $model->links()->create([
                 'attachable_type' => (new $class)->getMorphClass(),
                 'attachable_id' => $newId,

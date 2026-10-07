@@ -5,6 +5,7 @@ namespace App\Filament\Administration\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use App\Services\Setup\InstallOptions;
 use App\Support\Mail\MailConfig;
 use BackedEnum;
@@ -23,6 +24,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
+use UnitEnum;
 
 /**
  * Epesi's Administration → Mail server settings (Base/Mail): how epesi sends
@@ -38,6 +40,9 @@ class MailServer extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Server Setup';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 

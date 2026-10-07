@@ -35,7 +35,13 @@ class LegacyRecordRefs
         $registry = app(ImporterRegistry::class);
         $models = [];
 
-        foreach ([...ImportLegacyData::IMPORTERS, ...$registry->before(), ...$registry->after()] as $importer) {
+        foreach ([...ImportLegacyData::IMPORTERS, ...$registry->before(), ...$registry->after(), ...$registry->last()] as $importer) {
+            // An importer that isn't an Importer subclass (Accounting's payments)
+            // can still name the legacy recordsets it brings over.
+            if (method_exists($importer, 'linkableRecordsets')) {
+                $models = [...$models, ...$importer::linkableRecordsets()];
+            }
+
             if (! is_subclass_of($importer, Importer::class)) {
                 continue;
             }
@@ -52,13 +58,36 @@ class LegacyRecordRefs
     public function token(string $tab, int $legacyId): ?string
     {
         $class = $this->models[$tab] ?? null;
-
-        if ($class === null) {
-            return null;
-        }
-
-        $id = ($this->maps[$class] ??= LegacyIdMap::for($class))->get($legacyId);
+        $id = $this->id($tab, $legacyId);
 
         return $id === null ? null : RecordLink::tokenFor(Relation::getMorphAlias($class), $id);
+    }
+
+    /** Whether some importer brings this legacy recordset over at all. */
+    public function ports(string $tab): bool
+    {
+        return isset($this->models[$tab]);
+    }
+
+    /** The model class records of a legacy recordset become, or null. */
+    public function modelFor(string $tab): ?string
+    {
+        return $this->models[$tab] ?? null;
+    }
+
+    /** This app's id of the record legacy "tab/id" became, or null. */
+    public function id(string $tab, int $legacyId): ?int
+    {
+        $class = $this->models[$tab] ?? null;
+
+        return $class === null ? null : ($this->maps[$class] ??= LegacyIdMap::for($class))->get($legacyId);
+    }
+
+    /** The record legacy "tab/id" became (whoever may see it), or null. */
+    public function record(string $tab, int $legacyId): ?Model
+    {
+        $id = $this->id($tab, $legacyId);
+
+        return $id === null ? null : $this->models[$tab]::query()->withoutGlobalScopes()->find($id);
     }
 }

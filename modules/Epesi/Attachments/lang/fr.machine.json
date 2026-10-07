@@ -1,3 +1,27 @@
 {
-    "Preview": "Aperçu"
+    "After editing, enter the password again to keep this note encrypted.": "Après modification, saisissez à nouveau le mot de passe pour que cette note reste cryptée.",
+    "All notes": "Toutes les notes",
+    "Confirm Password": "Confirmer le mot de passe",
+    "Decrypt": "Décrypter",
+    "Decrypt note": "Note de décryptage",
+    "Decrypt note to edit it": "Décryptez la note pour la modifier",
+    "Encrypt this note with a password": "Cryptez cette note à l'aide d'un mot de passe",
+    "Encrypted note": "Note cryptée",
+    "Encrypted notes": "Notes cryptées",
+    "Encrypted. Password hint: :hint": "Crypté. Indice pour le mot de passe : :hint",
+    "Encryption": "Chiffrement",
+    "Invalid password": "Mot de passe invalide",
+    "My encrypted notes": "Mes notes cryptées",
+    "My notes": "Mes notes",
+    "Note password": "Mot de passe de note",
+    "Password confirmation does not match.": "La confirmation du mot de passe ne correspond pas.",
+    "Password Hint": "Indice de mot de passe",
+    "Password hint: :hint": "Indice de mot de passe : :hint",
+    "Password is correct": "Le mot de passe est correct",
+    "Password protected": "Protégé par mot de passe",
+    "Please provide a password to encrypt this note.": "Veuillez fournir un mot de passe pour crypter cette note.",
+    "Preview": "Aperçu",
+    "This note is password protected. Enter its password using Decrypt note.": "Cette note est protégée par un mot de passe. Saisissez son mot de passe à l'aide de la fonction « Décrypter la note ».",
+    "This note is password protected. Enter its password with the Decrypt note action.": "Cette note est protégée par un mot de passe. Saisissez ce mot de passe à l'aide de l'action « Décrypter la note ».",
+    "This note is password protected. Hint: :hint": "Cette note est protégée par un mot de passe. Indice : :hint"
 }

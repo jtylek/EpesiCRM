@@ -29,11 +29,16 @@ class Attachment extends Model
 {
     use HasOwnershipVisibility, LogsActivity, SoftDeletes;
 
+    /** Allows the edit workflow to replace ciphertext after validating the password. */
+    public bool $allowEncryptedNoteWrite = false;
+
     protected $table = 'epesi_attachments';
 
     protected $fillable = [
         'title',
         'note',
+        'legacy_encrypted',
+        'legacy_password_hint',
         'format',
         'files',
         'permission',
@@ -47,11 +52,20 @@ class Attachment extends Model
             'format' => NoteFormat::class,
             'permission' => RecordPermission::class,
             'sticky' => 'boolean',
+            'legacy_encrypted' => 'boolean',
         ];
     }
 
     protected static function booted(): void
     {
+        static::saving(function (Attachment $note): void {
+            // Encrypted content can only be replaced by the edit workflow after
+            // it has encrypted the submitted text with a verified password.
+            if ($note->exists && $note->getOriginal('legacy_encrypted') && $note->legacy_encrypted && $note->isDirty('note') && ! $note->allowEncryptedNoteWrite) {
+                throw new \LogicException('Encrypted legacy note ciphertext cannot be overwritten as plain note content.');
+            }
+        });
+
         // `files` holds StoredFile ids (see App\Services\FileStorage), as
         // strings: that is the FileUpload field's state, and its tamper check
         // only recognises a note's own files when they compare equal.
@@ -135,6 +149,10 @@ class Attachment extends Model
      */
     public function label(): string
     {
+        if ($this->legacy_encrypted) {
+            return filled($this->title) ? (string) $this->title : __('Encrypted note');
+        }
+
         if (filled($this->title)) {
             return (string) $this->title;
         }
@@ -149,11 +167,29 @@ class Attachment extends Model
      */
     public function bodyHtml(): string
     {
+        if ($this->legacy_encrypted) {
+            return '';
+        }
+
         return ($this->format ?? NoteFormat::Html)->toHtml($this->note);
+    }
+
+    /** Never reveal ciphertext through searchable/plain-text labels. */
+    public function bodyPlainText(): string
+    {
+        if ($this->legacy_encrypted) {
+            return __('Encrypted note');
+        }
+
+        return ($this->format ?? NoteFormat::Html)->toPlainText($this->note);
     }
 
     public function plainText(): string
     {
+        if ($this->legacy_encrypted) {
+            return __('Encrypted note');
+        }
+
         return ($this->format ?? NoteFormat::Html)->toPlainText($this->note);
     }
 

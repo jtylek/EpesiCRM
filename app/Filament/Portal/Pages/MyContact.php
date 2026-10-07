@@ -5,6 +5,7 @@ namespace App\Filament\Portal\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use App\Support\Auth\PortalEmails;
 use BackedEnum;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
@@ -51,6 +52,7 @@ class MyContact extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 

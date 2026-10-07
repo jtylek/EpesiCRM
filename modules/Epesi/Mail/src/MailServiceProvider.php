@@ -87,7 +87,7 @@ class MailServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             // `import:legacy mail` (and part of `import:legacy all`).
-            $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class);
+            $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class, last: true);
         }
 
         // Epesi fetched from cron.php; here it is Laravel's scheduler, run by

@@ -1,5 +1,7 @@
 {
     "Address and contact details": "כתובת ופרטי איש קשר",
+    "Also creates a new company with this contact's addresses and sets it as the contact's company.": "כמו כן, יוצר חברה חדשה עם כתובותיו של איש הקשר הזה ומגדיר אותה כחברה של איש הקשר.",
+    "Create company": "צור חברה",
     "Home Address": "כתובת מגורים",
     "Linked User": "משתמש מקושר",
     "Your company": "החברה שלך",

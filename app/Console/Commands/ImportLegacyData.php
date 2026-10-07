@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\LegacyImport\ImporterRegistry;
 use App\Services\LegacyImport\Importers\CompaniesImporter;
 use App\Services\LegacyImport\Importers\ContactsImporter;
+use App\Services\LegacyImport\Importers\LoginAuditImporter;
 use App\Services\LegacyImport\Importers\MeetingsImporter;
 use App\Services\LegacyImport\Importers\PhoneCallsImporter;
 use App\Services\LegacyImport\Importers\TasksImporter;
@@ -51,6 +52,7 @@ class ImportLegacyData extends Command
      */
     public const IMPORTERS = [
         'users' => UsersImporter::class,
+        'loginaudit' => LoginAuditImporter::class,
         'companies' => CompaniesImporter::class,
         'contacts' => ContactsImporter::class,
         'phonecalls' => PhoneCallsImporter::class,
@@ -149,7 +151,7 @@ class ImportLegacyData extends Command
     {
         $registry = $this->laravel->make(ImporterRegistry::class);
 
-        return [...$registry->before(), ...self::IMPORTERS, ...$registry->after()];
+        return [...$registry->before(), ...self::IMPORTERS, ...$registry->after(), ...$registry->last()];
     }
 
     /** @return list<string> migrated tables that already have a non-legacy (legacy_id IS NULL) row */

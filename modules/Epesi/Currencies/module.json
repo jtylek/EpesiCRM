@@ -1,0 +1,17 @@
+{
+    "id": "epesi/currencies",
+    "name": "Currencies",
+    "description": "The currencies in use, the home currency and daily exchange rates (ECB or NBP).",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Administration",
+    "icon": "heroicon-o-currency-dollar",
+    "namespace": "Epesi\\Modules\\Currencies\\",
+    "path": "Epesi/Currencies",
+    "provider_class": "Epesi\\Modules\\Currencies\\CurrenciesServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Currencies\\CurrenciesPlugin",
+    "panels": ["main", "administration"],
+    "core": true,
+    "requires": [],
+    "provides": []
+}

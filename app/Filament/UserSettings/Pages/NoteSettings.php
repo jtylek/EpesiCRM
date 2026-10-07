@@ -6,6 +6,7 @@ use App\Enums\NoteFormat;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -24,6 +25,7 @@ class NoteSettings extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 

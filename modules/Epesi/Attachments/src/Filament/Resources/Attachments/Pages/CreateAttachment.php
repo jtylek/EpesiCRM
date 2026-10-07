@@ -31,6 +31,7 @@ class CreateAttachment extends CreateRecord
     {
         $rows = Arr::pull($data, 'attach_to') ?? [];
         $data = AttachmentResource::foldNoteState($data, $this->data['note_markdown'] ?? '');
+        $data = AttachmentResource::applyEncryptionState($data, $this->data ?? []);
 
         /** @var Attachment $note */
         $note = parent::handleRecordCreation($data);

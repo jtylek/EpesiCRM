@@ -414,7 +414,7 @@ abstract class Importer
 
             foreach ($tracked as $field => $column) {
                 if (empty($chain[$field])) {
-                    $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $liveRow?->{"f_{$field}"}));
+                    $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $liveRow->{"f_{$field}"} ?? null));
 
                     continue;
                 }

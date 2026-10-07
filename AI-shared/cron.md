@@ -250,7 +250,7 @@ since `2026_09_30_010000_record_how_cron_ran`, which gets neither. SQLite, which
 on, never does this.
 
 **Confirmed working end-to-end in production**, 2026-09-26, on `nb.epesicrm.com` (a real,
-non-demo install; see `AI-private/epesi-nightly-build.md`): a `* * * * * php /path/cron.php`
+non-demo install): a `* * * * * php /path/cron.php`
 crontab line, `mail:fetch` and `reminders:send` both showing "Done" runs a minute apart, "Cron is
 running" with 42 calls in the last hour, and `Cron::isRunning()` true from the database alone,
 without ever clicking "Run cron jobs manually".

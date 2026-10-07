@@ -38,6 +38,7 @@ class FollowupTest extends TestCase
         $task->employees()->sync([$employee->id]);
         $task->customers()->sync([$customer->id]);
         $task->customerCompanies()->sync([$company->id]);
+        $task->syncRecordLinks('related', ['company:'.$company->id]);
 
         $call = Followup::close($task, RecordStatus::Closed, 'Offer sent', 'phone_call', 'Chase the offer', now()->addDays(3));
 
@@ -48,6 +49,7 @@ class FollowupTest extends TestCase
         // task had both, and contact takes priority.
         $this->assertTrue($call->customer->is($customer));
         $this->assertSame([$employee->id], $call->employees()->pluck('contacts.id')->all());
+        $this->assertTrue($call->linkedRecords('related')->sole()->is($company));
 
         $this->assertSame(2, $task->attachments()->count(), 'the closing note and the forward trace');
         $this->assertStringContainsString('Follow-up after', $call->attachments()->sole()->note);

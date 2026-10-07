@@ -53,6 +53,9 @@ class Store extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
+    // Pinned second in the sidebar, after About (a sort below -1 pins an item).
+    protected static ?int $navigationSort = -4;
+
     protected string $view = 'epesi-store::store';
 
     /** @var array<int, array<string, mixed>>|null */

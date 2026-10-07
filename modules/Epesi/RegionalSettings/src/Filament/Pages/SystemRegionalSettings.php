@@ -5,12 +5,14 @@ namespace Epesi\Modules\RegionalSettings\Filament\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Filament\Concerns\UsesEpesiFormLayout;
 use BackedEnum;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use UnitEnum;
 
 /**
  * Administration → Regional Settings: the defaults for the application — the
@@ -24,10 +26,13 @@ class SystemRegionalSettings extends Page
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
+    use UsesEpesiFormLayout;
 
     protected const FIELDS = [
-        'language', 'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
+        'language', 'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state', 'currency',
     ];
+
+    protected static string|UnitEnum|null $navigationGroup = 'Server Setup';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 

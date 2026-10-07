@@ -5,9 +5,9 @@ namespace Tests\Feature\Modules;
 use Epesi\Modules\Attachments\Attachments;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
 use Epesi\Modules\Mail\MailServiceProvider;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RelatedModules;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustomFields;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
-use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -55,25 +55,54 @@ class RecordsetFeaturesTest extends TestCase
 
     public function test_mail_starts_on_the_crm_recordsets_and_follows_the_choice(): void
     {
-        $this->assertEqualsCanonicalizing(MailServiceProvider::DEFAULT_RECORD_TYPES, MailServiceProvider::recordTypes());
+        // Installed modules may switch it on for their own recordsets too.
+        $this->assertSame([], array_values(array_diff(MailServiceProvider::DEFAULT_RECORD_TYPES, MailServiceProvider::recordTypes())));
 
         RecordsetFeatures::set(MailServiceProvider::FEATURE, 'task', false);
 
         $this->assertNotContains('task', MailServiceProvider::recordTypes());
     }
 
-    public function test_the_features_action_saves_the_choice_for_a_recordset(): void
+    public function test_the_recordsets_list_has_no_related_modules_button(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');
 
         Livewire::test(ListCustomFields::class)
-            ->filterTable('model_type', 'company')
-            ->callAction(TestAction::make('features'), data: ['recordset' => 'company', 'features' => ['notes']])
-            ->assertHasNoActionErrors();
+            ->assertActionDoesNotExist('features');
+    }
+
+    public function test_the_related_modules_page_lists_recordsets_and_saves_the_choice(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(RelatedModules::class)
+            ->assertSuccessful()
+            ->callTableAction('edit', 'company', data: ['features' => ['notes']])
+            ->assertHasNoTableActionErrors();
 
         $this->assertFalse(RecordsetFeatures::enabled(MailServiceProvider::FEATURE, 'company'));
         $this->assertTrue(RecordsetFeatures::enabled(AttachmentsServiceProvider::FEATURE, 'company'));
         $this->assertTrue(RecordsetFeatures::enabled(MailServiceProvider::FEATURE, 'contact'), 'other recordsets are untouched');
+    }
+
+    public function test_the_administration_sidebar_is_pinned_items_then_server_setup_then_data(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        $navigation = collect(Filament::getNavigation());
+        $labels = fn (?string $group): array => collect($navigation
+            ->first(fn ($g): bool => $g->getLabel() === $group)
+            ->getItems())
+            ->map(fn ($item): string => $item->getLabel())
+            ->values()
+            ->all();
+
+        $this->assertSame(['About', 'Epesi Store', 'Modules', 'Database update'], array_slice($labels(null), 0, 4));
+        $this->assertSame(['Cron', 'Mail Server', 'Regional Settings', 'Server Check', 'Translations'], $labels('Server Setup'));
+        $this->assertSame(['Common Data', 'Currencies', 'Exchange Rates', 'Priority list types', 'Recordsets', 'Related modules'], $labels('Data'));
+        $this->assertSame(['Server Setup', 'Data'], $navigation->map(fn ($g) => $g->getLabel())->filter()->take(2)->values()->all());
     }
 }

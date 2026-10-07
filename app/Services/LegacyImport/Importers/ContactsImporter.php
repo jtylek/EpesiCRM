@@ -189,7 +189,8 @@ class ContactsImporter extends Importer
             'company_name' => [$column => $raw !== null && $raw !== '' ? $this->companies->get((int) $raw) : null],
             'login' => [$column => $raw !== null && $raw !== '' ? $this->users->get((int) $raw) : null],
             'email' => [$column => $raw !== '' ? $raw : null],
-            default => [$column => $raw !== '' ? $raw : null],
+            // Plain text, stored through htmlspecialchars() ("A&amp;J").
+            default => [$column => $raw !== '' && $raw !== null ? ($column === 'memo' ? $raw : html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)) : null],
         };
     }
 

@@ -96,7 +96,7 @@ class CustomFieldForm
                         ->maxValue(8)
                         ->default(2)
                         ->statePath('params.decimals')
-                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Decimal->value),
+                        ->visible(fn (Get $get): bool => in_array($get('type'), [FieldType::Decimal->value, FieldType::Currency->value], true)),
 
                     TextInput::make('prefix')
                         ->maxLength(16)

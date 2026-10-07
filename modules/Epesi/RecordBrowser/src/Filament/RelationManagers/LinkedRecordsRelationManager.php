@@ -52,10 +52,10 @@ class LinkedRecordsRelationManager extends RelationManager
                 Action::make('view')->label('View')->icon('heroicon-o-eye')->iconButton()
                     ->url(fn (Model $record) => $resource::getUrl('view', ['record' => $record], panel: 'main')),
                 Action::make('edit')->label('Edit')->icon('heroicon-o-pencil-square')->iconButton()
-                    ->visible(fn (Model $record) => $resource::canEdit($record))
+                    ->visible(fn (Model $record) => $resource::hasPage('edit') && $resource::canEdit($record))
                     ->url(fn (Model $record) => $resource::getUrl('edit', ['record' => $record], panel: 'main')),
             ])->toolbarActions([])->headerActions([
-                Action::make('new')->label('New')->icon('heroicon-o-plus')->visible(fn () => $resource::canCreate())
+                Action::make('new')->label('New')->icon('heroicon-o-plus')->visible(fn () => $resource::hasPage('create') && $resource::canCreate())
                     ->url(fn () => $resource::getUrl('create', ['link' => $this->ownerRecord->getMorphClass().':'.$this->ownerRecord->getKey()], panel: 'main')),
             ]);
     }

@@ -3,6 +3,7 @@
 namespace App\Services\Setup;
 
 use App\Models\Module;
+use App\Services\Modules\ModuleInstaller;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleRegistry;
 use App\Support\Optimize\FrameworkCaches;
@@ -19,6 +20,11 @@ use Throwable;
  * rather than relying on each module's provider to register them with
  * loadMigrationsFrom(), so a module that doesn't is still covered, and the
  * page can say which module a change belongs to.
+ *
+ * A release can also bring a new core module (Currencies came after the
+ * first installs). Setup registers every core module, but an update only
+ * migrates the registered ones, so newCoreModules() finds those still missing
+ * a `modules` row and run() registers them first, in dependency order.
  *
  * Used by Administration → Database update, the notice shown to
  * administrators while an update is waiting, and `php artisan epesi:update`.
@@ -88,6 +94,55 @@ class SystemUpdate
     }
 
     /**
+     * Core modules on disk that this installation has never registered, in
+     * the order to register them (a module after what it requires). None on
+     * an installation with no modules at all: that isn't installed yet, or it
+     * is a test run booting modules from their manifests.
+     *
+     * @return array<string, ModuleManifest> module id => manifest
+     */
+    public function newCoreModules(): array
+    {
+        try {
+            if (config('modules.from_manifests') || ! Module::query()->exists()) {
+                return [];
+            }
+
+            $registered = array_flip(Module::query()->pluck('module_id')->all());
+        } catch (Throwable) {
+            return [];
+        }
+
+        $missing = [];
+
+        foreach (app(ModulePlan::class)->for([]) as $manifest) {
+            if (! isset($registered[$manifest->id])) {
+                $missing[$manifest->id] = $manifest;
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * Registers newCoreModules(): their migrations run, their row is
+     * written. Returns the ids it registered.
+     *
+     * @return list<string>
+     */
+    public function registerNewCoreModules(): array
+    {
+        $installer = app(ModuleInstaller::class);
+        $new = $this->newCoreModules();
+
+        foreach ($new as $manifest) {
+            $installer->registerExisting($manifest->path);
+        }
+
+        return array_keys($new);
+    }
+
+    /**
      * Writes the manifests found by staleModules() into the modules table,
      * keeping each module's enabled state. Returns the ids it updated.
      *
@@ -126,6 +181,10 @@ class SystemUpdate
     public function pending(): array
     {
         $pending = [];
+
+        if ($new = array_keys($this->newCoreModules())) {
+            $pending[__('New core modules')] = $new;
+        }
 
         if ($stale = array_keys($this->staleModules())) {
             $pending[__('Module registrations')] = $stale;
@@ -207,6 +266,11 @@ class SystemUpdate
             $parts[] = $folder.'|'.(@filemtime($folder) ?: '-');
         }
 
+        // A new module's folder changes its vendor folder's (modules/Epesi).
+        foreach (glob(rtrim((string) config('modules.path'), '/\\').DIRECTORY_SEPARATOR.'*', GLOB_ONLYDIR) ?: [] as $vendor) {
+            $parts[] = $vendor.'|'.(@filemtime($vendor) ?: '-');
+        }
+
         return hash('xxh128', implode("\n", $parts));
     }
 
@@ -227,6 +291,7 @@ class SystemUpdate
         static::$pendingCache = null;
 
         $this->syncManifests();
+        $this->registerNewCoreModules();
 
         $code = Artisan::call('migrate', [
             '--path' => array_values($this->paths()),

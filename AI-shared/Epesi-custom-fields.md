@@ -24,7 +24,7 @@ Everything about a recordset's fields, in one place:
 - **An administrator's field is a real column.** Administration → Fields adds a field to any
   recordset from the browser. It becomes a column on the recordset's own table (`cf_<id>`) and
   behaves like a shipped field everywhere, History included.
-- **Against legacy Epesi, two types are missing:** `currency` and `calculated`. A select over
+- **Against legacy Epesi, one type is missing:** `calculated` (`currency` is built, Step 11). A select over
   several named recordsets is one field per target, and a select over any recordset is "Link to
   any record" (`Related`). Administration → Fields can add every type, links to records and
   shared lists included.
@@ -367,14 +367,13 @@ the same thing on the command line.
 
 #### Recordset features
 
-The **Features** button in the list's header (next to Repair columns). Addon modules attach
-themselves to recordsets: Mail gives a record type an E-mails tab and puts it in the "Link to
-record" selector, Attachments gives it a Notes tab. Which recordsets they attach to used to be a
-hard-coded list in each module, so a recordset from a module installed later (Projects, Tickets)
-never got either. The button opens a form: pick a recordset, tick the features it should have.
-The recordset starts on the one the list is filtered to. It lives here and not on its own page
-because a recordset is a property of the recordset, like its fields, and this screen is where an
-administrator already goes to adjust one.
+Administration → Data → **Related modules** (`RecordBrowser`'s `RelatedModules` page). Addon
+modules attach themselves to recordsets: Mail gives a record type an E-mails tab and puts it in
+the "Link to record" selector, Attachments gives it a Notes tab. Which recordsets they attach to
+used to be a hard-coded list in each module, so a recordset from a module installed later
+(Projects, Tickets) never got either. The page lists every recordset with the modules attached to
+it; a row's Edit action ticks the ones it should have. It started as a "Features" button on the
+Recordsets list and moved to a page of its own in the Data menu group.
 
 How it works (`RecordsetFeatures`):
 
@@ -395,7 +394,7 @@ How it works (`RecordsetFeatures`):
   request and the table may not exist yet (a fresh install, tests before migrating), in which
   case the defaults stand. A change applies from the next request, because relations and tabs
   are registered at boot.
-- The form offers the main panel's recordsets only (`FieldOverrides::recordsets()` without
+- The page lists the main panel's recordsets only (`FieldOverrides::recordsets()` without
   collection item types such as addresses).
 - Turning a feature off hides the tab and removes the type from the selector. It doesn't delete
   links already made: they stay in the link table and show again when it is turned back on.
@@ -405,14 +404,14 @@ How it works (`RecordsetFeatures`):
   fixed column list, and a resource that names none falls back to the id.
 - Not behind this: Reminders. Each type needs a start time that only code can give
   (`Reminders::startTimeFor()`), so a toggle would enable it without making it work.
-- Not built yet: a shortcut to Features from the Mail settings, a `--features` option on
+- Not built yet: a shortcut to Related modules from the Mail settings, a `--features` option on
   `make:epesi-recordset`, and a warning on the toggle that counts existing links.
 
 Example: a Tickets recordset that should take notes and e-mails. The note form's "Attached to"
 type list and the e-mail "Link to record" type list are not configured anywhere of their own;
 both read `RecordsetFeatures::aliasesFor()`.
 
-- Administrator: Administration → Recordsets → Features, pick Tickets, tick Notes (and E-mails).
+- Administrator: Administration → Related modules, Edit on the Tickets row, tick Notes (and E-mails).
   Applies from the next page load. Ticket then appears in the note's "Attached to" types and
   gets a Notes tab.
 - Developer, as the default for the recordset: in the module's service provider
@@ -423,7 +422,7 @@ both read `RecordsetFeatures::aliasesFor()`.
   RecordsetFeatures::enableByDefault('mail', 'ticket');      // E-mails
   ```
 
-  An administrator can still turn either off under Features.
+  An administrator can still turn either off under Related modules.
 
 ### Limits and available types
 
@@ -474,9 +473,9 @@ For everything else legacy's add-field screen offered that this one doesn't, see
 | `modules/Epesi/RecordBrowser/src/Filament/Resources/CustomFields/` | Administration → Fields: the resource, form, infolist, table and the drop-column action |
 | `modules/Epesi/RecordBrowser/src/Console/CustomFieldsSyncCommand.php` (`customfields:sync`) | The command-line form of Repair columns |
 | `modules/Epesi/RecordBrowser/src/Recordset/RecordsetFeatures.php` | Which recordsets an addon module (E-mails, Notes) attaches to: declared defaults plus the administrator's choices |
-| `modules/Epesi/RecordBrowser/src/Filament/Resources/CustomFields/RecordsetFeatureAction.php` | The Features button and its form on the Recordsets list |
+| `modules/Epesi/RecordBrowser/src/Filament/Administration/Pages/RelatedModules.php` | Administration → Related modules: each recordset's addon modules, edited per row |
 | `modules/Epesi/RecordBrowser/database/migrations/2026_10_01_100000_create_recordbrowser_recordset_features_table.php` | The `epesi_recordbrowser_recordset_features` table |
-| `tests/Feature/Modules/RecordsetFeaturesTest.php` | Defaults, overrides, `enableFor()` and the Features action |
+| `tests/Feature/Modules/RecordsetFeaturesTest.php` | Defaults, overrides, `enableFor()` and the Related modules page |
 
 [conventions.md](conventions.md#custom-fields) has the one-paragraph version, for a resource
 author wondering what `HasCustomFields` buys them.
@@ -520,7 +519,7 @@ but that is the internal `id` row every recordset gets on install, not a field t
 | `page_split` | `Field::section()` | Done |
 | `hidden` | `->onlyInTable()`, or `inForm(false)->inView(false)->notInTable()` for a field shown nowhere | Done |
 | `file` | `File` (`Field::file()`) | Done; see [below](#file) |
-| `currency` | — | **Missing** |
+| `currency` | `Currency` (`Field::currency()`) | Built: two columns, `{name}` and `{name}_currency` |
 | `calculated` | — | **Missing** |
 
 The port's own `Select` / `Multiselect` take a fixed list of choices from an enum or an array.
@@ -541,8 +540,7 @@ seconds) on the native one. The application and RecordBrowser default to five mi
 an explicit field interval still overrides that default. New custom fields also start at five.
 Legacy activity imports round current scheduled times to the nearest five minutes, including
 date rollover, while retaining original history and audit timestamps. Existing imported
-activities can be normalized with `import:round-times`; see
-[legacy migration](Epesi-legacy-data-migration.md#rounding-imported-activity-times).
+activities can be normalized with `import:round-times`.
 
 ### `file`
 
@@ -676,20 +674,9 @@ and `ModalTableSelect`.
 currency list kept by `Utils/CurrencyField`, which also sets each currency's precision and decimal
 sign, and each user has a default currency.
 
-**In the port**, `Decimal` has a number of decimal places and nothing else: no currency, no
-symbol, and no list of currencies anywhere in the repository. A legacy currency value imported
-into a `Decimal` loses its currency.
-
-None of the CRM recordsets use it, but any module that records money (prices, totals, rates)
-needs it. No Filament component covers it. It needs:
-
-- a currencies table;
-- a per-user default currency;
-- a decision on how to store it (an amount column plus a currency column sort and add up;
-  legacy's encoded string doesn't);
-- a form component, either a `FusedGroup` of amount and currency or a subclassed field.
-
-[Step 11](#step-11-currency) builds it.
+**In the port** it is `FieldType::Currency`, built in [Step 11](#step-11-currency): an amount
+column and a `char(3)` currency column, a `FusedGroup` on the form, the currency list and the
+default currency from the Currencies module ([Epesi-currencies.md](Epesi-currencies.md)).
 
 #### `calculated`
 
@@ -1264,7 +1251,7 @@ Eleven steps, in order. Each one ships on its own and leaves the engine working.
 | 8 | A tab for every recordset that links here | 3–5 days | — | Done |
 | 9 | Notes and Mail on the shared link table | 2–3 days | Step 8 | |
 | 10 | `->calculated()` | 1 day | — | |
-| 11 | `currency` | 3–4 days | A new Currencies module | |
+| 11 | `currency` | 3–4 days | A new Currencies module | **Built** |
 
 Why this order:
 
@@ -1527,12 +1514,14 @@ Field::decimal('net_total')->calculated(fn (Invoice $record) => $record->items->
 
 ### Step 11: `currency`
 
-- **Currencies module.** A new core module, `Epesi/Currencies`, alongside CommonData, with
-  Administration → Currencies. Its table, `currencies`, has:
-  - `code`, a unique `char(3)` ISO 4217 code;
-  - `decimals`;
-  - `active`;
-  - `is_default`.
+**Built.** As designed below. Where the build differs, the bullet says so.
+
+- **Currencies module.** Built: `Epesi/Currencies` (core), with Administration → Currencies and
+  Exchange Rates. See [Epesi-currencies.md](Epesi-currencies.md). Its `currencies` table has
+  `code` (a unique `char(3)` ISO 4217 code), `name`, `decimals`, `active` and `position`. The
+  home currency isn't a flag but a dated period (`CurrencyRepository::home($date)`). The field
+  type reads the module through `CurrencyRepository`, and RecordBrowser lists
+  `epesi/currencies` in `requires`.
 
   Values reference the code, not a numeric id as legacy's do: a code reads the same on every
   install and in raw SQL.
@@ -1541,7 +1530,7 @@ Field::decimal('net_total')->calculated(fn (Invoice $record) => $record->items->
   makes `intl` a requirement, so the server check in `epesi:install` and the `/setup` wizard must
   test for it.
 - **Default currency.** A `currency` column on `epesi_regional_settings`: the user's row, then
-  the system row, then the table's `is_default`. That mirrors legacy's per-user
+  the system row, then today's home currency. That mirrors legacy's per-user
   `default_currency` setting.
 - **Storage.** Two columns, `<name>` (`decimal(15, decimals)`) and `<name>_currency`
   (`char(3)`). The amount then sorts, filters by range and sums in SQL, which legacy's encoded
@@ -1559,9 +1548,12 @@ Field::decimal('net_total')->calculated(fn (Invoice $record) => $record->items->
 - **History.** The currency field's `formatLoggedChange()` reads both keys ("Amount: 10.00 PLN →
   12.00 EUR"). `HistoryRelationManager` skips a key that belongs to another field as its second
   column.
-- **Import.** Legacy's `utils_currency` rows become `currencies` (active, default). A legacy
-  value `amount__id` is split into the amount and the code for that id.
-- **Out of scope.** Exchange rates, and totals across currencies.
+- **Import.** `import:legacy currencies` already copies `utils_currency` into `currencies`. A
+  legacy value `amount__id` is split into the amount and the code for that id
+  (`App\Services\LegacyImport\LegacyMoney`).
+- **Out of scope.** Totals across currencies. Exchange rates exist (`RateResolver`), but a plain
+  Currency field doesn't convert. Converting is for documents that freeze a rate, such as
+  invoices.
 - **Tests:**
   - the form saves both columns;
   - the value is formatted per currency;

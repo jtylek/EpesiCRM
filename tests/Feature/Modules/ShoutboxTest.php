@@ -4,8 +4,12 @@ namespace Tests\Feature\Modules;
 
 use Epesi\Modules\Shoutbox\Filament\Pages\Shoutbox;
 use Epesi\Modules\Shoutbox\Filament\Widgets\ShoutboxWidget;
+use Epesi\Modules\Shoutbox\LegacyImport\ShoutboxImporter;
 use Epesi\Modules\Shoutbox\Models\Message;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
@@ -231,5 +235,66 @@ class ShoutboxTest extends TestCase
         Livewire::test(Shoutbox::class)
             ->callTableAction('delete', $shout)
             ->assertCanNotSeeTableRecords([$shout->fresh()]);
+    }
+
+    public function test_the_legacy_messages_are_imported_and_a_rerun_does_not_duplicate_them(): void
+    {
+        config(['database.connections.legacy' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
+        DB::purge('legacy');
+
+        Schema::connection('legacy')->create('apps_shoutbox_messages', function (Blueprint $table) {
+            $table->id();
+            $table->integer('base_user_login_id');
+            $table->integer('to_user_login_id')->nullable();
+            $table->text('message')->nullable();
+            $table->timestamp('posted_on');
+            $table->integer('deleted')->nullable();
+        });
+        DB::connection('legacy')->table('apps_shoutbox_messages')->insert([
+            ['base_user_login_id' => 1, 'to_user_login_id' => null, 'message' => 'Let&#039;s hope &quot;this&quot; works &amp; stays', 'posted_on' => '2016-09-08 19:04:08', 'deleted' => null],
+            ['base_user_login_id' => 2, 'to_user_login_id' => 1, 'message' => 'Private', 'posted_on' => '2016-09-09 12:17:48', 'deleted' => 1],
+            ['base_user_login_id' => 1, 'to_user_login_id' => null, 'message' => '[b]RasPiEsi[/b] is out
+Go to [contact]58[/contact] or [contact]99[/contact], [url]https://example.com/x[/url] or [url=https://example.org]the site[/url] [ok]', 'posted_on' => '2016-09-12 08:00:00', 'deleted' => null],
+            ['base_user_login_id' => 9, 'to_user_login_id' => null, 'message' => 'Unknown sender', 'posted_on' => '2016-09-10 08:00:00', 'deleted' => null],
+            ['base_user_login_id' => 1, 'to_user_login_id' => 9, 'message' => 'Unknown recipient', 'posted_on' => '2016-09-11 08:00:00', 'deleted' => null],
+        ]);
+        Schema::connection('legacy')->create('contact_data_1', function (Blueprint $table) {
+            $table->id();
+            $table->string('f_first_name')->nullable();
+            $table->string('f_last_name')->nullable();
+        });
+        DB::connection('legacy')->table('contact_data_1')->insert(['id' => 58, 'f_first_name' => 'Karina', 'f_last_name' => 'Tylek']);
+        $one = $this->userWithRole('employee', ['name' => 'One']);
+        $two = $this->userWithRole('employee', ['name' => 'Two']);
+        $one->forceFill(['legacy_id' => 1])->save();
+        $two->forceFill(['legacy_id' => 2])->save();
+
+        $summary = (new ShoutboxImporter)->run();
+
+        $this->assertSame(3, $summary->created);
+        $this->assertCount(1, $summary->warnings);
+        $this->assertSame(3, Message::query()->count());
+
+        $public = Message::query()->where('legacy_id', 1)->firstOrFail();
+        $this->assertSame($one->id, $public->user_id);
+        $this->assertNull($public->to_user_id);
+        $this->assertSame("Let's hope \"this\" works & stays", $public->message);
+        $this->assertFalse($public->deleted);
+        $this->assertSame('2016-09-08 19:04:08', $public->created_at->format('Y-m-d H:i:s'));
+
+        $formatted = Message::query()->where('legacy_id', 3)->firstOrFail();
+        $this->assertSame('RasPiEsi is out
+Go to Karina Tylek or 99, https://example.com/x or the site (https://example.org) [ok]', $formatted->message);
+
+        $private = Message::query()->where('legacy_id', 2)->firstOrFail();
+        $this->assertSame($two->id, $private->user_id);
+        $this->assertSame($one->id, $private->to_user_id);
+        $this->assertTrue($private->deleted);
+
+        $again = (new ShoutboxImporter)->run();
+
+        $this->assertSame(0, $again->created);
+        $this->assertSame(3, $again->updated);
+        $this->assertSame(3, Message::query()->count());
     }
 }

@@ -16,7 +16,8 @@
     ],
     "core": true,
     "requires": [
-        "epesi/commondata"
+        "epesi/commondata",
+        "epesi/currencies"
     ],
     "provides": []
 }

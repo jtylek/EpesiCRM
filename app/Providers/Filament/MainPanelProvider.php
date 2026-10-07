@@ -60,7 +60,8 @@ class MainPanelProvider extends PanelProvider
                 'gray' => Color::Neutral,
             ])
             ->viteTheme('resources/css/filament/epesi/theme.css')
-            ->sidebarWidth('13rem')
+            // Wide enough for the longest item in a group, "Expense Categories".
+            ->sidebarWidth('15rem')
             // A topbar button (next to the logo) hides the sidebar entirely
             // and another (the hamburger, reused from mobile) brings it back
             // — Filament's own toggle, nothing custom. Not

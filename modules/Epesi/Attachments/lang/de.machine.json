@@ -1,3 +1,27 @@
 {
-    "Preview": "Vorschau"
+    "After editing, enter the password again to keep this note encrypted.": "Geben Sie nach der Bearbeitung das Passwort erneut ein, um diese Notiz verschlüsselt zu halten.",
+    "All notes": "Alle Notizen",
+    "Confirm Password": "Passwort bestätigen",
+    "Decrypt": "Entschlüsseln",
+    "Decrypt note": "Hinweis zur Entschlüsselung",
+    "Decrypt note to edit it": "Entschlüsseln Sie die Notiz, um sie zu bearbeiten",
+    "Encrypt this note with a password": "Diese Notiz mit einem Passwort verschlüsseln",
+    "Encrypted note": "Verschlüsselte Notiz",
+    "Encrypted notes": "Verschlüsselte Notizen",
+    "Encrypted. Password hint: :hint": "Verschlüsselt. Passwort-Hinweis: :hint",
+    "Encryption": "Verschlüsselung",
+    "Invalid password": "Ungültiges Passwort",
+    "My encrypted notes": "Meine verschlüsselten Notizen",
+    "My notes": "Meine Notizen",
+    "Note password": "Passwort notieren",
+    "Password confirmation does not match.": "Die Passwortbestätigung stimmt nicht überein.",
+    "Password Hint": "Passwort-Hinweis",
+    "Password hint: :hint": "Passwort-Hinweis: :hint",
+    "Password is correct": "Das Passwort ist korrekt",
+    "Password protected": "Passwortgeschützt",
+    "Please provide a password to encrypt this note.": "Bitte geben Sie ein Passwort zur Verschlüsselung dieser Notiz ein.",
+    "Preview": "Vorschau",
+    "This note is password protected. Enter its password using Decrypt note.": "Diese Notiz ist passwortgeschützt. Geben Sie das Passwort über „Notiz entschlüsseln“ ein.",
+    "This note is password protected. Enter its password with the Decrypt note action.": "Diese Notiz ist passwortgeschützt. Geben Sie das Passwort über die Aktion „Notiz entschlüsseln“ ein.",
+    "This note is password protected. Hint: :hint": "Diese Notiz ist passwortgeschützt. Hinweis: :hint"
 }

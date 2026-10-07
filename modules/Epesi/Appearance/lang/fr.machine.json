@@ -1,0 +1,23 @@
+{
+    "Choose file": "Choisir un fichier",
+    "Close preview": "Fermer l'aperçu",
+    "Customer portal": "Portail client",
+    "Customer portal login page": "Page de connexion au portail client",
+    "Customer portal title": "Titre du portail client",
+    "Dark": "Foncé",
+    "Dark mode": "Mode sombre",
+    "Light": "Léger",
+    "Light mode": "Mode clair",
+    "Login page": "Page de connexion",
+    "Login pages": "Pages de connexion",
+    "Login title": "Titre de la page de connexion",
+    "Logo": "Logo",
+    "Logo & Title saved": "Logo et titre enregistrés",
+    "Main application": "Application principale",
+    "Main application title": "Titre principal de l'application",
+    "Reset the titles and logos to the epesi defaults? Uploaded logos are deleted.": "Rétablir les titres et les logos par défaut d'epesi ? Les logos téléchargés seront supprimés.",
+    "Reset to default": "Rétablir les paramètres par défaut",
+    "Same as light mode": "Identique au mode clair",
+    "Shows the login page as it is saved, in light and in dark mode.": "Affiche la page de connexion telle qu’elle est enregistrée, en mode clair et en mode sombre.",
+    "Titles and logos reset to the epesi defaults": "Les titres et logos sont réinitialisés aux valeurs par défaut d'epesi"
+}

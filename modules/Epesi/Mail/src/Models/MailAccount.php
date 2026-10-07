@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Mail\Models;
 
+use App\Casts\Encrypted;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,8 +63,8 @@ class MailAccount extends Model
     protected function casts(): array
     {
         return [
-            'imap_password' => 'encrypted',
-            'smtp_password' => 'encrypted',
+            'imap_password' => Encrypted::class,
+            'smtp_password' => Encrypted::class,
             'imap_port' => 'integer',
             'smtp_port' => 'integer',
             'smtp_auth' => 'boolean',

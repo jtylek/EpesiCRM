@@ -17,6 +17,7 @@ use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ListAttachmen
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ViewAttachment;
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Models\AttachmentLink;
+use Epesi\Modules\Attachments\Services\LegacyNoteCipher;
 use Epesi\Modules\RecordBrowser\Filament\Infolists\SwitchEntry;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
@@ -24,6 +25,7 @@ use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -38,9 +40,11 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TextInput\Password;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -65,6 +69,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ClosureValidationRule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
 use Throwable;
@@ -169,6 +174,36 @@ class AttachmentResource extends Resource
                 ->visible(fn (Get $get): bool => $get('editor') !== 'preview' && NoteFormat::fromState($get('format')) === NoteFormat::Markdown)
                 ->dehydrated(false)
                 ->columnSpanFull(),
+            Section::make(__('Encryption'))
+                ->compact()
+                ->columns(2)
+                ->columnSpanFull()
+                ->components([
+                    Toggle::make('encrypt_note')
+                        ->label('Encrypt this note with a password')
+                        ->default(fn (?Attachment $record): bool => (bool) $record?->legacy_encrypted)
+                        ->live()
+                        ->dehydrated(false)
+                        ->columnSpanFull(),
+                    TextInput::make('encryption_password')
+                        ->label('Password')
+                        ->password()
+                        ->revealable(false)
+                        ->autocomplete('new-password')
+                        ->helperText('The password is not stored in Epesi. Enter it again when saving an encrypted note.')
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
+                    TextInput::make('encryption_password_confirmation')
+                        ->label('Confirm Password')
+                        ->password()
+                        ->revealable(false)
+                        ->autocomplete('new-password')
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
+                    TextInput::make('legacy_password_hint')
+                        ->label('Password Hint')
+                        ->maxLength(255)
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note'))
+                        ->columnSpanFull(),
+                ]),
             Section::make(__('Preview'))
                 ->compact()
                 ->visible(fn (Get $get): bool => $get('editor') === 'preview')
@@ -297,6 +332,46 @@ class AttachmentResource extends Resource
         return $data;
     }
 
+    /** Apply the separate password controls to note data before it reaches the model. */
+    public static function applyEncryptionState(array $data, array $state): array
+    {
+        $encrypted = (bool) ($state['encrypt_note'] ?? false);
+        $password = (string) ($state['encryption_password'] ?? '');
+        $confirmation = (string) ($state['encryption_password_confirmation'] ?? '');
+        unset($data['encrypt_note'], $data['encryption_password'], $data['encryption_password_confirmation']);
+
+        if (! $encrypted) {
+            $data['legacy_encrypted'] = false;
+            $data['legacy_password_hint'] = null;
+
+            return $data;
+        }
+
+        if ($password !== '' && ! hash_equals($password, $confirmation)) {
+            throw ValidationException::withMessages([
+                'data.encryption_password_confirmation' => __('Password confirmation does not match.'),
+            ]);
+        }
+
+        if ($password === '') {
+            throw ValidationException::withMessages([
+                'data.encryption_password' => __('Please provide a password to encrypt this note.'),
+            ]);
+        }
+
+        $data['note'] = app(LegacyNoteCipher::class)->encrypt(
+            (string) ($data['note'] ?? ''),
+            $password,
+            (string) ($state['legacy_password_hint'] ?? ''),
+        );
+        $data['legacy_encrypted'] = true;
+        $data['legacy_password_hint'] = filled($state['legacy_password_hint'] ?? null)
+            ? (string) $state['legacy_password_hint']
+            : null;
+
+        return $data;
+    }
+
     /**
      * The rich-text editor's state as HTML: a string, or the editor's own
      * JSON document once something has been typed.
@@ -313,6 +388,34 @@ class AttachmentResource extends Resource
                 ->placeholder('-')
                 ->weight(FontWeight::Bold)
                 ->columnSpanFull(),
+            // The Decrypt note button sits on this row's label; once the
+            // password worked, the row confirms it in green.
+            TextEntry::make('legacy_encrypted')
+                ->hidden(fn (Attachment $record): bool => ! $record->legacy_encrypted)
+                ->label('Encryption')
+                ->state(fn (Attachment $record, $livewire): string => match (true) {
+                    $livewire instanceof ViewAttachment && $livewire->getDecryptedLegacyNoteHtml() !== null => __('Password is correct'),
+                    filled($record->legacy_password_hint) => __('Encrypted. Password hint: :hint', ['hint' => $record->legacy_password_hint]),
+                    default => __('Password protected'),
+                })
+                ->color(fn ($livewire): ?string => $livewire instanceof ViewAttachment && $livewire->getDecryptedLegacyNoteHtml() !== null ? 'success' : null)
+                ->icon(fn ($livewire): ?Heroicon => $livewire instanceof ViewAttachment && $livewire->getDecryptedLegacyNoteHtml() !== null ? Heroicon::OutlinedCheckCircle : null)
+                ->hintAction(
+                    Action::make('decryptLegacyNote')
+                        ->label('Decrypt note')
+                        ->icon(Heroicon::OutlinedLockOpen)
+                        ->button()
+                        ->visible(fn ($livewire): bool => $livewire instanceof ViewAttachment && $livewire->getDecryptedLegacyNoteHtml() === null)
+                        ->modalDescription(fn (Attachment $record): ?string => filled($record->legacy_password_hint)
+                            ? __('Password hint: :hint', ['hint' => $record->legacy_password_hint])
+                            : null)
+                        ->modalSubmitActionLabel(__('Decrypt'))
+                        ->schema(fn (Attachment $record): array => [static::notePasswordInput($record)])
+                        ->action(function (array $data, Attachment $record, ViewAttachment $livewire): void {
+                            $livewire->showDecryptedLegacyNote($record, (string) $data['password']);
+                        }),
+                )
+                ->columnSpanFull(),
             // Right under the title, in a card of its own: the body is what
             // the page is for, the rows below only describe it.
             Section::make(__('Note'))
@@ -322,10 +425,19 @@ class AttachmentResource extends Resource
                     TextEntry::make('note')
                         ->hiddenLabel()
                         ->inlineLabel(false)
+                        ->visible(fn (Attachment $record): bool => ! $record->legacy_encrypted)
                         ->state(fn (Attachment $record): string => $record->bodyHtml())
                         ->html()
                         ->prose()
+                        ->extraAttributes(['style' => 'overflow-wrap: anywhere'])
                         ->placeholder('-'),
+                    ViewEntry::make('legacy_note_body')
+                        ->hiddenLabel()
+                        ->visible(fn (Attachment $record): bool => $record->legacy_encrypted)
+                        ->view('epesi-attachments::encrypted-note-body')
+                        ->state(fn (Attachment $record): string => filled($record->legacy_password_hint)
+                            ? __('This note is password protected. Hint: :hint', ['hint' => $record->legacy_password_hint])
+                            : __('This note is password protected. Enter its password using Decrypt note.')),
                 ]),
             // Each record a badge linking to it, as the engine renders a
             // relation field.
@@ -346,6 +458,25 @@ class AttachmentResource extends Resource
         ]);
     }
 
+    /**
+     * The Decrypt note dialog's password field. A wrong password is a
+     * validation error under the field, so the dialog stays open to retry
+     * or cancel.
+     */
+    public static function notePasswordInput(Attachment $record): TextInput
+    {
+        return TextInput::make('password')
+            ->password()
+            ->revealable(false)
+            ->required()
+            ->label('Note password')
+            ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                if (app(LegacyNoteCipher::class)->decrypt((string) $record->note, (string) $value) === null) {
+                    $fail(__('Invalid password'));
+                }
+            });
+    }
+
     public static function table(Table $table): Table
     {
         return static::notesTable($table, attachedTo: true)
@@ -355,7 +486,7 @@ class AttachmentResource extends Resource
             // instead (see preview()) — the eye icon is the only way in.
             ->recordUrl(null)
             ->recordActions([
-                \Filament\Actions\ActionGroup::make([
+                ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
@@ -429,6 +560,10 @@ class AttachmentResource extends Resource
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->whereJsonLength('epesi_attachments.files', '>', 0)),
                 static::editedByFilter(),
+                Filter::make('encrypted')
+                    ->label('Encrypted notes')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->where('epesi_attachments.legacy_encrypted', true)),
                 Filter::make('updated_at')
                     ->label('Edited on')
                     ->schema([

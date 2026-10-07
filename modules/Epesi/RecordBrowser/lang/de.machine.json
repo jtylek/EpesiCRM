@@ -1,0 +1,8 @@
+{
+    ":field currency": ":field Währung",
+    ":field from :value": ":field aus :value",
+    ":field in :value": ":field in :value",
+    ":field until :value": ":field bis :value",
+    "Amount with currency": "Betrag mit Währung",
+    "The address this person signs in with. It can not be changed or removed here.": "Die Adresse, mit der sich diese Person anmeldet. Sie kann hier weder geändert noch entfernt werden."
+}

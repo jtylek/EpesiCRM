@@ -47,7 +47,9 @@ class InstallRoundcubeCommand extends Command
 
         $this->info('Roundcube is ready at '.Roundcube::url());
         $this->line('The web server must serve that directory as plain files, including '
-            .'".../roundcube/?_task=mail" and ".../roundcube/static.php/..." URLs; see AI-shared/Epesi-Laravel-Roundcube.md.');
+            .'".../epesi-webmail/?_task=mail" and ".../epesi-webmail/static.php/..." URLs. '
+            .'Apache with Epesi\'s public/.htaccess already does; nginx needs "index index.php" and a PHP '
+            .'location that splits path info; "php artisan serve" can\'t.');
 
         return self::SUCCESS;
     }

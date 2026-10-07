@@ -177,15 +177,15 @@ Use [AI-shared/README.md](AI-shared/README.md) as the topic index. In particular
   [translations](AI-shared/Epesi-Laravel-Translations.md),
   [navigation](AI-shared/Navigation-groups.md), [keyboard](AI-shared/Keyboard-shortcuts.md).
 - Operations: [setup](AI-shared/Setup-wizard.md), [distribution](AI-shared/Epesi-Laravel-distro.md),
-  [cron](AI-shared/cron.md), [legacy import](AI-shared/Epesi-legacy-data-migration.md).
+  [cron](AI-shared/cron.md).
 - Integrations: [Roundcube](AI-shared/Epesi-Laravel-Roundcube.md),
   [file storage](AI-shared/Notes-Files-storage.md),
   [Watchdog](AI-shared/Watchdog_and_Notifications.md), [dashboard](AI-shared/Dashboard.md).
 - Accounts: [users](AI-shared/User-management.md), [portal](AI-shared/Customer-portal.md),
   [mail settings](AI-shared/Mail-server-settings.md), [demo mode](AI-shared/Demo-mode.md).
 
-`AI-private/` and `modules/Premium/` are separate, ignored repositories. Do not fold
-their contents into the main repository. Runtime modules outside `modules/Epesi`,
+`modules/Premium/` is a separate, ignored repository. Do not fold
+its contents into the main repository. Runtime modules outside `modules/Epesi`,
 downloaded Roundcube, credentials, `vendor/`, `node_modules/`, and `public/build/`
 are also excluded from main-repository commits; respect `.gitignore`.
 

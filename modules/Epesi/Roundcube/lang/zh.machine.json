@@ -10,6 +10,7 @@
     "Set up a mail account": "设置邮件账户",
     "Switching account — please wait…": "切换账户——请稍候……",
     "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "邮件客户端未加载：Web 服务器将 Roundcube 的页面转发给了 Epesi，而非由其自身提供服务。请参阅中的“Web 服务器要求”:doc。",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.": "邮件客户端未加载：Web 服务器将 Roundcube 的页面转发给了 Epesi，而非由其自身提供服务。Web 服务器必须将  目录:dir作为普通文件提供，包括其目录 URL（?_task=mail）及其 static.php/... URL。请联系管理员调整 Web 服务器的配置。",
     "The mail client, Roundcube, isn't installed yet.": "邮件客户端 Roundcube 尚未安装。",
     "You have no mail account with an incoming (IMAP) server yet.": "您目前尚未拥有连接到收件（IMAP）服务器的邮件账户。",
     "Your mail server refused the login. Check this account under Settings > Mail accounts.": "您的邮件服务器拒绝了登录请求。请在“设置”>“邮件账户”中检查此账户。"

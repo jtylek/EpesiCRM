@@ -38,7 +38,7 @@ class DatabaseUpdate extends Page
 
     protected static ?string $slug = 'database-update';
 
-    protected static ?int $navigationSort = 90;
+    protected static ?int $navigationSort = -2;
 
     public static function getNavigationBadge(): ?string
     {

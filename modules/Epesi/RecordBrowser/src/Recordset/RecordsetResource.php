@@ -19,10 +19,12 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LogicException;
@@ -119,6 +121,15 @@ abstract class RecordsetResource extends Resource
     public static function addons(): array
     {
         return [];
+    }
+
+    /**
+     * Whether this recordset's own addons come before the ones other modules
+     * pin first (Notes), e.g. Invoice Lines ahead of Notes.
+     */
+    public static function ownAddonsFirst(): bool
+    {
+        return false;
     }
 
     /**
@@ -311,7 +322,19 @@ abstract class RecordsetResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // Shield's Gate::before lets super_admin past the policy, so records frozen by
+                    // their own rule (an issued invoice) are skipped here instead of throwing.
+                    DeleteBulkAction::make()->using(function (Collection $records): void {
+                        $frozen = $records->filter(fn (Model $record): bool => method_exists($record, 'wasPosted') && $record->wasPosted());
+                        $records->diff($frozen)->each->delete();
+
+                        if ($frozen->isNotEmpty()) {
+                            Notification::make()
+                                ->warning()
+                                ->title(__(':count record(s) can\'t be deleted and were left as they are.', ['count' => $frozen->count()]))
+                                ->send();
+                        }
+                    }),
                     ...(static::modelSoftDeletes() ? [
                         ForceDeleteBulkAction::make(),
                         RestoreBulkAction::make(),
@@ -351,6 +374,27 @@ abstract class RecordsetResource extends Resource
         }
 
         return $searchable !== [] ? $searchable : parent::getGloballySearchableAttributes();
+    }
+
+    /**
+     * The columns a record picker (Customers, Related) searches: the
+     * recordset's short text fields, without long text. The global search may
+     * read a Memo, but a picker that does returns a company because its memo
+     * mentions the word typed.
+     *
+     * @return array<int, string>
+     */
+    public static function getPickerSearchAttributes(): array
+    {
+        $columns = [];
+
+        foreach (static::resolvedFields() as $field) {
+            if (! $field->type->isRelational() && $field->type->isTextual() && $field->type !== FieldType::LongText) {
+                $columns[] = $field->name;
+            }
+        }
+
+        return $columns !== [] ? $columns : array_filter(static::getGloballySearchableAttributes(), fn (string $column): bool => ! str_contains($column, '.'));
     }
 
     // ---------------------------------------------------- Pages and addons --

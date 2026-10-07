@@ -20,7 +20,7 @@ return [
      */
     'path' => storage_path('roundcube'),
 
-    'public_path' => public_path('roundcube'),
+    'public_path' => public_path('epesi-webmail'),
 
     /* Roundcube's tables share the app's database, as they did in Epesi. */
     'table_prefix' => 'rc_',

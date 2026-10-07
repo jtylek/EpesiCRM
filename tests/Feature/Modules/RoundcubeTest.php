@@ -58,7 +58,7 @@ class RoundcubeTest extends TestCase
         $this->sandbox = sys_get_temp_dir().DIRECTORY_SEPARATOR.'epesi-roundcube-'.bin2hex(random_bytes(4));
         config([
             'epesi-roundcube.path' => $this->sandbox.DIRECTORY_SEPARATOR.'roundcube',
-            'epesi-roundcube.public_path' => $this->sandbox.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'roundcube',
+            'epesi-roundcube.public_path' => $this->sandbox.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'epesi-webmail',
         ]);
     }
 
@@ -280,7 +280,7 @@ SQL);
 
         $page = Livewire::test(Mailbox::class)->assertSet('accountId', $account->id);
 
-        $this->assertStringContainsString('/roundcube/index.php?_task=login&_epesi_ticket=', $page->get('frameUrl'));
+        $this->assertStringContainsString('/epesi-webmail/index.php?_task=login&_epesi_ticket=', $page->get('frameUrl'));
         $this->assertSame(1, DB::table('epesi_roundcube_tickets')->where('account_id', $account->id)->count());
     }
 

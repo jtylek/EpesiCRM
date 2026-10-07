@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * Administration → Common Data: the shared lookup lists every recordset select
@@ -29,6 +30,8 @@ class CommonDataResource extends Resource
     use TranslatesResourceLabels;
 
     protected static ?string $model = CommonDataNode::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Data';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
