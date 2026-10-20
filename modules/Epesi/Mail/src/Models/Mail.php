@@ -4,11 +4,14 @@ namespace Epesi\Modules\Mail\Models;
 
 use App\Models\User;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -59,6 +62,21 @@ class Mail extends Model
         // The database would cascade the attachment rows away without a model
         // event, leaving their files in the file storage for good.
         static::forceDeleting(fn (Mail $mail) => $mail->attachments()->get()->each->delete());
+
+        // Staff see every archived mail. A consultant sees those he archived
+        // or is the employee of, and those linked to a record he sees.
+        static::addGlobalScope('ownership', function (Builder $builder): void {
+            $user = Auth::user();
+
+            if (! $user instanceof User || ! $user->isConsultant()) {
+                return;
+            }
+
+            $builder->where(fn (Builder $query) => $query
+                ->where($query->qualifyColumn('user_id'), $user->id)
+                ->orWhereHas('employee', fn (Builder $q) => $q->withoutGlobalScope('ownership')->where('user_id', $user->id))
+                ->orWhereHas('links', fn (Builder $links) => ConsultantLinks::whereVisibleRecord($links, 'linkable_type', 'linkable_id')));
+        });
     }
 
     /**

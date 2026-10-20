@@ -90,9 +90,10 @@ class ServerCheck extends Page
         })->implode('');
 
         return Section::make(__('Requirements'))
-            ->description($failed > 0
+            ->description(($failed > 0
                 ? __(':count of the requirements are not met. epesi may not work until they are.', ['count' => $failed])
                 : ($warned > 0 ? __('Every requirement is met; some optional ones are not.') : __('This server meets every requirement.')))
+                .' '.__('epesi runs on :php', ['php' => 'PHP '.Requirements::php()['range']]))
             ->compact()
             ->collapsible()
             ->schema([$title, $this->table($body)]);
@@ -155,6 +156,7 @@ class ServerCheck extends Page
     protected function phpSection(): Section
     {
         $php = PhpSettings::runtime();
+        $version = Requirements::php();
         $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
         $blocked = array_values(array_intersect(['proc_open', 'exec'], $disabled));
         $quantity = fn (string $setting): int => (int) @ini_parse_quantity((string) ini_get($setting));
@@ -163,7 +165,7 @@ class ServerCheck extends Page
 
         // label => [this server, recommended, ok (null: nothing to judge)]
         $rows = [
-            __('PHP version') => [$php['version'], __('8.2 or newer'), $php['supported']],
+            __('PHP version') => [$version['version'], $version['range'], $version['supported'] && $version['tested']],
             __('Interface (SAPI)') => [$php['sapi'], __('PHP-FPM, LiteSpeed or the web server module'), ! in_array($php['sapi'], ['cli', 'phpdbg'], true)],
             __('php.ini') => [$php['ini'] !== '' ? $php['ini'] : __('no php.ini loaded'), __('one loaded'), $php['ini'] !== ''],
             __('Other .ini files') => [(string) php_ini_scanned_files() ?: '—', '—', null],

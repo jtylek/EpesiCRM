@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Mail\Filament\Resources\Mails;
 
+use App\Filament\Concerns\LimitsGlobalSearchResults;
 use App\Filament\Concerns\TranslatesResourceLabels;
 use App\Support\Files\FileChip;
 use BackedEnum;
@@ -38,6 +39,7 @@ use UnitEnum;
  */
 class MailResource extends Resource
 {
+    use LimitsGlobalSearchResults;
     use TranslatesResourceLabels;
 
     protected static ?string $model = Mail::class;
@@ -53,6 +55,20 @@ class MailResource extends Resource
     protected static ?string $pluralModelLabel = 'e-mails';
 
     protected static ?string $recordTitleAttribute = 'subject';
+
+    /**
+     * Mail stays searchable from its own list, where the table search can
+     * include sender, recipients and body text. Keeping it out of the global
+     * search avoids a leading-wildcard scan of long text columns on every
+     * keystroke until a portable full-text design exists for all supported
+     * database engines.
+     *
+     * @return array<int, string>
+     */
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [];
+    }
 
     protected static ?int $navigationSort = 60;
 

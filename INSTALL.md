@@ -1,6 +1,6 @@
 # Installing Epesi
 
-Epesi runs on PHP 8.2+ with MySQL/MariaDB. The release zip already contains everything
+Epesi runs on PHP 8.3+ with MySQL/MariaDB. The release zip already contains everything
 (no Composer, Node or command line needed).
 
 1. Unpack the zip into a folder in your web root, e.g. `C:\xampp\htdocs\epesi`

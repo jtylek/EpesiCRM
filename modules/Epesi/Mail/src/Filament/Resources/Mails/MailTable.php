@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Mail\Filament\Resources\Mails;
 
 use Closure;
+use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
@@ -102,6 +103,7 @@ class MailTable
                 ->label('Employees')
                 ->relationship('employee', 'last_name')
                 ->searchable()
+                ->getSearchResultsUsing(fn (string $search): array => ContactResource::searchOptions($search))
                 ->default(function (): ?string {
                     $user = Auth::user();
                     $contactId = $user?->contact?->getKey();

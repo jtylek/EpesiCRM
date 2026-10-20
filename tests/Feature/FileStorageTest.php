@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Services\FileStorage;
+use Epesi\Modules\Attachments\Models\Attachment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -74,5 +75,43 @@ class FileStorageTest extends TestCase
 
         $this->assertSame($first->content_id, $second->content_id);
         $this->assertTrue($first->isOnDisk());
+    }
+
+    public function test_putting_a_file_again_reuses_the_use_that_already_holds_it(): void
+    {
+        $storage = app(FileStorage::class);
+        $path = tempnam(sys_get_temp_dir(), 'fs');
+        file_put_contents($path, '%PDF offer');
+
+        $first = $storage->putFile($path, 'offer.pdf');
+        $again = $storage->putFile($path, 'offer.pdf', [$first]);
+        $renamed = $storage->putFile($path, 'other.pdf', [$first]);
+
+        $this->assertSame($first->getKey(), $again->getKey());
+        $this->assertNotSame($first->getKey(), $renamed->getKey());
+        $this->assertSame(2, StoredFile::count());
+
+        unlink($path);
+    }
+
+    public function test_prune_deletes_only_old_unreferenced_files(): void
+    {
+        $storage = app(FileStorage::class);
+        $held = $storage->put('held', 'held.txt');
+        $orphan = $storage->put('orphan', 'orphan.txt');
+        $young = $storage->put('young', 'young.txt');
+
+        Attachment::create(['title' => 'Note', 'files' => [(string) $held->getKey()]]);
+        StoredFile::query()->whereKey([$held->getKey(), $orphan->getKey()])->update(['created_at' => now()->subDays(2)]);
+
+        $this->artisan('filestorage:prune')->assertSuccessful();
+        $this->assertSame(3, StoredFile::count());
+
+        $this->artisan('filestorage:prune', ['--force' => true])->assertSuccessful();
+
+        $this->assertNotNull(StoredFile::find($held->getKey()));
+        $this->assertNotNull(StoredFile::find($young->getKey()));
+        $this->assertNull(StoredFile::find($orphan->getKey()));
+        $this->assertSame(2, StoredFileContent::count());
     }
 }

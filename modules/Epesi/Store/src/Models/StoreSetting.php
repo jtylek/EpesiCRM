@@ -16,6 +16,10 @@ use Illuminate\Database\Eloquent\Model;
  * mirrors what the store last said: unregistered, pending (the administrator
  * hasn't confirmed the e-mail yet), registered, or revoked. The licence key is
  * issued by the store when the e-mail is confirmed and picked up from there.
+ *
+ * store_environment is what the store's last answer said it is: 'production',
+ * 'test' (a test copy, e.g. reached through a hosts-file entry for
+ * store.epe.si) or null (a store too old to say).
  */
 class StoreSetting extends Model
 {
@@ -45,6 +49,7 @@ class StoreSetting extends Model
         'latest_core_security',
         'notified_version',
         'last_check_at',
+        'store_environment',
     ];
 
     protected $attributes = [

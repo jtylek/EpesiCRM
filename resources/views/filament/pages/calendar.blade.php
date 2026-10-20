@@ -34,4 +34,11 @@
             'other' => __(':count events'),
         ]) }}"
     ></div>
+
+    @if (\Epesi\Modules\RegionalSettings\Models\RegionalSetting::calendarSystem() === 'gregorian')
+        {{-- Moved over the toolbar title by calendar.js while it is open: only the popup is seen. --}}
+        <div id="epesi-calendar-goto" style="position:fixed; width:0; height:0; z-index:60;">
+            {{ $this->form }}
+        </div>
+    @endif
 </x-filament-panels::page>

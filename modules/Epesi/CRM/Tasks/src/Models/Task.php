@@ -106,6 +106,16 @@ class Task extends Model
             ->orWhereHas('customers', fn (Builder $q) => $q->where('user_id', $user->id));
     }
 
+    /**
+     * A consultant: the tasks he is an employee of — not the ones he is
+     * only a customer of. The Contact scope is left out (see
+     * HasOwnershipVisibility::applyConsultantVisibility()).
+     */
+    protected static function applyConsultantVisibility(Builder $query, User $user): void
+    {
+        $query->orWhereHas('employees', fn (Builder $q) => $q->withoutGlobalScope('ownership')->where('user_id', $user->id));
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

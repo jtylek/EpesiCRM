@@ -61,9 +61,10 @@ class PhpSettings
     /**
      * Which PHP this is: the version, how it runs (the web server's module,
      * PHP-FPM, LiteSpeed…) and the php.ini it loaded, which is the file to
-     * edit. Empty php.ini when PHP loaded none.
+     * edit. Empty php.ini when PHP loaded none. Whether the version is
+     * supported is Requirements::php().
      *
-     * @return array{version: string, sapi: string, ini: string, supported: bool}
+     * @return array{version: string, sapi: string, ini: string}
      */
     public static function runtime(): array
     {
@@ -71,7 +72,6 @@ class PhpSettings
             'version' => PHP_VERSION,
             'sapi' => PHP_SAPI,
             'ini' => (string) php_ini_loaded_file(),
-            'supported' => version_compare(PHP_VERSION, '8.2.0', '>='),
         ];
     }
 

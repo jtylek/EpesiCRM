@@ -41,7 +41,7 @@ This is what `php artisan schedule:list` shows on an installation with every mod
 | Task | When | From | What it does |
 |---|---|---|---|
 | `reminders:send` | every minute | Reminders module | Delivers due reminders to the bell, and by e-mail if asked |
-| `mail:fetch` | every 5 minutes (`MAIL_FETCH_SCHEDULE`) | Mail module | Archives mail from each account's `CRM Archive` IMAP folder, and INBOX/Sent where auto-archive is on |
+| `mail:check` | every 5 minutes (`MAIL_CHECK_SCHEDULE`) | Mail module | Caches each IMAP account's INBOX unread count for the Mail widget (10 minutes), which reads only that cache. Reads no message and archives nothing: mail is archived only with Roundcube's Archive button |
 | `model:prune --model=…\Subscription` | daily at 00:00 | Watchdog module | Deletes watched-record subscriptions with nothing happening for 90 days (see [Watchdog_and_Notifications.md](Watchdog_and_Notifications.md#subscriptions-lapse)) |
 | `demo:reset --force` | daily at `DEMO_RESET_AT` (in `DEMO_TIMEZONE`), and every 15 minutes while a reset is unfinished | core, demo mode only | Puts the demo data back (see [Demo-mode.md](Demo-mode.md)) |
 | `epesi:optimize` | every minute, on an installation (not a git checkout) or with `CACHE_STORE=auto` | core | Builds Laravel's and Filament's caches, rebuilds them after a change, and picks memcached when it works (see [Epesi-optimization.md](Epesi-optimization.md)) |
@@ -88,7 +88,7 @@ Add this line to the crontab of the user the web server runs as:
   `PHP_SAPI`), in case a web server shows the epesi folder instead of `public/`. With the usual
   set-up it isn't reachable over the web at all: the root `.htaccess` rewrites every address
   into `public/`.
-- **`php` must be PHP 8.2 or newer on the command line.** That isn't always the web server's
+- **`php` must be PHP 8.3 or newer on the command line.** That isn't always the web server's
   version. Check with `php -v`, or write the full path (`/usr/bin/php8.3`).
 
 ### Shared hosting (cPanel, DirectAdmin, Plesk)
@@ -265,6 +265,15 @@ without ever clicking "Run cron jobs manually".
   Process), using the same PHP binary that runs `schedule:run`. Some hosts disable `proc_open`
   in `disable_functions`, and the command-line `php.ini` can differ from the web's. Then
   nothing runs, however the cron line is written. `cron.php` doesn't have this problem.
+- **Cron's PHP needs the same extensions as the web server's, and only `cron.php` says so.**
+  The two are often different binaries (a cPanel `alt-php` build ships without mbstring until
+  someone enables it). `cron.php` loads `bootstrap/preflight.php` first; on a failure it prints
+  what is missing, leaves `storage/framework/cron-preflight.json` and exits 1, and Server Check
+  then shows a failing "PHP that runs cron" row until the next clean start. A crontab line that
+  calls `artisan epesi:cron` or `schedule:run` instead is not covered: `artisan` has no preflight
+  on purpose, since `composer install` runs it on build machines whose command-line PHP lacks a
+  database driver. `bootstrap/preflight.php` is plain PHP 5 syntax so that an old PHP can parse
+  it; run Pint on other files, not on it.
 - **The crontab line's PHP path is a guess, not a fact.** `Cron::cronLine()` builds it from
   Laravel's `php_binary()`, which asks Symfony's `PhpExecutableFinder` for the running process's
   own executable. That only works from the command line: the Cron page is a Filament panel page,
@@ -278,7 +287,7 @@ without ever clicking "Run cron jobs manually".
   line already says the path differs per host and to check the control panel; that's the real
   defence, not the line itself.
 - **Tasks run one after another.** A slow task holds up the rest of that call. Under
-  `schedule:run` a task marked `runInBackground()` (`mail:fetch`) doesn't, but it needs a shell,
+  `schedule:run` a task marked `runInBackground()` (`mail:check`) doesn't, but it needs a shell,
   `sh` or `cmd`. Under `cron.php` it runs like any other, and the next minute's call runs the
   other due tasks meanwhile.
 - **Once a minute at most.** However often `cron.php` or the cron URL is called, a task runs at

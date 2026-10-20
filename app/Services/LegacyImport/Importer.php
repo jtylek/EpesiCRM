@@ -144,6 +144,20 @@ abstract class Importer
      * @param  list<string>  $values
      * @return list<string>
      */
+    /**
+     * Whether the record being imported takes an address $owner already has
+     * (an address belongs to one record only) — a short reason for the
+     * report ("the deleted"), or null to leave it where it is.
+     *
+     * A deleted record gives way to a live one: legacy kept a deleted
+     * company's address while the live copy that replaced it used the same
+     * one, and the deleted copy, imported first, would otherwise win.
+     */
+    protected function takesEmailFrom(object $row, Model $owner): ?string
+    {
+        return method_exists($owner, 'trashed') && $owner->trashed() && (int) ($row->active ?? 1) === 1 ? 'the deleted' : null;
+    }
+
     protected function withoutTakenEmails(object $row, array $values): array
     {
         $modelClass = $this->modelClass();
@@ -159,7 +173,12 @@ abstract class Importer
                 $ownerClass = Relation::getMorphedModel($conflict->owner_type);
                 $owner = $ownerClass ? $ownerClass::query()->withoutGlobalScopes()->find($conflict->owner_id) : null;
 
-                if (! ($owner instanceof $modelClass && $owner->legacy_id === $row->id)) {
+                $own = $owner instanceof $modelClass && $owner->legacy_id === $row->id;
+
+                if (! $own && $owner !== null && ($reason = $this->takesEmailFrom($row, $owner)) !== null) {
+                    $conflict->delete();
+                    $this->summary->warn("{$this->legacyTab()}#{$row->id}: e-mail address \"{$value}\" moved here from {$reason} {$conflict->owner_type} #{$owner->legacy_id}");
+                } elseif (! $own) {
                     $label = $owner ? "{$conflict->owner_type} #{$owner->legacy_id}" : "{$conflict->owner_type} #{$conflict->owner_id}";
                     $this->summary->warn("{$this->legacyTab()}#{$row->id}: e-mail address \"{$value}\" is already used by {$label}, skipped");
 
@@ -414,7 +433,7 @@ abstract class Importer
 
             foreach ($tracked as $field => $column) {
                 if (empty($chain[$field])) {
-                    $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $liveRow->{"f_{$field}"} ?? null));
+                    $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $liveRow?->{"f_{$field}"} ?? null));
 
                     continue;
                 }
@@ -423,7 +442,7 @@ abstract class Importer
                 $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $entries[0]['old_raw']));
 
                 foreach ($entries as $k => $entry) {
-                    $newRaw = $entries[$k + 1]['old_raw'] ?? $liveRow?->{"f_{$field}"};
+                    $newRaw = $entries[$k + 1]['old_raw'] ?? $liveRow?->{"f_{$field}"} ?? null;
                     $key = spl_object_id($entry['env']);
                     $envOld[$key] = array_merge($envOld[$key] ?? [], $this->decodeTrackedValue($field, $entry['old_raw']));
                     $envNew[$key] = array_merge($envNew[$key] ?? [], $this->decodeTrackedValue($field, $newRaw));

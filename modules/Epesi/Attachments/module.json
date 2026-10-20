@@ -3,7 +3,7 @@
     "name": "Attachments",
     "description": "A Notes tab on every record: rich-text notes with file attachments, per-note permission and sticky flag. Port of Epesi's Utils/Attachment.",
     "version": "1.1.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Core",
     "icon": "heroicon-o-paper-clip",
     "namespace": "Epesi\\Modules\\Attachments\\",

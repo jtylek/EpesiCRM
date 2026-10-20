@@ -89,7 +89,23 @@
             </div>
         @endforeach
     @else
-    <div class="epesi-dashboard" style="--epesi-dashboard-columns: {{ $this::COLUMNS }}">
+    {{--
+        Refresh the applets when the browser tab becomes visible again (a task
+        closed in another tab). Back/Forward's cached copy is reloaded by
+        filament/components/addon-refresh.blade.php.
+    --}}
+    <div
+        class="epesi-dashboard"
+        style="--epesi-dashboard-columns: {{ $this::COLUMNS }}"
+        x-data="{
+            refreshApplets() {
+                Livewire.all()
+                    .filter((component) => component.el !== $root && $root.contains(component.el))
+                    .forEach((component) => component.$wire.$refresh())
+            },
+        }"
+        x-on:visibilitychange.window="document.visibilityState === 'visible' && refreshApplets()"
+    >
         @foreach ($columns as $column => $applets)
             <div
                 wire:sort.ghost="moveApplet"

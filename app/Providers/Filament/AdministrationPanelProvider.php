@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Administration\Pages\About;
+use App\Filament\Administration\Pages\BackgroundWorker;
 use App\Filament\Administration\Pages\Cron;
 use App\Filament\Administration\Pages\DatabaseUpdate;
 use App\Filament\Administration\Pages\DemoDataPage;
@@ -35,6 +36,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -76,7 +78,7 @@ class AdministrationPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Administration/Resources'), for: 'App\Filament\Administration\Resources')
-            ->pages([About::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, ServerCheck::class, Translations::class])
+            ->pages([About::class, BackgroundWorker::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, ServerCheck::class, Translations::class])
             // About, Epesi Store, Modules and Database update sit above the
             // groups, in that order (their navigationSort is below -1, which
             // AlphabeticalNavigationManager keeps); the groups follow.
@@ -88,6 +90,7 @@ class AdministrationPanelProvider extends PanelProvider
             // colour: this panel keeps its own fixed Epesi Green so it stays
             // recognisable regardless of the signed-in user's own theme
             // (ApplyThemeColor is wired into main and user-settings only).
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.history-navigation', ['buttons' => false]))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user(), alwaysCompact: true))
             ->plugins([
                 FilamentShieldPlugin::make(),

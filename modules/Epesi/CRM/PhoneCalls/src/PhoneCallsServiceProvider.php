@@ -6,6 +6,7 @@ use App\Support\Calendar\CalendarRegistry;
 use Epesi\Modules\CRM\PhoneCalls\Calendar\PhoneCallCalendarProvider;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\PhoneCalls\Policies\PhoneCallPolicy;
+use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -35,5 +36,8 @@ class PhoneCallsServiceProvider extends ServiceProvider
         Gate::policy(PhoneCall::class, PhoneCallPolicy::class);
 
         CalendarRegistry::register(PhoneCallCalendarProvider::class);
+
+        // A consultant sees the contacts and companies on his phone calls.
+        ConsultantLinks::register(PhoneCall::class, 'employees', 'customer');
     }
 }

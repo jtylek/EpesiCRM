@@ -42,6 +42,12 @@ abstract class CreateRecord extends BaseCreateRecord
         }
 
         foreach (IncomingLinks::for($target)[static::getResource()] ?? [] as $field) {
+            // A picker held to crits the record fails (Deal Owner: staff only)
+            // would show a bare id, so it keeps its own default.
+            if (in_array($field->type, [FieldType::Relation, FieldType::Relations], true) && ! $field->offers($target)) {
+                continue;
+            }
+
             $this->data[$field->getStateName()] = match ($field->type) {
                 FieldType::Relation => $target->getKey(),
                 FieldType::Relations => [$target->getKey()],

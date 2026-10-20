@@ -9,16 +9,14 @@
     tracks navigation separately — a new resource or page needs nothing.
 --}}
 @php
-    use Filament\Support\Enums\IconSize;
-
+    // Icons are not sent here: the sidebar already renders each item's icon,
+    // so the palette copies it from there when it opens.
     $paletteItems = collect(\Filament\Facades\Filament::getNavigation())
         ->flatMap(fn ($group) => $group->getItems())
         ->filter(fn ($item) => filled($item->getUrl()))
         ->map(fn ($item) => [
             'label' => $item->getLabel(),
             'url' => $item->getUrl(),
-            'html' => (\Filament\Support\generate_icon_html($item->getIcon(), size: IconSize::Medium)?->toHtml() ?? '')
-                .'<span class="fi-dropdown-list-item-label">'.e($item->getLabel()).'</span>',
         ])
         ->values();
 @endphp
@@ -51,6 +49,16 @@
                         ? []
                         : this.items.filter((item) => item.label.toLowerCase().includes(query));
                 },
+                itemHtml(item) {
+                    const icon = [...document.querySelectorAll('.fi-sidebar a[href]')]
+                        .find((link) => link.href === item.url)
+                        ?.querySelector('svg.fi-icon');
+                    const label = document.createElement('span');
+                    label.className = 'fi-dropdown-list-item-label';
+                    label.textContent = item.label;
+
+                    return (icon ? icon.outerHTML : '') + label.outerHTML;
+                },
                 go(item) {
                     if (! item) return;
 
@@ -82,7 +90,7 @@
                         :class="{ 'fi-selected': index === activeIndex }"
                         x-on:click.prevent="go(item)"
                         x-on:mouseenter="activeIndex = index"
-                        x-html="item.html"
+                        x-html="itemHtml(item)"
                         class="fi-dropdown-list-item"
                     ></a>
                 </template>

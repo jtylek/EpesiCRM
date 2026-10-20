@@ -15,6 +15,19 @@ record tied to your company). `manager`/`super_admin` roles bypass the scope ent
 Policies (`spatie/laravel-permission` + `bezhansalleh/filament-shield` roles:
 `super_admin`/`manager`/`employee`) layer create/update/delete gates on the same logic.
 
+Policies list the CRM roles as `User::CRM_ROLES`; `User::MAIN_PANEL_ROLES` also has
+`accountant`, which opens the main panel for the ledger only. A CRM role, `consultant`, is narrower than `employee`: Public doesn't count for
+him. He sees what he created plus what the model's `applyConsultantVisibility()` says is his:
+the tasks, meetings, phone calls he is an employee of, tickets he owns or is assigned to,
+projects he manages or works on (Project has its own consultant-only `ownership` scope), and
+the contacts/companies linked **directly** to those. Each module names those links from its
+service provider with `ConsultantLinks::register()` (RecordBrowser `Access/ConsultantLinks`).
+Notes and archived mails follow the record they are attached to. Policies let him edit what he
+created or is assigned to, and delete only what he created. Inside a consultant clause, a
+`whereHas` on another scoped model must use `withoutGlobalScope('ownership')`, or the Contact
+and Task scopes call each other for ever. Tests: `tests/Feature/ConsultantRoleTest.php`,
+`modules/Premium/ProjectsTickets/tests/ConsultantTest.php`.
+
 This generalizes Epesi's per-module ACL crits (e.g. "visible if not-Private, OR you created
 it, OR it's your company") into one shared trait instead of re-deriving the logic per model.
 

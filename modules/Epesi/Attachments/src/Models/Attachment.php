@@ -6,6 +6,7 @@ use App\Enums\NoteFormat;
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
 use App\Models\User;
+use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -219,6 +220,18 @@ class Attachment extends Model
     protected static function applyExtraVisibility(Builder $query, User $user): void
     {
         //
+    }
+
+    /**
+     * A consultant: besides his own notes, the non-private ones attached to
+     * a record he sees — the Notes tab of his task shows its notes, the
+     * Attachments list never shows a note of someone else's record.
+     */
+    protected static function applyConsultantVisibility(Builder $query, User $user): void
+    {
+        $query->orWhere(fn (Builder $note) => $note
+            ->where($note->qualifyColumn('permission'), '!=', RecordPermission::Private->value)
+            ->whereHas('links', fn (Builder $links) => ConsultantLinks::whereVisibleRecord($links, 'attachable_type', 'attachable_id')));
     }
 
     public function getActivitylogOptions(): LogOptions

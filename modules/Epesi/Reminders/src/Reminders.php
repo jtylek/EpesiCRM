@@ -46,7 +46,7 @@ class Reminders
     protected static array $startTimes = [];
 
     /** Roles that may be reminded of anything — Epesi's "Messenger Alerts" ACL. */
-    public const ROLES = ['super_admin', 'manager', 'employee'];
+    public const ROLES = User::CRM_ROLES;
 
     /**
      * Let reminders be set on a record type, "N minutes before" the time

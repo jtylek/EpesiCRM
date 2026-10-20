@@ -140,7 +140,8 @@ abstract class CollectionItem extends Model
         return Field::commonData('kind', static::kinds())
             ->param('order', 'position')
             ->label(static::kindFieldLabel())
-            ->required(static::kindRequired());
+            ->required(static::kindRequired())
+            ->default(static::defaultKind());
     }
 
     /**
@@ -163,6 +164,12 @@ abstract class CollectionItem extends Model
     public static function kindRequired(): bool
     {
         return false;
+    }
+
+    /** The kind a newly added item starts with, a key of kinds(); null leaves it empty. */
+    public static function defaultKind(): ?string
+    {
+        return null;
     }
 
     /**

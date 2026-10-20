@@ -43,6 +43,9 @@ class StoreClient
         -----END PUBLIC KEY-----
         PEM;
 
+    /** The store says with every answer whether it is the real store or a test copy. */
+    public const ENVIRONMENT_HEADER = 'X-Epesi-Store-Environment';
+
     public const TIMEOUT_SECONDS = 20;
 
     /** A core release is tens of megabytes. */
@@ -216,6 +219,8 @@ class StoreClient
             throw new ModuleException('Could not reach the store: '.$exception->getMessage(), previous: $exception);
         }
 
+        $this->rememberEnvironment($setting, $response);
+
         if (! $response->successful()) {
             $error = $response->json('error');
 
@@ -225,5 +230,21 @@ class StoreClient
         }
 
         return $response;
+    }
+
+    /**
+     * Keeps what the store says it is (ENVIRONMENT_HEADER) on every answer,
+     * errors included: a test copy reached under the production name (a
+     * hosts-file entry for store.epe.si) puts a warning bar on the panel. Any
+     * value but 'production' counts as test; no header (an older store) clears it.
+     */
+    protected function rememberEnvironment(StoreSetting $setting, Response $response): void
+    {
+        $header = strtolower(trim($response->header(self::ENVIRONMENT_HEADER)));
+        $environment = $header === '' ? null : ($header === 'production' ? 'production' : 'test');
+
+        if ($setting->store_environment !== $environment) {
+            $setting->forceFill(['store_environment' => $environment])->save();
+        }
     }
 }

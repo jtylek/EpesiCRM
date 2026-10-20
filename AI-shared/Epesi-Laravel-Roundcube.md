@@ -29,7 +29,7 @@ than rebuilding a webmail client in Livewire. That choice brings:
 | `RC/config/config.inc.php` booted part of Epesi and read Epesi's PHP session | Generated `config.inc.php`, which never boots Laravel; login goes through a one-time **ticket** |
 | `epesi_autologon` + `epesi_autorelogon` (every screen open re-logs-in) | `epesi_sso`, which also re-logs-in whenever the page issues a new ticket |
 | `epesi_init` identity name, global signature | `epesi_sso` (`user_create`, `message_outgoing_body`) |
-| `epesi_archive` wrote into Epesi's `rc_mails` from inside Roundcube | `epesi_archive` moves messages to the archive folder, and `MailFetcher` archives them |
+| `epesi_archive` wrote into Epesi's `rc_mails` from inside Roundcube | `epesi_archive` checks the selection; the Mailbox page archives the messages, then moves them to the archive folder ([Mail-archiving.md](Mail-archiving.md)) |
 | `epesi_addressbook`: CRM Contacts / CRM Companies address books | `epesi_addressbook`: one read-only "CRM" address book |
 | `epesi_mailto` (compose in Roundcube from a CRM record) | not ported; the CRM's own `ComposeAction` covers it |
 | Hard-coded `des_key`, TLS certificate checks off | Per-install derived keys; TLS verification on by default |
@@ -44,8 +44,8 @@ Mailbox page (Filament, main panel)
         Roundcube 1.7.x, served straight by the web server (not through Laravel)
           ├─ epesi_sso: redeems the ticket → IMAP login, per-account SMTP, identity;
           │             password login disabled
-          ├─ epesi_archive: "Archive" button → move to the account's archive folder
-          │                 → tell the parent page → MailFetcher
+          ├─ epesi_archive: "Archive" button → checks → tell the parent page
+          │                 → it archives, then moves to the archive folder
           └─ epesi_addressbook: read-only "CRM" address book (contacts, companies,
                                 extra addresses, filtered by ownership visibility)
 ```
@@ -241,63 +241,11 @@ page, which is shown before any login, when there is no ticket to read a languag
     encrypted by `$rcmail->encrypt()`);
   - the global signature (`message_outgoing_body`, as `MailSender` appends it);
   - the `login-required` message described above.
-- **`epesi_archive`** has four parts:
-  - An **Archive** button on the message list and the message view. It is disabled in the
-    archive folder and in Drafts, as it was in Epesi. The archive folder is created and
-    subscribed on login if it's missing.
-  - **The checks, as in Epesi, in Epesi's order.** The button first posts the selection to
-    the plugin action `plugin.epesi_archive`, which uses `epesi_archive_matcher`:
-    1. **Already archived, by anyone?** A message whose Message-ID is in the archive is left
-       where it is, with Epesi's "Message already archived". The archive is shared, so a
-       message is kept once however many people file it. A deleted copy doesn't count; see
-       No duplicates below.
-    2. **Linked to anything?** The action reads each remaining message's From, To and Cc
-       (Epesi checked only From and To). Any contact or company with one of those
-       addresses counts, your own contact included, as in Epesi's `look_contact()`. If a
-       message matches nothing, the action shows Epesi's own warning: "Matching contact or
-       company not found. Click again to force archive without contact association." The
-       Polish is also Epesi's. It remembers the warned messages in the Roundcube session
-       (Epesi's `force_archive`), so the next click archives them anyway. One warning
-       covers every unmatched message in the selection; Epesi warned one message at a time.
-    3. **Otherwise** it answers with the `plugin.epesi_archive_move` callback. The client
-       moves exactly the messages it names into the archive folder and posts `archived` to
-       the parent page.
-  - **Linking.** The parent runs `MailFetcher::fetch($account)`, so filing reuses the whole
-    existing pipeline:
-    - **The contact of whoever archives is always linked**, whether or not their address is
-      on the message. That is what the archive must tell first, especially for a shared
-      mailbox (support@…), whose addresses say nothing about who filed it. It is also the
-      `employee` of the archived mail. Epesi listed a message on its employee's contact
-      too; `MailImporter` links imported mail to its employee, and a migration added the
-      link to mail archived before.
-    - `MailArchiver` links every contact and company whose address is in From, To or Cc,
-      through `ContactMatcher`.
-    - Attachments and threads.
-    - An outgoing direction when the sender is one of your own addresses, including your
-      contact's extra addresses.
-
-    `epesi_archive_matcher` has to give the same answer as that linking: no visibility
-    rule, deleted records left out, and the own contact counted. It is plain PHP, and
-    `RoundcubeTest::test_the_archive_check_agrees_with_what_archiving_links` runs it and
-    `ContactMatcher` over the same records. Auto-archive (INBOX/Sent) is the one place where
-    your own contact doesn't count: "involves a known contact or company" means someone
-    other than you, because your address is on every message in your mailbox.
-  - A compose toggle, **Archive this message after sending**, that defaults to the account's
-    `archive_on_sending`. It stores the sent copy in the archive folder (`_store_target`),
-    and the parent fetches on the next page load. It never warns, like Epesi's archiving on
-    send.
-
-  **No duplicates.** Every way into the archive goes through `MailArchiver`: the Archive
-  button, fetching, `.eml` upload, sending from the CRM and the legacy import. It keeps one
-  copy per message:
-  - It looks the message up by Message-ID across all users. A message without one is
-    looked up by sender, recipients, subject and date.
-  - A deleted copy is restored rather than stored again.
-  - The lookup and the insert run under a cache lock per message
-    (`epesi-mail-archive:<hash>`). A scheduled fetch and the Archive button, or two
-    colleagues filing the same message, can't both find it missing and both store it.
-  - Archiving an existing message again adds none of the second person's links. Only
-    explicit links, such as the record a message was sent from, are added.
+- **`epesi_archive`**: the Archive button, its checks ("Message already archived", "Matching
+  contact or company not found"), the move to the "CRM Archive" folder, the dialog after
+  archiving and the "Archive this message after sending" toggle. All of mail archiving,
+  including the rule that nothing is archived automatically, is in
+  [Mail-archiving.md](Mail-archiving.md).
 - **`epesi_addressbook`** is a read-only `rcube_addressbook` named "CRM", which is also used
   for compose autocomplete.
   - It is a UNION of three sources: `contacts`, `companies`, and `epesi_mail_addresses`
@@ -386,11 +334,7 @@ Setups differ:
   `ComposeAction` (New / Reply / Reply all / Forward) covers these.
 - Multi-window `RCWIN_` sessions.
 - `epesi_init`'s syncing of date formats from Regional Settings.
-- The "no matching contact — click again to force archive" prompt. The archive folder
-  already means "archive everything filed here".
 - Creating a CRM contact from Roundcube's "Add to address book".
-- A separate "CRM Archive Sent" folder. Archived sent mail goes to the one archive folder,
-  and the archiver records its direction.
 
 ## Files
 
@@ -417,7 +361,7 @@ Setups differ:
   `epesi_sso_ticket` to the account's credentials, including the blank-login fallback.
 - A redeemed ticket can't be reused, and an expired one is refused (SQLite PDO).
 - The page renders the iframe for a user with an account, and each empty state otherwise.
-- `archived` runs the fetcher (`FakeMailbox`).
+- `archive` archives exactly the clicked messages, then moves them ([Mail-archiving.md](Mail-archiving.md)).
 - Logout deletes the `rc_session` row.
 - The config writer produces the expected DSN, prefix, `session_path` and stable derived
   keys.

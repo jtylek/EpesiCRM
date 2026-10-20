@@ -101,8 +101,12 @@ class RecordsetFeaturesTest extends TestCase
             ->all();
 
         $this->assertSame(['About', 'Epesi Store', 'Modules', 'Database update'], array_slice($labels(null), 0, 4));
-        $this->assertSame(['Cron', 'Mail Server', 'Regional Settings', 'Server Check', 'Translations'], $labels('Server Setup'));
-        $this->assertSame(['Common Data', 'Currencies', 'Exchange Rates', 'Priority list types', 'Recordsets', 'Related modules'], $labels('Data'));
+        // Optional modules (e.g. Premium ones) may add their own pages to these groups.
+        $shipped = fn (array $expected, array $actual): array => array_values(array_intersect($actual, $expected));
+        $serverSetup = ['Background worker', 'Cron', 'Mail Server', 'Regional Settings', 'Server Check', 'Translations'];
+        $data = ['Common Data', 'Currencies', 'Exchange Rates', 'Priority list types', 'Recordsets', 'Related modules'];
+        $this->assertSame($serverSetup, $shipped($serverSetup, $labels('Server Setup')));
+        $this->assertSame($data, $shipped($data, $labels('Data')));
         $this->assertSame(['Server Setup', 'Data'], $navigation->map(fn ($g) => $g->getLabel())->filter()->take(2)->values()->all());
     }
 }

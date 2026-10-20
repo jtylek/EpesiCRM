@@ -84,6 +84,11 @@ class PhoneNumber extends CollectionItem
         return 'Phone_Kinds';
     }
 
+    public static function defaultKind(): ?string
+    {
+        return 'work';
+    }
+
     /** The CommonData list of the apps a number can be reached on. */
     public static function messengers(): string
     {

@@ -18,9 +18,11 @@ use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\ViewAttachmen
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Models\AttachmentLink;
 use Epesi\Modules\Attachments\Services\LegacyNoteCipher;
+use Epesi\Modules\RecordBrowser\Filament\Forms\LinkedToField;
 use Epesi\Modules\RecordBrowser\Filament\Infolists\SwitchEntry;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
+use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
@@ -34,8 +36,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Filament\Forms\Components\Select;
@@ -51,7 +51,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -236,70 +235,42 @@ class AttachmentResource extends Resource
                 ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to'])
                 ->columnSpanFull(),
             // The records the note is on, as Epesi's "Attached to" multiselect
-            // (a note can be on several) — not virtual columns of the note:
-            // the pages read it out of the form's data (attachedToState()) and
-            // put it back with syncAttachedTo(). A note is on at least one
-            // record. A table, so each record is one line with its delete icon
-            // at the end and the labels once above the columns; the button to
-            // add one is on the label's line (a hint action, in place of the
-            // repeater's own below the table) together with the warning when
-            // there is none (attachedToLabel()). Left out only on a note
+            // (a note can be on several), shown as "Linked to" — not virtual
+            // columns of the note: the pages read it out of the form's data
+            // (attachedToState()) and put it back with syncAttachedTo(). The
+            // shared Linked to picker (LinkedToField): badges, and a popup
+            // that asks for the recordset, then the record. A note is on at
+            // least one record; the warning when there is none goes on the
+            // label's line (attachedToLabel()). Left out only on a note
             // started from a record's tab, where that record is what it is
             // attached to; editing one from the tab still shows it, so it can
-            // be moved. Each Select's own validation refuses a record you
-            // can't see: its option label comes back blank.
-            Repeater::make('attach_to')
-                ->label(fn (Repeater $component, $livewire): Htmlable => static::attachedToLabel(
+            // be moved. A record you can't see is refused (its token doesn't
+            // resolve).
+            LinkedToField::make('attach_to')
+                ->label(fn (LinkedToField $component, $livewire): Htmlable => static::attachedToLabel(
                     (string) $livewire->getErrorBag()->first($component->getStatePath()),
                 ))
                 ->markAsRequired(false)
                 ->inlineLabel()
                 // Filament names a field in its messages after its label,
                 // which is markup here.
-                ->validationAttribute(mb_strtolower(__('Attached to')))
+                ->validationAttribute(mb_strtolower(__('Linked to')))
                 ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to'])
+                ->recordsets(fn (): array => AttachmentsServiceProvider::recordTypes())
                 ->required()
-                ->minItems(1)
+                ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
+                    foreach ((array) $value as $token) {
+                        if (static::findToken($token) === null) {
+                            $fail(__('Choose only records you can see.'));
+
+                            return;
+                        }
+                    }
+                })
                 // A note started from the Notes list begins on the signed-in
                 // user's own contact, the usual thing to attach it to.
-                ->default(fn (): array => [static::ownContactRow()])
-                ->addable(false)
-                ->hintAction(
-                    Action::make('attachToRecord')
-                        ->label('Attach to a record')
-                        ->color('gray')
-                        ->size(Size::ExtraSmall)
-                        ->button()
-                        ->action(function (Get $get, Set $set): void {
-                            $rows = $get('attach_to') ?? [];
-                            $rows[(string) Str::uuid()] = ['type' => null, 'id' => null];
-                            $set('attach_to', $rows);
-                        }),
-                )
-                ->reorderable(false)
-                ->compact()
+                ->default(fn (): array => array_values(array_filter([static::ownContactToken()])))
                 ->columnSpanFull()
-                ->table([
-                    TableColumn::make(__('Type'))->markAsRequired()->width('30%'),
-                    TableColumn::make(__('Record'))->markAsRequired(),
-                ])
-                ->schema([
-                    Select::make('type')
-                        ->options(fn (): array => collect(AttachmentsServiceProvider::recordTypes())
-                            ->mapWithKeys(fn (string $type): array => [$type => Str::headline($type)])
-                            ->all())
-                        ->required()
-                        ->live()
-                        ->afterStateUpdated(fn (Set $set) => $set('id', null)),
-                    Select::make('id')
-                        ->searchable()
-                        ->required()
-                        ->getSearchResultsUsing(fn (Get $get, string $search): array => static::searchRecords((string) $get('type'), $search))
-                        ->getOptionLabelUsing(fn (Get $get, $value): ?string => ($record = static::findRecord((string) $get('type'), $value))
-                            ? strip_tags((string) static::recordTitle($record))
-                            : null)
-                        ->disabled(fn (Get $get): bool => blank($get('type'))),
-                ])
                 ->visible(fn ($livewire): bool => ! ($livewire instanceof CreateAttachment && $livewire->ownerRecord !== null)),
             Select::make('permission')
                 ->options(RecordPermission::class)
@@ -446,7 +417,7 @@ class AttachmentResource extends Resource
                     ->state(fn (Attachment $record): array => array_keys(static::attachedTo($record))),
                 fn (Attachment $record, string $state): ?string => static::attachedTo($record)[$state] ?? null,
             )
-                ->label('Attached to')
+                ->label('Linked to')
                 ->placeholder('-')
                 ->columnSpanFull(),
             TextEntry::make('files')
@@ -718,20 +689,16 @@ class AttachmentResource extends Resource
     }
 
     /**
-     * The "Attached to" row for the signed-in user's contact; a blank one when
-     * they have none, or can't attach notes to contacts.
-     *
-     * @return array{type: ?string, id: ?int}
+     * The "Linked to" token for the signed-in user's contact; null when they
+     * have none, or can't attach notes to contacts.
      */
-    protected static function ownContactRow(): array
+    protected static function ownContactToken(): ?string
     {
         $contact = auth()->user()?->contact;
 
-        if ($contact && static::findRecord('contact', $contact->getKey())) {
-            return ['type' => 'contact', 'id' => $contact->getKey()];
-        }
-
-        return ['type' => null, 'id' => null];
+        return $contact && static::findRecord('contact', $contact->getKey())
+            ? RecordLink::tokenFor('contact', $contact->getKey())
+            : null;
     }
 
     /**
@@ -745,6 +712,14 @@ class AttachmentResource extends Resource
         return $class && is_scalar($id) ? $class::query()->find($id) : null;
     }
 
+    /** The record a "Linked to" token ("contact:12") names, as findRecord() finds it. */
+    public static function findToken(mixed $token): ?Model
+    {
+        $parsed = RecordLink::parseToken($token);
+
+        return $parsed ? static::findRecord($parsed[0], $parsed[1]) : null;
+    }
+
     /**
      * "Attached to" with its warning after it on the same line, when the field
      * has one. The label is where it goes because the field's own message
@@ -754,35 +729,36 @@ class AttachmentResource extends Resource
      */
     public static function attachedToLabel(string $error): Htmlable
     {
-        return new HtmlString(e(__('Attached to')).'<sup class="fi-fo-field-label-required-mark">*</sup>'
+        return new HtmlString(e(__('Linked to')).'<sup class="fi-fo-field-label-required-mark">*</sup>'
             .($error !== '' ? '<span class="epesi-attach-to-error">'.e($error).'</span>' : ''));
     }
 
     /**
-     * The form's "Attached to" rows for a note: the records it is on that a
+     * The form's "Linked to" tokens for a note: the records it is on that a
      * note can be put on and you can see.
      *
-     * @return array<int, array{type: string, id: int|string}>
+     * @return list<string>
      */
     public static function attachedToState(Attachment $note): array
     {
         return static::editableLinks($note)
-            ->map(fn (AttachmentLink $link): array => ['type' => $link->attachable_type, 'id' => $link->attachable_id])
+            ->map(fn (AttachmentLink $link): string => RecordLink::tokenFor($link->attachable_type, $link->attachable_id))
+            ->values()
             ->all();
     }
 
     /**
-     * Puts the note on the records the form's "Attached to" rows name, and
+     * Puts the note on the records the form's "Linked to" tokens name, and
      * takes it off the ones it showed that are no longer among them. A record
      * the form couldn't show (one you can't see, or of a type notes aren't put
-     * on) keeps its link: leaving it out of the rows was never a choice.
+     * on) keeps its link: leaving it out of the field was never a choice.
      *
-     * @param  array<int|string, array{type?: string, id?: int|string|null}>  $rows
+     * @param  array<int|string, string>  $tokens
      */
-    public static function syncAttachedTo(Attachment $note, array $rows): void
+    public static function syncAttachedTo(Attachment $note, array $tokens): void
     {
-        $wanted = collect($rows)
-            ->map(fn (array $row): ?Model => static::findRecord((string) ($row['type'] ?? ''), $row['id'] ?? null))
+        $wanted = collect($tokens)
+            ->map(fn (mixed $token): ?Model => static::findToken($token))
             ->filter();
 
         foreach (static::editableLinks($note) as $link) {
@@ -814,40 +790,6 @@ class AttachmentResource extends Resource
             ->get()
             ->filter(fn (AttachmentLink $link): bool => $link->attachable !== null)
             ->values();
-    }
-
-    /**
-     * Searched on whatever the type's own resource searches globally, its own
-     * columns only: a dot path ("addresses.city") names a relation's.
-     *
-     * @return array<int|string, string>
-     */
-    protected static function searchRecords(string $type, string $search): array
-    {
-        $class = in_array($type, AttachmentsServiceProvider::recordTypes(), true) ? Relation::getMorphedModel($type) : null;
-        $resource = $class ? Filament::getModelResource($class) : null;
-
-        if ($resource === null) {
-            return [];
-        }
-
-        return $class::query()
-            ->where(function (Builder $query) use ($resource, $search): void {
-                foreach ($resource::getGloballySearchableAttributes() as $column) {
-                    if (! str_contains($column, '.')) {
-                        $query->orWhere($column, 'like', "%{$search}%");
-                    }
-                }
-            })
-            ->limit(25)
-            ->get()
-            ->mapWithKeys(fn (Model $record): array => [$record->getKey() => strip_tags((string) static::recordTitle($record))])
-            ->all();
-    }
-
-    protected static function recordTitle(Model $record): string|Htmlable|null
-    {
-        return Filament::getModelResource($record)::getRecordTitle($record);
     }
 
     /**
@@ -906,7 +848,7 @@ class AttachmentResource extends Resource
                 ->implode('');
 
             if ($chips !== '') {
-                $lines[] = static::metaLine(__('Attached to'), $chips);
+                $lines[] = static::metaLine(__('Linked to'), $chips);
             }
         }
 

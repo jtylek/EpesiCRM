@@ -23,6 +23,10 @@ if (PHP_SAPI !== 'cli') {
 
 define('LARAVEL_START', microtime(true));
 
+// Cron's PHP is often not the web server's: say so, and leave a note for Server Check, when it
+// lacks something epesi needs, instead of dying inside Laravel with an "undefined function".
+require __DIR__.'/bootstrap/preflight.php';
+
 require __DIR__.'/vendor/autoload.php';
 
 /** @var Application $app */

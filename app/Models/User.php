@@ -31,8 +31,17 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
      * narrower panel instead — 'customer' opens the customer portal
      * (Administration → Users still creates their login; see
      * AI-shared/Customer-portal.md) — or none yet, until one is built.
+     * 'consultant' opens it too, but sees only the records tied to him
+     * (HasOwnershipVisibility).
      */
-    public const MAIN_PANEL_ROLES = ['super_admin', 'manager', 'employee', 'accountant'];
+    public const MAIN_PANEL_ROLES = ['super_admin', 'manager', 'employee', 'accountant', 'consultant'];
+
+    /**
+     * The main-panel roles the CRM modules (recordsets, notes, mail, the
+     * personal tools) open for. 'accountant' opens the main panel for the
+     * ledger only, so it isn't one of them.
+     */
+    public const CRM_ROLES = ['super_admin', 'manager', 'employee', 'consultant'];
 
     /**
      * The History of a user: who changed the name, e-mail address or active
@@ -139,6 +148,15 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
         }
 
         return $this->hasAnyRole(self::MAIN_PANEL_ROLES);
+    }
+
+    /**
+     * A consultant sees only the records tied to him, not every public one
+     * (HasOwnershipVisibility), and changes only those.
+     */
+    public function isConsultant(): bool
+    {
+        return $this->hasRole('consultant');
     }
 
     /**

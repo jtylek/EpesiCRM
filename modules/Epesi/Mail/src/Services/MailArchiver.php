@@ -5,7 +5,6 @@ namespace Epesi\Modules\Mail\Services;
 use App\Models\User;
 use App\Services\FileStorage;
 use Carbon\CarbonImmutable;
-use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Models\MailThread;
@@ -34,18 +33,15 @@ class MailArchiver
 
     /**
      * @param  array<int, Model>  $links  records to link besides the matched contacts/companies
-     * @param  bool  $onlyIfMatched  archive nothing when no address matches a contact or company
-     *                               (auto-archive of a whole folder)
-     * @return Mail|null the archived message (the existing one for a duplicate), or null when skipped
+     * @return Mail the archived message (the existing one for a duplicate)
      */
     public function archive(
         string $raw,
         ?User $user = null,
         ?MailAccount $account = null,
         array $links = [],
-        bool $onlyIfMatched = false,
         ?string $direction = null,
-    ): ?Mail {
+    ): Mail {
         $message = Message::from($raw, false);
 
         $messageId = $this->stripAngles($message->getHeaderValue('Message-ID'));
@@ -60,20 +56,27 @@ class MailArchiver
         // filing the same message, must not both find it missing and store it.
         $key = $messageId ?? implode('|', [$this->format($from), $this->format($to), $subject, $date?->toIso8601String()]);
 
-        return Cache::lock('epesi-mail-archive:'.sha1($key), 60)->block(30, function () use ($message, $messageId, $from, $to, $cc, $subject, $date, $user, $account, $links, $onlyIfMatched, $direction): ?Mail {
+        return Cache::lock('epesi-mail-archive:'.sha1($key), 60)->block(30, function () use ($message, $messageId, $from, $to, $cc, $subject, $date, $user, $account, $links, $direction): Mail {
             if ($existing = $this->existing($messageId, $from, $to, $subject, $date)) {
+                // A deleted copy doesn't count as archived: restoring it is
+                // archiving it again, and callers read wasRecentlyCreated.
                 if ($existing->trashed()) {
                     $existing->restore();
+                    $existing->wasRecentlyCreated = true;
                 }
 
-                foreach ($links as $record) {
-                    $existing->linkTo($record);
+                // One copy for everyone, with a pointer to each person who
+                // archived it: their contact, as for a new copy.
+                foreach ([$user?->contact, ...$links] as $record) {
+                    if ($record !== null) {
+                        $existing->linkTo($record);
+                    }
                 }
 
                 return $existing;
             }
 
-            return $this->store($message, $messageId, $from, $to, $cc, $subject, $date, $user, $account, $links, $onlyIfMatched, $direction);
+            return $this->store($message, $messageId, $from, $to, $cc, $subject, $date, $user, $account, $links, $direction);
         });
     }
 
@@ -119,9 +122,8 @@ class MailArchiver
         ?User $user,
         ?MailAccount $account,
         array $links,
-        bool $onlyIfMatched,
         ?string $direction,
-    ): ?Mail {
+    ): Mail {
         $employee = $user?->contact;
         $ownAddresses = array_filter([
             mb_strtolower((string) $account?->email),
@@ -131,18 +133,11 @@ class MailArchiver
         // Your own contact, matched by your addresses or not, is always
         // linked: whoever archives a message is the first thing the archive
         // has to tell, above all for a shared mailbox (support@...), whose
-        // addresses say nothing about who filed it. It doesn't make a message
-        // "involve a known contact" for auto-archive, though: your address is
-        // on every message in your mailbox.
+        // addresses say nothing about who filed it.
         $matched = $this->matcher->match(array_keys([...$from, ...$to, ...$cc]));
-        $others = $matched->reject(fn (Model $m): bool => $employee !== null && $m instanceof Contact && $m->is($employee));
 
         if ($employee !== null) {
             $matched->prepend($employee);
-        }
-
-        if ($onlyIfMatched && $others->isEmpty() && $links === []) {
-            return null;
         }
 
         $direction ??= $from !== [] && array_intersect(array_keys($from), $ownAddresses) !== []

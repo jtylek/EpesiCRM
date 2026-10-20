@@ -48,12 +48,27 @@ class FileStorage
         return $this->store(hash(self::ALGORITHM, $contents), $name, fn (string $path): bool => static::disk()->put($path, $contents));
     }
 
-    /** A file on the local filesystem, streamed rather than read into memory. */
-    public function putFile(string $file, ?string $name = null): StoredFile
+    /**
+     * A file on the local filesystem, streamed rather than read into memory.
+     *
+     * $reuse is for a repeated import: when one of those StoredFiles already
+     * holds these bytes under this name it is returned as it is, so running the
+     * import again doesn't add a second row for the same use.
+     *
+     * @param  iterable<StoredFile>  $reuse
+     */
+    public function putFile(string $file, ?string $name = null, iterable $reuse = []): StoredFile
     {
         $hash = hash_file(self::ALGORITHM, $file) ?: throw new RuntimeException("Could not read {$file}.");
+        $name ??= basename($file);
 
-        return $this->store($hash, $name ?? basename($file), function (string $path) use ($file): bool {
+        foreach ($reuse as $existing) {
+            if ($existing->name === $name && $existing->content?->hash === $hash && $existing->isOnDisk()) {
+                return $existing;
+            }
+        }
+
+        return $this->store($hash, $name, function (string $path) use ($file): bool {
             $stream = fopen($file, 'rb');
 
             try {

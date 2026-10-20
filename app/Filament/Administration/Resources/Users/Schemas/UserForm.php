@@ -164,7 +164,7 @@ class UserForm
     }
 
     /**
-     * Contacts that have no login yet, whose first name, last name or e-mail
+     * Contacts that have no login yet, whose first name, last name, company or e-mail
      * address hold every word typed. One with no e-mail address is offered
      * too, marked so, and refused when chosen: better than not finding the
      * person and wondering why.
@@ -179,6 +179,7 @@ class UserForm
             $query->where(fn ($query) => $query
                 ->where('first_name', 'like', "%{$word}%")
                 ->orWhere('last_name', 'like', "%{$word}%")
+                ->orWhereHas('company', fn ($query) => $query->where('company_name', 'like', "%{$word}%"))
                 ->orWhereHas('emails', fn ($query) => $query->where('value', 'like', "%{$word}%")));
         }
 

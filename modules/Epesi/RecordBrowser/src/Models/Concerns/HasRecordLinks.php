@@ -2,12 +2,14 @@
 
 namespace Epesi\Modules\RecordBrowser\Models\Concerns;
 
+use Epesi\Modules\RecordBrowser\History\SaveActivity;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\ActivityLogStatus;
 
 /**
  * The links of a model's "link to any record" fields (Field::related()), kept
@@ -67,16 +69,22 @@ trait HasRecordLinks
      * Makes $field link to exactly the records $tokens name ("alias:id"),
      * as far as this user can see: a link to a record they can't see stays,
      * since they couldn't have meant to remove it, and a token naming such a
-     * record — or a recordset outside $recordsets — is ignored.
+     * record — or a recordset outside $recordsets, or this record itself — is
+     * ignored. A record may link to others of its own recordset.
      *
      * @param  list<string>  $tokens
      * @param  list<string>|null  $recordsets  morph aliases the field may link to, null for any
      */
     public function syncRecordLinks(string $field, array $tokens, ?array $recordsets = null): void
     {
-        $wanted = array_values(array_unique(array_filter($tokens, fn (mixed $token): bool => RecordLink::parseToken($token) !== null)));
+        $self = RecordLink::tokenFor($this->getMorphClass(), $this->getKey());
 
-        $existing = $this->recordLinks()->where('field', $field)->with('target')->get();
+        $wanted = array_values(array_unique(array_filter(
+            $tokens,
+            fn (mixed $token): bool => RecordLink::parseToken($token) !== null && $token !== $self,
+        )));
+
+        $existing = $this->recordLinks()->where('field', $field)->orderBy('id')->with('target')->get();
         $existingTokens = $existing->map(fn (RecordLink $link): string => $link->token())->all();
 
         $existing
@@ -102,5 +110,56 @@ trait HasRecordLinks
         }
 
         $this->unsetRelation('recordLinks');
+
+        $after = $this->recordLinks()->where('field', $field)->orderBy('id')->get()
+            ->map(fn (RecordLink $link): string => $link->token())->all();
+
+        if ($after !== $existingTokens) {
+            $this->logRecordLinkChange($field, $existingTokens, $after);
+        }
+    }
+
+    /**
+     * A change of $field's links in History, as tokens ("company:12"): the
+     * entry shows them by title through each record's own visibility rules
+     * (Field::formatLoggedChange()), so it never names a record its reader
+     * can't see. Joins the entry of the same save when there is one
+     * (SaveActivity), as a collection change does.
+     *
+     * @param  list<string>  $before
+     * @param  list<string>  $after
+     */
+    protected function logRecordLinkChange(string $field, array $before, array $after): void
+    {
+        if (! method_exists($this, 'getActivitylogOptions') || ! $this->enableLoggingModelsEvents || app(ActivityLogStatus::class)->disabled()) {
+            return;
+        }
+
+        $history = app(SaveActivity::class);
+
+        if ($entry = $history->entryFor($this)) {
+            $properties = $entry->properties->toArray();
+            $properties['attributes'] = [...($properties['attributes'] ?? []), $field => $after];
+
+            // A record just created had nothing before.
+            if ($entry->event === 'updated') {
+                $properties['old'] = [...($properties['old'] ?? []), $field => $before];
+            }
+
+            $entry->properties = collect($properties);
+            $entry->save();
+
+            return;
+        }
+
+        $logged = activity($this->getActivitylogOptions()->logName ?: config('activitylog.default_log_name'))
+            ->performedOn($this)
+            ->event('updated')
+            ->withProperties(['old' => [$field => $before], 'attributes' => [$field => $after]])
+            ->log('updated');
+
+        if ($logged !== null) {
+            $history->markCollectionEntry($this);
+        }
     }
 }

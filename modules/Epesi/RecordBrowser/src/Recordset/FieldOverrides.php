@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
 use App\Support\Demo;
+use Closure;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
@@ -21,6 +22,11 @@ class FieldOverrides
     protected ?array $overrides = null;
 
     protected array $columns = [];
+
+    /** @var array<string, mixed> Per-request answers built from the resolved fields; see memo(). */
+    protected array $memo = [];
+
+    protected int $memoVersion = -1;
 
     /** Only request-local caching: settings never depend on a deployment cache file. */
     public function all(): array
@@ -44,6 +50,22 @@ class FieldOverrides
         }
 
         return $this->overrides;
+    }
+
+    /**
+     * Keep what is derived from the resolved fields for the rest of the request:
+     * `resolvedFields()` and the incoming-links scan call every resource's
+     * `fields()`, and a View page asks for them once per addon tab. Dropped when
+     * an override is saved or the custom fields change (their version moves).
+     */
+    public function memo(string $key, Closure $build): mixed
+    {
+        if ($this->memoVersion !== CustomFieldRegistry::version()) {
+            $this->memo = [];
+            $this->memoVersion = CustomFieldRegistry::version();
+        }
+
+        return array_key_exists($key, $this->memo) ? $this->memo[$key] : $this->memo[$key] = $build();
     }
 
     public function properties(string $alias, string $name): array
@@ -79,7 +101,7 @@ class FieldOverrides
         abort_unless($recordset, 404);
         foreach ($recordset['fields'] as $position => $field) {
             if ($field->name === $name) {
-                return [$recordset['model'], $field, $position * 10];
+                return [$recordset['model'], $this->withOffers($alias, $field), $position * 10];
             }
         }
         abort(404);
@@ -129,6 +151,16 @@ class FieldOverrides
             'show_in_table' => ['sometimes', 'boolean'],
             'required' => ['sometimes', 'boolean'],
             'filterable' => ['sometimes', 'boolean'],
+            // A Linked to field's recordsets: LinkedTo::ANY, or some of the linkable ones.
+            'recordsets' => ['sometimes', function (string $attribute, mixed $value, Closure $fail): void {
+                if ($value === LinkedTo::ANY) {
+                    return;
+                }
+
+                if (! is_array($value) || $value === [] || array_diff($value, array_keys(LinkableRecordsets::options())) !== []) {
+                    $fail(__('Choose at least one recordset it can link to, or any recordset.'));
+                }
+            }],
         ])->validate();
 
         $effective = array_replace($field->administratorDefaults(), $properties);
@@ -144,6 +176,9 @@ class FieldOverrides
         if (isset($properties['position'])) {
             $properties['position'] = (int) $properties['position'];
         }
+        if (is_array($properties['recordsets'] ?? null)) {
+            $properties['recordsets'] = array_values(array_unique($properties['recordsets']));
+        }
         if ($properties === []) {
             DB::table(self::TABLE)->where('model_type', $alias)->where('field', $name)->delete();
         } else {
@@ -154,6 +189,7 @@ class FieldOverrides
             ], ['model_type', 'field'], ['properties', 'updated_at']);
         }
         $this->overrides = null;
+        $this->memo = [];
         CollectionFields::flush();
     }
 
@@ -209,6 +245,7 @@ class FieldOverrides
             DB::table(self::TABLE)->upsert($rows, ['model_type', 'field'], ['properties', 'updated_at']);
         });
         $this->overrides = null;
+        $this->memo = [];
         CustomFieldRegistry::refresh();
     }
 
@@ -223,7 +260,23 @@ class FieldOverrides
         DB::table(self::TABLE)->where('model_type', $field->model_type)->where('field', $field->column)
             ->update(['properties' => json_encode($properties, JSON_THROW_ON_ERROR), 'updated_at' => now()]);
         $this->overrides = null;
+        $this->memo = [];
         CollectionFields::flush();
+    }
+
+    /**
+     * A Linked to field with what other modules offer it (LinkedTo::offer())
+     * joined to the module's own list: the default an administrator's
+     * `recordsets` override replaces. A copy; other fields come back as they are.
+     */
+    public function withOffers(string $alias, Field $field): Field
+    {
+        if ($field->type !== FieldType::Related || ! is_array($own = $field->getParam('recordsets'))
+            || ($offered = LinkedTo::offered($alias, $field->name)) === []) {
+            return $field;
+        }
+
+        return (clone $field)->param('recordsets', array_values(array_unique([...$own, ...$offered])));
     }
 
     /** Apply to copies, preserving module declarations and cached custom fields. */
@@ -233,6 +286,8 @@ class FieldOverrides
         $overrides = $alias ? ($this->all()[$alias] ?? []) : [];
         $resolved = [];
         foreach ($fields as $position => $field) {
+            // Before the administrator's choice, which replaces it.
+            $field = $alias ? $this->withOffers($alias, $field) : $field;
             $properties = $overrides[$field->name] ?? [];
             // New module restrictions take precedence over previously saved settings.
             if ($properties !== []) {

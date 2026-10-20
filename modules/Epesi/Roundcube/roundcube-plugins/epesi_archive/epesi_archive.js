@@ -1,17 +1,39 @@
 /**
  * The Archive button and the compose toggle (see epesi_archive.php). The
- * server first checks the selection for contacts and companies, and either
- * warns or answers plugin.epesi_archive_move. Moves go through Roundcube's
- * own move_messages(); once the server has done one, the Epesi page around
- * this frame is told, and archives the folder.
+ * server first checks the selection and either warns or answers
+ * plugin.epesi_archive_go with the folder and UIDs. The Epesi page around
+ * this frame then archives those messages from that folder, moves them to
+ * the archive folder on the mail server, and posts `refresh` back here.
  */
 (function () {
-    var archiving = false;
+    var lock = null,
+        timer = null;
 
-    function tellEpesi(type) {
+    function tellEpesi(data) {
         if (window.parent !== window) {
-            window.parent.postMessage({ epesiRoundcube: type }, window.location.origin);
+            window.parent.postMessage(data, window.location.origin);
         }
+    }
+
+    function done() {
+        if (lock !== null) {
+            rcmail.set_busy(false, null, lock);
+            lock = null;
+        }
+        clearTimeout(timer);
+    }
+
+    // The archived messages left this folder: show the list without them.
+    function refresh() {
+        done();
+
+        if (rcmail.env.action === 'show') {
+            rcmail.list_mailbox(rcmail.env.mailbox);
+            return;
+        }
+
+        rcmail.show_contentframe(false);
+        rcmail.list_mailbox(rcmail.env.mailbox, rcmail.env.current_page);
     }
 
     // Epesi never archived from the archive folder itself or from Drafts.
@@ -78,7 +100,7 @@
 
     rcmail.addEventListener('init', function () {
         if (rcmail.env.epesi_archive_fetch) {
-            tellEpesi('archived');
+            tellEpesi({ epesiRoundcube: 'archived', messageIds: rcmail.env.epesi_archive_fetch });
         }
 
         if (rcmail.env.action === 'compose') {
@@ -95,16 +117,27 @@
         }
     });
 
-    // The server's go-ahead: exactly the messages it checked ("*" for a whole folder).
-    rcmail.addEventListener('plugin.epesi_archive_move', function (data) {
-        archiving = true;
-        rcmail.move_messages(rcmail.env.epesi_archive_folder, null, data.uids === '*' ? undefined : String(data.uids).split(','));
+    // The server's go-ahead: exactly the messages it checked. Epesi archives
+    // them first; only then are they moved, by Epesi, to the archive folder.
+    rcmail.addEventListener('plugin.epesi_archive_go', function (data) {
+        done();
+        lock = rcmail.set_busy(true, 'loading');
+        // Never stay busy if the page doesn't answer.
+        timer = setTimeout(done, 120000);
+        tellEpesi({ epesiRoundcube: 'archive', folder: String(data.folder), uids: data.uids || [] });
     });
 
-    rcmail.addEventListener('responseaftermove', function () {
-        if (archiving) {
-            archiving = false;
-            tellEpesi('archived');
+    window.addEventListener('message', function (event) {
+        if (event.origin !== window.location.origin || event.source !== window.parent) {
+            return;
+        }
+
+        if (event.data && event.data.epesiRoundcube === 'refresh') {
+            refresh();
+        }
+
+        if (event.data && event.data.epesiRoundcube === 'archive-done') {
+            done();
         }
     });
 })();

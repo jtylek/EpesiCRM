@@ -30,17 +30,15 @@ class WebklexMailbox implements Mailbox
 
     public function open(string $folder): int
     {
-        $status = $this->protocol()->examineFolder($folder)->validatedData();
+        $status = $this->protocol()->examineFolder($this->wireName($folder))->validatedData();
 
         return (int) ($status['uidvalidity'] ?? 0);
     }
 
-    public function uidsAfter(int $uid): array
+    public function uidsWithMessageId(string $messageId): array
     {
-        $found = $this->protocol()->search(['UID', ($uid + 1).':*'])->array();
-
-        // "n:*" always matches the highest UID even when it is below n.
-        $uids = array_values(array_filter(array_map('intval', $found), fn (int $u): bool => $u > $uid));
+        $quoted = '"'.addcslashes($messageId, '"\\').'"';
+        $uids = array_map('intval', $this->protocol()->search(['HEADER', 'Message-ID', $quoted])->array());
         sort($uids);
 
         return $uids;
@@ -53,18 +51,30 @@ class WebklexMailbox implements Mailbox
         return (string) (is_array($data) ? ($data[$uid] ?? reset($data)) : $data);
     }
 
+    public function move(string $folder, array $uids, string $target): void
+    {
+        if ($uids === []) {
+            return;
+        }
+
+        // SELECT, not EXAMINE: moving changes the folder. Without the MOVE
+        // extension the library falls back to COPY, \Deleted and EXPUNGE.
+        $this->protocol()->selectFolder($this->wireName($folder))->validatedData();
+        $this->protocol()->moveManyMessages(array_map('intval', $uids), $this->wireName($target))->validatedData();
+    }
+
     public function append(string $folder, string $raw): void
     {
         // IMAP wants CRLF line endings in the literal; a message built on
         // this side may carry bare LFs.
         $raw = (string) preg_replace("/\r?\n/", "\r\n", $raw);
 
-        $this->protocol()->appendMessage($folder, $raw, ['\\Seen'])->validatedData();
+        $this->protocol()->appendMessage($this->wireName($folder), $raw, ['\\Seen'])->validatedData();
     }
 
     public function unseen(string $folder = 'INBOX'): int
     {
-        $status = $this->protocol()->folderStatus($folder, ['UNSEEN'])->validatedData();
+        $status = $this->protocol()->folderStatus($this->wireName($folder), ['UNSEEN'])->validatedData();
 
         return (int) ($status['unseen'] ?? 0);
     }
@@ -73,6 +83,17 @@ class WebklexMailbox implements Mailbox
     {
         $this->client?->disconnect();
         $this->client = null;
+    }
+
+    /**
+     * A folder name as IMAP spells it (modified UTF-7). Names from Roundcube
+     * or the server are that already, and ASCII; an account's archive folder
+     * is typed in UTF-8. Only a name with non-ASCII characters is encoded, so
+     * an already encoded one is never encoded twice.
+     */
+    protected function wireName(string $folder): string
+    {
+        return mb_check_encoding($folder, 'ASCII') ? $folder : mb_convert_encoding($folder, 'UTF7-IMAP', 'UTF-8');
     }
 
     protected function protocol(): ProtocolInterface

@@ -134,3 +134,22 @@
 .dark .epesi-picker-close:hover {
     color: #fff;
 }
+
+/* The Today button under the calendar. */
+.epesi-picker-today {
+    justify-self: center;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-600);
+}
+
+.epesi-picker-today:hover {
+    background-color: color-mix(in oklab, var(--primary-500) 15%, transparent);
+}
+
+.dark .epesi-picker-today {
+    color: var(--primary-400);
+}

@@ -42,8 +42,11 @@ open keeps the badge but not the icon.
   Edit — including on vendor/plugin resources that only register an Edit action by default.
 - **Tab order on a View page**: real addons first, then any additional static tabs
   (`getAdditionalContentTabs()`; none at present). Record Info and History aren't tabs — they
-  sit behind a kebab (an icon-only dropdown) as the very last header action, after Edit/Clone
-  and whatever a resource or module adds, and open as a modal when picked; a resource with no
+  sit behind a kebab (an icon-only dropdown) as the very last header action, and open as a
+  modal when picked. Edit comes right before the kebab on every RecordBrowser View page,
+  whatever else a resource or module adds (Clone, Change status, …) goes before Edit —
+  `ViewRecord::cacheInteractsWithHeaderActions()` moves it there, so a page lists Edit wherever it likes.
+  A resource with no
   real addons at all (e.g. Administration's ViewUser) shows no tab strip. The default-active
   tab is always the first real addon. Deep-link to Record Info/History with
   `?action=record-info` / `?action=history` (Filament's own
@@ -112,13 +115,12 @@ interest without opening the filter panel and setting it by hand.
   header. There is no "Create & create another" anywhere — pages and modals both switch it off.
 - A header Save/Create action needs `formId('form')` — without it, moving these buttons into
   the header leaves them outside the actual `<form>` element and clicking does nothing.
-- **Modals follow the same rule.** An action modal's footer actions (Create/Save, Cancel,
-  Close…) sit on the heading's line instead of under the form, and there is no corner close
-  button (Cancel does that job). Create/Edit modals style their buttons as the pages do:
-  Save green with a check (the label is Save on Create too), Cancel with an X.
-  This is a global default (`AppServiceProvider::putModalActionsOnHeadingLine()`), so a new
-  modal needs nothing. Confirmation dialogs (`requiresConfirmation()`), slide-overs, small
-  centred modals and modals with no footer keep Filament's own layout.
+- **Modals keep their buttons at the bottom**, under the form, where Filament puts them, with
+  Filament's corner close button. (They were on the heading line until 2026-10-08; the user
+  asked for the bottom everywhere.) Create/Edit modals style their buttons as the pages do:
+  Save green with a check (the label is Save on Create too), Cancel with an X. This is a
+  global default (`AppServiceProvider::styleFormModalButtons()`), so a new modal needs
+  nothing.
 - **Clone** is a dedicated header action on View pages, not Filament's own `ReplicateAction`:
   it warns and clones immediately on confirm (no pre-fill edit modal), then redirects to the
   new record's Edit page. Unique/identity columns that would collide (email, linked user,

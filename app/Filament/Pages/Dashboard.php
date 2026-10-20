@@ -50,6 +50,17 @@ class Dashboard extends BaseDashboard
         $this->tab = UiState::recall('dashboard.tab');
     }
 
+    /**
+     * Every request starts from the remembered tab rather than the one in the
+     * page's snapshot, which Back/Forward restores from the browser's cache
+     * (or a second browser tab left behind). A tab the user clicks is set
+     * after this and remembered by updatedTab().
+     */
+    public function hydrate(): void
+    {
+        $this->tab = UiState::recall('dashboard.tab');
+    }
+
     public function updatedTab(): void
     {
         UiState::remember('dashboard.tab', $this->tab);
@@ -203,16 +214,20 @@ class Dashboard extends BaseDashboard
             ->modalHeading(__('Add applet'))
             ->modalSubmitActionLabel(__('Add'))
             ->schema([
-                Radio::make('widget')
-                    ->hiddenLabel()
-                    ->options(fn (): array => $this->availableApplets()
-                        ->map(fn (string $class): string => $class::getAppletCaption())
-                        ->all())
-                    ->descriptions(fn (): array => $this->availableApplets()
-                        ->map(fn (string $class): ?string => $class::getAppletDescription())
-                        ->filter()
-                        ->all())
-                    ->required(),
+                // Many applets: the list scrolls inside the modal, so Add/Cancel stay in view.
+                Group::make([
+                    Radio::make('widget')
+                        ->hiddenLabel()
+                        ->options(fn (): array => $this->availableApplets()
+                            ->map(fn (string $class): string => $class::getAppletCaption())
+                            ->all())
+                        ->descriptions(fn (): array => $this->availableApplets()
+                            ->map(fn (string $class): ?string => $class::getAppletDescription())
+                            ->filter()
+                            ->all())
+                        ->extraAttributes(['style' => 'padding: 0.25rem 0.5rem; gap: 0.75rem;'])
+                        ->required(),
+                ])->extraAttributes(['style' => 'display: block; max-height: 55vh; overflow-x: hidden; overflow-y: scroll;']),
             ])
             ->action(function (array $data): void {
                 $applet = $this->currentTab()->addApplet($data['widget'], self::COLUMNS);

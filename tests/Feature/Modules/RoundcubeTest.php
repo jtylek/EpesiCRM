@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Enums\RecordPermission;
 use App\Filament\Administration\Resources\Modules\Pages\ListModules;
 use App\Models\Module;
 use App\Models\User;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\Mail\Filament\Actions\LinkRecordAction;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\ContactMatcher;
@@ -309,11 +312,139 @@ SQL);
         $this->assertSame(0, DB::table('epesi_roundcube_tickets')->where('account_id', $theirs->id)->count());
     }
 
-    public function test_the_archive_button_archives_the_archive_folder_straight_away(): void
+    public function test_the_archive_button_archives_from_the_inbox_then_moves_and_offers_a_link(): void
     {
         $this->pretendInstalled();
         $account = $this->account();
-        $server = new FakeMailbox(['CRM Archive' => [1 => Eml::make()]]);
+        $server = new FakeMailbox([
+            'INBOX' => [
+                1 => Eml::make(messageId: 'clicked@x'),
+                2 => Eml::make(messageId: 'second@x'),
+                3 => Eml::make(messageId: 'not-clicked@x'),
+            ],
+            'CRM Archive' => [],
+        ]);
+        $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
+        {
+            public function __construct(private FakeMailbox $server) {}
+
+            public function make(MailAccount $account): FakeMailbox
+            {
+                return $this->server;
+            }
+        });
+        $task = Task::create(['title' => 'Prepare the offer', 'permission' => RecordPermission::Public]);
+        $company = Company::create(['company_name' => 'Customer Ltd']);
+        $this->assertSame([$task->id => 'Prepare the offer'], LinkRecordAction::recent('task'), 'the newest records until you have opened some');
+
+        $page = Livewire::test(Mailbox::class)->call('archive', 'INBOX', [1]);
+        $this->assertTrue($page->effects['returns'][0] ?? null, 'the frame is told to refresh its list');
+
+        $page->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalSee(['Message archived in Epesi and moved to CRM Archive folder', 'Also link to', 'Add another record'])
+            ->fillForm(['links' => [
+                ['type' => 'task', 'record' => $task->id],
+                ['type' => 'company', 'record' => $company->id],
+                ['type' => null, 'record' => null],
+            ]])
+            ->callMountedAction()
+            ->assertHasNoFormErrors()
+            ->assertNotified('Linked to Task: Prepare the offer, Company: Customer Ltd');
+
+        $mail = Mail::where('message_id', 'clicked@x')->sole();
+        $this->assertSame($account->id, $mail->account_id);
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($task)));
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($company)), 'more than one record, in one go');
+        $this->assertFalse(Mail::where('message_id', 'not-clicked@x')->exists(), 'nothing else in the folder is archived');
+        $this->assertSame([2, 3], array_keys($server->messages['INBOX']), 'archived first, then moved off the inbox');
+        $this->assertCount(1, $server->messages['CRM Archive'], 'kept on the mail server, in the archive folder');
+
+        // Every time: there is no "Don't show this message again".
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [2])
+            ->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalDontSee(['Don&#039;t show this message again'])
+            ->callMountedAction()
+            ->call('archive', 'INBOX', [3])
+            ->assertActionMounted('archivedDialog');
+
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [99])
+            ->assertActionNotMounted('archivedDialog')
+            ->assertNotified('The message was not archived');
+    }
+
+    /**
+     * A message a colleague archived (or an .eml upload): the archive keeps
+     * its one copy, links it to whoever clicks, moves it like any other and
+     * says so in the dialog, with linking as usual.
+     */
+    public function test_archiving_a_message_already_archived_links_it_to_you_moves_it_and_says_so(): void
+    {
+        $this->pretendInstalled();
+        $account = $this->account();
+        $own = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee']);
+        $own->forceFill(['user_id' => $this->user->id])->save();
+        $server = new FakeMailbox([
+            'INBOX' => [
+                1 => Eml::make(messageId: 'budget@x'),
+                2 => Eml::make(messageId: 'new@x'),
+            ],
+            'CRM Archive' => [],
+        ]);
+        $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
+        {
+            public function __construct(private FakeMailbox $server) {}
+
+            public function make(MailAccount $account): FakeMailbox
+            {
+                return $this->server;
+            }
+        });
+        $colleague = $this->userWithRole('employee');
+        $existing = app(MailArchiver::class)->archive(Eml::make(messageId: 'budget@x'), $colleague);
+
+        // The Archive button's check lets it through: it is archived, so no contact warning.
+        $pdo = DB::connection()->getPdo();
+        $this->assertSame(['<budget@x>'], epesi_archive_matcher::archived(['<budget@x>'], function (string $sql, array $params) use ($pdo): ?array {
+            $statement = $pdo->prepare($sql);
+            $statement->execute($params);
+
+            return $statement->fetch(PDO::FETCH_ASSOC) ?: null;
+        }));
+        $plugin = file_get_contents(base_path('modules/Epesi/Roundcube/roundcube-plugins/epesi_archive/epesi_archive.php'));
+        $this->assertStringNotContainsString("'already_archived'", $plugin, 'no more warning-only answer');
+
+        $task = Task::create(['title' => 'IT budget', 'permission' => RecordPermission::Public]);
+
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [1])
+            ->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalSee(['Message already archived', 'it is now linked to you too, and moved to CRM Archive folder', 'Also link to'])
+            ->fillForm(['links' => [['type' => 'task', 'record' => $task->id]]])
+            ->callMountedAction()
+            ->assertNotified('Linked to Task: IT budget');
+
+        $this->assertSame(1, Mail::where('message_id', 'budget@x')->count(), 'still one copy');
+        $this->assertTrue($own->mails()->whereKey($existing->id)->exists(), 'a pointer for whoever archived it');
+        $this->assertTrue($existing->linkedRecords()->contains(fn ($record): bool => $record->is($task)));
+        $this->assertSame([2], array_keys($server->messages['INBOX']), 'moved off the inbox like a new one');
+        $this->assertCount(1, $server->messages['CRM Archive']);
+
+        // A new one and an archived one in one click.
+        $server->messages['INBOX'][3] = Eml::make(messageId: 'budget@x');
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [2, 3])
+            ->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalSee(['2 messages archived', 'Message archived in Epesi and moved to CRM Archive folder', 'One of them was already archived']);
+    }
+
+    public function test_a_message_the_server_will_not_move_is_still_archived_and_said_so(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+        $server = new FakeMailbox(['INBOX' => [1 => Eml::make(messageId: 'stuck@x')]]);
+        $server->moveFails = true;
         $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
         {
             public function __construct(private FakeMailbox $server) {}
@@ -324,11 +455,59 @@ SQL);
             }
         });
 
-        Livewire::test(Mailbox::class)
-            ->call('archived')
-            ->assertNotified('1 message archived');
+        $task = Task::create(['title' => 'Chase the reply', 'permission' => RecordPermission::Public]);
 
-        $this->assertSame(1, Mail::where('account_id', $account->id)->count());
+        // The dialog still opens, with the warning, and still links.
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [1])
+            ->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalSee(['Message archived in Epesi, but not moved to CRM Archive folder', 'MOVE failed', 'still in your inbox', 'Also link to'])
+            ->fillForm(['links' => [['type' => 'task', 'record' => $task->id]]])
+            ->callMountedAction()
+            ->assertNotified('Linked to Task: Chase the reply');
+
+        $mail = Mail::where('message_id', 'stuck@x')->sole();
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($task)));
+        $this->assertArrayHasKey(1, $server->messages['INBOX']);
+    }
+
+    public function test_a_sent_copy_saved_to_the_archive_folder_is_archived_by_message_id(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+        $server = new FakeMailbox(['CRM Archive' => [1 => Eml::make(messageId: 'sent@x'), 2 => Eml::make(messageId: 'other@x')]]);
+        $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
+        {
+            public function __construct(private FakeMailbox $server) {}
+
+            public function make(MailAccount $account): FakeMailbox
+            {
+                return $this->server;
+            }
+        });
+
+        $task = Task::create(['title' => 'Prepare the offer', 'permission' => RecordPermission::Public]);
+        $company = Company::create(['company_name' => 'Customer Ltd']);
+
+        // The Archive button's dialog, worded for a copy saved there, not moved.
+        Livewire::test(Mailbox::class)
+            ->call('archived', ['<sent@x>'])
+            ->assertActionMounted('archivedDialog')
+            ->assertMountedActionModalSee(['Message sent and archived', 'Sent message archived in Epesi and saved to CRM Archive folder', 'Also link to', 'Add another record'])
+            ->assertMountedActionModalDontSee(['moved to'])
+            ->fillForm(['links' => [
+                ['type' => 'task', 'record' => $task->id],
+                ['type' => 'company', 'record' => $company->id],
+            ]])
+            ->callMountedAction()
+            ->assertHasNoFormErrors()
+            ->assertNotified('Linked to Task: Prepare the offer, Company: Customer Ltd');
+
+        $this->assertSame(['sent@x'], Mail::pluck('message_id')->all());
+        $mail = Mail::sole();
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($task)));
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($company)));
+        $this->assertCount(2, $server->messages['CRM Archive'], 'a sent copy stays where Roundcube saved it');
     }
 
     /**
@@ -399,6 +578,126 @@ SQL);
 
         $mail->delete();
         $this->assertSame([], epesi_archive_matcher::archived(['<offer@customer.test>'], $selectOne));
+    }
+
+    /**
+     * Roundcube fetches no Message-ID for a message list unless asked, and
+     * calls each message "mid:<position in the folder>" instead. The check
+     * compared those: an imported mail saved as "mid:4" made the 4th message
+     * of any folder "already archived".
+     */
+    public function test_the_archive_check_asks_for_message_ids_and_ignores_roundcubes_placeholders(): void
+    {
+        $this->assertSame('MESSAGE-ID', epesi_archive_matcher::fetch_headers(null));
+        $this->assertSame('X-SPAM MESSAGE-ID', epesi_archive_matcher::fetch_headers('x-spam  MESSAGE-ID'));
+
+        $plugin = file_get_contents(base_path('modules/Epesi/Roundcube/roundcube-plugins/epesi_archive/epesi_archive.php'));
+        $this->assertStringContainsString("add_hook('storage_init'", $plugin);
+
+        $mail = app(MailArchiver::class)->archive(Eml::make(messageId: 'offer@customer.test'), $this->userWithRole('employee'));
+        $mail->forceFill(['message_id' => 'mid:4'])->save();
+
+        $pdo = DB::connection()->getPdo();
+        $selectOne = function (string $sql, array $params) use ($pdo): ?array {
+            $statement = $pdo->prepare($sql);
+            $statement->execute($params);
+
+            return $statement->fetch(PDO::FETCH_ASSOC) ?: null;
+        };
+
+        $this->assertSame([], epesi_archive_matcher::archived(['mid:4'], $selectOne));
+
+        $migration = require base_path('modules/Epesi/Mail/database/migrations/2026_10_08_160000_clear_placeholder_message_ids_on_epesi_mails.php');
+        $migration->up();
+        $this->assertNull($mail->fresh()->message_id);
+    }
+
+    /**
+     * The check reads headers the way the plugin does, through Roundcube's own
+     * rcube_imap::fetch_headers() and its real FETCH command and parser, from
+     * a server that answers only the header fields asked for. Roundcube is
+     * downloaded, never committed, so this needs `roundcube:install`.
+     */
+    public function test_roundcubes_header_fetch_gives_the_check_the_real_message_id(): void
+    {
+        $lib = base_path('storage/roundcube/program/lib/Roundcube');
+
+        if (! is_file("$lib/rcube_imap_generic.php")) {
+            $this->markTestSkipped('Roundcube is not installed (php artisan roundcube:install).');
+        }
+
+        defined('RCUBE_CHARSET') || define('RCUBE_CHARSET', 'UTF-8');
+        spl_autoload_register(function (string $class) use ($lib): void {
+            if (str_starts_with($class, 'rcube') && is_file("$lib/$class.php")) {
+                require_once "$lib/$class.php";
+            }
+        });
+        require_once base_path('modules/Epesi/Roundcube/roundcube-plugins/epesi_archive/epesi_archive.php');
+
+        $fetch = function (string $fetchHeaders): \rcube_message_header {
+            // A server that has message 4 (UID 19854) in INBOX.
+            $server = new class extends \rcube_imap_generic
+            {
+                public function __construct()
+                {
+                    $this->fp = fopen('php://memory', 'w+');
+                    $this->logged = true;
+                    $this->selected = 'INBOX';
+                    $this->prefs = ['timeout' => 0];
+                }
+
+                protected function putLine($string, $endln = true, $anonymized = false)
+                {
+                    preg_match('/^(A\d+) UID FETCH 19854 .*HEADER\.FIELDS \(([^)]*)\)/', $string, $m);
+                    $all = [
+                        'DATE' => 'Date: Wed, 12 Mar 2025 20:39:04 +0100',
+                        'FROM' => 'From: Janusz Tylek <j@epe.si>',
+                        'TO' => 'To: Joe Marcozzi <joe@vikingimporting.com>',
+                        'SUBJECT' => 'Subject: IT Budget for 2025',
+                        'MESSAGE-ID' => 'Message-ID: <23e398dd-461c-bd96-5d5e-75a1ebf1c2a9@epe.si>',
+                    ];
+                    $asked = explode(' ', $m[2]);
+                    $headers = implode("\r\n", array_intersect_key($all, array_flip($asked)))."\r\n\r\n";
+
+                    fwrite($this->fp, '* 4 FETCH (UID 19854 RFC822.SIZE 2048 FLAGS (\Seen) INTERNALDATE "12-Mar-2025 20:39:04 +0100" '
+                        ."BODY[HEADER.FIELDS ({$m[2]})] {".strlen($headers)."}\r\n{$headers})\r\n{$m[1]} OK Fetch completed\r\n");
+                    rewind($this->fp);
+
+                    return true;
+                }
+            };
+
+            $storage = (new \ReflectionClass(\rcube_imap::class))->newInstanceWithoutConstructor();
+            $storage->conn = $server;
+            $storage->set_options(['fetch_headers' => $fetchHeaders]);
+
+            return $storage->fetch_headers('INBOX', [19854], false)[19854];
+        };
+
+        // Without the plugin's storage_init, Roundcube's placeholder: the bug.
+        $this->assertSame('mid:4', $fetch('')->messageID);
+
+        $plugin = (new \ReflectionClass(\epesi_archive::class))->newInstanceWithoutConstructor();
+        $header = $fetch($plugin->storage_init(['fetch_headers' => ''])['fetch_headers']);
+
+        $this->assertSame('IT Budget for 2025', $header->subject);
+        $this->assertSame('<23e398dd-461c-bd96-5d5e-75a1ebf1c2a9@epe.si>', $header->messageID);
+
+        // An imported mail stored as "mid:4" no longer makes it a duplicate; the real one does.
+        $mail = app(MailArchiver::class)->archive(Eml::make(messageId: 'offer@customer.test'), $this->userWithRole('employee'));
+        $mail->forceFill(['message_id' => 'mid:4'])->save();
+        $pdo = DB::connection()->getPdo();
+        $selectOne = function (string $sql, array $params) use ($pdo): ?array {
+            $statement = $pdo->prepare($sql);
+            $statement->execute($params);
+
+            return $statement->fetch(PDO::FETCH_ASSOC) ?: null;
+        };
+
+        $this->assertSame([], epesi_archive_matcher::archived([$header->messageID], $selectOne));
+
+        $mail->forceFill(['message_id' => '23e398dd-461c-bd96-5d5e-75a1ebf1c2a9@epe.si'])->save();
+        $this->assertSame([$header->messageID], epesi_archive_matcher::archived([$header->messageID], $selectOne));
     }
 
     public function test_logging_out_ends_the_roundcube_session(): void

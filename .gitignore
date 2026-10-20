@@ -24,6 +24,7 @@
 # Separately licensed modules: each one is its own nested git repo, not part of
 # this one.
 /modules/Premium/
+/modules/Epesi/Premium/
 /node_modules
 /public/build
 /public/hot

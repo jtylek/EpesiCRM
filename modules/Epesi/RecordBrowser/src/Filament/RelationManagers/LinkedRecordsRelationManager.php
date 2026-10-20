@@ -29,7 +29,9 @@ class LinkedRecordsRelationManager extends RelationManager
     {
         $resource = $this->sourceResource;
         $fields = IncomingLinks::for($this->ownerRecord)[$resource] ?? [];
-        abort_if($fields === [], 403);
+        // No links (the viewed record or a permission changed since the tab was
+        // rendered): an empty table, not an exception — a throw here leaves
+        // `$this->table` uninitialized and the re-render fails on it.
         $table = $resource::table($table)->query(IncomingLinks::query($resource, $this->ownerRecord, $fields));
         $hidden = [];
 
@@ -46,7 +48,7 @@ class LinkedRecordsRelationManager extends RelationManager
 
         $table->columns(array_values(array_filter($table->getColumns(), fn ($column) => ! in_array($column->getName(), $hidden, true))));
 
-        return $table->heading($resource::getTitleCasePluralModelLabel())->filters([])
+        return $table->heading(IncomingLinks::tabLabel($resource, $this->ownerRecord))->filters([])
             ->recordUrl(fn (Model $record) => $resource::getUrl('view', ['record' => $record], panel: 'main'))
             ->recordActions([
                 Action::make('view')->label('View')->icon('heroicon-o-eye')->iconButton()

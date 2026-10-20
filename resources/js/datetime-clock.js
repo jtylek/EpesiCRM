@@ -176,7 +176,40 @@ function addClose(panel) {
     panel.append(button);
 }
 
+// A "Today" button under the calendar: picks today's date (the current time too
+// when the field is empty and has a time), as the picker's own day buttons do.
+function addToday(panel) {
+    panel.dataset.today = '1';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'epesi-picker-today';
+    button.textContent = window.epesiTodayLabel ?? 'Today';
+
+    button.addEventListener('click', () => {
+        const root = panel.closest('[x-data]');
+        const data = root && window.Alpine ? window.Alpine.$data(root) : null;
+
+        if (!data || !data.focusedDate) {
+            return;
+        }
+
+        const now = new Date();
+
+        if (!data.state && panel.querySelector('.fi-fo-date-time-picker-time-inputs')) {
+            data.hour = now.getHours();
+            data.minute = now.getMinutes();
+        }
+
+        data.focusedDate = data.focusedDate.date(1).year(now.getFullYear()).month(now.getMonth()).date(now.getDate());
+        data.selectDate();
+    });
+
+    panel.append(button);
+}
+
 function scan() {
+    document.querySelectorAll('.fi-fo-date-time-picker-panel:not([data-today])').forEach(addToday);
     document.querySelectorAll('.fi-fo-date-time-picker-panel:not([data-close])').forEach(addClose);
     document.querySelectorAll('.fi-fo-date-time-picker-time-inputs:not([data-clock])').forEach(enhance);
 }

@@ -217,7 +217,7 @@ class AttachmentsTest extends TestCase
 
         Livewire::test(CreateAttachment::class)
             ->fillForm([
-                'attach_to' => [['type' => 'contact', 'id' => $contact->id]],
+                'attach_to' => ['contact:'.$contact->id],
                 'title' => 'Call back',
                 'note' => '<p>Tomorrow</p>',
                 'permission' => RecordPermission::Public->value,
@@ -234,8 +234,8 @@ class AttachmentsTest extends TestCase
     {
         $this->actingAs($this->userWithRole('employee'));
 
-        // The form starts with one row to fill in; left as it is, or emptied
-        // of every row, the note is not saved.
+        // A user without a contact starts with no record linked; left so, or
+        // emptied again, the note is not saved.
         // Refused with an alert too, and the warning on the label's line.
         Livewire::test(CreateAttachment::class)
             ->fillForm(['title' => 'On nothing', 'permission' => RecordPermission::Public->value])
@@ -245,7 +245,7 @@ class AttachmentsTest extends TestCase
             ->fillForm(['attach_to' => []])
             ->call('create')
             ->assertHasFormErrors(['attach_to'])
-            ->assertSeeHtml('<span class="epesi-attach-to-error">The attached to field is required.</span>');
+            ->assertSeeHtml('<span class="epesi-attach-to-error">The linked to field is required.</span>');
 
         $this->assertSame(0, Attachment::query()->count());
     }
@@ -324,7 +324,7 @@ class AttachmentsTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test(CreateAttachment::class)
-            ->assertFormSet(fn (array $state) => array_values($state['attach_to']) === [['type' => 'contact', 'id' => $contact->id]]);
+            ->assertFormSet(fn (array $state) => array_values($state['attach_to']) === ['contact:'.$contact->id]);
     }
 
     public function test_notes_without_a_format_are_html(): void
@@ -363,13 +363,13 @@ class AttachmentsTest extends TestCase
 
         // The form starts from where the note is now.
         Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
-            ->assertFormSet(fn (array $state): bool => array_values($state['attach_to']) === [['type' => 'contact', 'id' => $smith->id]]);
+            ->assertFormSet(fn (array $state): bool => array_values($state['attach_to']) === ['contact:'.$smith->id]);
 
         // Moved to another record, and on to a second one of another type.
         Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
             ->fillForm(['attach_to' => [
-                ['type' => 'contact', 'id' => $jones->id],
-                ['type' => 'company', 'id' => $acme->id],
+                'contact:'.$jones->id,
+                'company:'.$acme->id,
             ]])
             ->call('save')
             ->assertHasNoFormErrors()
@@ -396,16 +396,21 @@ class AttachmentsTest extends TestCase
         $this->assertSame(2, $note->links()->count());
     }
 
-    public function test_the_button_next_to_the_label_adds_a_row_for_another_record(): void
+    public function test_the_link_button_puts_the_note_on_another_record_through_the_popup(): void
     {
         $this->actingAs($this->userWithRole('employee'));
         $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
+        $acme = Company::create(['company_name' => 'Acme']);
         $note = Attachment::addTo($contact, 'First note', 'Adding');
 
         Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
-            ->assertFormSet(fn (array $state): bool => count($state['attach_to']) === 1)
-            ->callAction(TestAction::make('attachToRecord')->schemaComponent('attach_to'))
-            ->assertFormSet(fn (array $state): bool => count($state['attach_to']) === 2);
+            ->assertSet('data.attach_to', ['contact:'.$contact->id])
+            ->callAction(TestAction::make('linkRecord')->schemaComponent('attach_to'), data: ['recordset' => 'company', 'record' => $acme->id])
+            ->assertSet('data.attach_to', ['contact:'.$contact->id, 'company:'.$acme->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertTrue($acme->attachments()->whereKey($note->getKey())->exists());
     }
 
     public function test_a_note_moved_off_the_record_it_was_opened_from_saves_to_its_own_page(): void
@@ -420,7 +425,7 @@ class AttachmentsTest extends TestCase
         Livewire::withQueryParams($owner)
             ->test(EditAttachment::class, ['record' => $note->getKey()])
             ->assertFormFieldVisible('attach_to')
-            ->fillForm(['attach_to' => [['type' => 'contact', 'id' => $jones->id]]])
+            ->fillForm(['attach_to' => ['contact:'.$jones->id]])
             ->call('save')
             ->assertHasNoFormErrors()
             // Smith no longer has this note, so its page can't carry Smith.
@@ -431,7 +436,7 @@ class AttachmentsTest extends TestCase
 
         Livewire::withQueryParams($owner)
             ->test(EditAttachment::class, ['record' => $kept->getKey()])
-            ->fillForm(['attach_to' => [['type' => 'contact', 'id' => $smith->id], ['type' => 'contact', 'id' => $jones->id]]])
+            ->fillForm(['attach_to' => ['contact:'.$smith->id, 'contact:'.$jones->id]])
             ->call('save')
             ->assertHasNoFormErrors()
             ->assertRedirect(AttachmentResource::getUrl('view', ['record' => $kept, ...$owner]));
@@ -453,15 +458,15 @@ class AttachmentsTest extends TestCase
 
         // The other one's form shows only what they can see...
         Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
-            ->assertFormSet(fn (array $state): bool => array_values($state['attach_to']) === [['type' => 'contact', 'id' => $smith->id]])
+            ->assertFormSet(fn (array $state): bool => array_values($state['attach_to']) === ['contact:'.$smith->id])
             // ...can't be pointed at Hidden...
-            ->fillForm(['attach_to' => [['type' => 'contact', 'id' => $hidden->id]]])
+            ->fillForm(['attach_to' => ['contact:'.$hidden->id]])
             ->call('save')
             ->assertHasFormErrors();
 
         // ...and moving the note off what they see leaves Hidden as it was.
         Livewire::test(EditAttachment::class, ['record' => $note->getKey()])
-            ->fillForm(['attach_to' => [['type' => 'contact', 'id' => $jones->id]]])
+            ->fillForm(['attach_to' => ['contact:'.$jones->id]])
             ->call('save')
             ->assertHasNoFormErrors();
 
@@ -747,7 +752,7 @@ class AttachmentsTest extends TestCase
         $html = Livewire::test(ListAttachments::class)->html();
 
         $files = strpos($html, 'report.pdf');
-        $attachedTo = strpos($html, 'Attached to');
+        $attachedTo = strpos($html, 'Linked to');
         $editedOn = strpos($html, 'epesi-note-meta-label">Edited on</span>');
 
         $this->assertNotFalse($files);
@@ -903,7 +908,7 @@ class AttachmentsTest extends TestCase
 
         $page->setActionData(['password' => 'Right#1'])->callMountedAction()
             ->assertFormSet(fn (array $state): bool => str_contains(json_encode($state['note']), 'Secret'))
-            ->fillForm(['title' => 'Unlocked', 'encrypt_note' => false, 'attach_to' => [['type' => 'contact', 'id' => Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann'])->id]]])
+            ->fillForm(['title' => 'Unlocked', 'encrypt_note' => false, 'attach_to' => ['contact:'.Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann'])->id]])
             ->call('save')
             ->assertHasNoFormErrors();
 

@@ -10,6 +10,7 @@ use Closure;
 use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\Currencies\Services\CurrencyRepository;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RecordBrowser\Filament\Forms\LinkedToField;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
 use Epesi\Modules\RecordBrowser\History\TextDiff;
@@ -102,6 +103,9 @@ use function Filament\Support\generate_icon_html;
 class Field
 {
     protected ?string $label = null;
+
+    /** @var class-string<BackedEnum>|array<string, string>|null */
+    protected string|array|null $resolvedOptions = null;
 
     protected bool $required = false;
 
@@ -269,17 +273,20 @@ class Field
     }
 
     /**
-     * @param  class-string<BackedEnum>|array<string, string>  $options  a backed enum class, or value => label
+     * A closure runs only when the options are needed (form, filter, label),
+     * so a list read from the database never makes fields() query.
+     *
+     * @param  class-string<BackedEnum>|array<string, string>|Closure(): array<string, string>  $options  a backed enum class, or value => label
      */
-    public static function select(string $name, string|array $options): static
+    public static function select(string $name, string|array|Closure $options): static
     {
         return static::make($name, FieldType::Select)->param('options', $options);
     }
 
     /**
-     * @param  class-string<BackedEnum>|array<string, string>  $options
+     * @param  class-string<BackedEnum>|array<string, string>|Closure(): array<string, string>  $options  see select()
      */
-    public static function multiselect(string $name, string|array $options): static
+    public static function multiselect(string $name, string|array|Closure $options): static
     {
         return static::make($name, FieldType::Multiselect)->param('options', $options);
     }
@@ -292,12 +299,16 @@ class Field
      * @param  string  $array  path into the tree, e.g. "Contacts_Groups"
      * @param  bool  $multiple  several values at once — Epesi spells this as a
      *                          `multiselect` whose array_id starts `__COMMON__`
+     * @param  bool  $tree  offer the array's descendants too, keyed by their path
+     *                      below it ("PL/MA"), as legacy's `__COMMON__` select
+     *                      did (get_translated_tree())
      */
-    public static function commonData(string $name, string $array, bool $multiple = false): static
+    public static function commonData(string $name, string $array, bool $multiple = false, bool $tree = false): static
     {
         return static::make($name, FieldType::CommonData)
             ->param('array', $array)
-            ->param('multiple', $multiple);
+            ->param('multiple', $multiple)
+            ->param('tree', $tree);
     }
 
     /**
@@ -376,8 +387,8 @@ class Field
      * Companies), rather than PhoneCall's one-pick Customer. Kept in the
      * shared link table (HasRecordLinks) rather than a morphTo pair, since a
      * single column pair can't hold several picks — the same storage
-     * Field::related() uses, just restricted to $models. Not logged by the
-     * History addon, the same pre-existing limitation Field::related() has.
+     * Field::linkedTo() uses, just restricted to $models. A change shows in
+     * History as the records taken off and linked, as a Linked to field's does.
      *
      * @param  list<class-string<Model>>  $models
      * @param  array<class-string<Model>, string|BackedEnum>  $icons
@@ -442,20 +453,34 @@ class Field
     }
 
     /**
-     * Links to records of any recordset — Epesi's `__RECORDSETS__` select, the
-     * Related field on tasks, meetings and phone calls. Kept in one shared
-     * table (HasRecordLinks, which HasCustomFields brings), not a column.
-     * $recordsets (model classes or morph aliases) narrows what it offers;
-     * null offers every recordset with a View page (LinkableRecordsets).
+     * "Linked to": links to records of any recordset, its own included (never
+     * the record itself) — Epesi's `__RECORDSETS__` select, on tasks, meetings
+     * and phone calls. Kept in one shared table (HasRecordLinks, which
+     * HasCustomFields brings), not a column. $recordsets (model classes or
+     * morph aliases) is the module's default; LinkedTo::ANY offers every
+     * recordset with a View page (LinkableRecordsets). Other modules add to
+     * it with LinkedTo::offer(), and an administrator overrides it under
+     * Administration → Recordsets. The form picks records in a popup,
+     * recordset first (LinkedToField).
+     *
+     * @param  list<string>|string  $recordsets
+     */
+    public static function linkedTo(string $name = 'linked_to', array|string $recordsets = LinkedTo::ANY): static
+    {
+        return static::make($name, FieldType::Related)
+            ->label('Linked to')
+            ->param('recordsets', LinkedTo::normalize($recordsets));
+    }
+
+    /**
+     * @deprecated Use linkedTo(): the same field under its new name, with
+     *             null for every recordset.
      *
      * @param  list<string>|null  $recordsets
      */
     public static function related(string $name, ?array $recordsets = null): static
     {
-        return static::make($name, FieldType::Related)->param('recordsets', $recordsets === null ? null : array_values(array_map(
-            fn (string $one): string => class_exists($one) ? Relation::getMorphAlias($one) : $one,
-            $recordsets,
-        )));
+        return static::make($name, FieldType::Related)->param('recordsets', LinkedTo::normalize($recordsets));
     }
 
     /**
@@ -539,6 +564,7 @@ class Field
             'show_in_table' => $this->inTable,
             'filterable' => $this->filterable,
             'required' => $this->required,
+            ...($this->type === FieldType::Related ? ['recordsets' => $this->getParam('recordsets') ?? LinkedTo::ANY] : []),
         ];
     }
 
@@ -559,6 +585,11 @@ class Field
             $properties[] = 'filterable';
         }
 
+        // Which recordsets a Linked to field offers (LinkedTo).
+        if ($this->type === FieldType::Related) {
+            $properties[] = 'recordsets';
+        }
+
         return $this->administratorProperties === null
             ? $properties
             : array_values(array_intersect($properties, $this->administratorProperties));
@@ -576,6 +607,8 @@ class Field
         foreach (array_intersect_key($properties, array_flip($this->administratorEditableProperties())) as $key => $value) {
             if (isset($mapping[$key])) {
                 $field->{$mapping[$key]} = $value;
+            } elseif ($key === 'recordsets') {
+                $field->params['recordsets'] = LinkedTo::normalize($value);
             }
         }
 
@@ -982,8 +1015,8 @@ class Field
                 ->rule('regex:/^(https?:\/\/)?[^\s:\/]+(:\d+)?(\/\S*)?$/i')
                 ->maxLength($this->lengthParam()),
             FieldType::Phone => TextInput::make($this->name)->tel()->maxLength($this->lengthParam()),
-            FieldType::Select => Select::make($this->name)->options($this->options()),
-            FieldType::Multiselect => Select::make($this->name)->options($this->options())->multiple(),
+            FieldType::Select => Select::make($this->name)->options($this->componentOptions()),
+            FieldType::Multiselect => Select::make($this->name)->options($this->componentOptions())->multiple(),
             FieldType::CommonData => Select::make($this->name)
                 ->options(fn (): array => $this->commonDataOptions())
                 ->multiple($this->isMultipleValued())
@@ -1049,6 +1082,16 @@ class Field
             ->searchable()
             ->preload();
 
+        // A resource that is found by more than its title (a contact by first
+        // name, last name or company) searches its own way, held to the crits.
+        if ($resource && $resource::hasCustomPickerSearch()) {
+            // Filament searches a relationship select's preloaded options in the
+            // browser unless it has search columns, so name them to get the
+            // server-side search below.
+            $select->searchable($resource::getPickerSearchAttributes())
+                ->getSearchResultsUsing(fn (string $search): array => $resource::searchOptions($search, $this->crits));
+        }
+
         if ($this->crits) {
             $select = $this->offerOnlyCrits($select);
         }
@@ -1063,19 +1106,18 @@ class Field
     }
 
     /**
-     * One search over every recordset the field offers; each value is a token
-     * ("company:12"). No column to fill: the links are saved after the record
+     * The linked records as badges and a popup that picks the recordset, then
+     * the record (LinkedToField); each value is a token ("company:12"). No
+     * column to fill: the links are saved after the record
      * (saveRelationshipsUsing), through syncRecordLinks(), which leaves a link
-     * to a record this user can't see alone — it was never in their form.
+     * to a record this user can't see alone — it was never in their form —
+     * and never links the record to itself.
      */
-    protected function relatedSelect(): Select
+    protected function relatedSelect(): LinkedToField
     {
-        return Select::make($this->name)
-            ->multiple()
-            ->searchable()
-            ->getSearchResultsUsing(fn (string $search): array => $this->relatedSearch($search))
-            ->getOptionLabelsUsing(fn (array $values): array => $this->relatedLabels($values))
-            ->afterStateHydrated(fn (Select $component, ?Model $record) => $component->state(
+        return LinkedToField::make($this->name)
+            ->recordsets(fn (): array => $this->relatedRecordsets())
+            ->afterStateHydrated(fn (LinkedToField $component, ?Model $record) => $component->state(
                 $this->linkedRecordsOf($record)
                     ->map(fn (Model $linked): string => RecordLink::tokenFor($linked->getMorphClass(), $linked->getKey()))
                     ->all(),
@@ -1087,8 +1129,9 @@ class Field
     }
 
     /**
-     * The morph aliases this field offers: its own list, as far as those are
-     * linkable, or every linkable recordset.
+     * The morph aliases this field offers: its own list (the module's, with
+     * what other modules offered, or the administrator's override — see
+     * LinkedTo), as far as those are linkable, or every linkable recordset.
      *
      * @return list<string>
      */
@@ -1098,72 +1141,6 @@ class Field
         $own = $this->getParam('recordsets');
 
         return is_array($own) && $own !== [] ? array_values(array_intersect($own, $linkable)) : $linkable;
-    }
-
-    /**
-     * Records matching $search in every offered recordset, by the columns its
-     * resource searches globally — as the Notes addon's "Attached to" picker.
-     *
-     * @return array<string, string> token => label
-     */
-    public function relatedSearch(string $search): array
-    {
-        $results = [];
-
-        foreach ($this->relatedRecordsets() as $alias) {
-            $resource = LinkableRecordsets::resource($alias);
-            $columns = $resource::getPickerSearchAttributes();
-
-            if ($columns === []) {
-                continue;
-            }
-
-            $matches = Relation::getMorphedModel($alias)::query()
-                ->where(function (Builder $query) use ($columns, $search): void {
-                    foreach ($columns as $column) {
-                        $query->orWhere($column, 'like', "%{$search}%");
-                    }
-                })
-                ->limit(10)
-                ->get();
-
-            foreach ($matches as $match) {
-                $results[RecordLink::tokenFor($alias, $match->getKey())] = $this->relatedLabel($match);
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param  array<int, mixed>  $tokens
-     * @return array<string, string> token => label, for the records this user can see
-     */
-    protected function relatedLabels(array $tokens): array
-    {
-        $ids = [];
-
-        foreach ($tokens as $token) {
-            if ($parsed = RecordLink::parseToken($token)) {
-                $ids[$parsed[0]][] = $parsed[1];
-            }
-        }
-
-        $labels = [];
-
-        foreach ($ids as $alias => $keys) {
-            $class = Relation::getMorphedModel($alias);
-
-            if (! is_string($class) || ! is_subclass_of($class, Model::class)) {
-                continue;
-            }
-
-            foreach ($class::query()->whereKey($keys)->get() as $record) {
-                $labels[RecordLink::tokenFor($alias, $record->getKey())] = $this->relatedLabel($record);
-            }
-        }
-
-        return $labels;
     }
 
     /** "Company: Acme Ltd" — which recordset, then the record's own title. */
@@ -1397,16 +1374,7 @@ class Field
                 continue;
             }
 
-            $matches = $class::query()
-                ->where(function (Builder $query) use ($columns, $terms): void {
-                    foreach ($terms as $term) {
-                        $query->where(function (Builder $termQuery) use ($columns, $term): void {
-                            foreach ($columns as $column) {
-                                $termQuery->orWhere($column, 'like', "%{$term}%");
-                            }
-                        });
-                    }
-                })
+            $matches = $resource::applyPickerSearch($class::query(), $search)
                 ->limit(10)->get();
 
             if ($matches->isEmpty()) {
@@ -1466,9 +1434,7 @@ class Field
             return $icons[$alias];
         }
 
-        $resource = LinkableRecordsets::resource($alias);
-
-        return $resource && method_exists($resource, 'getNavigationIcon') ? $resource::getNavigationIcon() : null;
+        return LinkableRecordsets::icon($alias);
     }
 
     /** The record a token names, or null for anything that doesn't resolve (deleted, or the user can't see it). */
@@ -2485,8 +2451,8 @@ class Field
 
         $filter = match (true) {
             $this->type === FieldType::Boolean => TernaryFilter::make($this->name),
-            $this->type === FieldType::Select => SelectFilter::make($this->name)->options($this->options()),
-            $this->type === FieldType::Multiselect => SelectFilter::make($this->name)->options($this->options())->multiple(),
+            $this->type === FieldType::Select => SelectFilter::make($this->name)->options($this->componentOptions()),
+            $this->type === FieldType::Multiselect => SelectFilter::make($this->name)->options($this->componentOptions())->multiple(),
             $this->type === FieldType::CommonData => SelectFilter::make($this->name)
                 ->options($this->commonDataOptions())
                 ->multiple($this->isMultipleValued()),
@@ -2625,6 +2591,7 @@ class Field
             FieldType::Time => Carbon::parse($value)->translatedFormat($table?->getDefaultTimeDisplayFormat() ?? 'H:i:s'),
             // The items' one-line summaries, as logged.
             FieldType::Collection => implode('; ', (array) $value),
+            FieldType::Related, FieldType::Customers => implode(', ', array_map($this->loggedLinkTitle(...), (array) $value)),
             default => is_array($value) ? implode(', ', $value) : (string) $value,
         };
     }
@@ -2653,6 +2620,10 @@ class Field
 
         if ($this->type === FieldType::Collection) {
             return $this->loggedCollectionChange($old, $new, $entry);
+        }
+
+        if (in_array($this->type, [FieldType::Related, FieldType::Customers], true)) {
+            return $this->loggedLinkChange($old, $new, $entry->event === 'created');
         }
 
         if ($this->type !== FieldType::LongText) {
@@ -2714,6 +2685,50 @@ class Field
             ...array_map(fn (string $id): string => '<del class="epesi-history-old">− '.$name($id).'</del>', $removed),
             ...array_map(fn (string $id): string => '<ins class="epesi-history-new">+ '.$name($id).'</ins>', $added),
         ]));
+    }
+
+    /**
+     * A change of a link field (Linked to, Customers): the records taken off,
+     * struck through, and the ones linked, each by its title — read now,
+     * through the record's own visibility rules, from the tokens logged
+     * (HasRecordLinks::logRecordLinkChange()).
+     */
+    protected function loggedLinkChange(mixed $old, mixed $new, bool $created): ?HtmlString
+    {
+        $old = array_values(array_filter((array) $old, 'is_string'));
+        $new = array_values(array_filter((array) $new, 'is_string'));
+        $removed = $created ? [] : array_diff($old, $new);
+        $added = array_diff($new, $created ? [] : $old);
+
+        if ($removed === [] && $added === []) {
+            return null;
+        }
+
+        return new HtmlString(implode(' ', [
+            ...array_map(fn (string $token): string => '<del class="epesi-history-old">− '.e($this->loggedLinkTitle($token)).'</del>', $removed),
+            ...array_map(fn (string $token): string => '<ins class="epesi-history-new">+ '.e($this->loggedLinkTitle($token)).'</ins>', $added),
+        ]));
+    }
+
+    /**
+     * "Company: Acme Ltd" for a logged token, or "Company #12" for a record
+     * this user can't see or that is gone — never its title.
+     */
+    protected function loggedLinkTitle(mixed $token): string
+    {
+        $parsed = RecordLink::parseToken($token);
+
+        if ($parsed === null) {
+            return (string) json_encode($token);
+        }
+
+        [$alias, $id] = $parsed;
+        $class = Relation::getMorphedModel($alias);
+        $record = $this->loggedRelated[$token] ??= (is_string($class) && is_subclass_of($class, Model::class) ? $class::query()->find($id) : null) ?? false;
+
+        return $record instanceof Model
+            ? LinkableRecordsets::label($alias).': '.LinkableRecordsets::title($record)
+            : LinkableRecordsets::label($alias).' #'.$id;
     }
 
     protected function loggedText(mixed $value): string
@@ -2812,7 +2827,30 @@ class Field
      */
     protected function options(): string|array
     {
-        return $this->getParam('options', []);
+        $options = $this->getParam('options', []);
+
+        if ($options instanceof Closure) {
+            // Resolved once per field instance: a form, a filter and a label
+            // lookup on the same field must not repeat the query.
+            return $this->resolvedOptions ??= $options();
+        }
+
+        return $options;
+    }
+
+    /**
+     * What a Select or SelectFilter is given. A closure stays lazy, but an enum class or an
+     * array goes in as it always did: Filament treats a select as an enum's, and keeps the
+     * form state as the enum case, only when it is handed the class itself. Wrapping every
+     * list in a closure turned that state into the bare value.
+     *
+     * @return class-string<BackedEnum>|array<string, string>|Closure
+     */
+    protected function componentOptions(): string|array|Closure
+    {
+        return $this->getParam('options', []) instanceof Closure
+            ? fn (): string|array => $this->options()
+            : $this->options();
     }
 
     /**
@@ -2828,7 +2866,11 @@ class Field
      */
     protected function commonDataOptions(): array
     {
-        return CommonData::array((string) $this->getParam('array'), (string) $this->getParam('order', 'value'));
+        $path = (string) $this->getParam('array');
+
+        return $this->getParam('tree', false)
+            ? CommonData::tree($path, (string) $this->getParam('order', 'value'))
+            : CommonData::array($path, (string) $this->getParam('order', 'value'));
     }
 
     /**
@@ -2899,13 +2941,24 @@ class Field
      * list (options and search results) is held to the crits alone, so a
      * removed link isn't offered straight back.
      *
-     * @param  Closure(Builder): mixed  $callback  constrains the related model's query
+     * @param  Closure(Builder, ?Model=, ?Get=): mixed  $callback  constrains the related model's query; it also gets the
+     *                                                             record being edited (null on Create), e.g. to leave it out of its own list,
+     *                                                             and the form's current values, so the offered list can follow
+     *                                                             another field (make that field live()); null when not offering
+     *                                                             — loading, saving, validating — so those hold to the rest alone
      */
     public function crits(Closure $callback): static
     {
         $this->crits = $callback;
 
         return $this;
+    }
+
+    /** Whether this field's crits (if any) would offer $record — a field that wouldn't is not pre-filled with it. */
+    public function offers(Model $record): bool
+    {
+        return $this->crits === null
+            || ($this->crits)($record::query()->whereKey($record->getKey()))->exists();
     }
 
     /**
@@ -2922,14 +2975,16 @@ class Field
         $crits = $this->crits;
         $relationship = (string) $this->getParam('relationship');
 
-        return function (Builder $query, ?Model $record) use ($crits, $relationship): Builder {
+        return function (Builder $query, ?Model $record, Get $get) use ($crits, $relationship): Builder {
             $key = $query->getModel()->getQualifiedKeyName();
             $linked = ! $this->offering && $record?->exists
                 ? $record->{$relationship}()->pluck($key)->all()
                 : [];
 
-            return $query->where(function (Builder $query) use ($crits, $key, $linked): void {
-                $query->where(fn (Builder $query) => $crits($query));
+            return $query->where(function (Builder $query) use ($crits, $key, $linked, $record, $get): void {
+                // The form's values only narrow what is offered: a choice made
+                // under one setting of another field still saves after it changes.
+                $query->where(fn (Builder $query) => $crits($query, $record, $this->offering ? $get : null));
 
                 if ($linked !== []) {
                     $query->orWhereIn($key, $linked);

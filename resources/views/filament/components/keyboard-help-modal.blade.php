@@ -14,7 +14,6 @@
             'heading' => __('Anywhere'),
             'shortcuts' => [
                 ['keys' => ['/'], 'does' => __('Opens the quick switcher — jump to any page by name')],
-                ['keys' => ['Backspace'], 'does' => __('Goes back a page')],
             ],
         ],
         [
@@ -32,10 +31,10 @@
             ],
         ],
         [
-            'heading' => __('Create or Edit page'),
+            'heading' => __('Create or Edit page and Modal windows'),
             'shortcuts' => [
-                ['keys' => ['Ctrl', '/', 'Cmd', '+', 'S'], 'does' => __('Saves')],
-                ['keys' => ['Ctrl', '/', 'Cmd', '+', 'E'], 'does' => __('Cancels — discards the changes and leaves')],
+                ['keys' => ['Ctrl', '/', 'Cmd', '+', 'S'], 'does' => __('Saves — also submits a modal, e.g. when changing a Status')],
+                ['keys' => ['Ctrl', '/', 'Cmd', '+', 'E'], 'does' => __('Cancels — discards the changes and leaves, or closes the modal')],
             ],
         ],
     ];

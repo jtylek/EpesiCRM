@@ -15,6 +15,12 @@ removed, or its purpose changes.
 - [architecture.md](architecture.md) — the port's major building blocks: Filament resources,
   the ownership-based ACL scope, the RecordBrowser engine, the module system, the
   Administration panel, Calendar, and the legacy data importer.
+- [Background-workers.md](Background-workers.md) — the optional durable database-worker mode:
+  its separate bounded CLI-cron drain, health and fallback rules, idempotent job contract, and
+  safe order for moving IMAP/mail/Watchdog follow-up work off requests.
+- [Collection-column-sort.md](Collection-column-sort.md) — the design (not built) for sorting a
+  list by an e-mail, phone or address column without a subquery per row: a stored primary value
+  on the owner row, its single writer, the backfill, custom fields, and the fallback.
 - [Common-data.md](Common-data.md) — the design for the reference-data engine that replaces
   legacy `Utils_CommonData`: schema, facade API, the drill-down administration UI built on
   stock Filament, and how the `commondata` field type wires into the `Field` DSL. The module is
@@ -82,6 +88,10 @@ removed, or its purpose changes.
   - what a theme doesn't reach yet (Roundcube, the calendar);
   - how legacy Epesi's `Base/Theme` maps here;
   - a five-step plan.
+- [Mail-archiving.md](Mail-archiving.md) — how e-mail gets into the archive, and the rule
+  that nothing is archived automatically: Roundcube's Archive button and its checks, the
+  "CRM Archive" folder, the dialog after archiving (link to another record), archiving on
+  send, no duplicates, and `mail:check` (unread counts only).
 - [Epesi-Laravel-Roundcube.md](Epesi-Laravel-Roundcube.md) — the design for embedding the
   Roundcube webmail as a full IMAP client (the `Epesi/Roundcube` module): downloading and
   upgrading Roundcube, why it lives in `storage/`, the generated config, single sign-on through one-time tickets, the
@@ -112,7 +122,7 @@ removed, or its purpose changes.
   Gregorian storage, date entry and display, calendar navigation, and validation.
 - [Keyboard-shortcuts.md](Keyboard-shortcuts.md) — how to use every keyboard shortcut in the
   main panel: `/` for the quick switcher (jump to any page by name, bridged in from inside
-  Roundcube's iframe too), Backspace to go back a page, and — once a List page is open —
+  Roundcube's iframe too), and — once a List page is open —
   A/F/R for its tabs, S to search, N for a new record, ↑/↓/PageUp/PageDown/Enter for its rows,
   and search's own Enter landing on the first result row with no Tab needed. Also Ctrl/Cmd+S
   to save and Escape to cancel on a Create or Edit page (the former is Filament's own default,

@@ -35,6 +35,9 @@ class CustomFieldRegistry
     /** @var array<class-string, array<int, Field>> */
     protected static array $fields = [];
 
+    /** Moves whenever the definitions are dropped, so memoized field lists notice (FieldOverrides::memo()). */
+    protected static int $version = 0;
+
     /** @var array<class-string, array<string, Closure>> */
     protected static array $relations = [];
 
@@ -293,8 +296,14 @@ class CustomFieldRegistry
         return $models;
     }
 
+    public static function version(): int
+    {
+        return static::$version;
+    }
+
     public static function refresh(): void
     {
+        static::$version++;
         static::$definitions = null;
         static::$fields = [];
         static::$relations = [];
@@ -315,6 +324,7 @@ class CustomFieldRegistry
     /** For tests: forget the per-process answer, which was the previous test's database. */
     public static function flush(): void
     {
+        static::$version++;
         static::$definitions = null;
         static::$fields = [];
         static::$relations = [];

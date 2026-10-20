@@ -6,6 +6,7 @@ use App\Support\Calendar\CalendarRegistry;
 use Epesi\Modules\CRM\Meetings\Calendar\MeetingCalendarProvider;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\Meetings\Policies\MeetingPolicy;
+use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -35,5 +36,8 @@ class MeetingsServiceProvider extends ServiceProvider
         Gate::policy(Meeting::class, MeetingPolicy::class);
 
         CalendarRegistry::register(MeetingCalendarProvider::class);
+
+        // A consultant sees the contacts and companies on his meetings.
+        ConsultantLinks::register(Meeting::class, 'employees', 'customers', 'customerCompanies');
     }
 }

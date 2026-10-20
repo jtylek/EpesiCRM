@@ -32,10 +32,6 @@
             border every side of the frame; scoped to this page only, since
             it's rendered inside the Livewire-swapped page content.
         --}}
-        {{--
-            The account switcher (getHeaderActions()) is stretched to fill the
-            header row instead of hugging its label's width.
-        --}}
         <style>
             #fi-main-content{padding-inline:0!important}
             {{--
@@ -50,9 +46,6 @@
                 to scroll a few pixels.
             --}}
             html.epesi-compact .fi-page-header-main-ctn.fi-page-header-main-ctn{padding-block-end:0!important}
-            .fi-header-actions-ctn{width:100%}
-            .fi-header-actions-ctn>.fi-ac{width:100%}
-            .fi-full-width-dropdown-trigger{width:100%;justify-content:space-between}
             {{-- The panel's own accent color, not a fixed blue (RecordBrowserServiceProvider tints its keyboard-nav row highlight the same way). --}}
             .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 12%, transparent);color:var(--primary-700)}
             .dark .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 20%, transparent);color:var(--primary-400)}
@@ -191,8 +184,17 @@
 
                     const type = event.data?.epesiRoundcube;
 
+                    {{-- Archive button: Epesi archives, then moves; the frame refreshes once the messages left its folder. --}}
+                    if (type === 'archive') {
+                        const frame = this.$refs.frame.contentWindow;
+                        const reply = (moved) => frame?.postMessage({ epesiRoundcube: moved ? 'refresh' : 'archive-done' }, window.location.origin);
+                        const uids = Array.isArray(event.data.uids) ? event.data.uids.map(Number).filter(Number.isInteger).slice(0, 500) : [];
+
+                        this.$wire.archive(String(event.data.folder ?? ''), uids).then(reply, () => reply(false));
+                    }
+
                     if (type === 'archived') {
-                        this.$wire.archived();
+                        this.$wire.archived(Array.isArray(event.data.messageIds) ? event.data.messageIds.map(String).slice(0, 500) : []);
                     }
 
                     {{-- At most one new login per 10 s, so a failing one can't loop. --}}

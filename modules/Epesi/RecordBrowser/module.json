@@ -3,7 +3,7 @@
     "name": "Record Browser",
     "description": "The recordset engine: a module declares a recordset's fields and the List, View, Create and Edit screens are built from them. Also lets an administrator add fields to an existing recordset from the GUI.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Core",
     "icon": "heroicon-o-table-cells",
     "namespace": "Epesi\\Modules\\RecordBrowser\\",

@@ -255,6 +255,7 @@ class InstallWizard extends SimplePage
         return Step::make('Server check')
             ->icon(Heroicon::OutlinedServer)
             ->schema([
+                Text::make(__('epesi runs on :php', ['php' => 'PHP '.Requirements::php()['range']])),
                 Text::make(fn (): Htmlable => $this->requirementsTable(app(Requirements::class)->check(envWritable: true))),
             ])
             ->afterValidation(function (): void {
@@ -293,7 +294,7 @@ class InstallWizard extends SimplePage
         return Step::make('Database')
             ->icon(Heroicon::OutlinedCircleStack)
             ->schema([
-                Text::make(__('Create an empty database first (in XAMPP: phpMyAdmin → Databases), then enter its details. epesi creates its tables in it.')),
+                Text::make(__('Create an empty database first (with phpMyAdmin, your hosting control panel or the mysql command line), then enter its details. epesi creates its tables in it.')),
                 Select::make('connection')
                     ->label('Database type')
                     ->options(Requirements::availableConnections())
@@ -375,6 +376,18 @@ class InstallWizard extends SimplePage
             Notification::make()->title(__('Could not connect to the database'))->body($e->getMessage())->danger()->persistent()->send();
 
             return;
+        }
+
+        try {
+            [$settings, $note] = $database->matchServer($settings);
+        } catch (Throwable $e) {
+            Notification::make()->title(__('Could not connect to the database'))->body($e->getMessage())->danger()->persistent()->send();
+
+            return;
+        }
+
+        if ($note !== null) {
+            Notification::make()->title(__('Database type corrected'))->body($note)->warning()->send();
         }
 
         // .env.example's placeholder address: the one this page was opened

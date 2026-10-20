@@ -576,7 +576,7 @@ window.initEpesiCalendar = function (el, wire) {
     }
 
     initMobileToolbar(el, calendar, mobileQuery);
-    initTitleDatePicker(el, calendar, alternateCalendar);
+    initTitleDatePicker(el, calendar, alternateCalendar, wire);
     initWorkingHours(el, calendar, wire, work);
 };
 
@@ -798,11 +798,62 @@ function initWorkingHours(el, calendar, wire, work) {
 }
 
 // Makes the toolbar title (e.g. "September 2026") a date picker: click it to
-// jump the calendar (whatever view is active) to any month/week/day.
-function initTitleDatePicker(el, calendar, alternateCalendar) {
+// jump the calendar (whatever view is active) to any month/week/day. With the
+// Gregorian calendar that is the popup every form uses (a Filament DatePicker
+// the page keeps out of sight, calendar.blade.php); otherwise a text input.
+function initTitleDatePicker(el, calendar, alternateCalendar, wire) {
     const titleEl = el.querySelector('.fc-toolbar-title');
 
     if (!titleEl) {
+        return;
+    }
+
+    const host = alternateCalendar ? null : document.getElementById('epesi-calendar-goto');
+
+    if (host) {
+        const picker = () => {
+            const root = host.querySelector('.fi-fo-date-time-picker-panel')?.closest('[x-data]');
+
+            return root && window.Alpine ? window.Alpine.$data(root) : null;
+        };
+
+        const toggle = () => {
+            const data = picker();
+
+            if (!data) {
+                return;
+            }
+
+            if (data.isOpen?.()) {
+                data.togglePanelVisibility();
+
+                return;
+            }
+
+            // The popup opens under the title; the field itself is never shown.
+            const rect = titleEl.getBoundingClientRect();
+            Object.assign(host.style, { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
+            wire.$set('data.gotoDate', calendar.getDate().toISOString().slice(0, 10), false);
+            data.togglePanelVisibility();
+        };
+
+        wire.$watch('data.gotoDate', (date) => {
+            if (date) {
+                calendar.gotoDate(date);
+            }
+        });
+
+        titleEl.classList.add('epesi-calendar-title-clickable');
+        titleEl.setAttribute('role', 'button');
+        titleEl.setAttribute('tabindex', '0');
+        titleEl.addEventListener('click', toggle);
+        titleEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggle();
+            }
+        });
+
         return;
     }
 

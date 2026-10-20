@@ -379,11 +379,15 @@ final class TextDiff
             return [[], []];
         }
 
+        // No LIBXML_HTML_NOIMPLIED: with it, libxml 2.11 (PHP 8.5) fails on the
+        // charset <meta> ("Memory allocation failed") and leaves an empty
+        // document. The implied <html>/<body> don't matter: the root is found
+        // by tag name.
         $dom = new DOMDocument;
         libxml_use_internal_errors(true);
         $dom->loadHTML(
             '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><div>'.$html.'</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_HTML_NODEFDTD,
         );
         libxml_clear_errors();
 

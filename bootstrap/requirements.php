@@ -5,7 +5,14 @@
 // check (App\Services\Setup\Requirements), so keep it plain PHP 5 syntax.
 
 return array(
-    'php' => '8.2.0',
+    // 8.3 since 3.0 (2026-10-16): no openspout release (Filament's export
+    // dependency) supports both 8.2 and 8.5. Keep composer.json's "php" and
+    // config.platform.php in step with it.
+    'php' => '8.3.0',
+
+    // The newest PHP branch epesi is tested on. A newer one isn't refused,
+    // only flagged as not tested yet. Raise it once the suite passes there.
+    'php_tested' => '8.5',
 
     // Extensions Laravel, Filament and the bundled modules need.
     'extensions' => array('ctype', 'curl', 'fileinfo', 'intl', 'mbstring', 'openssl', 'pdo', 'tokenizer', 'xml', 'zip'),
@@ -14,7 +21,5 @@ return array(
     'database_drivers' => array(
         'mysql' => 'pdo_mysql',
         'mariadb' => 'pdo_mysql',
-        'pgsql' => 'pdo_pgsql',
-        'sqlite' => 'pdo_sqlite',
     ),
 );

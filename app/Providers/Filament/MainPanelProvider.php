@@ -6,6 +6,7 @@ use App\Filament\Administration\Pages\About;
 use App\Filament\Auth\Login;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Filament\GlobalSearch\MinimumLengthGlobalSearchProvider;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\PersistUiState;
@@ -49,6 +50,7 @@ class MainPanelProvider extends PanelProvider
             ->default()
             ->id('main')
             ->path('')
+            ->globalSearch(MinimumLengthGlobalSearchProvider::class)
             ->login(Login::class)
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             // Administration → Themes' "Application name" field — see
@@ -86,6 +88,7 @@ class MainPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.history-navigation'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.fullscreen-toggle'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.command-palette'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.addon-refresh'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.link-copied-modal'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.file-preview-modal'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.keyboard-help-modal'))

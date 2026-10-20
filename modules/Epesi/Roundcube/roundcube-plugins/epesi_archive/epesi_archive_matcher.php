@@ -55,7 +55,25 @@ final class epesi_archive_matcher
         return array_values(array_filter($messageIds, function ($id) use ($selectOne): bool {
             $id = trim((string) $id, " \t<>");
 
-            return $id !== '' && $selectOne('SELECT id FROM epesi_mails WHERE deleted_at IS NULL AND message_id = ? LIMIT 1', [$id]) !== null;
+            return $id !== '' && ! self::placeholder($id) && $selectOne('SELECT id FROM epesi_mails WHERE deleted_at IS NULL AND message_id = ? LIMIT 1', [$id]) !== null;
         }));
+    }
+
+    /**
+     * Roundcube's storage_init "fetch_headers" option, with Message-ID added.
+     * Roundcube doesn't fetch that header for a message list unless asked, and
+     * then gives every message "mid:<position in the folder>" instead.
+     */
+    public static function fetch_headers(?string $headers): string
+    {
+        $list = preg_split('/\s+/', strtoupper(trim((string) $headers)), -1, PREG_SPLIT_NO_EMPTY);
+
+        return implode(' ', array_unique([...$list, 'MESSAGE-ID']));
+    }
+
+    /** Roundcube's "mid:<n>" for a message whose Message-ID it didn't fetch. */
+    public static function placeholder(string $messageId): bool
+    {
+        return str_starts_with($messageId, 'mid:');
     }
 }

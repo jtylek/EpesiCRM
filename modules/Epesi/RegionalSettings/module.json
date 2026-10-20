@@ -3,7 +3,7 @@
     "name": "Regional Settings",
     "description": "Per-user timezone, date/time format and location preferences.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Personalization",
     "icon": "heroicon-o-globe-alt",
     "namespace": "Epesi\\Modules\\RegionalSettings\\",

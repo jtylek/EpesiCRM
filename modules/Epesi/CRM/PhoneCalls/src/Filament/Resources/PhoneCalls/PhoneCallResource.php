@@ -160,10 +160,11 @@ class PhoneCallResource extends RecordsetResource
                 ->required()
                 ->crits(fn (Builder $query): Builder => $query->ofCompany(Auth::user()?->companyId())),
             // Any other record the call is about — Epesi's `__RECORDSETS__`
-            // Related field, restricted to Companies and Contacts: unrestricted
-            // it offers every recordset with a View page, which put Phone
-            // Calls on Mail's and Notes' own "linked from" tabs too.
-            Field::related('related', [Company::class, Contact::class])->label('Related'),
+            // Related field. Companies and Contacts by default (unrestricted
+            // it would put Phone Calls on Mail's and Notes' own "linked from" tabs
+            // too); an administrator widens it under Administration →
+            // Recordsets, other modules with LinkedTo::offer().
+            Field::linkedTo('linked_to', [Company::class, Contact::class]),
 
             StatusField::make()->tableOrder(5),
             Field::select('priority', RecordPriority::class)

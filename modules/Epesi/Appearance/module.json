@@ -3,7 +3,7 @@
     "name": "Appearance",
     "description": "Admin-defined named themes (accent colour, compact/comfortable density); every user picks one.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Personalization",
     "icon": "heroicon-o-swatch",
     "namespace": "Epesi\\Modules\\Appearance\\",

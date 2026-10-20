@@ -84,7 +84,7 @@ class Followup
         return DB::transaction(function () use ($source, $type, $title, $when): Model {
             $followup = static::createFollowup($source, $type, $title, $when);
             // Keep the deal/project context through successive follow-ups.
-            $followup->syncRecordLinks('related', $source->linkedRecords('related')
+            $followup->syncRecordLinks('linked_to', $source->linkedRecords('linked_to')
                 ->map(fn (Model $record): string => $record->getMorphClass().':'.$record->getKey())->all());
             event(new FollowupScheduled($source, $followup));
 

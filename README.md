@@ -1,112 +1,167 @@
-# Epesi → Laravel
+# Epesi 3.0 CRM
 
-A from-scratch rewrite of [Epesi](https://github.com/jtylek/epesiCRM) — an open-source CRM
-and a kickstarter for custom ERP systems.
+Free, open-source CRM built on **Laravel 12 + Filament 5**, and a kickstarter for your own ERP
+system.
 
-Built on **Laravel 12 + Filament 5**.
+[![SourceForge downloads](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
+![PHP 8.3 to 8.5](https://img.shields.io/badge/PHP-8.3%20%7C%208.4%20%7C%208.5-777bb4)
+![MIT License](https://img.shields.io/badge/license-MIT-green)
 
-**Website:** <https://epesicrm.com> - free and open source CRM, MIT licensed, self-hosted, no per-seat fees.
+- **Website:** <https://epesicrm.com>
+- **Live demo:** <https://epesicrm.com/demo/>
+- **Download:** <https://sourceforge.net/projects/epesi/>
 
-This is not a migration of the old codebase; it's a new application that reimplements
-Epesi's modules and behavior on modern foundations, built module by module against the real
-legacy source rather than from general Laravel/Filament conventions alone.
+## What is Epesi CRM
 
-## Why a rewrite, and why this stack
+Epesi keeps a company's business information in one place and shares it between the people who
+work there: companies, contacts, tasks, meetings, phone calls, notes, a shared calendar and
+e-mails.
+It is self-hosted, MIT licensed and has no per-seat fees.
 
-Epesi's rendering model (`process.php` → server returns JS that patches the DOM; no REST/JSON
-API) has no direct Laravel equivalent, so the front end has to be replaced wholesale rather
-than adapted. That pushed the choice toward **Livewire**: Epesi's UI is already conceptually
-server-driven, and **Filament** — itself built on Livewire — is the natural successor to
-Epesi's own **RecordBrowser** pattern ("a module declares a recordset's fields and gets a full
-CRUD UI for free"). RecordBrowser's storage engine (EAV-style `<tab>_field`/`<tab>_data_1`
-tables) isn't worth porting, but its philosophy is exactly Filament's own model, so the
-field-type catalog and per-module ACL semantics are the real spec being carried forward.
+Epesi 3.0 is a complete rewrite of the original [Epesi CRM](https://github.com/jtylek/epesi-legacy)
+on Laravel. It keeps the old Epesi's behavior and its
+[design principles](#design-principles). Because it is modular and
+generates most of its screens itself, it also works as a starting point for a custom ERP
+system: add modules for whatever your business needs.
 
-## What's built
+## Functionality
 
-- **Core CRM**: Companies, Contacts, Phone Calls, Tasks, and Meetings, each a full Filament
-  resource with row-level ownership ACL (visible/editable if it's public, yours, or your
-  company's — ported from Epesi's real `install_permissions()` rules, not reinvented),
-  activity history, and a Calendar view merging events from every module.
-- **RecordBrowser engine** (`modules/Epesi/RecordBrowser`): a core module that builds List,
-  View, Create, Edit, filters, search, and history for any recordset from a `fields()`
-  declaration — plus admin-defined custom fields that reach every screen through the same
-  code path.
-- **Module system + Store**: first-party modules ship as zip archives extracted into
-  `modules/`, discovered and enabled/disabled at runtime with no code deploy — the same model
-  Epesi used, deliberately not Composer packages.
-- **Administration panel**: a separate, `super_admin`-only panel (login/session audit,
-  module management, roles) kept apart from the day-to-day CRM panel.
-- **Languages**: English and Polish, chosen per user under Settings → Regional settings,
-  with the system default set during setup. Any of Epesi's other languages can be imported
-  from its translation files with `php artisan lang:import-epesi`. See
-  [AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md).
-- **Legacy data import**: a generic importer that reads any RecordBrowser table straight out
-  of a live legacy Epesi database — records, relationships, and full field-level edit
-  history — into this app's schema.
+- **Core CRM:** Companies, Contacts, Tasks, Meetings and Phone Calls, with a shared calendar
+  that merges events from every module.
+- **Permissions:** a record is visible and editable when it is public, yours or your company's.
+  Roles: super admin, manager, employee.
+- **Full history:** every change to every field is recorded.
+- **Custom fields:** administrators add their own fields to any record type, from the browser.
+- **Notes and attachments** on every record, **reminders**, **follow-ups**, **watching** a record
+  to be notified of changes, and a personal **priority list**.
+- **E-mail:** IMAP/SMTP accounts, an e-mail archive linked to contacts and companies, and the
+  optional Roundcube webmail built in.
+- **Dashboard** with applets: shoutbox, sticky notes, unread mail, priority list.
+- **Currencies** with daily exchange rates (ECB or NBP).
+- **Customer portal:** a separate area where your customers log in.
+- **Modules:** install, enable and disable features from the administration panel, or browse
+  the Epesi Store.
+- **Administration panel:** users, roles, modules, login audit, server check, database update.
+- **Languages:** English plus 12 more (some machine-translated); each user picks their own,
+  along with timezone and date format.
+- **Migration:** import your data, with its full edit history, from an old Epesi installation.
 
-See [AI-shared/](AI-shared/) for the shared, non-confidential technical notes behind all of
-this (architecture decisions, conventions, what's next).
+## How to get it (end users)
 
-## Getting started
+Download the ready-to-run package from **SourceForge**:
+<https://sourceforge.net/projects/epesi/>. You don't need Composer, Node or the command line.
 
-**From a release zip:**
+**Requirements:** PHP 8.3, 8.4 or 8.5, MySQL or MariaDB, and Apache or nginx. Shared hosting
+works. The setup wizard checks the PHP extensions it needs.
 
-1. Download a release zip from <https://sourceforge.net/projects/epesi/> (no Composer, Node
-   or command line needed).
-2. Create a folder in the web root, e.g. `C:\xampp\htdocs\epesi`, and unpack the zip into it.
-3. Create an empty database, e.g. in phpMyAdmin.
-4. Open the site (`http://localhost/epesi/`). The **setup wizard** asks first for a one-time
-   setup code: open `storage/app/setup-code.txt` in the epesi folder and copy it. Then the
-   wizard checks the server, asks for the database and creates the tables, and continues with
-   Epesi's FirstRun: whether to download the Roundcube webmail, whether to load demo data, the
-   administrator account, and how to send e-mail. Roundcube is a separate GPL-3.0 project, so
-   it is only downloaded if you say yes; you can also add it later from the Mailbox page or
-   Administration → Modules. After installing, the wizard shows each installed module's own
-   setup page (your company and your name, regional defaults).
+1. Unpack the zip into a folder on your web server, e.g. `htdocs/epesi`.
+2. Create an empty database, e.g. in phpMyAdmin.
+3. Open the site in a browser. The setup wizard asks for a one-time setup code (in
+   `storage/app/setup-code.txt`), checks the server, creates the tables, and then sets up the
+   administrator account, optional demo data, e-mail and the optional Roundcube webmail.
 
-**From a git checkout:**
+**Updating:** back up the folder and the database, unpack the new release over the old files,
+then open Administration → Database update.
+
+To try Epesi before installing it, use the [live demo](https://epesicrm.com/demo/).
+
+## Design principles
+
+1. **Modular architecture.** Almost everything is a module in `modules/<Vendor>/<Name>/`: a
+   folder with a `module.json` manifest and PSR-4 code. That includes the CRM itself. Modules
+   declare their dependencies and are installed, enabled and disabled at runtime. Modules
+   marked `"core": true` can't be switched off.
+2. **Modules (mostly) don't need Composer.** A module ships as a zip archive and is installed
+   from the administration panel or the Epesi Store, with no `composer require` and no
+   redeploy, the same way the old Epesi worked.
+3. **Browser-based, wizard-driven installation.** Unpack, open the site, follow the wizard.
+   Modules can add their own setup steps to it.
+4. **RecordBrowser does the tedious work.** A module declares its record type's fields once,
+   and the RecordBrowser engine builds the list, view, create and edit screens, filters,
+   search and change history from that declaration. Custom fields added by an administrator
+   go through the same code, so they appear everywhere a built-in field does.
+
+## How to install (developers)
+
+**You need:** git, PHP 8.3–8.5 with Composer, Node.js with npm, and MySQL or MariaDB.
+
+On Windows, [PHP Windows DevStack](https://github.com/jtylek/PHP-windows-devstack) gives you
+PHP, Apache and MariaDB ready for Epesi development. Its setup for Epesi is described in
+[AI-shared/DEVSTACK-SETUP.md](AI-shared/DEVSTACK-SETUP.md).
 
 ```bash
+git clone -b laravel https://github.com/jtylek/EpesiCRM.git epesi
+cd epesi
 composer install
-npm install && npm run build
+npm install
+npm run build
 php artisan epesi:install
 ```
 
-`epesi:install` runs the server half of the wizard on the command line. It checks the server
-(PHP version, extensions, writable folders), creates `.env` and the application key, asks for
-the database connection and creates the tables. It then prints the setup code and the address
-to open in the browser for the rest. Skipping the command and opening the site straight away
-works too.
+`epesi:install` checks the server, creates `.env` and the application key, asks for the
+database connection and creates the tables. It then prints the setup code and the address to
+open in the browser to finish setup. You can also skip it and open the site in the browser
+straight away: the wizard does everything.
 
-**Building a release zip:** from a checkout installed with
-`composer install --no-dev --optimize-autoloader` and `npm run build`, run
-`php artisan epesi:package`. The zip lands in `storage/app/private/releases/`.
-
-Every step, option and failure case is described in
-[AI-shared/Setup-wizard.md](AI-shared/Setup-wizard.md). Building the zip, and setting epesi up
-on a shared hosting account (plus Roundcube), step by step:
-[AI-shared/Epesi-Laravel-distro.md](AI-shared/Epesi-Laravel-distro.md).
-
-For scripted installs, the same can be done without the browser:
-
-```bash
-php artisan epesi:install --db-connection=mysql --db-database=epesi --db-username=epesi \
-    --admin-name="Jan Kowalski" --admin-email=jan@example.com --admin-password=...
-```
-
-For development with demo data instead:
+For a development database filled with demo data instead:
 
 ```bash
 php artisan migrate --seed
-php artisan serve
+composer run dev
 ```
 
-and log in with one of the seeded demo accounts (`admin@example.com` / `manager@example.com` /
-`employee@example.com`, password `password`) at `/login`. The setup wizard's "Load demo data"
-option creates the same records.
+`composer run dev` starts the web server, queue listener, log tail and Vite together. Log in
+at `/login` as `admin@example.com`, `manager@example.com` or `employee@example.com`, all with
+password `password`.
+
+Run the tests with `php artisan test`. They use an in-memory SQLite database, so they don't
+touch your development database.
+
+**Tip:** [ScreenCapture](https://github.com/jtylek/ScreenCapture) is a handy utility for sending
+screenshots to AI coding agents while you work on the application.
+
+## Extending Epesi
+
+Create a module and add a record type to it:
+
+```bash
+php artisan make:epesi-module Acme/Invoices
+php artisan make:epesi-recordset Acme/Invoices Invoice
+php artisan module:register Acme/Invoices
+```
+
+A record type is a resource built on `RecordsetResource` that declares its fields with the
+`Field` DSL; the screens follow from it:
+
+```php
+public static function fields(): array
+{
+    return [
+        Field::text('company_name')->required()->maxLength(128)->inTable(),
+        Field::commonData('groups', 'Companies_Groups', multiple: true)->filterable(),
+        Field::longText('memo')->notInTable(),
+    ];
+}
+```
+
+Use `CompanyResource` in [modules/Epesi/CRM/Companies](modules/Epesi/CRM/Companies) as the
+reference example. `php artisan module:package Acme/Invoices` builds the zip that other
+installations install.
+
+Read more:
+
+- [AGENTS.md](AGENTS.md): the rules for working in this repository, for people and AI agents
+  alike.
+- [AI-shared/](AI-shared/README.md): technical notes on the architecture, conventions, fields,
+  themes, translations, setup and more.
+- [AI-shared/Epesi-Laravel-distro.md](AI-shared/Epesi-Laravel-distro.md): building a release zip
+  (`php artisan epesi:package`) and installing on shared hosting.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Third-party packages keep their own licenses; the optional
-Roundcube webmail (GPL-3.0) is downloaded separately and is not part of epesi.
+Copyright by Janusz Tylek (c) 2026
+
+[MIT License](LICENSE)
+
+Third-party packages keep their own licenses. The optional Roundcube webmail (GPL-3.0) is
+downloaded separately and is not part of Epesi.

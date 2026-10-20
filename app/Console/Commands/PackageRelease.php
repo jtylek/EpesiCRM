@@ -353,15 +353,21 @@ class PackageRelease extends Command
             return true;
         }
 
+        // ...and serves its minified builds' source maps too, on a route of its
+        // own: without them a browser with DevTools open logs a filemtime() error.
+        if ($segments[0] === 'livewire' && preg_match('/^livewire(\.csp)?\.min\.js\.map$/', $name)) {
+            return false;
+        }
+
         return str_ends_with(strtolower($name), '.md')
             || str_ends_with($name, '.map')
             || preg_match('/^(phpunit\.xml|phpstan.*\.neon|psalm\.xml|\.php[-_]cs|rector\.php$|\.editorconfig$|\.gitattributes$|\.gitignore$)/', $name) === 1;
     }
 
     /**
-     * The version from the VERSION file ("2.0"), when this commit is tagged
-     * as that release (v2.0 or v2.0.0); otherwise a development build of it,
-     * named after its commit ("2.0-dev.20260925.1a2b3c4"), so a test build is
+     * The version from the VERSION file ("3.0"), when this commit is tagged
+     * as that release (v3.0 or v3.0.0); otherwise a development build of it,
+     * named after its commit ("3.0-dev.20260925.1a2b3c4"), so a test build is
      * never mistaken for the release.
      */
     protected function releaseName(): string

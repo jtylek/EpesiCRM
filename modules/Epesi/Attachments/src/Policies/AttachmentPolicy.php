@@ -21,7 +21,7 @@ class AttachmentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, Attachment $attachment): bool
@@ -46,6 +46,10 @@ class AttachmentPolicy
             return true;
         }
 
+        if ($user->isConsultant()) {
+            return $attachment->created_by === $user->id;
+        }
+
         return $user->hasRole('employee')
             && ($attachment->created_by === $user->id || $attachment->permission === RecordPermission::Public);
     }
@@ -56,7 +60,7 @@ class AttachmentPolicy
             return true;
         }
 
-        return $user->hasRole('employee') && $attachment->created_by === $user->id;
+        return $user->hasAnyRole(['employee', 'consultant']) && $attachment->created_by === $user->id;
     }
 
     public function restore(User $user, Attachment $attachment): bool

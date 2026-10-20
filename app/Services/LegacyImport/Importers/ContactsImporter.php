@@ -189,9 +189,31 @@ class ContactsImporter extends Importer
             'company_name' => [$column => $raw !== null && $raw !== '' ? $this->companies->get((int) $raw) : null],
             'login' => [$column => $raw !== null && $raw !== '' ? $this->users->get((int) $raw) : null],
             'email' => [$column => $raw !== '' ? $raw : null],
+            // Required here, not always in legacy (a contact with only a
+            // first name): kept empty rather than made up.
+            'last_name' => [$column => $raw !== null && $raw !== '' ? html_entity_decode($raw, ENT_QUOTES | ENT_HTML5) : ''],
             // Plain text, stored through htmlspecialchars() ("A&amp;J").
             default => [$column => $raw !== '' && $raw !== null ? ($column === 'memo' ? $raw : html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)) : null],
         };
+    }
+
+    /**
+     * A person and their one-person firm often shared one address in legacy;
+     * here it goes to the person, who is the one written to. Only from the
+     * contact's own company (its company or a related one), and only for a
+     * live contact.
+     */
+    protected function takesEmailFrom(object $row, Model $owner): ?string
+    {
+        if (($reason = parent::takesEmailFrom($row, $owner)) !== null) {
+            return $reason;
+        }
+
+        $ownCompanies = array_map('intval', [$row->f_company_name ?? 0, ...LegacyValue::multi($row->f_related_companies ?? null)]);
+
+        return $owner instanceof Company && (int) ($row->active ?? 1) === 1 && in_array((int) $owner->legacy_id, $ownCompanies, true)
+            ? 'its own'
+            : null;
     }
 
     protected function syncPivots(object $row, Model $model): void

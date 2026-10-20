@@ -50,12 +50,12 @@ class FullScreenTest extends TestCase
             ->assertSee('Forward');
     }
 
-    public function test_backspace_goes_back(): void
+    public function test_backspace_does_not_go_back(): void
     {
         $this->actingAs($this->userWithRole('employee'))
             ->get('/')
             ->assertOk()
-            ->assertSee("event.key !== 'Backspace'", false);
+            ->assertDontSee("event.key !== 'Backspace'", false);
     }
 
     public function test_links_stay_in_the_page_except_into_another_panel(): void

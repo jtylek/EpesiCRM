@@ -3,7 +3,7 @@
     "name": "Phone Calls",
     "description": "Logged calls, against either a contact and company in the system or a customer named by hand.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "CRM",
     "icon": "heroicon-o-phone",
     "namespace": "Epesi\\Modules\\CRM\\PhoneCalls\\",

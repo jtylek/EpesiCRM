@@ -1,5 +1,6 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
+    "name": "epesi",
     "private": true,
     "type": "module",
     "scripts": {

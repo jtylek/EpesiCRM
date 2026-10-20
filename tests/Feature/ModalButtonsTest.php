@@ -16,21 +16,22 @@ use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
 /**
- * The global modal default from AppServiceProvider::putModalActionsOnHeadingLine():
- * form modals get their actions on the heading line, confirmations don't.
+ * The global modal defaults from AppServiceProvider::styleFormModalButtons():
+ * Create/Edit modals get the pages' Save and Cancel buttons, and every modal
+ * keeps its buttons at the bottom, where Filament puts them.
  */
-class ModalHeaderActionsTest extends TestCase
+class ModalButtonsTest extends TestCase
 {
     use RefreshDatabase, SignsInUsers;
 
-    public function test_form_modals_put_their_actions_on_the_heading_line(): void
+    public function test_form_modals_keep_their_buttons_at_the_bottom(): void
     {
         $this->actingAs($this->userWithRole('employee'));
         $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
         $notes = fn (): Testable => Livewire::test(NotesRelationManager::class, ['ownerRecord' => $contact, 'pageClass' => ViewContact::class]);
 
         $create = $notes()->mountAction(TestAction::make('create')->table())->instance()->getMountedAction();
-        $this->assertOnHeadingLine($create, true);
+        $this->assertAtTheBottom($create);
         $this->assertSame(
             [['Save', 'success', Heroicon::OutlinedCheck], ['Cancel', 'gray', Heroicon::OutlinedXMark]],
             array_map(fn (Action $action): array => [$action->getLabel(), $action->getColor(), $action->getIcon()], array_values($create->getVisibleModalFooterActions())),
@@ -40,16 +41,14 @@ class ModalHeaderActionsTest extends TestCase
         $note = Attachment::sole();
 
         $edit = $notes()->mountAction(TestAction::make('edit')->table($note))->instance()->getMountedAction();
-        $this->assertOnHeadingLine($edit, true);
+        $this->assertAtTheBottom($edit);
         $this->assertSame('Save', $edit->getModalSubmitAction()->getLabel());
 
-        $delete = $notes()->mountAction(TestAction::make('delete')->table($note))->instance()->getMountedAction();
-        $this->assertOnHeadingLine($delete, false);
+        $this->assertAtTheBottom($notes()->mountAction(TestAction::make('delete')->table($note))->instance()->getMountedAction());
     }
 
-    private function assertOnHeadingLine(Action $action, bool $expected): void
+    private function assertAtTheBottom(Action $action): void
     {
-        $this->assertSame($expected, str_contains((string) $action->getExtraModalWindowAttributeBag()->get('class'), 'epesi-modal-actions-in-header'), "{$action->getName()} marker class");
-        $this->assertSame(! $expected, $action->hasModalCloseButton(), "{$action->getName()} close button");
+        $this->assertStringNotContainsString('epesi-modal-actions-in-header', (string) $action->getExtraModalWindowAttributeBag()->get('class'), "{$action->getName()} marker class");
     }
 }

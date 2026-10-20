@@ -15,7 +15,7 @@ class Requirements
      * The PHP version and extensions, shared with bootstrap/preflight.php,
      * which checks them before Laravel loads.
      *
-     * @return array{php: string, extensions: list<string>, database_drivers: array<string, string>}
+     * @return array{php: string, php_tested: string, extensions: list<string>, database_drivers: array<string, string>}
      */
     public static function definition(): array
     {
@@ -24,16 +24,73 @@ class Requirements
         return $definition ??= require dirname(__DIR__, 3).'/bootstrap/requirements.php';
     }
 
+    /** The lowest PHP version epesi runs on, short form: "8.3". */
+    public static function minimumPhp(): string
+    {
+        return preg_replace('/\.0$/', '', self::definition()['php']);
+    }
+
+    /** The newest PHP branch epesi is tested on: "8.5". */
+    public static function testedPhp(): string
+    {
+        return self::definition()['php_tested'];
+    }
+
+    public static function phpSupported(): bool
+    {
+        return version_compare(PHP_VERSION, self::definition()['php'], '>=');
+    }
+
+    /** False on a PHP branch newer than the tested one (8.6 when 8.5 is the newest tested). */
+    public static function phpTested(): bool
+    {
+        return version_compare(PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION, self::testedPhp(), '<=');
+    }
+
+    /**
+     * The PHP version check, shared by check() (the setup wizard, epesi:install
+     * and Server Check's requirements) and Server Check's "PHP version" row.
+     * bootstrap/preflight.php reads the same bootstrap/requirements.php itself,
+     * since it runs before the autoloader.
+     *
+     * @return array{version: string, minimum: string, tested_up_to: string, range: string, supported: bool, tested: bool, status: string}
+     */
+    public static function php(): array
+    {
+        $supported = self::phpSupported();
+        $tested = self::phpTested();
+
+        return [
+            'version' => PHP_VERSION,
+            'minimum' => self::minimumPhp(),
+            'tested_up_to' => self::testedPhp(),
+            // An en dash, not the word "to": the range goes into translated
+            // sentences ("epesi runs on :php"), and machine translation
+            // scrambles a sentence whose placeholders are the two ends. No full stop
+            // either: DeepL put it in the wrong place in Persian and Japanese.
+            'range' => self::minimumPhp()."\u{2013}".self::testedPhp(),
+            'supported' => $supported,
+            'tested' => $tested,
+            'status' => match (true) {
+                ! $supported => 'needs '.self::minimumPhp().' or newer',
+                ! $tested => 'not tested yet (epesi is tested up to PHP '.self::testedPhp().')',
+                default => 'OK',
+            },
+        ];
+    }
+
     /**
      * @return list<array{label: string, ok: bool, status: string, required: bool}>
      */
     public function check(bool $envWritable = false, bool $phpIni = true): array
     {
         $rows = [];
-        $minimum = self::definition()['php'];
+        $php = self::php();
+        $rows[] = $this->row('PHP '.$php['version'].' (supported '.$php['range'].')', $php['supported'], $php['supported'] ? 'OK' : $php['status']);
 
-        $phpOk = version_compare(PHP_VERSION, $minimum, '>=');
-        $rows[] = $this->row('PHP '.PHP_VERSION, $phpOk, $phpOk ? 'OK' : 'needs '.preg_replace('/\.0$/', '', $minimum).' or newer');
+        if ($php['supported'] && ! $php['tested']) {
+            $rows[] = $this->row('PHP '.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.' tested', false, $php['status'], required: false);
+        }
 
         foreach (self::definition()['extensions'] as $extension) {
             $loaded = extension_loaded($extension);
@@ -42,7 +99,7 @@ class Requirements
 
         $drivers = array_filter(array_unique(self::definition()['database_drivers']), 'extension_loaded');
         $rows[] = $this->row(
-            'A database driver (pdo_mysql, pdo_pgsql or pdo_sqlite)',
+            'A database driver (pdo_mysql)',
             $drivers !== [],
             $drivers !== [] ? implode(', ', $drivers) : 'none installed',
         );
@@ -100,7 +157,49 @@ class Requirements
             }
         }
 
+        // Cron's PHP can be another binary than this one, so this page can't see what it
+        // lacks: cron.php's preflight leaves a note when it could not start, and takes it
+        // away at its next clean run.
+        if ($note = self::cronNote()) {
+            $rows[] = $this->row(
+                'PHP that runs cron',
+                false,
+                // Plain English like the other statuses here: this list is part of the setup, whose
+                // every __() string has to be in every language.
+                sprintf(
+                    'cron could not start at %s with %s (PHP %s): %s. Fix that PHP; the next cron run clears this',
+                    $note['time'],
+                    $note['binary'],
+                    $note['php'],
+                    implode('; ', $note['problems']),
+                ),
+            );
+        }
+
         return $rows;
+    }
+
+    /**
+     * What cron.php's preflight found wrong with the PHP that runs cron, if its last
+     * start failed (see bootstrap/preflight.php).
+     *
+     * @return array{time: string, php: string, binary: string, problems: list<string>}|null
+     */
+    public static function cronNote(): ?array
+    {
+        $path = storage_path('framework/cron-preflight.json');
+        $note = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+
+        if (! is_array($note) || ! is_array($note['problems'] ?? null) || $note['problems'] === []) {
+            return null;
+        }
+
+        return [
+            'time' => (string) ($note['time'] ?? ''),
+            'php' => (string) ($note['php'] ?? ''),
+            'binary' => (string) ($note['binary'] ?? ''),
+            'problems' => array_map('strval', $note['problems']),
+        ];
     }
 
     /**
@@ -137,7 +236,7 @@ class Requirements
      */
     public static function availableConnections(): array
     {
-        $labels = ['mysql' => 'MySQL', 'mariadb' => 'MariaDB', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
+        $labels = ['mysql' => 'MySQL', 'mariadb' => 'MariaDB'];
 
         return array_filter($labels, fn (string $label, string $connection): bool => extension_loaded(self::definition()['database_drivers'][$connection]), ARRAY_FILTER_USE_BOTH);
     }

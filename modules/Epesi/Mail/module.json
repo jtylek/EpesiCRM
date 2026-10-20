@@ -3,7 +3,7 @@
     "name": "Mail",
     "description": "Per-user IMAP/SMTP accounts, an e-mail archive linked to contacts and companies (with threads and attachments), sending from the CRM, and extra e-mail addresses per record. Port of Epesi's CRM/Mail and CRM/Roundcube archive.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "CRM",
     "icon": "heroicon-o-envelope",
     "namespace": "Epesi\\Modules\\Mail\\",

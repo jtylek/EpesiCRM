@@ -3,7 +3,7 @@
     "name": "Meetings",
     "description": "Scheduled meetings with a date, time and duration, assigned to employees and optionally tied to contacts and companies.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "CRM",
     "icon": "heroicon-o-calendar-days",
     "namespace": "Epesi\\Modules\\CRM\\Meetings\\",

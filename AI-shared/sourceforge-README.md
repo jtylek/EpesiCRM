@@ -10,7 +10,7 @@ organization: contacts, companies, tasks, meetings, phone calls, a shared calend
 integrated e-mail client. Records are secure, organized and easy to find, so day-to-day
 communication and workflow get simpler.
 
-Epesi 2 is a ground-up rewrite of the original Epesi (2006), built on **Laravel 12**,
+Epesi 3 is a ground-up rewrite of the original Epesi (2006), built on **Laravel 12**,
 **Filament 5** and **Livewire**.
 
 ## Features
@@ -30,7 +30,7 @@ Epesi 2 is a ground-up rewrite of the original Epesi (2006), built on **Laravel 
 
 ## Requirements
 
-- PHP 8.2 or newer (the setup wizard checks the extensions)
+- PHP 8.3 or newer (the setup wizard checks the extensions)
 - MySQL or MariaDB
 - Apache or nginx; shared hosting works
 - A modern web browser

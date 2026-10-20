@@ -331,7 +331,8 @@ tooling is the translations skill in the private notes.
   Add a translators note where the role alone would mislead.
 - **Placeholders** go to DeepL as empty XML tags (`tag_handling=xml`), so DeepL can move
   them but never translate them. A result whose placeholders don't come back exactly is
-  set aside for review, not merged.
+  set aside for review, not merged. A tag that comes back with its text still intact can be
+  misplaced or lose the space before it; see [Adding a string](#adding-a-string).
 - **Plurals** are built per form, following the rule under [Translated by hand](#translated-by-hand).
   Each of the language's forms is translated from the English sentence for a sample number
   of that form, taken from Laravel's own `getPluralIndex()` ("22 files" for Polish's second
@@ -389,6 +390,24 @@ tooling is the translations skill in the private notes.
   translatable for it: whole sentences with `:placeholders`, `trans_choice()` for counts,
   no markup in the key, and a `record_labels` key for a word with two meanings
   (see [Ambiguous words](#ambiguous-words)).
+- **A placeholder that stands for part of a phrase machine-translates badly.** DeepL moves
+  a placeholder tag where the target language wants it, but it can't build a sentence around
+  two bare values, and it drops the space in front of a tag. `epesi runs on PHP :minimum to
+  :tested.` came back scrambled in all 12 languages ("epesi läuft auf PHP bis:minimum
+  :tested."). Put the whole phrase in one placeholder and keep the surrounding words few:
+  `__('epesi runs on :php', ['php' => 'PHP '.$range])`, with `$range` an en dash range
+  ("8.3–8.5") instead of the word "to". The value is language-neutral, so it needs no
+  translation of its own. The same string with a trailing full stop put the full stop in the
+  wrong place in Persian and Japanese (a stop in the middle of the sentence, a garbled word
+  order), and adding a "." outside the translation would be wrong for "。". So a short
+  status line like this one has no full stop. After translating such a string, read the
+  result in a language whose word order differs (ja, fa) before merging.
+- **A setup-wizard string is checked in every language, strict mode or not.**
+  `TranslationsTest::test_the_setup_is_translated_in_every_language` scans the setup files
+  (`app/Filament/Setup/Pages`, `app/Services/Setup`, `app/Support/Setup`, the modules' `Setup`
+  folders) and fails, not just reports, when a language lacks a string: the wizard runs
+  before a visitor can pick a language, so the first screen has to be translated. A new
+  string there needs the DeepL pass for it before the suite goes green.
 - A new resource, page or relation manager uses the matching `Translates*Labels` trait.
 - `php artisan test --filter=TranslationsTest` lists the new string as awaiting translation
   (the test is marked incomplete, not failed).

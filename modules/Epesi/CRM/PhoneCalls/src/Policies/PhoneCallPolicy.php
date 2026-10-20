@@ -20,7 +20,7 @@ class PhoneCallPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, PhoneCall $phoneCall): bool
@@ -30,13 +30,19 @@ class PhoneCallPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function update(User $user, PhoneCall $phoneCall): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
             return true;
+        }
+
+        // Not because it's Public: only what he created or works on.
+        if ($user->isConsultant()) {
+            return $phoneCall->created_by === $user->id
+                || $phoneCall->employees()->withoutGlobalScope('ownership')->where('user_id', $user->id)->exists();
         }
 
         if (! $user->hasRole('employee')) {
@@ -57,7 +63,7 @@ class PhoneCallPolicy
             return true;
         }
 
-        return $user->hasRole('employee') && $phoneCall->created_by === $user->id;
+        return $user->hasAnyRole(['employee', 'consultant']) && $phoneCall->created_by === $user->id;
     }
 
     public function restore(User $user, PhoneCall $phoneCall): bool

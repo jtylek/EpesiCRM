@@ -93,6 +93,35 @@ abstract class ListRecords extends BaseListRecords
         }
     }
 
+    /**
+     * Searching looks through everything: every filter is removed ("My
+     * records" goes to All records, the status to All, any other filter
+     * cleared — not back to its default) and the Favorites / Recent tab goes
+     * to All, so a hit isn't hidden by a narrowing the user forgot was on.
+     * Clearing the search leaves the filters as they are.
+     */
+    public function updatedTableSearch(): void
+    {
+        parent::updatedTableSearch();
+
+        if (blank($this->tableSearch)) {
+            return;
+        }
+
+        // Filament's removeTableFilters() also empties the search.
+        $search = $this->tableSearch;
+
+        $this->removeTableFilters();
+
+        $this->tableSearch = $search;
+        parent::updatedTableSearch();
+
+        if ($this->getBrowseMode() !== BrowseMode::All && array_key_exists(BrowseMode::All->value, $this->getCachedTabs())) {
+            $this->activeTab = BrowseMode::All->value;
+            $this->updatedActiveTab();
+        }
+    }
+
     public function getBrowseMode(): BrowseMode
     {
         return BrowseMode::tryFrom((string) $this->activeTab) ?? BrowseMode::All;
@@ -406,9 +435,18 @@ abstract class ListRecords extends BaseListRecords
         $employees = $this->myRecordsEmployeesFilter($table);
 
         if ($employees === null) {
-            $this->tableFilters = $table->getFilter(self::MY_RECORDS_FILTER)
+            // Only "My records" would drop the status filter's own default
+            // (Not closed), so the first list of a session showed closed
+            // records; keep it, as the Employees branch below does.
+            $filters = $table->getFilter(self::MY_RECORDS_FILTER)
                 ? [self::MY_RECORDS_FILTER => ['isActive' => true]]
-                : null;
+                : [];
+
+            if ($filters !== [] && ($status = $this->myRecordsStatusFilter($table))) {
+                $filters[$status->getName()] = ['value' => StatusField::NOT_CLOSED];
+            }
+
+            $this->tableFilters = $filters ?: null;
 
             return;
         }

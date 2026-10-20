@@ -3,7 +3,7 @@
     "name": "Sticky notes",
     "description": "A dashboard tab of small colored notes, like Post-its: a title and a Markdown body, active or inactive.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Productivity",
     "icon": "heroicon-o-pencil-square",
     "namespace": "Epesi\\Modules\\StickyNotes\\",

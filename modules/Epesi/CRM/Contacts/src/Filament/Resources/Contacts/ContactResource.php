@@ -65,6 +65,29 @@ class ContactResource extends RecordsetResource
     }
 
     /**
+     * A contact is picked by first name, last name or company name, and by
+     * several words of them at once ("łuk mir"); not by its e-mail address,
+     * phone numbers or notes, which would offer people for a word that is
+     * not their name.
+     *
+     * @return array<int, string>
+     */
+    public static function getPickerSearchAttributes(): array
+    {
+        return ['first_name', 'last_name'];
+    }
+
+    protected static function matchSearchWord(Builder $query, string $word): void
+    {
+        $query->orWhereHas('company', fn (Builder $companies) => $companies->where('company_name', 'like', "%{$word}%"));
+    }
+
+    public static function hasCustomPickerSearch(): bool
+    {
+        return true;
+    }
+
+    /**
      * Create only, as in legacy Epesi: tick "Create company", name it, and the
      * new company is made with the contact in one step (CreateContact) and
      * takes the contact's addresses. Neither input is saved on the contact.

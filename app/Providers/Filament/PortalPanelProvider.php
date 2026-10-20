@@ -23,6 +23,7 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -65,6 +66,7 @@ class PortalPanelProvider extends PanelProvider
                 'gray' => Color::Neutral,
             ])
             ->viteTheme('resources/css/filament/epesi/theme.css')
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.history-navigation', ['buttons' => false]))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             // One page, nothing to navigate between.
             ->navigation(false)

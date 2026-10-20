@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Watchdog;
 
+use App\Support\RequestMemo;
 use App\Models\User;
 use Epesi\Modules\Watchdog\Models\CategorySubscription;
 use Epesi\Modules\Watchdog\Models\Subscription;
@@ -78,6 +79,8 @@ class Watchdog
      */
     public static function subscribe(User $user, Model $record, ?int $firstUnseen = null): Subscription
     {
+        static::forgetState($user, $record);
+
         return Subscription::query()->firstOrCreate(
             static::key($user, $record),
             ['last_seen_activity_id' => static::latestActivityId($record, before: $firstUnseen)],
@@ -86,12 +89,30 @@ class Watchdog
 
     public static function unsubscribe(User $user, Model $record): void
     {
+        static::forgetState($user, $record);
+
         Subscription::query()->where(static::key($user, $record))->delete();
     }
 
     public static function isSubscribed(User $user, Model $record): bool
     {
-        return Subscription::query()->where(static::key($user, $record))->exists();
+        return app(RequestMemo::class)->remember(
+            static::stateKey($user, $record),
+            fn (): bool => Subscription::query()->where(static::key($user, $record))->exists(),
+        );
+    }
+
+    protected static function stateKey(User $user, Model $record): string
+    {
+        return "watchdog:subscribed:{$user->id}:{$record->getMorphClass()}:{$record->getKey()}";
+    }
+
+    /** What a View page remembers about the subscription, and the navigation badge, no longer holds. */
+    protected static function forgetState(User $user, Model $record): void
+    {
+        $memo = app(RequestMemo::class);
+        $memo->forget(static::stateKey($user, $record));
+        $memo->forget("watchdog:badge:{$user->id}");
     }
 
     public static function toggle(User $user, Model $record): bool
@@ -194,6 +215,8 @@ class Watchdog
         if ($upTo === null) {
             return 0;
         }
+
+        app(RequestMemo::class)->forget("watchdog:badge:{$user->id}");
 
         Subscription::query()
             ->where(['user_id' => $user->id, 'subscribable_type' => $type, 'subscribable_id' => $id])

@@ -44,7 +44,7 @@ return new class extends Migration
             $table->text('smtp_password')->nullable();
 
             $table->boolean('is_default')->default(false);
-            $table->boolean('archive_on_sending')->default(true);
+            $table->boolean('archive_on_sending')->default(false);
             $table->string('archive_folder')->nullable()->default('CRM Archive');
             $table->boolean('auto_archive')->default(false);
             $table->json('auto_archive_folders')->nullable();

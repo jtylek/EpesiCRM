@@ -8,7 +8,6 @@ use Epesi\Modules\Store\Filament\Pages\Store;
 use Epesi\Modules\Store\Models\StoreSetting;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -98,10 +97,32 @@ class Registration
     }
 
     /** "Delete my registration": the store forgets the personal data, this installation its identity. */
-    public function delete(): void
+    public function delete(): bool
     {
-        $this->client->deleteRegistration();
+        // No readable identity (its secret was encrypted with another APP_KEY): nothing to tell the store.
+        if (! $this->setting()->hasIdentity()) {
+            $this->forget();
+
+            return false;
+        }
+
+        try {
+            $this->client->deleteRegistration();
+        } catch (StoreApiException $exception) {
+            // The installation moved: the store only lets the registered URL delete.
+            // Forget the identity here so it can register again; the store's record stays.
+            if ($exception->error !== StoreApiException::URL_MISMATCH) {
+                throw $exception;
+            }
+
+            $this->forget();
+
+            return false;
+        }
+
         $this->forget();
+
+        return true;
     }
 
     /**

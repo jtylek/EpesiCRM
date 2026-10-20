@@ -6,6 +6,7 @@ use Epesi\Modules\RecordBrowser\Filament\RelationManagers\LinkedRecordsRelationM
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class IncomingLinks
 {
@@ -25,6 +26,16 @@ class IncomingLinks
             return [];
         }
 
+        // Every addon tab of a View page asks again, and each answer walks every resource's fields.
+        return app(FieldOverrides::class)->memo(
+            'incoming:'.$target->getMorphClass().':'.$target->getKey().':'.Auth::id(),
+            fn (): array => static::scan($target),
+        );
+    }
+
+    /** @return array<class-string<RecordsetResource>, list<Field>> */
+    protected static function scan(Model $target): array
+    {
         $links = [];
 
         foreach (Filament::getPanel('main')->getResources() as $resource) {
@@ -53,6 +64,23 @@ class IncomingLinks
         uksort($links, fn (string $a, string $b): int => strnatcasecmp($a::getTitleCasePluralModelLabel(), $b::getTitleCasePluralModelLabel()));
 
         return $links;
+    }
+
+    /**
+     * The tab's title for $resource's records linking to $target: the
+     * recordset's plural name ("Tasks"), or "Linked from: Tasks" when they
+     * are of $target's own recordset, so it isn't taken for $target's own
+     * fields or a list of its own kind.
+     *
+     * @param  class-string<RecordsetResource>  $resource
+     */
+    public static function tabLabel(string $resource, Model $target): string
+    {
+        $label = $resource::getTitleCasePluralModelLabel();
+
+        return $resource::getModel() === $target::class
+            ? __('Linked from: :recordset', ['recordset' => $label])
+            : $label;
     }
 
     public static function addons(Model $target): array

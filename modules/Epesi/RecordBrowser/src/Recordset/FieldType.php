@@ -16,7 +16,7 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * `{name}_currency`), not legacy's one encoded string `amount__currencyid`.
  * A select over several named recordsets (`contact,company`) becomes one
  * Relation(s) field per target; one over any recordset (`__RECORDSETS__`) is
- * Related. Collection has no legacy counterpart: what a record has none or
+ * Related, shown as "Linked to" (Field::linkedTo()). Collection has no legacy counterpart: what a record has none or
  * many of (its addresses, phone numbers, online accounts), kept in a table of
  * its own per collection type.
  * See AI-shared/Epesi-custom-fields.md.
@@ -71,7 +71,7 @@ enum FieldType: string
             self::Phone => __('Phone number'),
             self::Autonumber => __('Automatic number'),
             self::File => __('File'),
-            self::Related => __('Link to any record'),
+            self::Related => __('Linked to'),
             self::Collection => __('Collection'),
         };
     }

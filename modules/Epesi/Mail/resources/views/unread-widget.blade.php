@@ -28,13 +28,23 @@
             </div>
         </x-slot>
 
-        {{-- Matches the server-side cache: asking more often gets the same answer. --}}
-        <div wire:poll.180s>
+        {{--
+            Renders only from the cache mail:check fills every 5 minutes; no mail server
+            is asked while rendering. An account without a cached count (cron not running,
+            a just edited account) shows "checking…" and is asked by checkMissing, in a
+            request of its own once the widget is on screen.
+        --}}
+        @php($accounts = $this->accounts())
+        @php($counts = $accounts->mapWithKeys(fn ($account) => [$account->id => $this->unread($account)]))
+        <div
+            wire:poll.180s="checkMissing"
+            @if ($counts->contains(null)) wire:init="checkMissing" @endif
+        >
             <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem;">
-                @foreach ($this->accounts() as $account)
-                    @php($unread = $this->unread($account))
+                @foreach ($accounts as $account)
+                    @php($unread = $counts[$account->id])
                     @php($mailboxUrl = $this->mailboxUrl($account))
-                    @php($badgeColor = $unread['count'] === null ? 'danger' : ($unread['count'] > 0 ? 'warning' : 'gray'))
+                    @php($badgeColor = $unread === null ? 'gray' : ($unread['count'] === null ? 'danger' : ($unread['count'] > 0 ? 'warning' : 'gray')))
                     <li wire:key="account-{{ $account->id }}">
                         <div style="display: flex; align-items: center; gap: 0.375rem;">
                             <x-filament::badge
@@ -45,7 +55,9 @@
                             >
                                 {{ $account->name }}
                             </x-filament::badge>
-                            @if ($unread['count'] === null)
+                            @if ($unread === null)
+                                <x-filament::badge color="gray">{{ __('checking…') }}</x-filament::badge>
+                            @elseif ($unread['count'] === null)
                                 <x-filament::badge color="danger" :tooltip="$unread['error']">{{ __('unavailable') }}</x-filament::badge>
                             @else
                                 <x-filament::badge :color="$badgeColor">

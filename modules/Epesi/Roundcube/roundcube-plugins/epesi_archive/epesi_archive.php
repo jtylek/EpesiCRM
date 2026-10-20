@@ -6,25 +6,28 @@ require_once __DIR__.'/epesi_archive_matcher.php';
  * Files mail into Epesi's archive — the port of Epesi's epesi_archive plugin.
  *
  * The Archive button first asks this plugin (plugin.epesi_archive) whether
- * each selected message's From, To or Cc belongs to a contact or company.
- * If one doesn't, it warns once, as Epesi did: clicking Archive again
- * archives it anyway, linked to nothing. Otherwise the messages are moved
- * into the account's archive folder, and the Mailbox page runs Epesi's
- * MailFetcher, which archives and links them (MailArchiver: sender,
- * recipients and Cc).
+ * each selected message is already archived, and whether its From, To or Cc
+ * belongs to a contact or company. If one doesn't, it warns once, as Epesi
+ * did: clicking Archive again archives it anyway. Then it hands the folder
+ * and UIDs to the Mailbox page around this frame, which archives each message
+ * from that folder (MailFetcher::archiveFrom(), MailArchiver: links,
+ * threads, attachments into file storage, de-duplication), moves the
+ * archived ones into the account's archive folder, and tells this frame to
+ * refresh. Nothing is archived without that click (AI-shared/Mail-archiving.md).
  *
- * Epesi archived straight from here into its own tables. Going through the
- * folder keeps one archiving path (linking, threads, attachments,
- * de-duplication) for mail filed from here and from any other mail client.
- *
- * A compose toggle likewise saves the sent copy into the archive folder.
+ * A compose toggle saves the sent copy into the archive folder, and the page
+ * archives it from there by Message-ID.
  */
 class epesi_archive extends rcube_plugin
 {
+    /** Each message is read and stored while the user waits: MailFetcher::MAX_PER_CLICK. */
+    public const MAX_PER_CLICK = 200;
+
     public $task = 'login|mail';
 
     public function init()
     {
+        $this->add_hook('storage_init', [$this, 'storage_init']);
         $this->add_hook('login_after', [$this, 'ensure_folder']);
         $this->add_hook('message_sent', [$this, 'message_sent']);
         $this->register_action('plugin.epesi_archive', [$this, 'check_and_move']);
@@ -58,9 +61,20 @@ class epesi_archive extends rcube_plugin
         $this->add_button($this->button('plugin.epesi_archive', 'archivetitle'), 'toolbar');
 
         if (! empty($_SESSION['epesi_archive_fetch'])) {
-            $rcmail->output->set_env('epesi_archive_fetch', true);
+            $rcmail->output->set_env('epesi_archive_fetch', array_values((array) $_SESSION['epesi_archive_fetch']));
             unset($_SESSION['epesi_archive_fetch']);
         }
+    }
+
+    /**
+     * Fetch Message-ID with the other headers: without it Roundcube gives each
+     * message "mid:<position>", and the already-archived check compared those.
+     */
+    public function storage_init($args)
+    {
+        $args['fetch_headers'] = epesi_archive_matcher::fetch_headers($args['fetch_headers'] ?? '');
+
+        return $args;
     }
 
     /** Create and subscribe the archive folder, as Epesi did on first use. */
@@ -82,15 +96,16 @@ class epesi_archive extends rcube_plugin
     }
 
     /**
-     * A copy saved into the archive folder is fetched on the next page load,
+     * A copy saved into the archive folder is archived on the next page load,
      * after this request has stored it.
      */
     public function message_sent($args)
     {
         $target = rcube_utils::get_input_string('_store_target', rcube_utils::INPUT_POST, true);
+        $messageId = (string) ($args['headers']['Message-ID'] ?? '');
 
-        if ($target !== '' && $target === $this->folder()) {
-            $_SESSION['epesi_archive_fetch'] = true;
+        if ($target !== '' && $target === $this->folder() && $messageId !== '') {
+            $_SESSION['epesi_archive_fetch'] = [...(array) ($_SESSION['epesi_archive_fetch'] ?? []), $messageId];
         }
 
         return $args;
@@ -99,11 +114,14 @@ class epesi_archive extends rcube_plugin
     /**
      * The Archive button's request, Epesi's checks in Epesi's order:
      *
-     * 1. A message that is already archived, by anyone, is left where it is
-     *    ("Message already archived"). The archive keeps one copy.
+     * 1. A message that is already archived, by anyone, needs no contact
+     *    check: it goes on as it is. The archive keeps one copy; the Mailbox
+     *    page links it to whoever archives it, moves it and says "Message
+     *    already archived".
      * 2. A message that would be linked to no contact or company is held back
      *    once with a warning; the next click archives it anyway.
-     * 3. The rest are moved to the archive folder.
+     * 3. The rest go to the Mailbox page, which archives them and then
+     *    moves them to the archive folder.
      */
     public function check_and_move()
     {
@@ -126,13 +144,18 @@ class epesi_archive extends rcube_plugin
             return $row ?: null;
         };
 
+        if (count($list) > self::MAX_PER_CLICK) {
+            $rcmail->output->show_message(str_replace(':count', (string) self::MAX_PER_CLICK,
+                $this->label('too_many', 'Select at most :count messages to archive at once')), 'error');
+            $rcmail->output->send();
+        }
+
         $move = [];
-        $duplicates = 0;
         $unmatched = [];
 
         foreach ($storage->fetch_headers($mbox, $list, false) as $header) {
             if (epesi_archive_matcher::archived([(string) $header->messageID], $selectOne) !== []) {
-                $duplicates++;
+                $move[] = $header->uid;
 
                 continue;
             }
@@ -152,8 +175,6 @@ class epesi_archive extends rcube_plugin
             $move[] = $header->uid;
         }
 
-        $alreadyArchived = $this->label('already_archived', 'Message already archived');
-
         // Epesi's force_archive: a message warned about once is archived on
         // the next click. All of a selection's strays share one warning.
         $warned = (array) ($_SESSION['epesi_archive_warned'] ?? []);
@@ -167,13 +188,10 @@ class epesi_archive extends rcube_plugin
 
         $_SESSION['epesi_archive_warned'] = array_values(array_diff($warned, $unmatched));
 
-        if ($duplicates > 0) {
-            $rcmail->output->show_message($alreadyArchived, 'warning', null, true, 10);
-        }
-
         if ($move !== []) {
-            // A whole folder stays "*" unless something was left out of it.
-            $rcmail->output->command('plugin.epesi_archive_move', ['uids' => $uids === '*' && $duplicates === 0 ? '*' : implode(',', $move)]);
+            // Epesi archives them from this folder, then moves them to the
+            // archive folder, and tells this page to refresh.
+            $rcmail->output->command('plugin.epesi_archive_go', ['folder' => $mbox, 'uids' => array_map('intval', $move)]);
         }
 
         $rcmail->output->send();

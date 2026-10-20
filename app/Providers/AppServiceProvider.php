@@ -21,6 +21,7 @@ use App\Support\Auth\PortalEmails;
 use App\Support\Demo;
 use App\Support\Mail\ServerMailTransport;
 use App\Support\NoIdentityAutofill;
+use App\Support\RequestMemo;
 use App\Support\RetryingFilesystem;
 use App\Support\Translations\CustomTranslationLoader;
 use App\Support\Version;
@@ -43,7 +44,6 @@ use Filament\Navigation\NavigationManager;
 use Filament\Pages\BasePage;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Component as SchemaComponent;
-use Filament\Support\Enums\Alignment;
 use Filament\Support\Facades\FilamentView;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Column;
@@ -92,6 +92,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BaseResourceViewRecordPageClassGenerator::class, ResourceViewRecordPageClassGenerator::class);
 
         $this->app->scoped(NavigationManager::class, AlphabeticalNavigationManager::class);
+
+        $this->app->scoped(RequestMemo::class);
     }
 
     /**
@@ -155,7 +157,7 @@ class AppServiceProvider extends ServiceProvider
         $this->useEpesiFormLayoutOnResourcePages();
         $this->offerNoEmptyChoiceOnRequiredSelects();
         $this->translateAllLabels();
-        $this->putModalActionsOnHeadingLine();
+        $this->styleFormModalButtons();
         $this->hideZeroActiveFiltersBadge();
         $this->closeFiltersPanelOnApply();
         $this->closeColumnManagerOnApply();
@@ -181,6 +183,13 @@ class AppServiceProvider extends ServiceProvider
         // On every panel: a user logged in as can be sent to any of them.
         FilamentView::registerRenderHook(PanelsRenderHook::CONTENT_START, fn () => ImpersonationNotice::render());
 
+        // The link preview's og: tags, first in <head> so a crawler sees them.
+        // Not on /setup: its title comes from a table a new install doesn't
+        // have yet, and nobody shares a link to the setup wizard.
+        FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn () => filament()->getCurrentPanel()?->getId() === 'setup'
+            ? ''
+            : view('filament.components.link-preview-head'));
+
         // Tooltips follow the pointer and stay above it across every panel.
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
@@ -192,7 +201,18 @@ class AppServiceProvider extends ServiceProvider
 
                         alpine.plugin = (plugin, ...args) => {
                             if (typeof plugin.defaultProps === 'function') {
-                                plugin.defaultProps({ placement: 'top' })
+                                plugin.defaultProps({
+                                    placement: 'top',
+                                    // A modal focusing its first button by script isn't a reason for a tooltip:
+                                    // only pointer hover or keyboard focus shows one.
+                                    onShow: (tooltip) => {
+                                        const trigger = tooltip.reference
+
+                                        if (tooltip.props.trigger.includes('mouseenter') && !trigger.matches(':hover, :focus-visible, :has(:focus-visible)')) {
+                                            return false
+                                        }
+                                    },
+                                })
                             }
 
                             return registerPlugin(plugin, ...args)
@@ -231,6 +251,37 @@ class AppServiceProvider extends ServiceProvider
                             tooltip.popperInstance?.update()
                         }
                     }, true)
+
+                    // A tooltip whose button is replaced while it shows (a Livewire
+                    // re-render, a modal opened from it) never gets its mouseleave and
+                    // stays on screen. Hide any that has lost its button or its pointer.
+                    const sweepTooltips = () => {
+                        document.querySelectorAll('[data-tippy-root]').forEach((root) => {
+                            const tooltip = root._tippy
+                            const trigger = tooltip?.reference
+
+                            // Only hover tooltips: a "Copied!" one hides itself.
+                            if (!tooltip?.state.isVisible || !String(tooltip.props.trigger).includes('mouseenter')) {
+                                return
+                            }
+
+                            if (
+                                !trigger.isConnected
+                                || (
+                                    !trigger.matches(':focus-visible, :has(:focus-visible)')
+                                    // :hover can stay set when the pointer went into an
+                                    // iframe (a PDF preview), so the pointer's own spot decides too.
+                                    && (!trigger.matches(':hover')
+                                        || !document.elementsFromPoint(pointer.x, pointer.y).some((el) => trigger.contains(el)))
+                                )
+                            ) {
+                                tooltip.hide()
+                            }
+                        })
+                    }
+
+                    setInterval(sweepTooltips, 500)
+                    document.addEventListener('pointerdown', () => setTimeout(sweepTooltips, 50), true)
                 </script>
                 HTML),
         );
@@ -409,7 +460,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * "epesi 2.0" under the sidebar and below the login and setup pages, and
+     * "epesi 3.0" under the sidebar and below the login and setup pages, and
      * in `php artisan about`: what someone reporting a problem is asked for
      * first. From the VERSION file (App\Support\Version).
      */
@@ -426,32 +477,13 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Global default for every action modal in every panel, matching the
-     * Create/Edit pages' header actions (AI-shared/conventions.md): the
-     * footer actions (Create/Save, Cancel…) sit on the heading's line rather
-     * than under the form, and the corner close button goes — Cancel is right
-     * beside it. Filament has no header slot for modal actions, so the window
-     * gets a marker class and the stylesheet below re-flows its flex
-     * children; the footer wraps under the heading by itself when the line
-     * is too narrow for both.
-     *
-     * Confirmation dialogs, slide-overs and small (centred) modals keep
-     * Filament's layout, and so does a modal with no footer, which would
-     * otherwise lose its only close button. A closure's `Action $action` is
-     * resolved by Filament to the action being rendered — for a table row,
-     * that row's clone rather than the instance configured here.
+     * Create/Edit modals style their buttons as the Create/Edit pages do
+     * (AI-shared/conventions.md): Save in green with a check (also on Create),
+     * Cancel with an X, no "Create & create another". Every modal keeps its
+     * buttons at the bottom, under the form, where Filament puts them.
      */
-    private function putModalActionsOnHeadingLine(): void
+    private function styleFormModalButtons(): void
     {
-        $onHeadingLine = fn (Action $action): bool => ! $action->isConfirmationRequired()
-            && ! $action->isModalSlideOver()
-            && in_array($action->getModalAlignment(), [Alignment::Start, Alignment::Left], true)
-            && filled($action->getVisibleModalFooterActions());
-
-        Action::configureUsing(fn (Action $action) => $action
-            ->modalCloseButton(fn (Action $action): bool => ! $onHeadingLine($action))
-            ->extraModalWindowAttributes(fn (Action $action): array => $onHeadingLine($action) ? ['class' => 'epesi-modal-actions-in-header'] : []));
-
         CreateAction::configureUsing(fn (CreateAction $action) => $action
             ->modalSubmitActionLabel('Save')
             ->createAnother(false)
@@ -462,16 +494,6 @@ class AppServiceProvider extends ServiceProvider
             ->modalSubmitActionLabel('Save')
             ->modalSubmitAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedCheck)->color('success'))
             ->modalCancelAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedXMark)));
-
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::STYLES_AFTER,
-            fn (): HtmlString => new HtmlString('<style>'
-                .'.fi-modal-window.epesi-modal-actions-in-header{flex-flow:row wrap!important;align-items:center!important}'
-                .'.epesi-modal-actions-in-header>.fi-modal-header{flex:1 1 auto!important}'
-                .'.epesi-modal-actions-in-header>.fi-modal-footer{order:1!important;width:auto!important;padding:1.5rem 1.5rem 0!important}'
-                .'.epesi-modal-actions-in-header>.fi-modal-content{order:2!important;flex-basis:100%!important}'
-                .'</style>'),
-        );
     }
 
     /**

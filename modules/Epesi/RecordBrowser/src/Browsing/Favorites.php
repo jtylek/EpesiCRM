@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RecordBrowser\Browsing;
 
+use App\Support\RequestMemo;
 use App\Models\User;
 use Closure;
 use Filament\Actions\Action;
@@ -21,13 +22,23 @@ class Favorites
 {
     public static function has(User $user, Model $record): bool
     {
-        return static::rows($user, $record->getMorphClass())
-            ->where('recordable_id', $record->getKey())
-            ->exists();
+        // A View page asks once per widget that shows the star.
+        return app(RequestMemo::class)->remember(
+            static::memoKey($user, $record),
+            fn (): bool => static::rows($user, $record->getMorphClass())
+                ->where('recordable_id', $record->getKey())
+                ->exists(),
+        );
+    }
+
+    protected static function memoKey(User $user, Model $record): string
+    {
+        return "favorite:{$user->id}:{$record->getMorphClass()}:{$record->getKey()}";
     }
 
     public static function add(User $user, Model $record): void
     {
+        app(RequestMemo::class)->forget(static::memoKey($user, $record));
         DB::table('epesi_recordbrowser_favorites')->insertOrIgnore([
             'user_id' => $user->id,
             'recordable_type' => $record->getMorphClass(),
@@ -38,6 +49,7 @@ class Favorites
 
     public static function remove(User $user, Model $record): void
     {
+        app(RequestMemo::class)->forget(static::memoKey($user, $record));
         static::rows($user, $record->getMorphClass())
             ->where('recordable_id', $record->getKey())
             ->delete();

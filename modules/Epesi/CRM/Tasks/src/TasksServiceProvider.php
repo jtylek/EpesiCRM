@@ -6,6 +6,7 @@ use App\Support\Calendar\CalendarRegistry;
 use Epesi\Modules\CRM\Tasks\Calendar\TaskCalendarProvider;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\CRM\Tasks\Policies\TaskPolicy;
+use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -35,5 +36,8 @@ class TasksServiceProvider extends ServiceProvider
         Gate::policy(Task::class, TaskPolicy::class);
 
         CalendarRegistry::register(TaskCalendarProvider::class);
+
+        // A consultant sees the contacts and companies on his tasks.
+        ConsultantLinks::register(Task::class, 'employees', 'customers', 'customerCompanies');
     }
 }

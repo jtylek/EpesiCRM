@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Filament\Pages\Dashboard;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
@@ -14,10 +15,10 @@ use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
 use Epesi\Modules\Mail\Filament\RelationManagers\MailsRelationManager;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
+use Epesi\Modules\Mail\Filament\Resources\Mails\MailTable;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ComposeMail;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ListMails;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ViewMail;
-use Epesi\Modules\Mail\Filament\Resources\Mails\MailTable;
 use Epesi\Modules\Mail\Filament\Widgets\UnreadMailWidget;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
@@ -26,12 +27,14 @@ use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Services\MailSender;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
+use Epesi\Modules\Mail\Services\UnreadCounter;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -200,13 +203,20 @@ class MailTest extends TestCase
         $this->assertTrue($first->is($again));
         $this->assertSame(1, Mail::count());
         $this->assertSame($this->user->contact->id, $again->employee_id, 'still the first archiver');
-        $this->assertFalse($colleague->contact->mails()->exists(), 'the colleague archived nothing');
+        $this->assertFalse($again->wasRecentlyCreated, 'the Mailbox dialog says "Message already archived"');
+        $this->assertTrue($colleague->contact->mails()->whereKey($first->id)->exists(),
+            'the one copy points to everyone who archived it');
+
+        app(MailArchiver::class)->archive(Eml::make(), $colleague);
+        $this->assertSame(1, $first->links()->where('linkable_type', 'contact')->where('linkable_id', $colleague->contact->id)->count(),
+            'archiving it once more adds no second link');
 
         $first->delete();
         $restored = app(MailArchiver::class)->archive(Eml::make(), $colleague);
 
         $this->assertTrue($restored->is($first), 'a deleted copy comes back instead of a second one');
         $this->assertFalse($restored->trashed());
+        $this->assertTrue($restored->wasRecentlyCreated, 'a deleted copy was not archived, so this is archiving it');
         $this->assertSame(1, Mail::withTrashed()->count());
     }
 
@@ -234,54 +244,51 @@ class MailTest extends TestCase
         $this->assertSame('Offer', $original->thread->subject);
     }
 
-    public function test_auto_archive_skips_mail_that_involves_no_known_record(): void
+    public function test_archiving_reads_only_the_clicked_messages_from_the_archive_folder(): void
     {
-        $skipped = app(MailArchiver::class)->archive(
-            Eml::make(from: 'stranger@nowhere.test', messageId: 'spam@x'),
-            $this->user,
-            onlyIfMatched: true,
-        );
+        $account = $this->account();
 
-        $this->assertNull($skipped);
-        $this->assertSame(0, Mail::count());
-    }
-
-    public function test_fetching_archives_the_archive_folder_and_matched_new_inbox_mail(): void
-    {
-        $account = $this->account(['auto_archive' => true, 'auto_archive_folders' => ['INBOX']]);
-
-        $server = new FakeMailbox([
+        $this->fakeServer(new FakeMailbox([
             'CRM Archive' => [
                 1 => Eml::make(from: 'stranger@nowhere.test', messageId: 'filed@x'),
+                2 => Eml::make(messageId: 'dropped-by-another-client@x'),
             ],
             'INBOX' => [
-                10 => Eml::make(messageId: 'old@customer.test'),
+                10 => Eml::make(messageId: 'new@customer.test'),
             ],
-        ]);
-        $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
-        {
-            public function __construct(private FakeMailbox $server) {}
+        ]));
 
-            public function make(MailAccount $account): FakeMailbox
-            {
-                return $this->server;
-            }
-        });
+        $mails = app(MailFetcher::class)->archiveFiled($account, ['<filed@x>', 'new@customer.test', 'missing@x']);
 
-        $fetcher = app(MailFetcher::class);
+        $this->assertSame(['filed@x'], $mails->pluck('message_id')->all(), 'only the clicked message, and only from the archive folder');
+        $this->assertSame(1, Mail::count(), 'nothing else in the archive folder, and nothing in the INBOX');
+        $this->assertTrue(app(MailFetcher::class)->archiveFiled($account, [])->isEmpty());
+    }
 
-        $this->assertSame(1, $fetcher->fetch($account), 'everything filed in the archive folder; INBOX history is not imported');
-        $this->assertTrue(Mail::where('message_id', 'filed@x')->exists());
+    public function test_mail_check_only_counts_unread_mail_and_archives_nothing(): void
+    {
+        $account = $this->account();
+        $server = $this->fakeServer(new FakeMailbox([
+            'CRM Archive' => [1 => Eml::make(messageId: 'filed@x')],
+            'INBOX' => [10 => Eml::make(messageId: 'new@customer.test')],
+        ]));
+        $server->unseenCounts['INBOX'] = 4;
 
-        $server->messages['INBOX'][11] = Eml::make(messageId: 'new@customer.test');
-        $server->messages['INBOX'][12] = Eml::make(from: 'stranger@nowhere.test', messageId: 'newsletter@x');
+        $this->artisan('mail:check')->expectsOutput('me@ourcompany.test: 4 unread')->assertSuccessful();
 
-        $this->assertSame(1, $fetcher->fetch($account), 'only the new INBOX message from a known contact');
-        $this->assertTrue(Mail::where('message_id', 'new@customer.test')->exists());
-        $this->assertFalse(Mail::where('message_id', 'newsletter@x')->exists());
-        $this->assertSame(0, $fetcher->fetch($account), 'nothing is read twice');
+        $this->assertSame(0, Mail::count(), 'neither the INBOX nor the archive folder is archived');
+        $this->assertSame(['count' => 4, 'error' => null], Cache::get(UnreadCounter::cacheKey($account)));
 
-        $this->assertNotNull($account->fresh()->last_fetched_at);
+        $fresh = $account->fresh();
+        $this->assertNotNull($fresh->last_checked_at);
+        $this->assertSame($account->updated_at->timestamp, $fresh->updated_at->timestamp, 'the cache key stays valid');
+
+        $server->unseenCounts['INBOX'] = 7;
+        $this->assertSame(4, app(UnreadCounter::class)->cached($fresh)['count'], 'the widget reads the cache, not the server');
+
+        $server->failing = true;
+        $this->artisan('mail:check')->assertFailed();
+        $this->assertSame('connection refused', $account->fresh()->last_error, 'the error is kept on the account');
     }
 
     public function test_an_empty_imap_login_means_the_e_mail_address(): void
@@ -290,7 +297,7 @@ class MailTest extends TestCase
         $this->fakeServer(new FakeMailbox(['CRM Archive' => [1 => Eml::make()]]));
 
         $this->assertSame('me@ourcompany.test', $account->imapLogin());
-        $this->assertSame(1, app(MailFetcher::class)->fetch($account), 'the account is fetched, not skipped');
+        $this->assertCount(1, app(MailFetcher::class)->archiveFiled($account, ['msg-1@customer.test']), 'the account is read, not skipped');
     }
 
     public function test_sending_archives_the_sent_copy_without_bcc_and_threads_replies(): void
@@ -390,7 +397,8 @@ class MailTest extends TestCase
 
     public function test_the_contact_page_has_e_mail_tabs_and_compose_sends(): void
     {
-        $this->account();
+        // Archiving a sent mail is off by default: on, it lands on the contact.
+        $this->account(['archive_on_sending' => true]);
         app(MailArchiver::class)->archive(Eml::make(), $this->user);
 
         $this->get(ViewContact::getUrl(['record' => $this->ann]))
@@ -611,10 +619,16 @@ class MailTest extends TestCase
 
         $this->assertTrue(UnreadMailWidget::canView());
         // Not on the default dashboard: the user adds it once they have a mailbox.
-        Livewire::test(\App\Filament\Pages\Dashboard::class)->callAction('addApplet', ['widget' => UnreadMailWidget::class]);
+        Livewire::test(Dashboard::class)->callAction('addApplet', ['widget' => UnreadMailWidget::class]);
         $this->get('/')->assertOk()->assertSeeLivewire(UnreadMailWidget::class);
 
+        // No cached count yet: the widget renders without asking the server,
+        // and asks it in a request of its own once it's on screen.
         Livewire::test(UnreadMailWidget::class)
+            ->assertSee('checking…')
+            ->assertDontSee('3 unread')
+            ->assertSeeHtml('wire:init="checkMissing"')
+            ->call('checkMissing')
             ->assertSee('3 unread')
             ->assertSee('Work')
             ->assertDontSee('me@ourcompany.test')
@@ -622,7 +636,11 @@ class MailTest extends TestCase
             ->assertDontSee('Offer');
 
         $server->unseenCounts['INBOX'] = 5;
-        Livewire::test(UnreadMailWidget::class)->assertSee('3 unread', false);
+        Livewire::test(UnreadMailWidget::class)
+            ->assertSee('3 unread', false)
+            ->assertDontSeeHtml('wire:init')
+            ->call('checkMissing')
+            ->assertSee('3 unread', false);
 
         Livewire::test(UnreadMailWidget::class)
             ->call('refreshCounts')
@@ -647,14 +665,13 @@ class MailTest extends TestCase
     public function test_eml_upload_goes_by_extension_not_by_sniffed_mime_type(): void
     {
         // Postbox saves Subject: first; with no Received:/From header on top,
-        // PHP's fileinfo guesses the HTML part's type instead of message/rfc822.
-        // In tests Livewire reports the fake's own type instead of sniffing it.
+        // older fileinfo guesses the HTML part's type instead of message/rfc822
+        // (PHP 8.5's no longer does). In tests Livewire reports the
+        // fake's own type instead of sniffing it, so that guess is set here.
         $eml = "Subject: Offer\r\n".Eml::make(html: '<html><body><p>test worked</p></body></html>');
-        $sniffed = (new \finfo(FILEINFO_MIME_TYPE))->buffer($eml);
-        $this->assertSame('text/html', $sniffed);
 
         Livewire::test(ListMails::class)
-            ->callAction('uploadEml', data: ['files' => [UploadedFile::fake()->createWithContent('This is a test.eml', $eml)->mimeType($sniffed)]])
+            ->callAction('uploadEml', data: ['files' => [UploadedFile::fake()->createWithContent('This is a test.eml', $eml)->mimeType('text/html')]])
             ->assertHasNoActionErrors();
 
         $this->assertSame(1, Mail::count());

@@ -98,7 +98,7 @@ this page and the command.
 **On the command line.** `app/Console/Commands/EpesiInstall.php`. Run it once on the server,
 from the project directory, after `composer install`.
 
-1. **Requirements.** Prints a table: PHP 8.2+, the extensions `ctype curl fileinfo intl
+1. **Requirements.** Prints a table: PHP 8.3+, the extensions `ctype curl fileinfo intl
    mbstring openssl pdo tokenizer xml zip`, and whether `storage/` and `bootstrap/cache/` are
    writable. Stops if anything fails, unless given `--force`. A non-writable `modules/` is
    reported but doesn't fail the check: it only matters for installing modules from the web page.

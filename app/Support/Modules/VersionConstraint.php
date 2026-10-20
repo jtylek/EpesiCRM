@@ -11,9 +11,20 @@ namespace App\Support\Modules;
  * belongs in a real resolver, not here.
  *
  * Supports: "*", "^1.2", ">=1.0", "<2.0", "1.2.3", and comma-separated ANDs.
+ *
+ * One exception to plain caret semantics: a "^2.x" constraint also accepts
+ * 3.x. The Laravel epesi was renumbered from 2.0 to 3.0 before 2.0 ever had a
+ * final release (legacy epesi 1.x derivatives already use 2.x), so 3.0 is the
+ * same line as the 2.0 release candidates, and modules published for them
+ * must keep installing.
  */
 class VersionConstraint
 {
+    /** The major version 3.0 renumbered, and the one that renumbered it. */
+    protected const RENUMBERED_MAJOR = 2;
+
+    protected const RENUMBERED_TO = 3;
+
     public static function satisfies(string $version, ?string $constraint): bool
     {
         $constraint = trim((string) $constraint);
@@ -36,6 +47,10 @@ class VersionConstraint
         if (str_starts_with($constraint, '^')) {
             $min = substr($constraint, 1);
 
+            if (static::major($min) === self::RENUMBERED_MAJOR && static::major($version) === self::RENUMBERED_TO) {
+                return true;
+            }
+
             return version_compare($version, $min, '>=')
                 && version_compare($version, static::caretUpperBound($min), '<');
         }
@@ -50,6 +65,11 @@ class VersionConstraint
         }
 
         return version_compare($version, $constraint, '=');
+    }
+
+    protected static function major(string $version): int
+    {
+        return (int) $version;
     }
 
     /**

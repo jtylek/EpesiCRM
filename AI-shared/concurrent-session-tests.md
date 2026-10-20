@@ -50,15 +50,16 @@ Before running tests, tell the other sessions working in the checkout, so they h
 test runs until yours is done. When it finishes, tell them again. This matters most for the
 full suite or anything else long.
 
-- In Claude Code, `ListAgents` lists the other Claude sessions on this machine. Send each one a
-  message with `SendMessage`.
-- The first message says what you are about to run (the full suite, or which test files), and
+Claude Code sessions tell each other directly: `ListAgents` lists the other Claude sessions on
+this machine, and `SendMessage` reaches each one. Other agents rely on the lock below.
+
+- The first message says what you are about to run (the full suite, or which test files) and
   asks them to wait for your results before running tests of their own.
 - The second message gives the result: passed, or which tests failed. They can then tell
   whether a failure concerns their change.
 - A session that has been told a run is starting doesn't start tests until the result
   arrives. If nothing arrives (the other session was closed or stopped), check with
-  `ListAgents` or ask it before going ahead.
+  `ListAgents` before going ahead.
 
 ## Running tests meanwhile
 
@@ -77,8 +78,7 @@ full suite or anything else long.
 `storage/framework/testing/test-run.lock` and holds it until the process exits, even if it
 crashes. A second run prints who holds it (read from `test-run.info`, a separate file because
 Windows blocks reads of a locked one), waits, and gives up after 30 minutes. It works for any
-agent or developer, with no messaging needed, so `SendMessage` announcements are now optional.
-It doesn't fix the working-tree problem above: a run still tests everyone's edits.
+agent or developer. It doesn't fix the working-tree problem above: a run still tests everyone's edits.
 
 A token per run (`php artisan test --parallel`'s `TEST_TOKEN`, added to the fake disks and
 `VIEW_COMPILED_PATH`) would let runs overlap instead of queueing. Not built.

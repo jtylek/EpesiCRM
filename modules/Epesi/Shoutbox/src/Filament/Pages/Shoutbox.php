@@ -5,6 +5,7 @@ namespace Epesi\Modules\Shoutbox\Filament\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Models\User;
 use BackedEnum;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Shoutbox\Filament\Concerns\ComposesMessages;
@@ -51,7 +52,7 @@ class Shoutbox extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasAnyRole(['super_admin', 'manager', 'employee']) ?? false;
+        return Auth::user()?->hasAnyRole(User::CRM_ROLES) ?? false;
     }
 
     public function content(Schema $schema): Schema

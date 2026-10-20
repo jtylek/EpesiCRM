@@ -83,7 +83,7 @@ class TicketIssuer
                 'archive_title' => __('Archive to the CRM'),
                 'archive_sent_title' => __('Archive this message after sending'),
                 'contact_not_found' => __('Matching contact or company not found. Click again to force archive without contact association.'),
-                'already_archived' => __('Message already archived'),
+                'too_many' => __('Select at most :count messages to archive at once'),
                 'invalid_folder' => __('Cannot move to archive from this folder'),
                 'login_refused' => __('Your mail server refused the login. Check this account under Settings > Mail accounts.'),
             ],

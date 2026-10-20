@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
+use App\Filament\Concerns\LimitsGlobalSearchResults;
 use App\Filament\Concerns\TranslatesResourceLabels;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
@@ -11,6 +12,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -19,7 +21,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -76,12 +77,19 @@ use LogicException;
  */
 abstract class RecordsetResource extends Resource
 {
+    use LimitsGlobalSearchResults;
     use TranslatesResourceLabels;
 
     /** Column the list sorts by out of the box; null leaves Filament's default. */
     protected static ?string $recordsetDefaultSort = null;
 
     protected static string $recordsetDefaultSortDirection = 'asc';
+
+    /** The column the list sorts by out of the box, for `recordset:check`'s index hint. */
+    public static function defaultSortColumn(): ?string
+    {
+        return static::$recordsetDefaultSort;
+    }
 
     /**
      * A star on each record and a Favorites tab on the list — Epesi's
@@ -140,6 +148,16 @@ abstract class RecordsetResource extends Resource
      * @return array<int, Field>
      */
     public static function resolvedFields(): array
+    {
+        return app(FieldOverrides::class)->memo(
+            // A Field remembers what it showed its user (linked records they may see), so one per user.
+            'fields:'.static::class.':'.Auth::id(),
+            static::buildResolvedFields(...),
+        );
+    }
+
+    /** @return array<int, Field> */
+    protected static function buildResolvedFields(): array
     {
         $declared = static::fields();
         $names = array_map(fn (Field $field): string => $field->name, $declared);
@@ -350,6 +368,20 @@ abstract class RecordsetResource extends Resource
     }
 
     /**
+     * Filament's topbar asks every resource this on every page until one says
+     * yes, only to decide whether to draw the search box. Checking access first
+     * spares building the field list of a recordset this user can't search, and
+     * the answer is kept for the request.
+     */
+    public static function canGloballySearch(): bool
+    {
+        return app(FieldOverrides::class)->memo(
+            'search:'.static::class.':'.Auth::id(),
+            fn (): bool => static::canAccess() && parent::canGloballySearch(),
+        );
+    }
+
+    /**
      * Filament's own default is `[$recordTitleAttribute]`; every searchable
      * field of the recordset is a better answer, and it is the nearest thing to
      * Epesi's `recordbrowser_search_index` that costs nothing to maintain. A
@@ -395,6 +427,70 @@ abstract class RecordsetResource extends Resource
         }
 
         return $columns !== [] ? $columns : array_filter(static::getGloballySearchableAttributes(), fn (string $column): bool => ! str_contains($column, '.'));
+    }
+
+    /**
+     * Narrows $query to the records a record picker's text matches: every
+     * word typed ("łuk mir") must match one of the picker columns, in any
+     * order, so a partial first name plus a partial last name finds the
+     * record. A recordset that is also found through a related record (a
+     * contact by its company) adds that in matchSearchWord().
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function applyPickerSearch(Builder $query, string $search): Builder
+    {
+        $columns = static::getPickerSearchAttributes();
+
+        foreach (preg_split('/\s+/u', trim($search), flags: PREG_SPLIT_NO_EMPTY) ?: [] as $word) {
+            $query->where(function (Builder $wordQuery) use ($query, $columns, $word): void {
+                foreach ($columns as $column) {
+                    $wordQuery->orWhere($query->qualifyColumn($column), 'like', "%{$word}%");
+                }
+
+                static::matchSearchWord($wordQuery, $word);
+            });
+        }
+
+        return $query;
+    }
+
+    /** Where a recordset adds the related records one word may match (an `orWhere` on $query). */
+    protected static function matchSearchWord(Builder $query, string $word): void {}
+
+    /**
+     * Whether this recordset searches its pickers by more than its own short
+     * text fields — for the pickers that don't go through the engine's field
+     * and would otherwise miss it.
+     */
+    public static function hasCustomPickerSearch(): bool
+    {
+        return false;
+    }
+
+    /**
+     * What a picker offers for $search: id => record title, the best 50. Any
+     * $scope narrows the records first (a select's crits).
+     *
+     * @param  (Closure(Builder<Model>): mixed)|null  $scope
+     * @return array<int|string, string>
+     */
+    public static function searchOptions(string $search, ?\Closure $scope = null, int $limit = 50): array
+    {
+        $query = static::getModel()::query();
+
+        if ($scope) {
+            $scope($query);
+        }
+
+        $title = static::getRecordTitleAttribute();
+
+        return static::applyPickerSearch($query, $search)
+            ->when($title, fn (Builder $query) => $query->orderBy($query->qualifyColumn($title)))
+            ->limit($limit)->get()
+            ->mapWithKeys(fn (Model $record): array => [$record->getKey() => strip_tags((string) static::getRecordTitle($record))])
+            ->all();
     }
 
     // ---------------------------------------------------- Pages and addons --

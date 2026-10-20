@@ -4,6 +4,7 @@ namespace Epesi\Modules\StickyNotes\Filament\Widgets;
 
 use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\IsApplet;
+use App\Models\User;
 use Epesi\Modules\StickyNotes\Models\StickyNote;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
@@ -52,7 +54,7 @@ class StickyNotesWidget extends Widget implements Applet, HasActions, HasSchemas
 
     public static function canView(): bool
     {
-        return Auth::user()?->hasAnyRole(['super_admin', 'manager', 'employee']) ?? false;
+        return Auth::user()?->hasAnyRole(User::CRM_ROLES) ?? false;
     }
 
     public static function getAppletCaption(): string
@@ -135,6 +137,8 @@ class StickyNotesWidget extends Widget implements Applet, HasActions, HasSchemas
             ->color('gray')
             ->modalHeading(__('Add note'))
             ->modalSubmitActionLabel(__('Save'))
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->extraModalWindowAttributes(['class' => 'sticky-note-modal'])
             ->fillForm(['color' => 'yellow'])
             ->schema($this->noteForm())
             ->action(function (array $data): void {
@@ -156,6 +160,8 @@ class StickyNotesWidget extends Widget implements Applet, HasActions, HasSchemas
             ->color('gray')
             ->modalHeading(__('Edit note'))
             ->modalSubmitActionLabel(__('Save'))
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->extraModalWindowAttributes(['class' => 'sticky-note-modal'])
             ->fillForm(fn (array $arguments): array => $this->mine()->findOrFail($arguments['id'])->only(['title', 'body', 'color']))
             ->schema($this->noteForm())
             ->action(fn (array $data, array $arguments) => $this->mine()->findOrFail($arguments['id'])->update($data));

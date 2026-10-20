@@ -81,6 +81,11 @@ class EmailAddress extends CollectionItem
         return 'Email_Kinds';
     }
 
+    public static function defaultKind(): ?string
+    {
+        return 'work';
+    }
+
     public static function addActionLabel(): string
     {
         return __('Add e-mail address');

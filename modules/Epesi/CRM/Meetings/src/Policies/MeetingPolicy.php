@@ -15,7 +15,7 @@ class MeetingPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, Meeting $meeting): bool
@@ -25,13 +25,19 @@ class MeetingPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function update(User $user, Meeting $meeting): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
             return true;
+        }
+
+        // Not because it's Public: only what he created or works on.
+        if ($user->isConsultant()) {
+            return $meeting->created_by === $user->id
+                || $meeting->employees()->withoutGlobalScope('ownership')->where('user_id', $user->id)->exists();
         }
 
         if (! $user->hasRole('employee')) {
@@ -52,7 +58,7 @@ class MeetingPolicy
             return true;
         }
 
-        return $user->hasRole('employee') && $meeting->created_by === $user->id;
+        return $user->hasAnyRole(['employee', 'consultant']) && $meeting->created_by === $user->id;
     }
 
     public function restore(User $user, Meeting $meeting): bool

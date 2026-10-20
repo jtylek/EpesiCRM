@@ -2,16 +2,21 @@
 
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
+use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Throwable;
 
+use function Filament\Support\generate_icon_html;
+
 /**
- * What a "link to any record" field (Field::related()) can point at: every
+ * What a Linked to field (Field::linkedTo()) can point at: every
  * model in the morph map with a View page in the main panel — Epesi's
  * `__RECORDSETS__`. Derived rather than configured, as
  * CustomFieldRegistry::participatingModels() is, so a module's recordset is
@@ -62,6 +67,44 @@ class LinkableRecordsets
         $resource = static::resource($alias);
 
         return $resource ? Str::ucfirst($resource::getModelLabel()) : Str::headline($alias);
+    }
+
+    /**
+     * A record's title as its recordset names it ("Acme Ltd"), from the main
+     * panel's resource whichever panel is current — or "Company #12" for one
+     * without a resource.
+     */
+    public static function title(Model $record): string
+    {
+        $resource = static::resource($record->getMorphClass());
+        $title = $resource ? $resource::getRecordTitle($record) : null;
+
+        return filled($title) ? strip_tags((string) $title) : Str::headline($record->getMorphClass()).' #'.$record->getKey();
+    }
+
+    /**
+     * The recordset's icon, the one beside it in the sidebar — so a contact
+     * reads differently from a company at a glance wherever records of several
+     * recordsets are offered side by side.
+     */
+    public static function icon(string $alias): string|BackedEnum|Htmlable|null
+    {
+        $resource = static::resource($alias);
+
+        return $resource ? $resource::getNavigationIcon() : null;
+    }
+
+    /**
+     * $label (escaped) after the recordset's icon, as HTML for a select that
+     * allows it (allowHtml()).
+     */
+    public static function iconLabel(string $alias, string $label): string
+    {
+        $icon = generate_icon_html(static::icon($alias), size: IconSize::Small)?->toHtml();
+
+        return ($icon
+            ? '<span style="display: inline-block; vertical-align: middle; margin-right: 0.375rem; line-height: 1;">'.$icon.'</span>'
+            : '').e($label);
     }
 
     protected static function panel(): ?Panel

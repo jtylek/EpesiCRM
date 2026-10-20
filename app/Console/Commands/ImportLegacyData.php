@@ -34,13 +34,20 @@ use Illuminate\Support\Facades\DB;
  * `migrate:fresh --seed` (which reintroduces those fixtures) is the specific
  * trap to avoid before running this — use the reset recipe in
  * assertDatabaseIsClean()'s error output instead.
+ *
+ * --keep-existing imports alongside such rows instead, for an instance
+ * already in use (records entered by hand before the cutover): links resolve
+ * through `legacy_id` (LegacyIdMap), not matching ids, so nothing breaks;
+ * imported records just get the next free ids, and a record entered both
+ * here and in legacy ends up twice, to be merged by hand.
  */
 class ImportLegacyData extends Command
 {
     protected $signature = 'import:legacy
         {tab=all : users|companies|contacts|phonecalls|tasks|meetings, a module-registered tab (e.g. commondata, mail), or all}
         {--dry-run : roll back every write at the end and only print summaries}
-        {--no-history : skip edit-history replay into activity_log}';
+        {--no-history : skip edit-history replay into activity_log}
+        {--keep-existing : import alongside rows that did not come from legacy instead of refusing}';
 
     protected $description = 'Import records and edit history from the legacy Epesi database';
 
@@ -81,12 +88,17 @@ class ImportLegacyData extends Command
         // lining up with local ones, so only they are worth refusing over. A
         // module's tab writes none of MIGRATED_TABLES, and importing reference
         // data into a working database is a normal thing to want.
-        if (array_intersect($tabs, array_keys(self::IMPORTERS)) !== [] && $dirtyTables = $this->dirtyTables()) {
+        $dirtyTables = array_intersect($tabs, array_keys(self::IMPORTERS)) !== [] ? $this->dirtyTables() : [];
+
+        if ($dirtyTables !== [] && $this->option('keep-existing')) {
+            $this->warn('Keeping the rows with no legacy_id in '.implode(', ', $dirtyTables).': imported records get the next free ids, and any record that also exists in legacy will be there twice.');
+        } elseif ($dirtyTables !== []) {
             $this->error('Refusing to import: '.implode(', ', $dirtyTables).' already have rows with no legacy_id (non-legacy fixtures) — importing on top of them would misalign every legacy_id from its matching id.');
             $this->error('Reset first, then re-import:');
             $this->line('  php artisan migrate:fresh --force');
             $this->line('  php artisan db:seed --class=RoleSeeder --force');
             $this->line('  php artisan import:legacy all');
+            $this->line('Or keep those rows and import alongside them: --keep-existing');
 
             return self::FAILURE;
         }

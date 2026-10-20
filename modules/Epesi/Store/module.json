@@ -3,7 +3,7 @@
     "name": "Store",
     "description": "Browse the Epesi module catalog and install or update modules from it.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Store",
     "icon": "heroicon-o-shopping-bag",
     "namespace": "Epesi\\Modules\\Store\\",

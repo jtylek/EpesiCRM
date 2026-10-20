@@ -20,14 +20,23 @@ interface Mailbox
     public function open(string $folder): int;
 
     /**
-     * UIDs above $uid in the open folder, ascending.
+     * UIDs of the messages in the open folder with this Message-ID (without
+     * angle brackets), ascending.
      *
      * @return array<int, int>
      */
-    public function uidsAfter(int $uid): array;
+    public function uidsWithMessageId(string $messageId): array;
 
     /** The complete raw message. */
     public function fetchRaw(int $uid): string;
+
+    /**
+     * Move messages from $folder to $target — after archiving, the INBOX copy
+     * goes to "CRM Archive", so other mail clients still have it.
+     *
+     * @param  array<int, int>  $uids
+     */
+    public function move(string $folder, array $uids, string $target): void;
 
     /**
      * Store a raw message in $folder, marked as read — how a sent message

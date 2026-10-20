@@ -30,7 +30,7 @@ use function Laravel\Prompts\text;
 class EpesiInstall extends Command
 {
     protected $signature = 'epesi:install
-        {--db-connection= : mysql, mariadb, pgsql or sqlite}
+        {--db-connection= : mysql or mariadb (corrected to match the server)}
         {--db-host=}
         {--db-port=}
         {--db-database= : database name, or the file path for sqlite}
@@ -93,6 +93,8 @@ class EpesiInstall extends Command
     {
         $rows = app(Requirements::class)->check();
 
+        $this->line('epesi runs on PHP '.Requirements::php()['range'].'.');
+
         $this->table(['Requirement', 'Status'], array_map(fn (array $row): array => [$row['label'], $row['status']], $rows));
 
         return Requirements::passes($rows);
@@ -126,7 +128,7 @@ class EpesiInstall extends Command
     {
         $current = config('database.default');
         $connection = $this->option('db-connection') ?? ($this->input->isInteractive()
-            ? select('Database type', ['mysql' => 'MySQL', 'mariadb' => 'MariaDB', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'], default: $current === 'sqlite' ? 'mysql' : $current)
+            ? select('Database type', ['mysql' => 'MySQL', 'mariadb' => 'MariaDB'], default: $current === 'mariadb' ? 'mariadb' : 'mysql')
             : $current);
 
         $database = app(DatabaseSetup::class);
@@ -154,6 +156,12 @@ class EpesiInstall extends Command
             $this->error('Could not connect to the database: '.$e->getMessage());
 
             return false;
+        }
+
+        [$settings, $note] = $database->matchServer($settings);
+
+        if ($note !== null) {
+            $this->components->warn($note);
         }
 
         $database->save($settings);

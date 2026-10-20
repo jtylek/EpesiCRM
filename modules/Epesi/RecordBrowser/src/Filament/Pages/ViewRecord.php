@@ -126,6 +126,17 @@ abstract class ViewRecord extends BaseViewRecord
 
             $this->cachedHeaderActions[] = $action;
         }
+
+        // Edit sits at the far right, just before the kebab, on every View
+        // page, whatever order the page and the extensions added actions in.
+        $edit = collect($this->cachedHeaderActions)->first(fn (mixed $action): bool => $action instanceof Action && $action->getName() === 'edit');
+
+        if ($edit) {
+            $others = array_values(array_filter($this->cachedHeaderActions, fn (mixed $action): bool => $action !== $edit));
+            $kebab = array_pop($others);
+
+            $this->cachedHeaderActions = [...$others, $edit, $kebab];
+        }
     }
 
     public function getRelationManagersContentComponent(): Component
@@ -143,7 +154,7 @@ abstract class ViewRecord extends BaseViewRecord
                 $resource = $properties['sourceResource'];
                 $fields = IncomingLinks::for($ownerRecord)[$resource];
 
-                return Tab::make($resource::getTitleCasePluralModelLabel())
+                return Tab::make(IncomingLinks::tabLabel($resource, $ownerRecord))
                     ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
                     ->badge(fn (): string => (string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
                     ->badgeColor(fn (?string $badge): ?string => $badge === '0' ? 'gray' : null)

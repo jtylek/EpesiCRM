@@ -1,20 +1,27 @@
 # Working on Epesi Laravel
 
+This file is the instructions for every AI agent (Claude, Codex, Copilot, …) and developer
+working in this repository. [CLAUDE.md](CLAUDE.md) only imports it and adds Claude Code-specific
+notes; put anything that applies to all agents here, not there.
+
 ## Read first
 
 This is a from-scratch Epesi CRM/ERP reimplementation on Laravel 12, Filament 5,
-Livewire, and Tailwind 4. Preserve Epesi's behavior by consulting the real legacy
-source when porting features; do not infer the specification from Laravel defaults.
-The legacy rendering and EAV storage engines are not being ported.
+Livewire, and Tailwind 4 (not a code migration of [Epesi](https://github.com/jtylek/epesiCRM)).
+Preserve Epesi's behavior by consulting the real legacy source when porting features; do not
+infer the specification from Laravel defaults. The legacy rendering and EAV storage engines are
+not being ported.
 
-Don't read [README.md](README.md), [CLAUDE.md](CLAUDE.md), the
-[shared notes index](AI-shared/README.md), or any AI-shared doc as a standing checklist at
-the start of a session — that's token overhead most tasks don't need. Open one only when it's
-relevant to the task at hand: [architecture](AI-shared/architecture.md) or
-[conventions](AI-shared/conventions.md) before a non-trivial change in that area, or the notes
-for the specific feature being touched. Check implementation against the notes: some documents
-include proposals or older descriptions. In particular, there are five panel providers, and
-CRM `fields()` declarations belong to resources.
+Don't read [README.md](README.md), the [shared notes index](AI-shared/README.md), or any
+AI-shared doc as a standing checklist at the start of a session — that's token overhead most
+tasks don't need. Open one only when it's relevant to the task at hand:
+[architecture](AI-shared/architecture.md) or [conventions](AI-shared/conventions.md) before a
+non-trivial change in that area, or the notes for the specific feature being touched. Check
+implementation against the notes: some documents include proposals or older descriptions. In
+particular, there are five panel providers, and CRM `fields()` declarations belong to resources.
+
+Token efficiency: don't re-read a file right after editing it just to verify the edit; prefer
+targeted searches and partial reads of large files over reading whole files.
 
 ## Architecture and ownership
 
@@ -38,6 +45,19 @@ CRM `fields()` declarations belong to resources.
 - Calendar events, dashboard applets, and module setup steps use their existing
   registries/contracts. Extend these rather than adding module-specific branches
   to shared pages.
+- Other core modules: `Epesi/Store` (administration: browses a module catalog and installs
+  from it; the catalog server is a separate module outside this repository) and
+  `Epesi/Currencies` (currencies, the dated home currency, daily ECB/NBP rates through
+  `RateResolver`; see [currencies](AI-shared/Epesi-currencies.md)).
+- `Epesi/Roundcube` embeds the Roundcube webmail on a Mailbox page. Roundcube itself is
+  downloaded by `php artisan roundcube:install` into `storage/roundcube` and never committed;
+  read [Roundcube](AI-shared/Epesi-Laravel-Roundcube.md) before touching it. Mail is archived
+  only by a person (Roundcube's Archive button, never automatically or on a schedule); read
+  [mail archiving](AI-shared/Mail-archiving.md) before touching archiving.
+- Because the core app still names the CRM models directly (`User::contact()`, the
+  importers) and touches them during `register()`, their PSR-4 prefixes are listed in
+  `config('modules.core_namespaces')` rather than waiting for the `modules` table.
+  `MODULES_LOAD=false` skips loading modules entirely, as a recovery switch if one throws.
 
 ### Panels and access
 
@@ -78,9 +98,14 @@ also apply to them cannot rely on a policy denial alone.
 - Module route groups outside `web`/`api` need explicit `SubstituteBindings` for
   implicit route-model binding.
 - Support MySQL/MariaDB, even though tests use SQLite. Keep index/foreign-key names
-  within 64 characters; explicitly name long generated identifiers. Review timestamp
+  within 64 characters; explicitly name long generated identifiers (e.g.
+  `morphs('subscribable', 'epesi_watchdog_subscriptions_subscribable_index')`). Before
+  `module:register`, run `php artisan migrate --pretend --path=modules/<Vendor>/<Name>/database/migrations`
+  to see the generated names. MySQL doesn't roll back table creation, so a failed module
+  migration leaves a half-built table that has to be dropped before retrying. Review timestamp
   defaults: a first non-null timestamp can acquire implicit `ON UPDATE` behavior
-  on some MariaDB installations. Use explicit defaults or nullable columns as appropriate.
+  on some MariaDB installations. Use explicit defaults or nullable columns as appropriate
+  (see [cron](AI-shared/cron.md) for the `cron_calls.started_at` case).
 - Preserve legacy identifiers and import safeguards. `App/Services/LegacyImport`
   uses a separate `legacy` connection and upserts by `legacy_id`; do not bypass its
   checks against mixing imported and locally created records.
@@ -121,9 +146,10 @@ Actions restricted in demo mode must use the existing `Demo::guard()` or
 
 ## Commands and verification
 
-Run commands from the repository root. PHP requires 8.2 or later. Check the local
-database configuration when relevant; `.env.example` is not evidence of the running
-database. Do not print credentials or copy installation-specific settings into docs.
+Run commands from the repository root. PHP requires 8.3 or later (8.5 works). The app runs on
+MySQL (`.env`'s `DB_CONNECTION`); `.env.example` still defaults to SQLite, which is stale and is
+not evidence of the running database. Do not print credentials or copy installation-specific
+settings into docs.
 
 ```text
 composer install
@@ -143,8 +169,7 @@ Use focused tests for affected behavior; use `npm run build` for frontend change
 Documentation-only changes need link/content and diff checks, not the application suite.
 
 Before running tests, read [concurrent-session-tests](AI-shared/concurrent-session-tests.md).
-Coordinate with other active sessions using available agent communication tools;
-announce the scope and completion of a test run. SQLite databases are isolated, but
+SQLite databases are isolated, but
 fake disks, compiled views, application caches, and the working tree are shared.
 Do not run overlapping suites in the same checkout. Do not stash, revert, or fix
 another session's changes to make tests pass.
@@ -156,12 +181,27 @@ passing SQLite tests does not validate MySQL-specific DDL.
 
 Installation/operations commands are not routine test setup:
 
-- `php artisan epesi:install`: install, followed by the browser setup steps.
-- `php artisan epesi:update`: apply core and module updates after a release.
-- `php artisan module:register Vendor/Name`: register a local module.
-- `php artisan make:epesi-module` / `make:epesi-recordset`: generators.
-- `php artisan epesi:package`: build a release ZIP with dependencies and built assets.
-- `php cron.php`: run due tasks in-process; the deployment schedules this every minute.
+- `php artisan epesi:install`: install, followed by the browser `/setup` wizard (which can
+  also do everything on its own).
+- `php artisan epesi:update`: apply core and module migrations after unpacking a release
+  (also Administration → Database update).
+- `php artisan epesi:package`: build a release ZIP with dependencies and built assets;
+  `--translate [--legacy=<old epesi>]` runs the translations pass and strict translation
+  tests first, `--test` the whole suite (see [distribution](AI-shared/Epesi-Laravel-distro.md)).
+- `php artisan epesi:optimize [--clear]`: cron's every-minute cache check on an installation,
+  never in a git checkout (see [optimization](AI-shared/Epesi-optimization.md)).
+- `php cron.php` (= `epesi:cron`, also the `/cron?token=` URL): run due tasks in-process; the
+  deployment schedules this every minute (see [cron](AI-shared/cron.md)).
+- Modules: `module:register Vendor/Name`, `module:install {--zip=}`, `module:enable` /
+  `disable` / `uninstall`, `module:list`, `module:package`; generators `make:epesi-module`,
+  `make:epesi-recordset`; RecordBrowser checks `recordset:check [--strict]`, `customfields:sync`.
+- Languages: `lang:import-epesi <code> <epesi path>` (see
+  [translations](AI-shared/Epesi-Laravel-Translations.md)).
+- Legacy cutover: `import:legacy {tab=all} {--dry-run} {--no-history}`.
+- Demo mode (`DEMO_MODE=true`, see [demo mode](AI-shared/Demo-mode.md)): `demo:reset {--force}`
+  empties the database and reinstalls with demo data, keeping `login_audits` (refuses outside
+  demo mode; the scheduler runs it nightly); `demo:audit {--days=} {--csv}`. Anything a visitor
+  could use to spoil a demo for the next one needs `Demo::guard()` or a `Demo::enabled()` check.
 
 Use `migrate --seed` only for an intended development/demo database. Read the relevant
 notes before running installers, legacy imports, module lifecycle operations, or resets
@@ -195,23 +235,54 @@ note is added, removed, or changes purpose. Do not include private deployment de
 dates in prose, or brittle line-number references. Comment on non-obvious reasons,
 not obvious code behavior, and keep abstractions within the requested scope.
 
-## Other agents work in this checkout
+## Coordinating with other agents
 
 Other AI agents (Claude, Codex, …) and developers may be editing this tree and running tests
-at the same time. A test run takes the lock `storage/framework/testing/test-run.lock`
-(`tests/bootstrap.php`): a second run waits for the first instead of colliding with it, and
+at the same time. Private memory is not shared, and anything that needs another session's
+attention goes through the user. Uncommitted changes you didn't make belong to someone else
+(see the git rules below).
+
+### Work in progress: git
+
+- Commit in small steps with descriptive messages; a commit message is the most reliable
+  handoff note. This is standing permission: agents may commit their own finished work on
+  the current branch without asking first (pushing, merging and other outward-facing steps
+  still need the user's go-ahead). Commit only your own files: never `git add -A`/`git commit -a` or commit
+  other agents' changes, unless the user says "commit all". Don't stash, revert or "fix"
+  another agent's files.
+- For long or risky work, prefer a separate git worktree on its own branch
+  (`git worktree add ../<dir> <branch>`) where practical: it then has its own working tree
+  and test lock, so nobody tests your half-finished edits. A worktree needs its own
+  `composer install`, `npm install` and `.env`, and has no `modules/Premium/` (a separate
+  repository).
+- Work that spans sessions and isn't finished gets a handoff note,
+  `AI-shared/wip/<task>.md`: goal, what is done, what is next, files touched, open questions.
+  Delete it when the work is merged. Handoff notes are exempt from the "no dates" rule and
+  stay out of the `AI-shared/README.md` index. Nothing confidential goes in them; that
+  belongs in the private notes repository.
+
+### Durable knowledge: committed docs
+
+Facts that stay true until the code changes go in this file (rules for all agents) or in the
+`AI-shared/` note that owns the topic (see "Further reading" above). Don't keep project facts
+only in one tool's memory system: other agents can't see it.
+
+### Tests in a shared checkout
+
+A test run takes the lock `storage/framework/testing/test-run.lock` (`tests/bootstrap.php`): a
+second run waits for the first instead of colliding with it, and
 `storage/framework/testing/test-run.info` names the holder. Don't delete or bypass the lock,
 and don't change the PHPUnit bootstrap. A failure outside your change may come from another
-agent's half-finished edits — check `git status` before blaming your own work.
-
-Commit only your own files. Never `git add -A`/`git commit -a` or commit other agents'
-changes — unless the user says "commit all". Don't stash, revert or "fix" another agent's files.
-See [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md).
+agent's half-finished edits — check `git status` before blaming your
+own work. See [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md).
 
 ## When to run tests
 
 - While working: run scoped tests only (`php artisan test --filter=Name` or a test file path).
-- Before committing: run the full suite.
+  Don't run the full suite speculatively: it is slow and holds up other agents' runs.
+- Before committing: run the full suite. A failure that comes only from another agent's
+  uncommitted work (check `git status`) doesn't block your commit; say in
+  your report which tests failed and why you attribute them to someone else.
 - Also run the full suite right after a change to shared infrastructure (the RecordBrowser
   engine, migrations, module loading, `app/Support`), since its effects reach far beyond the
   files you touched.

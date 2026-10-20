@@ -9,10 +9,10 @@ return [
     'imap_validate_cert' => (bool) env('MAIL_IMAP_VALIDATE_CERT', true),
 
     /*
-     * How often `mail:fetch` runs from the scheduler, as a cron expression.
-     * Requires `php artisan schedule:run` in cron, as Epesi needed cron.php.
+     * How often `mail:check` refreshes the Mail widget's unread counts, as a
+     * cron expression. Requires cron (cron.php), as Epesi did.
      */
-    'fetch_schedule' => env('MAIL_FETCH_SCHEDULE', '*/5 * * * *'),
+    'check_schedule' => env('MAIL_CHECK_SCHEDULE', '*/5 * * * *'),
 
     /*
      * Appended to every message sent from the CRM, after the account's own

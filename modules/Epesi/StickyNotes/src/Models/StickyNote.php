@@ -52,12 +52,14 @@ class StickyNote extends Model
         return 'color-mix(in srgb, '.(self::COLORS[$this->color] ?? self::COLORS['yellow']).' 14%, transparent)';
     }
 
-    /** The body's Markdown as safe HTML: raw HTML in it is dropped, and so are unsafe links. */
+    /** The body's Markdown as safe HTML: raw HTML in it is dropped, and so are unsafe links. Links open in a new tab. */
     public function bodyHtml(): string
     {
-        return (string) Str::markdown((string) $this->body, [
+        $html = (string) Str::markdown((string) $this->body, [
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
+
+        return str_replace('<a href=', '<a target="_blank" rel="noopener noreferrer" href=', $html);
     }
 }

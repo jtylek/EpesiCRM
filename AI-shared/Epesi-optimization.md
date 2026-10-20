@@ -222,21 +222,248 @@ This XAMPP machine, measured against it: OPcache memory, interned strings and fi
 below the recommendation, as are `realpath_cache_ttl`, `zend.assertions` and `expose_php`.
 The XAMPP `php.ini` was left unchanged: it serves every site in `htdocs`.
 
+Log level: a production `.env` should set `LOG_LEVEL=warning`, since `debug` writes every debug
+message. The bim.epe.si production `.env` already does. The server's `.env` is
+edited by hand there and never pushed, so check it after a first deploy.
+
+### 7. Record pages, global search and list sorting
+
+A second pass looked at what a person still feels after the caches: a record's View page, the
+search box, and lists with real data volumes. Each change below is implemented.
+
+- **Field lists are built once per request.** A Company View page rebuilt every resource's field
+  list about eleven times, once per addon tab through `IncomingLinks::for()`, and
+  `resolvedFields()` re-ran `fields()`, the custom fields and the overrides on every call.
+  `app/Support/RequestMemo.php` (a `scoped` binding, so a Livewire request or queue job starts
+  empty) now keeps the answers for the rest of one request. `FieldOverrides` and
+  `CustomFieldRegistry` forget them when an override or custom field is saved. Field output that
+  depends on the signed-in user is keyed by user id.
+- **Per-record state is read once.** "Is it a favorite, watched, in my priority list" was asked
+  by several widgets per View page, and the Watchdog badge ran twice per page. Each is memoized
+  per request and invalidated by its own write.
+- **The topbar's search check no longer builds every field list.** `Filament::isGlobalSearchEnabled()`
+  reached `getGloballySearchableAttributes()`, which resolved all fields of every recordset on
+  every page.
+- **Global search costs less per keystroke.** A search needs a minimum length (one letter
+  searched nothing useful across 19 resource groups), each group returns fewer results, and the
+  mail result query reads only the columns its result row needs. Mail's `LIKE '%term%'` still
+  scans the table; only a FULLTEXT index would fix that (see below).
+- **Every CRM list has an index on its default sort column.** Companies, contacts, tasks,
+  meetings and phone calls opened sorted by a column nothing indexed, so each page, search and
+  page change sorted the whole table. One migration adds `(deleted_at, <sort column>)` to each,
+  with `first_name` after `last_name` for contacts. On 100,000 rows per table (200,000 contacts)
+  the database time of the default list query went from 39-159 ms to 0-1 ms, and `EXPLAIN`
+  from `key NULL, Using filesort` to the new index. `recordset:check` now hints when a
+  recordset's default sort column has no such index.
+- **The command palette no longer ships every icon in every page.** It embedded a generated SVG
+  for each navigation item in the page (about 31 KB raw, 5 KB gzipped, a tenth of a list
+  page's transfer). It now copies the icon from the sidebar when it opens, so it relies on the
+  sidebar being in the page.
+- **Option lists load when they are needed.** `Field::select()` and `multiselect()` accept a
+  closure that runs once, when a form, filter or label needs the options, so `fields()` itself
+  runs no query. `recordset:check` reports a resource whose `fields()` does. Premium Accounting's
+  currency, expense-category and numbering-series lists use it, which removes the queries its
+  field lists ran on every page (they are in the "now" column below only for the core pass).
+- **Mail is out of global search.** Its `LIKE '%term%'` over long columns scanned the table on
+  every keystroke; the Mail module's own list search is unchanged.
+- **The Premium lists are indexed too.** Expenses, Invoices, Projects, Rates and Timesheets each
+  have a `(deleted_at, <default sort column>)` index, in their own modules' migrations.
+  `recordset:check` flags a list that lacks one. A module's migration needs a name no other
+  module uses: Laravel identifies migrations by name only, and the second of two with the same
+  name is skipped without a word.
+- **An optional background worker, off by default (first slice).** A separate
+  `epesi-background` database queue, drained by `php artisan epesi:background:drain` from one extra
+  host cron entry (bounded: `--max-time`, `--tries`, `--timeout`), moves the per-account unread-mail
+  check off the cron run so a slow IMAP server no longer holds up later tasks. With the worker off
+  (`EPESI_BACKGROUND_WORKER_ENABLED=false`, the default), or when queuing throws, the check runs
+  synchronously as before. Administration → Server Setup → Background worker shows enabled, last
+  successful drain, pending, reserved, oldest age and failed jobs, and a red warning when it is
+  enabled but nothing has drained for five minutes. The job is unique per account, so a lagging
+  drain cannot pile up copies, and the drain keeps a month of run records. Two traps found in review:
+  `whereKey()` exists only on Eloquent builders (on a query builder it silently matches nothing on
+  SQLite and is an unknown column on MySQL), and removing a "dead" method can take an import with it
+  that another closure in the file still needs.
+- **Cron's PHP is checked too.** The command-line PHP that runs `cron.php` can be another
+  binary than the web server's (on cPanel, an `alt-php` build can lack mbstring until it is
+  enabled), and cron then died inside Laravel with "undefined function mb_split()" while the web
+  pages worked. `cron.php` now runs `bootstrap/preflight.php` first; on a failure it prints what
+  is missing, leaves a note, and Server Check shows a failing "PHP that runs cron" row until the
+  next clean start. A crontab line that calls `artisan` directly is not covered (see
+  [cron](cron.md)).
+
+Measured on the development database (466 companies) through Apache with OPcache, in two throwaway
+copies of the code (the commit before this pass, 60759e5, and after it, e43cd53), `CACHE_STORE=file`,
+`APP_DEBUG=false`, one request per call to a small `bench.php` that signs in the super admin
+(see "How it was measured"). Alternating requests, warm; the machine was shared with other work,
+so single requests vary by 20-40 %. "Best" is the fastest of 5 warm requests per side for the
+View pages and search, and of 14 for the lists; the query counts are exact and the same on every request.
+
+| Page | Best ms before | Best ms now | Queries before | Queries now |
+|---|---|---|---|---|
+| Company View | 963 | 624 | 253 | 79 |
+| Contact View | 881 | 516 | 226 | 70 |
+| Task View | 467 | 394 | 83 | 56 |
+| Dashboard | 273 | 294 | 26 | 23 |
+| Companies list | 331 | 324 | 28 | 25 |
+| Contacts list | 391 | 419 | 36 | 33 |
+| Tasks list | 382 | 374 | 36 | 33 |
+| Global search "kowalski" | 392 | 242 | 95 | 71 |
+
+The View pages and search got 20-40 % faster in real time, in step with their queries; Company
+View is the clearest, at about a third of its queries and a third less time. The lists and the
+dashboard did not change measurably (the differences are inside the noise): they only lost
+three queries, and a list's time is Filament rendering the table (see "Still open"). The query
+counts here are higher than the ones from the command line earlier (77 for a Company View) because
+`bench.php` counts every query of the request, including the sign-in and panel boot. Premium modules
+were present in both copies, so Accounting's `fields()` queries are included in "now".
+
+An early measurement of these changes reused one application instance, so the memo stayed warm
+between requests and the "after" side looked better than it is; measure each request with fresh
+scoped state.
+
+Two things to keep in mind when measuring. The development `.env` uses the database for cache
+and sessions and sets `APP_DEBUG`, which adds four to nineteen `select * from cache` queries per
+page and makes development numbers look worse than an installation with `CACHE_STORE=auto`.
+And these checks used scratch copies: a scratch database on the same server for the index
+numbers, never the live one.
+
+## Stale data on a page is not a server cache (checked 2026-10-12)
+
+The question: a note or ticket added from an addon tab showed up only after a page reload, and
+commits `c0605a5` and `5742793` fixed that by making the page redraw. Is `epesi:optimize` still
+needed then, and should a database-driven application like epesi cache less?
+
+**Answer: keep `epesi:optimize`. The stale pages had nothing to do with it, and it caches no
+records.**
+
+### What the stale pages actually were
+
+Both causes were in the browser, inside Livewire:
+
+1. **Addon tabs are Livewire components of their own.** A View page's relation managers (Notes,
+   Mail, Tickets…) are separate Livewire components. When an action on the page saved
+   something, Livewire re-rendered the page component, which leaves child components alone. So
+   the Notes tab kept the HTML it had. Fix: the action dispatches `addon-changed`
+   (`RecordBrowserServiceProvider`), and `resources/views/filament/components/addon-refresh.blade.php`
+   sends `$refresh` to every loaded relation manager.
+2. **Back/Forward restores a snapshot.** `wire:navigate` keeps a copy of each page it showed in
+   the browser's memory, and Back/Forward puts that copy back without asking the server. The
+   same view component flags a `popstate` and refreshes every Livewire component on the page
+   that comes back.
+
+Clicking a link, or any Livewire request, always ran fresh queries against the database. No
+server-side cache stood between the database and the page.
+
+### What `epesi:optimize` caches
+
+Only what is fixed until files change. None of it is a database row:
+
+| Cache | Holds | Changes when |
+|---|---|---|
+| config | `config/*.php` merged with `.env` | `.env` or config changes |
+| routes | the route table | code or modules change |
+| events | listener discovery | code changes |
+| Filament components | which resources, pages and widgets each panel has | a module is installed, enabled or removed |
+| Blade Icons manifest | the list of SVG files in each icon set | a release |
+
+It also probes memcached for `CACHE_STORE=auto`. Without these caches every page costs about
+80-100 ms more (the table in "Result"), and the stale-page problem would be exactly the same.
+Each one is dropped when the files behind it change (fingerprint, `guard()`, `forget()`, see
+section 2).
+
+### The application data epesi does cache
+
+The whole list, from a search of `app/` and `modules/` for `Cache::`, `cache()`, `remember` and
+`once()`:
+
+| What | Where | Kept | Can it show old data? |
+|---|---|---|---|
+| Common Data lists (dropdown choices) | `CommonDataRepository::remember()` | a day | No: every save or delete of a `CommonDataNode` calls `invalidate()` through the model's events. Only a mass `update()`/`delete()` on the query builder would skip those events, and nothing does that today |
+| Database-update check | `SystemUpdate::waiting()` | a day | No: keyed by a fingerprint that a migration or manifest change alters |
+| Unread mail counts | `UnreadCounter` | minutes | Yes, by design: asking every IMAP server on each page would make the dashboard wait on them. Cron and the widget's 3-minute poll update it |
+| PayPal access token | `PayPalClient` | the token's lifetime | Not data |
+| Theme, app name, logo, compose button | `once()` | one request | No |
+
+Records themselves (companies, contacts, tasks, notes, tickets, history) are never cached. Every
+list, View page and addon tab queries the database.
+
+HTML is not cached either: `public/.htaccess` gives browser caching only to CSS, JS, fonts and
+images, by file extension, and those carry a version or content hash in their name.
+
+### So: switch caching off?
+
+There is nothing that holds records to switch off. Turning off the framework caches would cost
+every page 80-100 ms and fix nothing. If a page shows old data again, look first at:
+
+- **A child Livewire component** that a parent's re-render doesn't reach: an addon tab, a
+  widget, a modal with its own component. Dispatch `addon-changed`, or an event the component
+  listens to with `#[On(...)]`.
+- **A Livewire property computed once** in `mount()` and kept in the component's state across
+  requests, where a `#[Computed]` property or a query in `render()` would read it again.
+- **The `wire:navigate` page snapshot** for a way of coming back to a page other than
+  Back/Forward.
+- **A write that skips model events** (query-builder `update()`/`delete()`), which bypasses
+  Common Data's `invalidate()` and the activity log alike.
+
 ## Still open
 
-- **`LOG_LEVEL=debug`** in a production `.env` writes every debug message. Use `warning`.
-- **The remaining 250-300 ms of a list page** is Filament rendering the table: about 150 inline
-  SVG icons and 530 KB of HTML. Breaking it down needs a profiler (Xdebug's or SPX), and none is
-  installed here. Filament's `deferLoading()` would show the page first and the table in a
-  second request, which only improves perceived speed.
+- **List page weight, deferred loading and prefetch: tried, none kept.** Measured on the
+  Contacts list (10 rows, local demo data, a manager's account), command line without OPcache
+  and in a browser against PHP's built-in server, so the milliseconds are relative:
+  - *Where the time goes.* An empty list costs about 195 ms, the Dashboard 185 ms, and 10 rows
+    add about 90 ms: the page around the table dominates, not the rows. The 523 KB of HTML is
+    43% indentation whitespace (gzip: 48 KB); 143 inline SVGs are 78 KB of it, 72 of them in the
+    sidebar and topbar, and 6 per row (View, Edit, Favorite with its spinner, two badge icons).
+  - *Fewer row icons or actions.* Dropping all three row actions removes 20 SVGs and 25 KB
+    and saves about 10 ms (4%, best of five rounds of ten runs: 257-269 ms against 238-265 ms).
+    That does not pay for losing View, Edit and Favorite, and a `<svg><use>` sprite would save
+    less, so the rows stay as they are.
+  - *`deferLoading()`* on the shared table: first paint came 290 ms sooner (944 → 652 ms) and
+    the HTML shrank to 270 KB, but the rows appeared 340 ms later (1456 → 1795 ms median of
+    eight loads). A CRM list is opened for its rows, so the page got slower where it matters.
+    Not kept.
+  - *`->spa(hasPrefetching: true)`* fires one full page request per hovered record (four
+    requests for eight hovers) and did not shorten click-to-View: about 950 ms with it and
+    930 ms without. Not kept.
+  - Breaking down the base 180-200 ms still needs a profiler (Xdebug's or SPX); none is
+    installed here.
+- **Global search in Mail:** Mail is deliberately left out of Filament's global search. Its own
+  list search still covers subject, sender, recipients and body text, while global search no
+  longer sends a leading-wildcard query over long mail columns on every keystroke. A FULLTEXT
+  migration was not added: MySQL and MariaDB differ in parser and ranking behavior, SQLite
+  tests would need a separate implementation, and a subject-only global result would be less
+  useful than the module's existing search. Revisit this only with an explicit ranking and
+  engine-support contract.
+- **Sorting by a collection column** (e-mail, phone, address) runs one subquery per row: about
+  1-1.5 s of database time at 100,000 companies, and an index changes it by about a tenth.
+  Showing the column is cheap. If sorting becomes a requirement, keep one canonical primary
+  value on the owner row and update it in the collection save/delete path (including legacy
+  backfill and custom-field semantics); do not make an arbitrary collection item the sort key.
+  The owner value must follow the same normalization and visibility rules as the displayed
+  field, and clearing the primary item must promote the next deterministic item or null. Until
+  that invariant exists, collection-backed columns should remain display-only rather than
+  issuing a correlated subquery per row. The full design (stored `cs_<field>` column, writer,
+  backfill, custom fields, the alternative) is in
+  [Collection-column-sort](Collection-column-sort.md).
+- **A list's pagination `COUNT(*)`** takes about 30 ms at 100,000 rows, and jumping to a page
+  deep in the list 400-500 ms. Neither is worth changing before the items above.
+- **Polling is not worth changing.** Shoutbox (10 s), Reminders (60 s) and unread Mail (180 s)
+  cost about 7 requests and 11 queries a minute per foreground tab; Livewire already stops a poll
+  in a background tab unless `.keep-alive` is set, and none of them sets it. Only the foreground
+  tab of each user pays, about 12 requests a second for 100 users at the very most. The two
+  optional refinements are `.visible` on the three polls and a change check on the Reminders
+  table like the Shoutbox's. (Command-line milliseconds, exact query counts.)
 - **`livewire.min.js` comes through PHP**, which takes about 240 ms, once per browser per
   release. `php artisan livewire:publish --assets` would let Apache serve it, but every Livewire
   update would then need a republish.
 - **HTTP/2** (`mod_http2`) would load a page's dozen CSS and JS files in parallel. It is a server
   setting.
 - **Queue:** `QUEUE_CONNECTION=sync` sends notification mail inside the request that triggered
-  it. A `database` queue worked by `cron.php` (`queue:work --stop-when-empty`) would take that
-  off the page.
+  it, and stays the default. The optional worker (below, section 7) moves only the unread-mail
+  check off the cron run. The next candidates, in the order of
+  [Background workers](Background-workers.md): the Sent-folder copy after a mail is sent,
+  archive-on-send, and Watchdog notifications (measure the listener first). Do not switch the
+  global queue connection on an installation that has no consumer.
 
 ## How it was measured
 
@@ -244,7 +471,9 @@ Building caches in this checkout would disturb the other sessions working in it,
 config would send their test runs to MySQL. So the measurements ran in a throwaway copy of the
 checkout in another `htdocs` folder, served by Apache with its real OPcache. A small `bench.php`
 in the copy's `public/` signed a user in with `Auth::guard('web')->setUser()`, handled the page,
-and returned the time, the query count and the cache store in a response header. Command-line
+and returned the time, the query count and the cache store in a response header. Bind the
+request into the container before signing the user in, or code that reads the request during
+the sign-in fails. Command-line
 timings are no substitute: `opcache.enable_cli` is off, and the command line ran about three
 times slower than Apache.
 
@@ -268,3 +497,13 @@ checkout's built assets once.
 | `tests/Feature/OptimizeTest.php` | routes, caches, guard, probe, expiry, login audit |
 | `tests/Feature/Modules/ListQueriesTest.php` | no per-row queries on list pages |
 | `tests/Feature/SystemUpdateTest.php` | the cached database-update check |
+| `app/Support/RequestMemo.php` | answers kept for the rest of one request |
+| `database/migrations/*_add_list_sort_indexes_to_crm_tables.php` | the default-sort indexes of the five CRM lists |
+| `tests/Feature/ListSortIndexesTest.php` | the indexes exist; `recordset:check` hints when one is missing |
+| `tests/Feature/GlobalSearchTest.php` | the search's minimum length and per-group limit |
+| `tests/Feature/CommandPaletteTest.php` | the palette opens and takes its icons from the sidebar |
+| `config/epesi-background.php`, `app/Console/Commands/DrainBackgroundQueue.php`, `app/Support/Background/BackgroundWorkerHealth.php` | the optional queue, its bounded drain, and the health numbers |
+| `modules/Epesi/Mail/src/Jobs/UnreadMailCheck.php`, `Services/UnreadMailCheckDispatcher.php` | the unread check as a unique, ID-only job, and the dispatcher with its synchronous fallback |
+| `tests/Feature/BackgroundWorkerTest.php` | queuing, uniqueness, health, overdue warning, pruning, fallback, the drain no-op |
+| `bootstrap/preflight.php`, `cron.php`, `Requirements::cronNote()` | cron's PHP is checked before Laravel starts; the note Server Check shows |
+| `tests/Feature/CronPreflightTest.php` | `cron.php` under a PHP without extensions says so and leaves the note; a clean start removes it |

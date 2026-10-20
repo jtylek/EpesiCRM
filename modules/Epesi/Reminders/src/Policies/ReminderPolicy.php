@@ -32,7 +32,7 @@ class ReminderPolicy
     public function update(User $user, Reminder $reminder): bool
     {
         return $user->hasAnyRole(['super_admin', 'manager'])
-            || ($user->hasRole('employee') && $reminder->created_by === $user->getKey());
+            || ($user->hasAnyRole(['employee', 'consultant']) && $reminder->created_by === $user->getKey());
     }
 
     public function delete(User $user, Reminder $reminder): bool

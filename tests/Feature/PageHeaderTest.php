@@ -9,6 +9,8 @@ use App\Filament\Concerns\HidesPageHeading;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\EditTask;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\Page as ResourcePage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -84,5 +86,20 @@ class PageHeaderTest extends TestCase
             $this->assertStringContainsString('Tasks', $breadcrumbs[0]);
             $this->assertSame($label, $breadcrumbs[1]);
         }
+    }
+
+    public function test_edit_is_the_last_header_action_before_the_kebab(): void
+    {
+        Filament::setCurrentPanel('main');
+        $this->actingAs($this->userWithRole('employee'));
+        $task = Task::create(['title' => 'Send offer', 'permission' => RecordPermission::Public]);
+
+        $actions = Livewire::test(ViewTask::class, ['record' => $task->getKey()])->instance()->getCachedHeaderActions();
+        $kebab = array_pop($actions);
+        $edit = array_pop($actions);
+
+        $this->assertInstanceOf(ActionGroup::class, $kebab);
+        $this->assertInstanceOf(Action::class, $edit);
+        $this->assertSame('edit', $edit->getName());
     }
 }

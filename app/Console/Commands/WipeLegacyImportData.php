@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Schema;
  *
  * It leaves settings alone (modules, Dashboard, roles, regional settings,
  * login audits, common data, custom field definitions, currencies and their
- * rates, Roundcube's own rc_* tables, the Shoutbox, stored files). Tables a
+ * rates, Roundcube's own rc_* tables, the Shoutbox). The files the wiped tables held are
+ * pruned afterwards (filestorage:prune), so the import doesn't stack a second copy of every
+ * row on them. Tables a
  * module doesn't have on this install are skipped. A table that holds a
  * legacy import but isn't listed here is a bug: add it, with the importer.
  */
@@ -121,6 +123,8 @@ class WipeLegacyImportData extends Command
         } finally {
             Schema::enableForeignKeyConstraints();
         }
+
+        $this->call('filestorage:prune', ['--force' => true, '--older-than' => 0]);
 
         $this->info('Wiped '.count($tables)." tables and {$history} history rows. Now: php artisan import:legacy all");
 

@@ -20,7 +20,7 @@ class CompanyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, Company $company): bool
@@ -30,7 +30,7 @@ class CompanyPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function update(User $user, Company $company): bool
@@ -43,6 +43,10 @@ class CompanyPolicy
             return true;
         }
 
+        if ($user->isConsultant()) {
+            return $company->created_by === $user->id;
+        }
+
         return $user->hasRole('employee')
             && ($company->created_by === $user->id || $company->permission === RecordPermission::Public);
     }
@@ -53,7 +57,7 @@ class CompanyPolicy
             return true;
         }
 
-        return $user->hasRole('employee') && $company->created_by === $user->id;
+        return $user->hasAnyRole(['employee', 'consultant']) && $company->created_by === $user->id;
     }
 
     public function restore(User $user, Company $company): bool

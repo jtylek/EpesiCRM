@@ -96,23 +96,41 @@ packages (PHPUnit), which the clean `--no-dev` clone above doesn't have. So for 
 ### Version numbers
 
 The version lives in one place: the `VERSION` file at the top of the application, currently
-`2.0.0` (`App\Support\Version`). People see it as **epesi 2.0**: under the sidebar, below the
-login and setup pages, and in `php artisan about`. The full form is also the core version that
-module manifests' `"epesi_core"` constraints are checked against. The bundled modules require
-`^2.0`, and a test fails if a version bump leaves a module behind, because setup couldn't
-install it.
+`3.0.0RC6` (`App\Support\Version`). People see it as **epesi 3.0RC6**: under the sidebar, below
+the login and setup pages, and in `php artisan about`. The full form is also the core version
+that module manifests' `"epesi_core"` constraints are checked against. The bundled modules
+require `^3.0`, and a test fails if a version bump leaves a module behind, because setup
+couldn't install it.
+
+**Why 3.0, not 2.0 (renumbered 2026-10-16).** The Laravel rewrite was released as 2.0.0RC1 to
+2.0.0RC6, but **2.x is taken by legacy epesi**: legacy epesi itself reports `EPESI_VERSION` 2.0,
+and at least one outside developer who keeps building on legacy epesi 1.x code (with many
+modules of his own that depend on it) uses the **2.x** numbers for his releases. Two different
+products both called "epesi 2.x" would confuse users, support and the module catalog. So the
+Laravel epesi skipped ahead to **3.0**, keeping the RC counter: 2.0.0RC6 became 3.0.0RC6, and
+there will never be a final 2.0.0.
+- **Version ordering is unaffected:** `version_compare()` puts every 3.0.0RCx above every
+  2.0.0RCx, so installations on a 2.0 RC are offered 3.0 as an ordinary update from the Epesi
+  Store.
+- **Modules published for 2.x keep working.** `VersionConstraint` treats a `^2.x` constraint as
+  also satisfied by 3.x (and only 3.x). Without that, every module zip already in the Epesi
+  Store (`"epesi_core": "^2.0"`) would show as incompatible on 3.0 and refuse to install. New
+  and repackaged modules say `^3.0`; `make:epesi-module` writes the running version.
+- **Don't call the Laravel version "2.x" anywhere new,** and don't reuse 2.x numbers. "Epesi
+  1.x" and "legacy" mean the old code at [jtylek/epesi-legacy](https://github.com/jtylek/epesi-legacy),
+  even where its own files say 2.0.
 
 `epesi:package` names the zip after it:
-- **`epesi-2.0.zip`** when the commit is tagged `v2.0` (or `v2.0.0`), i.e. the release;
-- **`epesi-2.0-dev.<date>.<commit>.zip`** otherwise, with a warning, so a test build is never
+- **`epesi-3.0.zip`** when the commit is tagged `v3.0` (or `v3.0.0`), i.e. the release;
+- **`epesi-3.0-dev.<date>.<commit>.zip`** otherwise, with a warning, so a test build is never
   mistaken for the release.
 
-It also writes `<zip>.sha256` (`sha256sum -c epesi-2.0.zip.sha256` checks a download).
+It also writes `<zip>.sha256` (`sha256sum -c epesi-3.0.zip.sha256` checks a download).
 
 Releasing a version:
-1. Set `VERSION` (e.g. `2.0.1`). A new major version also means updating the modules'
+1. Set `VERSION` (e.g. `3.0.1`). A new major version also means updating the modules'
    `"epesi_core"` constraints.
-2. Commit, and tag it: `git tag v2.0.1 && git push origin v2.0.1`.
+2. Commit, and tag it: `git tag v3.0.1 && git push origin v3.0.1`.
 3. Build the package from that tag, as above.
 
 The command refuses to run without `vendor/autoload.php` or `public/build/manifest.json`. It
@@ -199,7 +217,7 @@ tables, the wizard shows three steps:
    characters like `K7QM-2XRP-9HTD`). Only someone who can see the server's files can read
    it. `SETUP_TOKEN` in `.env`, if set, replaces it. The code is asked once per browser
    session, and the file is deleted when setup finishes.
-2. **Server check.** PHP ≥ 8.2; the extensions `ctype curl fileinfo intl mbstring openssl pdo
+2. **Server check.** PHP ≥ 8.3; the extensions `ctype curl fileinfo intl mbstring openssl pdo
    tokenizer xml zip`; at least one database driver (`pdo_mysql`, `pdo_pgsql` or
    `pdo_sqlite`); `storage/`, `bootstrap/cache/` and `.env` writable. A writable `modules/`
    is optional: it is only needed to install modules from the web page. **Next** stays
@@ -258,7 +276,7 @@ similar. It needs no shell access.
 
 ### What the host must offer
 
-- **PHP 8.2 or newer**, with the extensions listed under [Server check](#2-server-and-database-setupinstall-epesis-setupphp).
+- **PHP 8.3 or newer** (8.3 to 8.5), with the extensions listed under [Server check](#2-server-and-database-setupinstall-epesis-setupphp).
   Most control panels have a "Select PHP version" or "PHP settings" page where extensions
   like `intl`, `fileinfo` and `zip` can be switched on.
 - **A MySQL or MariaDB database** (PostgreSQL works too), plus a database user that has all
@@ -386,7 +404,7 @@ add one entry that runs every minute:
 
 Use your account's path to the epesi folder. The PHP command-line path differs between hosts
 (`/usr/bin/php`, `/usr/local/bin/php`, `/opt/cpanel/ea-php83/root/usr/bin/php`); the cron
-page or the host's help usually names it. It must be PHP 8.2 or newer, which isn't always
+page or the host's help usually names it. It must be PHP 8.3 or newer, which isn't always
 the default `php`. A host whose cron can only call an address gets the **cron URL** from the
 same page instead. Nothing else needs a background process: notifications and reminders are
 sent without a queue worker. Within a few minutes, Administration → Cron should say "Cron is
@@ -567,31 +585,32 @@ Installing again is safe: it replaces the earlier download and upgrades the tabl
 ## Publishing: SourceForge and Softaculous
 
 The original epesi (1.x) is already listed on SourceForge, and Softaculous lists it among its
-ERP applications. So epesi 2.0 is a new major version of an existing listing, not a new
+ERP applications. So epesi 3.0 is a new major version of an existing listing, not a new
 application. One consequence applies everywhere: **1.x installations can't be upgraded in
-place.** 2.0 is a rewrite with its own database. Its data comes over with
-`php artisan import:legacy` from the old database, into a fresh 2.0 installation. Release
-notes and listings must say so, and an installer's upgrade button must not offer 1.x → 2.0.
+place.** 3.0 is a rewrite with its own database. Its data comes over with
+`php artisan import:legacy` from the old database, into a fresh 3.0 installation. Release
+notes and listings must say so, and an installer's upgrade button must not offer 1.x → 3.0.
 
 ### SourceForge: ready
 
 SourceForge only hosts downloads, and the zip is exactly what someone downloads, unpacks and
-sets up in the browser. Publish 2.0 in the existing epesi project. **All 2.0 releases go into one
-folder, `v2.0`** (from RC5 on; `v2.0RC1` to `v2.0RC3` are older folders, left as they are), and the
-project's default download is set by hand on the file to promote. What it needs is in place:
+sets up in the browser. Publish 3.0 in the existing epesi project. **All 3.0 releases go into one
+folder, `v3.0`** (from 3.0.0RC6 on). The folders of the 2.0 release candidates (`v2.0` for RC5
+and RC6, `v2.0RC1` to `v2.0RC3` before it) are left as they are. The project's default download
+is set by hand on the file to promote. What it needs is in place:
 - **`LICENSE`** at the top of the zip: MIT with epesi's copyright line, and a note that the
   packages in `vendor/` keep their own licenses and that Roundcube (GPL-3.0) is downloaded
   separately;
-- **version numbers:** `epesi-2.0.zip` from the commit tagged `v2.0`, see
+- **version numbers:** `epesi-3.0.zip` from the commit tagged `v3.0`, see
   [Version numbers](#version-numbers);
-- **a checksum:** `epesi-2.0.zip.sha256`, written by `epesi:package`. Upload it next to the
+- **a checksum:** `epesi-3.0.zip.sha256`, written by `epesi:package`. Upload it next to the
   zip.
 - **no dev packages:** build the zip from `composer install --no-dev` (about 17 MB instead of
   45 MB with PHPUnit and the rest), then `composer install` again on a dev machine. The
   `publish-sourceforge` skill does the build and the upload.
 
 Still to write for each release: short release notes. They cover what changed, a reminder to
-run **Administration → Database update** after updating a 2.x installation, and for 1.x users
+run **Administration → Database update** after updating a 3.x (or 2.0 RC) installation, and for 1.x users
 the move with `import:legacy`.
 
 ### Softaculous (and Installatron): not yet
@@ -620,11 +639,11 @@ anything. They expect the application to work at the folder's own address
   needs the same kind of callable entry point.
 - **Cron.** The installer should create the `cron.php` cron job (step 5 of the shared
   hosting setup). Installers of this kind can usually set up cron jobs for an application.
-- **Requirements.** PHP 8.2+ and the extensions from the server check, declared in the
+- **Requirements.** PHP 8.3+ and the extensions from the server check, declared in the
   installer's metadata.
 - **Listing.** epesi is already in Softaculous's ERP category, so this means asking
   Softaculous to update the existing entry to 2.0, not applying as a new application. Send
-  the package, the new requirements (PHP 8.2+), and a stable download URL per version (the
+  the package, the new requirements (PHP 8.3+), and a stable download URL per version (the
   SourceForge release). Point out that 1.x installations can't upgrade in place.
 
 Done so far: the `LICENSE` file, version numbers and serving without `/public`. Next: the

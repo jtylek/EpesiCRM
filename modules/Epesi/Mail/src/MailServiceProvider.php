@@ -3,7 +3,7 @@
 namespace Epesi\Modules\Mail;
 
 use App\Services\LegacyImport\ImporterRegistry;
-use Epesi\Modules\Mail\Console\FetchMailCommand;
+use Epesi\Modules\Mail\Console\CheckMailCommand;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
 use Epesi\Modules\Mail\Filament\RelationManagers\MailsRelationManager;
 use Epesi\Modules\Mail\LegacyImport\MailImporter;
@@ -83,18 +83,19 @@ class MailServiceProvider extends ServiceProvider
 
         // Not only on the command line: the cron URL and "Run now" under
         // Administration → Cron run it within a web request.
-        $this->commands([FetchMailCommand::class]);
+        $this->commands([CheckMailCommand::class]);
 
         if ($this->app->runningInConsole()) {
             // `import:legacy mail` (and part of `import:legacy all`).
             $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class, last: true);
         }
 
-        // Epesi fetched from cron.php; here it is Laravel's scheduler, run by
-        // cron (cron.php; AI-shared/cron.md).
+        // The Mail widget's unread counts, asked for in the background so no
+        // page waits on a mail server. Laravel's scheduler, run by cron
+        // (cron.php; AI-shared/cron.md).
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
-            $schedule->command('mail:fetch')
-                ->cron((string) config('epesi-mail.fetch_schedule'))
+            $schedule->command('mail:check')
+                ->cron((string) config('epesi-mail.check_schedule'))
                 ->withoutOverlapping()
                 ->runInBackground();
         });

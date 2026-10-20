@@ -70,6 +70,43 @@ class DatabaseSetup
     }
 
     /**
+     * Laravel treats MySQL and MariaDB as separate drivers, but both are
+     * reached through pdo_mysql, so only the server's version string tells
+     * them apart. When the server turns out to be the other kind from the
+     * one chosen, reconnects as the right one.
+     *
+     * @param  array<string, string>  $settings  already connected with connect()
+     * @return array{0: array<string, string>, 1: string|null} the settings to save, and a note when they were changed
+     */
+    public function matchServer(array $settings): array
+    {
+        $chosen = $settings['DB_CONNECTION'];
+
+        if (! in_array($chosen, ['mysql', 'mariadb'], true)) {
+            return [$settings, null];
+        }
+
+        try {
+            $version = (string) DB::selectOne('select version() as version')?->version;
+        } catch (\Throwable) {
+            return [$settings, null];
+        }
+
+        $actual = stripos($version, 'mariadb') !== false ? 'mariadb' : 'mysql';
+
+        if ($actual === $chosen || config("database.connections.{$actual}") === null) {
+            return [$settings, null];
+        }
+
+        $settings['DB_CONNECTION'] = $actual;
+        $this->connect($settings);
+
+        $labels = ['mysql' => 'MySQL', 'mariadb' => 'MariaDB'];
+
+        return [$settings, "The server is {$labels[$actual]} ({$version}), not {$labels[$chosen]} — using the {$labels[$actual]} connection."];
+    }
+
+    /**
      * @param  array<string, string>  $settings
      */
     public function save(array $settings): void

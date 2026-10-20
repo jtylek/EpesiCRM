@@ -13,7 +13,6 @@ interferes with typing, or while a modal is open — the same guard on all but o
 | Key | Where | Does |
 | --- | --- | --- |
 | `/` | anywhere | Opens the quick switcher — jump to any page by name |
-| `Backspace` | anywhere | Goes back a page |
 | `A` / `F` / `R` | a List page | Switches to the All / Favorites / Recent tab, whichever the resource has |
 | `M` | a List page | Switches the records select between "My records" and "All records", where the list has one |
 | `I` | a List page | Cycles the status select through "Active", "Inactive" and "All", where the list has a status |
@@ -26,6 +25,8 @@ interferes with typing, or while a modal is open — the same guard on all but o
 | `Enter` | a List page, search field focused | Runs the search and lands on its first row |
 | `Ctrl`/`Cmd`+`S` | a Create or Edit page | Saves |
 | `Ctrl`/`Cmd`+`E` | a Create or Edit page | Cancels — discards the changes and leaves |
+| `Ctrl`/`Cmd`+`S` | an open modal | Submits it (e.g. changing a Status) |
+| `Ctrl`/`Cmd`+`E` | an open modal | Cancels it |
 
 ## Quick switcher ("/")
 
@@ -128,12 +129,16 @@ through `RecordBrowserServiceProvider`'s `PAGE_END` render hook on every Create 
   first. Edit doesn't: there's usually one specific field to change rather than one to start
   typing into.
 
+## Modals
+
+Ctrl/Cmd+S clicks the submit button and Ctrl/Cmd+E the cancel button in the footer of the
+topmost open modal (`.fi-modal-footer-actions`), from anywhere including inside a field. One
+global handler in `history-navigation.blade.php`. The Create/Edit page handlers skip while a
+modal is open, so the two never both fire.
+
 ## Backspace
 
-Goes back one page, anywhere in the main panel — the keyboard shortcut for the topbar's own
-Back button (`window.history.back()`, `history-navigation.blade.php`). Guarded like every
-other single-key shortcut here: never while typing (Backspace's usual job there) or while a
-modal is open.
+Deliberately not a shortcut: the browser's Alt+Left / Alt+Right already go back and forward.
 
 ## Adding another shortcut
 

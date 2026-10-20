@@ -4,6 +4,7 @@ namespace Epesi\Modules\Shoutbox\Filament\Widgets;
 
 use App\Filament\Dashboard\Applet;
 use App\Filament\Dashboard\IsApplet;
+use App\Models\User;
 use Epesi\Modules\Shoutbox\Filament\Concerns\ComposesMessages;
 use Epesi\Modules\Shoutbox\Filament\Concerns\RedrawsWhenChanged;
 use Epesi\Modules\Shoutbox\Models\Message;
@@ -33,7 +34,7 @@ class ShoutboxWidget extends Widget implements Applet
 
     public static function canView(): bool
     {
-        return Auth::user()?->hasAnyRole(['super_admin', 'manager', 'employee']) ?? false;
+        return Auth::user()?->hasAnyRole(User::CRM_ROLES) ?? false;
     }
 
     public static function getAppletCaption(): string

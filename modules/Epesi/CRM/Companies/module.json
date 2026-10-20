@@ -3,7 +3,7 @@
     "name": "Companies",
     "description": "Organisations: the CRM company recordset, with addons for their contacts, tasks, phone calls and meetings.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "CRM",
     "icon": "heroicon-o-building-office",
     "namespace": "Epesi\\Modules\\CRM\\Companies\\",

@@ -13,12 +13,12 @@ use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Filament\RelationManagers\RemindersRelationManager;
 use Epesi\Modules\Reminders\Filament\Widgets\MyRemindersWidget;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Notifications\ReminderMail;
 use Epesi\Modules\Reminders\Reminders;
-use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Testing\TestAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -53,7 +53,8 @@ class RemindersTest extends TestCase
 
     public function test_the_reminders_tab_is_on_tasks_meetings_and_phone_calls(): void
     {
-        $this->assertSame(['task', 'meeting', 'phone_call'], Reminders::recordTypes());
+        // Modules may register more (Domains Register's `domain`).
+        $this->assertSame(['task', 'meeting', 'phone_call'], array_values(array_intersect(Reminders::recordTypes(), ['task', 'meeting', 'phone_call'])));
 
         $this->actingAs($this->userWithRole('employee'));
         $task = Task::create(['title' => 'Call the bank', 'deadline' => '2026-09-25 14:00:00']);
@@ -329,7 +330,7 @@ class RemindersTest extends TestCase
         $withDescription = $this->remind($described, '2026-09-24 08:00:00', [$me]);
         $without = $this->remind($bare, '2026-09-25 08:00:00', [$me]);
 
-        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool =>  str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
+        $tooltipContains = fn (string $expected): Closure => fn (TextColumn $column): bool => str_contains($column->getTooltip()?->toHtml() ?? '', $expected);
 
         Livewire::test(MyRemindersWidget::class)
             ->assertTableColumnExists('record', $tooltipContains('>Task</span>'), $withDescription)

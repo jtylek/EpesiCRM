@@ -2,9 +2,11 @@
 
 namespace Epesi\Modules\Watchdog\Filament\Pages;
 
+use App\Support\RequestMemo;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Models\User;
 use BackedEnum;
 use Epesi\Modules\Watchdog\Filament\Concerns\DescribesLatestChange;
 use Epesi\Modules\Watchdog\Models\Subscription;
@@ -56,7 +58,7 @@ class Watched extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasAnyRole(['super_admin', 'manager', 'employee']) ?? false;
+        return Auth::user()?->hasAnyRole(User::CRM_ROLES) ?? false;
     }
 
     public static function getNavigationBadge(): ?string
@@ -67,7 +69,11 @@ class Watched extends Page implements HasTable
             return null;
         }
 
-        $count = Subscription::query()->where('user_id', $user->id)->withUnseenChanges()->count();
+        // The navigation draws the badge more than once per page.
+        $count = app(RequestMemo::class)->remember(
+            'watchdog:badge:'.$user->id,
+            fn (): int => Subscription::query()->where('user_id', $user->id)->withUnseenChanges()->count(),
+        );
 
         return $count > 0 ? (string) $count : null;
     }

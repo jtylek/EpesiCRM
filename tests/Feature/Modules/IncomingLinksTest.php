@@ -13,8 +13,6 @@ use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\CreateTask;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\LinkedRecordsRelationManager;
-use Epesi\Modules\RecordBrowser\Models\CustomField;
-use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -34,9 +32,9 @@ class IncomingLinksTest extends TestCase
         $employee = Task::create(['title' => 'Employee task']);
         $employee->employees()->attach($contact);
         $related = Task::create(['title' => 'Related task']);
-        $related->syncRecordLinks('related', ['contact:'.$contact->id]);
+        $related->syncRecordLinks('linked_to', ['contact:'.$contact->id]);
         $private = Task::create(['title' => 'Private task', 'permission' => RecordPermission::Private]);
-        $private->syncRecordLinks('related', ['contact:'.$contact->id]);
+        $private->syncRecordLinks('linked_to', ['contact:'.$contact->id]);
 
         $this->actingAs($this->userWithRole('employee'));
         $fields = IncomingLinks::for($contact)[TaskResource::class];
@@ -72,11 +70,11 @@ class IncomingLinksTest extends TestCase
         $call = PhoneCall::create(['subject' => 'Offer', 'called_at' => '2026-09-27 10:00:00', 'customer_type' => 'company', 'customer_id' => $company->id]);
         PhoneCall::create(['subject' => 'Other offer', 'called_at' => '2026-09-27 11:00:00', 'customer_type' => 'company', 'customer_id' => $other->id]);
 
-        // Company also picks up the Related field, which offers every
-        // recordset by default — customer is the Customer field whose own
+        // Company also picks up the Linked to field, which offers
+        // Companies by default — customer is the Customer field whose own
         // column and filter should be hidden.
         $fields = IncomingLinks::for($company)[PhoneCallResource::class];
-        $this->assertSame(['customer', 'related'], collect($fields)->map->name->all());
+        $this->assertSame(['customer', 'linked_to'], collect($fields)->map->name->all());
 
         $manager = Livewire::test(LinkedRecordsRelationManager::class, [
             'ownerRecord' => $company,

@@ -9,39 +9,66 @@ use Throwable;
 
 /**
  * Unread messages in an account's INBOX — CRM_MailCommon::
- * get_unread_messages(), including its three-minute cache, so a dashboard
- * that polls or many open tabs don't hammer the mail server.
+ * get_unread_messages(). `mail:check` asks every account's server on a
+ * schedule and caches the answer; the Mail widget only reads that cache, so
+ * no page waits on a mail server. The cache outlives two scheduled runs, so a
+ * late run doesn't leave the widget without a count.
+ *
+ * Only the INBOX's unread count is asked for (IMAP STATUS UNSEEN): no message
+ * is downloaded, and nothing is ever archived from here.
  */
 class UnreadCounter
 {
-    public const CACHE_SECONDS = 180;
+    public const CACHE_SECONDS = 600;
 
     public function __construct(protected MailboxFactory $mailboxes) {}
 
     /**
-     * @return array{count: int|null, error: string|null} count is null when the server could not be asked
+     * The cached count, without asking the server: null when there is none
+     * (a new or just edited account, or cron not running).
+     *
+     * @return array{count: int|null, error: string|null}|null count is null when the server could not be asked
      */
-    public function forAccount(MailAccount $account, bool $refresh = false): array
+    public function cached(MailAccount $account): ?array
     {
-        $key = static::cacheKey($account);
+        $cached = Cache::get(static::cacheKey($account));
 
-        if ($refresh) {
-            Cache::forget($key);
+        return is_array($cached) ? $cached : null;
+    }
+
+    /**
+     * Asks the server, caches the answer and records it on the account
+     * (last checked, last error) for its owner to see.
+     *
+     * @return array{count: int|null, error: string|null}
+     */
+    public function check(MailAccount $account): array
+    {
+        $started = now();
+        $account->timestamps = false;
+        $account->forceFill(['last_check_started_at' => $started])->saveQuietly();
+        $account->timestamps = true;
+
+        try {
+            $mailbox = $this->mailboxes->make($account);
+
+            try {
+                $result = ['count' => $mailbox->unseen('INBOX'), 'error' => null];
+            } finally {
+                $mailbox->close();
+            }
+        } catch (Throwable $e) {
+            $result = ['count' => null, 'error' => $e->getMessage()];
         }
 
-        return Cache::remember($key, static::CACHE_SECONDS, function () use ($account): array {
-            try {
-                $mailbox = $this->mailboxes->make($account);
+        Cache::put(static::cacheKey($account), $result, static::CACHE_SECONDS);
 
-                try {
-                    return ['count' => $mailbox->unseen('INBOX'), 'error' => null];
-                } finally {
-                    $mailbox->close();
-                }
-            } catch (Throwable $e) {
-                return ['count' => null, 'error' => $e->getMessage()];
-            }
-        });
+        // Without touching updated_at: it is part of the cache key.
+        $account->timestamps = false;
+        $account->forceFill(['last_checked_at' => now(), 'last_error' => $result['error']])->saveQuietly();
+        $account->timestamps = true;
+
+        return $result;
     }
 
     public static function cacheKey(MailAccount $account): string

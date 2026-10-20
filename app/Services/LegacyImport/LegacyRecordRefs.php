@@ -32,6 +32,17 @@ class LegacyRecordRefs
     /** From every importer `import:legacy` runs, core and module-registered. */
     public static function fromImporters(): self
     {
+        return new self(static::importedModels());
+    }
+
+    /**
+     * Legacy tab => the model its importer writes, for every importer
+     * `import:legacy` runs.
+     *
+     * @return array<string, class-string<Model>>
+     */
+    public static function importedModels(): array
+    {
         $registry = app(ImporterRegistry::class);
         $models = [];
 
@@ -51,7 +62,7 @@ class LegacyRecordRefs
             $models[$instance->legacyTab()] = $instance->modelClass();
         }
 
-        return new self($models);
+        return $models;
     }
 
     /** "company:12" (RecordLink's token) for legacy "company/49", or null. */

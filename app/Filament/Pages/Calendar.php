@@ -14,7 +14,9 @@ use BackedEnum;
 use Carbon\Carbon;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +39,22 @@ class Calendar extends Page
     protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected string $view = 'filament.pages.calendar';
+
+    /** @var array<string, mixed> The date the toolbar title's picker jumps to (calendar.js's initTitleDatePicker). */
+    public array $data = ['gotoDate' => null];
+
+    /**
+     * The same popup calendar every form uses, opened from the toolbar title;
+     * its field is never shown, only its panel.
+     */
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->statePath('data')
+            ->components([
+                DatePicker::make('gotoDate')->hiddenLabel()->live(),
+            ]);
+    }
 
     public function getTitle(): string
     {

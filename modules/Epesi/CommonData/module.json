@@ -3,7 +3,7 @@
     "name": "Common Data",
     "description": "Shared reference data: the hierarchical lookup lists (countries and their states, statuses, priorities) that recordset fields and modules select from, editable from the administration panel.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Core",
     "icon": "heroicon-o-list-bullet",
     "namespace": "Epesi\\Modules\\CommonData\\",

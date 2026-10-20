@@ -3,7 +3,7 @@
     "name": "Watchdog",
     "description": "Watch records (or whole record types) and get notified when someone else changes them. Port of Epesi's Utils/Watchdog.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "Core",
     "icon": "heroicon-o-eye",
     "namespace": "Epesi\\Modules\\Watchdog\\",

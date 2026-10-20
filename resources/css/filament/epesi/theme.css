@@ -21,6 +21,7 @@
 @import './datetime-picker.css';
 @import './recordset-catalogue.css';
 @import './line-view-tables.css';
+@import './select-options.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/**/*';

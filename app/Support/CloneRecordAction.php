@@ -2,11 +2,14 @@
 
 namespace App\Support;
 
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * A plain confirm-then-duplicate action, deliberately not Filament's own
@@ -50,6 +53,8 @@ class CloneRecordAction
                 $replica->save();
                 $replica->enableLogging();
 
+                static::copyLinks($record, $replica, $resource);
+
                 activity($replica->getLogNameToUse())
                     ->performedOn($replica)
                     ->causedBy(auth()->user())
@@ -65,5 +70,35 @@ class CloneRecordAction
                 // action's own redirect follows the panel's SPA mode.
                 $action->redirect($resource::getUrl('edit', ['record' => $replica]));
             });
+    }
+
+    /**
+     * What replicate() leaves behind: the records a field links to live in
+     * other tables (a Relations field's pivot rows, the record links of
+     * Customers and Related fields), not in the row's own columns.
+     *
+     * @param  class-string<resource>  $resource
+     */
+    protected static function copyLinks(Model $record, Model $replica, string $resource): void
+    {
+        if (method_exists($record, 'recordLinks')) {
+            foreach ($record->recordLinks()->get() as $link) {
+                $replica->recordLinks()->create($link->only(['field', 'target_type', 'target_id']));
+            }
+        }
+
+        if (! is_subclass_of($resource, RecordsetResource::class)) {
+            return;
+        }
+
+        foreach ($resource::resolvedFields() as $field) {
+            $name = $field->getStateName();
+
+            if ($field->type === FieldType::Relations && method_exists($record, $name) && $record->{$name}() instanceof BelongsToMany) {
+                $related = $record->{$name}();
+
+                $replica->{$name}()->sync($related->pluck($related->getRelated()->getQualifiedKeyName())->all());
+            }
+        }
     }
 }

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
+use App\Services\LegacyImport\Importer;
+use App\Services\LegacyImport\ImporterRegistry;
 use App\Services\LegacyImport\Importers\CompaniesImporter;
 use App\Services\LegacyImport\Importers\ContactsImporter;
 use Epesi\Modules\CRM\Companies\Models\Company;
@@ -94,6 +96,27 @@ class LegacyImportTest extends TestCase
         $this->assertSame(['created', 'updated'], $company->activities()->orderBy('created_at')->pluck('event')->all());
     }
 
+    public function test_rows_entered_here_block_the_import_unless_kept_with_keep_existing(): void
+    {
+        $this->legacyRecordTable('company_data_1');
+        DB::connection('legacy')->table('company_data_1')->insert(['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_company_name' => 'Acme', 'active' => 1]);
+        $mine = Company::create(['company_name' => 'Entered here']);
+
+        $this->artisan('import:legacy', ['tab' => 'companies', '--no-history' => true])
+            ->expectsOutputToContain('Refusing to import: companies')
+            ->assertFailed();
+        $this->assertSame(0, Company::whereNotNull('legacy_id')->count());
+
+        $this->artisan('import:legacy', ['tab' => 'companies', '--no-history' => true, '--keep-existing' => true])
+            ->expectsOutputToContain('Keeping the rows with no legacy_id in companies')
+            ->assertSuccessful();
+
+        $imported = Company::where('legacy_id', 1)->sole();
+        $this->assertSame('Acme', $imported->company_name);
+        $this->assertNotSame($mine->id, $imported->id);
+        $this->assertSame('Entered here', $mine->fresh()->company_name);
+    }
+
     public function test_a_company_email_an_earlier_company_already_has_is_skipped_and_reported(): void
     {
         $this->legacyRecordTable('company_data_1');
@@ -108,21 +131,25 @@ class LegacyImportTest extends TestCase
 
         $emails = fn (): array => Company::withTrashed()->orderBy('legacy_id')->get()
             ->mapWithKeys(fn (Company $c): array => [$c->legacy_id => $c->emails->first()?->value])->all();
-        $expected = [1 => 'info@acme.test', 2 => null, 3 => null, 4 => null, 5 => 'other@acme.test', 6 => null];
+        // #5 is deleted, so its live twin #6 takes the address over.
+        $expected = [1 => 'info@acme.test', 2 => null, 3 => null, 4 => null, 5 => null, 6 => 'other@acme.test'];
 
         activity()->disableLogging();
         $summary = (new CompaniesImporter)->run(withHistory: false);
         $this->assertSame($expected, $emails());
         $this->assertSame([
             'company#2: e-mail address "info@acme.test" is already used by company #1, skipped',
-            'company#6: e-mail address "other@acme.test" is already used by company #5, skipped',
+            'company#6: e-mail address "other@acme.test" moved here from the deleted company #5',
         ], $summary->warnings);
 
         // Re-running is idempotent: the same records keep the address.
         $again = (new CompaniesImporter)->run(withHistory: false);
         activity()->enableLogging();
         $this->assertSame($expected, $emails());
-        $this->assertSame($summary->warnings, $again->warnings);
+        $this->assertSame([
+            'company#2: e-mail address "info@acme.test" is already used by company #1, skipped',
+            'company#5: e-mail address "other@acme.test" is already used by company #6, skipped',
+        ], $again->warnings);
     }
 
     /**
@@ -173,6 +200,35 @@ class LegacyImportTest extends TestCase
         $this->assertSame(['contact#2: e-mail address "ann@acme.test" is already used by contact #1, skipped'], $summary->warnings);
     }
 
+    public function test_a_contact_takes_the_address_it_shares_with_its_own_company_only(): void
+    {
+        $this->legacyRecordTable('company_data_1');
+        $this->legacyRecordTable('contact_data_1');
+        DB::connection('legacy')->table('company_data_1')->insert([
+            ['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_company_name' => 'Radpak', 'f_email' => 'd.gniadzik@radpak.test', 'active' => 1],
+            ['id' => 2, 'created_on' => '2020-01-01 10:00:00', 'f_company_name' => 'Other', 'f_email' => 'office@other.test', 'active' => 1],
+        ]);
+        DB::connection('legacy')->table('contact_data_1')->insert([
+            ['id' => 1, 'created_on' => '2020-01-02 10:00:00', 'f_last_name' => 'Gniadzik', 'f_first_name' => 'Dorota', 'f_company_name' => '1', 'f_email' => 'd.gniadzik@radpak.test', 'active' => 1],
+            ['id' => 2, 'created_on' => '2020-01-02 10:00:00', 'f_last_name' => 'Stranger', 'f_first_name' => 'Sam', 'f_company_name' => '1', 'f_email' => 'office@other.test', 'active' => 1],
+        ]);
+
+        activity()->disableLogging();
+        (new CompaniesImporter)->run(withHistory: false);
+        $summary = (new ContactsImporter)->run(withHistory: false);
+        activity()->enableLogging();
+
+        $this->assertSame('d.gniadzik@radpak.test', Contact::where('legacy_id', 1)->sole()->emails->first()?->value);
+        $this->assertNull(Company::where('legacy_id', 1)->sole()->emails->first());
+        // Not its company: the address stays where it is.
+        $this->assertNull(Contact::where('legacy_id', 2)->sole()->emails->first());
+        $this->assertSame('office@other.test', Company::where('legacy_id', 2)->sole()->emails->first()?->value);
+        $this->assertSame([
+            'contact#1: e-mail address "d.gniadzik@radpak.test" moved here from its own company #1',
+            'contact#2: e-mail address "office@other.test" is already used by company #2, skipped',
+        ], $summary->warnings);
+    }
+
     public function test_groups_are_checked_against_legacy_s_own_list_not_the_installed_one(): void
     {
         $this->legacy()->create('utils_commondata_tree', function (Blueprint $t) {
@@ -205,6 +261,48 @@ class LegacyImportTest extends TestCase
 
         $this->assertSame(['customer', 'partner'], Company::withTrashed()->where('legacy_id', 1)->sole()->groups);
         $this->assertSame(['customer', 'partner'], Contact::withTrashed()->where('legacy_id', 1)->sole()->groups, '"custm" renamed after the check');
+    }
+
+    public function test_a_mail_links_to_a_record_of_a_module_registered_tab(): void
+    {
+        [, , , $task] = $this->coreRecords();
+        $this->buildLegacyMail();
+        // Stands in for a module's recordset (tickets, projects...): mail's
+        // own list doesn't name it, its registered importer does.
+        $importer = new class extends Importer
+        {
+            public function legacyTab(): string
+            {
+                return 'premium_widgets';
+            }
+
+            public function modelClass(): string
+            {
+                return Task::class;
+            }
+
+            public function logName(): string
+            {
+                return 'task';
+            }
+
+            protected function trackedFields(): array
+            {
+                return [];
+            }
+
+            protected function decodeTrackedValue(string $legacyField, ?string $raw): array
+            {
+                return [];
+            }
+        };
+        app(ImporterRegistry::class)->register('widgets', $importer::class);
+        DB::connection('legacy')->table('rc_mails_data_1')->where('id', 12)->update(['f_related' => '__premium_widgets/9__']);
+
+        $this->artisan('import:legacy', ['tab' => 'mail'])->assertSuccessful();
+
+        $reply = Mail::query()->where('legacy_id', 12)->sole();
+        $this->assertTrue($reply->linkedRecords()->contains(fn ($record) => $record->is($task)));
     }
 
     public function test_mail_accounts_addresses_messages_threads_links_and_attachments_are_imported(): void

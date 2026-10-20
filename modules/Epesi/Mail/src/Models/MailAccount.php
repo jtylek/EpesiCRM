@@ -38,10 +38,9 @@ class MailAccount extends Model
         'save_to_sent',
         'sent_folder',
         'archive_folder',
-        'auto_archive',
-        'auto_archive_folders',
         'signature',
-        'last_fetched_at',
+        'last_checked_at',
+        'last_check_started_at',
         'last_error',
     ];
 
@@ -53,11 +52,10 @@ class MailAccount extends Model
         'smtp_security' => 'tls',
         'smtp_auth' => true,
         'is_default' => false,
-        'archive_on_sending' => true,
+        'archive_on_sending' => false,
         'save_to_sent' => true,
         'sent_folder' => 'Sent',
         'archive_folder' => 'CRM Archive',
-        'auto_archive' => false,
     ];
 
     protected function casts(): array
@@ -71,9 +69,8 @@ class MailAccount extends Model
             'is_default' => 'boolean',
             'archive_on_sending' => 'boolean',
             'save_to_sent' => 'boolean',
-            'auto_archive' => 'boolean',
-            'auto_archive_folders' => 'array',
-            'last_fetched_at' => 'datetime',
+            'last_checked_at' => 'datetime',
+            'last_check_started_at' => 'datetime',
         ];
     }
 
@@ -142,31 +139,6 @@ class MailAccount extends Model
     public function savesToSent(): bool
     {
         return $this->save_to_sent && filled($this->sent_folder) && $this->canReceive();
-    }
-
-    /**
-     * Folders read by the fetcher: the archive folder, whose every message is
-     * archived (Epesi's "Use EPESI Archive directories"), and — with
-     * auto-archive on — the others, archived only when a message involves a
-     * known contact or company.
-     *
-     * @return array<string, bool> folder => archive only when matched
-     */
-    public function foldersToFetch(): array
-    {
-        $folders = [];
-
-        if (filled($this->archive_folder)) {
-            $folders[$this->archive_folder] = false;
-        }
-
-        if ($this->auto_archive) {
-            foreach ($this->auto_archive_folders ?: ['INBOX'] as $folder) {
-                $folders[$folder] ??= true;
-            }
-        }
-
-        return $folders;
     }
 
     public static function defaultFor(User $user): ?self

@@ -1,0 +1,16 @@
+/*
+ * The option under the pointer or the keyboard (and the chosen one) in a
+ * lookup / select list gets a light tint of the accent color, instead of
+ * Filament's neutral grey.
+ */
+.fi-select-input-option:hover,
+.fi-select-input-option:focus-visible,
+.fi-select-input-option.fi-selected {
+    background-color: color-mix(in oklab, var(--primary-500) 15%, transparent);
+}
+
+.dark .fi-select-input-option:hover,
+.dark .fi-select-input-option:focus-visible,
+.dark .fi-select-input-option.fi-selected {
+    background-color: color-mix(in oklab, var(--primary-500) 25%, transparent);
+}

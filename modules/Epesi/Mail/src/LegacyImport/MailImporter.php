@@ -237,8 +237,12 @@ class MailImporter
         $headers = (string) ($row->f_headers_data ?? '');
         $body = $this->localiseInlineImages((string) ($row->f_body ?? ''));
 
+        // Epesi's epesi_archive saved Roundcube's placeholder ("mid:4", the
+        // message's position in its folder) when it hadn't fetched the header.
+        $messageId = trim((string) $row->f_message_id, '<> ');
+
         $mail->forceFill([
-            'message_id' => filled($row->f_message_id) ? trim((string) $row->f_message_id, '<> ') : null,
+            'message_id' => $messageId !== '' && ! str_starts_with($messageId, 'mid:') ? $messageId : null,
             'in_reply_to' => $this->header($headers, 'in_reply_to') ? trim($this->header($headers, 'in_reply_to'), '<> ') : null,
             'references' => $row->f_references ?: null,
             'subject' => Str::limit((string) $row->f_subject, 500, ''),
@@ -358,7 +362,9 @@ class MailImporter
         // A previous run's rows go only once this run's are in: their files
         // are then found already in the file storage, instead of being
         // deleted from it and copied in again.
-        $previous = $mail->attachments()->get();
+        $previous = $mail->attachments()->with('storedFile.content')->get();
+        $reuse = $previous->map->storedFile->filter()->values();
+        $kept = [];
 
         $rows = $this->dataDir !== null && $this->legacy()->getSchemaBuilder()->hasTable('rc_mails_attachments')
             ? $this->legacy()->table('rc_mails_attachments')->where('mail_id', $legacyMailId)->get()
@@ -374,7 +380,8 @@ class MailImporter
             }
 
             $name = Str::limit(trim((string) preg_replace('/[^\pL\pN._\- ]+/u', '_', basename((string) $row->name)), '. ') ?: 'attachment', 150, '');
-            $file = app(FileStorage::class)->putFile($source, $name);
+            $file = app(FileStorage::class)->putFile($source, $name, $reuse);
+            $kept[] = $file->getKey();
 
             $mail->attachments()->create([
                 'name' => $name,
@@ -386,7 +393,10 @@ class MailImporter
             ]);
         }
 
-        $previous->each->delete();
+        // A file the new rows kept is theirs now: only the old row goes.
+        foreach ($previous as $old) {
+            in_array($old->stored_file_id, $kept) ? $old->deleteQuietly() : $old->delete();
+        }
     }
 
     /**

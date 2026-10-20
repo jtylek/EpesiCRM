@@ -14,7 +14,7 @@ class MailAccountPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, MailAccount $account): bool

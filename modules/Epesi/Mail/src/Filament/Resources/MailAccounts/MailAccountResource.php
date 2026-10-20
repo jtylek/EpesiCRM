@@ -10,14 +10,13 @@ use Epesi\Modules\Mail\Filament\Resources\MailAccounts\Pages\EditMailAccount;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\Pages\ListMailAccounts;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
-use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
+use Epesi\Modules\Mail\Services\UnreadCounter;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -69,7 +68,7 @@ class MailAccountResource extends Resource
 
     /**
      * Not in demo mode: every visitor shares the demo accounts, so a mailbox
-     * password typed in here would be everyone's, and "Test" and "Fetch now"
+     * password typed in here would be everyone's, and "Test" and "Check now"
      * would connect the server to any host a visitor names.
      */
     public static function canAccess(): bool
@@ -113,13 +112,9 @@ class MailAccountResource extends Resource
                     ->toolbarButtons(['bold', 'italic', 'underline', 'link', 'bulletList']),
             ]),
             Section::make(__('Archiving'))->columns(2)->compact()->schema([
-                Toggle::make('archive_on_sending')->label('Archive sent messages by default')->default(true)->inline(false),
+                Toggle::make('archive_on_sending')->label('Archive sent messages by default')->default(false)->inline(false),
                 TextInput::make('archive_folder')->label('Archive folder')->default('CRM Archive')->maxLength(255)
                     ->helperText(__('Every message you move into this IMAP folder, from any mail client, is archived.')),
-                Toggle::make('auto_archive')->label('Auto-archive')->inline(false)->live()
-                    ->helperText(__('Also archive new messages in the folders below when they involve a known contact or company.')),
-                TagsInput::make('auto_archive_folders')->label('Auto-archive folders')->default(['INBOX', 'Sent'])
-                    ->visible(fn (Get $get): bool => (bool) $get('auto_archive')),
             ]),
         ]);
     }
@@ -131,15 +126,14 @@ class MailAccountResource extends Resource
                 TextColumn::make('name')->weight('medium'),
                 TextColumn::make('email'),
                 IconColumn::make('is_default')->label('Default')->boolean(),
-                IconColumn::make('auto_archive')->label('Auto-archive')->boolean(),
-                TextColumn::make('last_fetched_at')->label('Last fetched')->since()->placeholder(__('never'))
+                TextColumn::make('last_checked_at')->label('Last checked')->since()->placeholder(__('never'))
                     ->description(fn (MailAccount $record): ?string => $record->last_error ? 'Error: '.str($record->last_error)->limit(60) : null),
             ])
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActions([
                 EditAction::make()->iconButton()->tooltip(__('Edit')),
                 static::testAction(),
-                static::fetchAction(),
+                static::checkAction(),
                 DeleteAction::make()->iconButton()->tooltip(__('Delete')),
             ]);
     }
@@ -191,22 +185,26 @@ class MailAccountResource extends Resource
             });
     }
 
-    public static function fetchAction(): Action
+    /** The INBOX's unread count, now rather than at the next `mail:check`. Archives nothing. */
+    public static function checkAction(): Action
     {
-        return Action::make('fetch')
-            ->label('Fetch now')
+        return Action::make('check')
+            ->label('Check now')
             ->icon(Heroicon::OutlinedArrowPath)
             ->iconButton()
-            ->tooltip(__('Fetch now'))
+            ->tooltip(__('Check now'))
             ->color('gray')
             ->visible(fn (MailAccount $record): bool => $record->canReceive())
             ->action(function (MailAccount $record): void {
-                try {
-                    $count = app(MailFetcher::class)->fetch($record);
-                    Notification::make()->title(trans_choice('{0} No messages archived|{1} :count message archived|[2,*] :count messages archived', $count, ['count' => $count]))->success()->send();
-                } catch (Throwable $e) {
-                    Notification::make()->title(__('Fetching failed'))->body($e->getMessage())->danger()->send();
+                $result = app(UnreadCounter::class)->check($record);
+
+                if ($result['count'] === null) {
+                    Notification::make()->title(__('Checking failed'))->body($result['error'])->danger()->send();
+
+                    return;
                 }
+
+                Notification::make()->title(__(':count unread', ['count' => $result['count']]))->success()->send();
             });
     }
 

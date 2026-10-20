@@ -83,6 +83,18 @@ class AppearanceTest extends TestCase
         $this->get('/portal/login')->assertSee('Acme clients')->assertDontSee('Acme sign in');
     }
 
+    public function test_the_link_preview_tags_carry_the_login_title_and_the_portal_its_own(): void
+    {
+        AppearanceSetting::current()->update(['login_title' => 'Acme', 'portal_title' => 'Acme clients']);
+        User::factory()->create();
+
+        $this->get('/login')
+            ->assertSee('<meta property="og:title" content="Acme">', false)
+            ->assertSee('<meta property="og:description" content="CRM Acme">', false)
+            ->assertSee('images/pwa/icon-512.png');
+        $this->get('/portal/login')->assertSee('<meta property="og:title" content="Acme clients">', false);
+    }
+
     public function test_the_login_and_portal_logos_are_uploaded_served_and_removed_separately(): void
     {
         Storage::fake('local');

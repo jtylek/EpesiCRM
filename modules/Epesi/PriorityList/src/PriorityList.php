@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\PriorityList;
 
+use App\Support\RequestMemo;
 use App\Enums\RecordStatus;
 use App\Filament\Dashboard\AppletTooltip;
 use App\Models\User;
@@ -42,7 +43,7 @@ class PriorityList
 {
     public const LIMIT = 10;
 
-    public const ROLES = ['super_admin', 'manager', 'employee'];
+    public const ROLES = User::CRM_ROLES;
 
     /**
      * Morph alias => how its due date is read.
@@ -194,7 +195,10 @@ class PriorityList
 
     public static function has(User $user, Model $record): bool
     {
-        return Entry::query()->where(static::key($user, $record))->exists();
+        return app(RequestMemo::class)->remember(
+            static::stateKey($user, $record),
+            fn (): bool => Entry::query()->where(static::key($user, $record))->exists(),
+        );
     }
 
     /** Its place on $user's list, 1 first; null when it isn't on it. */
@@ -212,6 +216,11 @@ class PriorityList
      * Put $record last on $user's list. False, and nothing added, when the
      * list is full. A record already on the list keeps its place.
      */
+    protected static function stateKey(User $user, Model $record): string
+    {
+        return "priority:{$user->id}:{$record->getMorphClass()}:{$record->getKey()}";
+    }
+
     public static function add(User $user, Model $record): bool
     {
         if (static::has($user, $record)) {
@@ -229,6 +238,8 @@ class PriorityList
             return false;
         }
 
+        app(RequestMemo::class)->forget('priority:');
+
         Entry::query()->create([
             ...static::key($user, $record),
             'position' => (int) Entry::query()->where('user_id', $user->id)->max('position') + 1,
@@ -239,12 +250,14 @@ class PriorityList
 
     public static function remove(User $user, Model $record): void
     {
+        app(RequestMemo::class)->forget('priority:');
         Entry::query()->where(static::key($user, $record))->delete();
     }
 
     /** Off everyone's list: the record is done with, or gone. */
     public static function forget(Model $record): void
     {
+        app(RequestMemo::class)->forget('priority:');
         Entry::query()
             ->where('record_type', $record->getMorphClass())
             ->where('record_id', $record->getKey())

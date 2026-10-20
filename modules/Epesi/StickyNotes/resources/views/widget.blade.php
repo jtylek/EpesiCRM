@@ -31,7 +31,16 @@
         @media (min-width: 768px) { .sticky-notes-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         @media (min-width: 1280px) { .sticky-notes-board { grid-template-columns: repeat(var(--sticky-notes-columns), minmax(0, 1fr)); } }
 
+        /* The Add/Edit note dialog: a tighter heading, and the body in the application's own font. */
+        .sticky-note-modal .fi-modal-header { padding-top: 0.75rem; padding-bottom: 0; }
+        .sticky-note-modal .fi-modal-content { padding-top: 0.5rem; }
+        .sticky-note-modal .fi-fo-markdown-editor,
+        .sticky-note-modal .fi-fo-markdown-editor textarea,
+        .sticky-note-modal .fi-fo-markdown-editor .CodeMirror,
+        .sticky-note-modal .fi-fo-markdown-editor .CodeMirror pre { font-family: inherit !important; font-size: 0.875rem; }
+
         /* The Background buttons of the note form, each in its own tint. */
+        .sticky-note-colors { margin-top: 1rem; }
         .sticky-note-colors .fi-btn { color: inherit !important; }
         .sticky-note-colors input:checked + .fi-btn { outline: 2px solid currentColor; outline-offset: 1px; font-weight: 600; }
         @foreach (\Epesi\Modules\StickyNotes\Models\StickyNote::COLORS as $color => $base)

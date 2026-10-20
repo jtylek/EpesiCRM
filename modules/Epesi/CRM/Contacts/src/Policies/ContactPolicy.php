@@ -16,7 +16,7 @@ class ContactPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function view(User $user, Contact $contact): bool
@@ -26,7 +26,7 @@ class ContactPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super_admin', 'manager', 'employee']);
+        return $user->hasAnyRole(User::CRM_ROLES);
     }
 
     public function update(User $user, Contact $contact): bool
@@ -39,6 +39,10 @@ class ContactPolicy
             return true;
         }
 
+        if ($user->isConsultant()) {
+            return $contact->created_by === $user->id;
+        }
+
         return $user->hasRole('employee')
             && ($contact->created_by === $user->id || $contact->permission === RecordPermission::Public);
     }
@@ -49,7 +53,7 @@ class ContactPolicy
             return true;
         }
 
-        return $user->hasRole('employee') && $contact->created_by === $user->id;
+        return $user->hasAnyRole(['employee', 'consultant']) && $contact->created_by === $user->id;
     }
 
     public function restore(User $user, Contact $contact): bool

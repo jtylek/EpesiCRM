@@ -8,15 +8,19 @@ use App\Models\User;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\UnreadCounter;
+use Epesi\Modules\Mail\Services\UnreadMailCheckDispatcher;
 use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Isolate;
 
 /**
  * The Mail applet: unread messages in each of your accounts' INBOX — Epesi's
- * CRM_Mail applet and its unread-count tray notification.
+ * CRM_Mail applet and its unread-count tray notification. Isolated, so a
+ * request that asks a mail server isn't bundled with other widgets' updates.
  */
+#[Isolate]
 class UnreadMailWidget extends Widget implements Applet
 {
     use IsApplet;
@@ -32,7 +36,7 @@ class UnreadMailWidget extends Widget implements Applet
         $user = Auth::user();
 
         return $user instanceof User
-            && $user->hasAnyRole(['super_admin', 'manager', 'employee'])
+            && $user->hasAnyRole(User::CRM_ROLES)
             && MailAccount::query()->where('user_id', $user->id)->whereNotNull('imap_host')->exists();
     }
 
@@ -49,7 +53,23 @@ class UnreadMailWidget extends Widget implements Applet
     public function refreshCounts(): void
     {
         foreach ($this->accounts() as $account) {
-            app(UnreadCounter::class)->forAccount($account, refresh: true);
+            app(UnreadMailCheckDispatcher::class)->dispatch($account);
+        }
+    }
+
+    /**
+     * Asks the server only for the accounts with no cached count — called
+     * after the widget is already on screen, so rendering never waits on a
+     * mail server even when cron hasn't filled the cache.
+     */
+    public function checkMissing(): void
+    {
+        $counter = app(UnreadCounter::class);
+
+        foreach ($this->accounts() as $account) {
+            if ($counter->cached($account) === null) {
+                app(UnreadMailCheckDispatcher::class)->dispatch($account);
+            }
         }
     }
 
@@ -67,11 +87,13 @@ class UnreadMailWidget extends Widget implements Applet
     }
 
     /**
-     * @return array{count: int|null, error: string|null}
+     * Null while there is no cached count yet; checkMissing() fills it in.
+     *
+     * @return array{count: int|null, error: string|null}|null
      */
-    public function unread(MailAccount $account): array
+    public function unread(MailAccount $account): ?array
     {
-        return app(UnreadCounter::class)->forAccount($account);
+        return app(UnreadCounter::class)->cached($account);
     }
 
     public function accountsUrl(): string

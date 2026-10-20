@@ -61,7 +61,10 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Not built from APP_URL, so a copy in another folder or on another
+            // host doesn't link to the old address. Nothing serves this disk
+            // yet; when something does, set ASSET_URL (or resolve it from the request).
+            'url' => rtrim((string) env('ASSET_URL', ''), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

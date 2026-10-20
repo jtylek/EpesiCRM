@@ -28,6 +28,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -62,6 +63,7 @@ class UserSettingsPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             // A user's chosen theme's density and font size, applied before
             // first paint — see App\Support\Appearance\CurrentTheme.
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.history-navigation', ['buttons' => false]))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             ->pages([CalendarSettings::class, NoteSettings::class, QuickAccessSettings::class])
             ->plugins(ModuleRegistry::pluginsFor('user-settings'))

@@ -78,6 +78,24 @@ class CustomersFieldTest extends TestCase
         $this->assertTrue(collect($select->getSearchResults('joe mar'))->collapse()->has('company:'.$company->id));
     }
 
+    public function test_customer_search_finds_a_contact_by_its_company_name(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+        $acme = Company::create(['company_name' => 'Acme Tools']);
+        $contact = Contact::create(['first_name' => 'Joe', 'last_name' => 'Marcozzi', 'company_id' => $acme->id]);
+        $elsewhere = Contact::create(['first_name' => 'Ann', 'last_name' => 'Other']);
+
+        $select = Livewire::test(CreateTask::class)->instance()->form->getComponent(
+            fn ($component): bool => $component instanceof Select && $component->getName() === 'customers',
+        );
+
+        $found = collect($select->getSearchResults('marc acme'))->collapse();
+        $this->assertTrue($found->has('contact:'.$contact->id));
+        $this->assertFalse($found->has('contact:'.$elsewhere->id));
+        $this->assertTrue(collect($select->getSearchResults('acme'))->collapse()->has('contact:'.$contact->id));
+    }
+
     public function test_customer_options_include_the_type_icon_for_contacts_and_companies(): void
     {
         $this->actingAs($this->userWithRole('employee'));

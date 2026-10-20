@@ -352,12 +352,12 @@ class Store extends Page implements HasTable
                 ->label('Delete registration')
                 ->icon(Heroicon::OutlinedTrash)
                 ->color('danger')
-                ->visible(fn (): bool => $this->setting()->hasIdentity())
+                ->visible(fn (): bool => $this->hasRegistration())
                 ->requiresConfirmation()
                 ->modalDescription(__('The Epesi Store deletes your name, e-mail and other registration details and revokes the licence key. This installation keeps working, but without updates and the Store until you register again.'))
                 ->action(function (): void {
                     try {
-                        app(Registration::class)->delete();
+                        $deletedAtStore = app(Registration::class)->delete();
                     } catch (StoreApiException $exception) {
                         Notification::make()->danger()->title(__('Not deleted'))->body($exception->getMessage())->send();
 
@@ -368,7 +368,11 @@ class Store extends Page implements HasTable
                         return;
                     }
 
-                    Notification::make()->success()->title(__('Registration deleted'))->send();
+                    $deletedAtStore
+                        ? Notification::make()->success()->title(__('Registration deleted'))->send()
+                        : Notification::make()->warning()->title(__('Registration removed from this installation'))
+                            ->body(__('The licence is bound to another URL, so the store kept its record. You can register this installation again.'))
+                            ->persistent()->send();
                     $this->redirect(static::getUrl());
                 }),
         ])
@@ -376,7 +380,13 @@ class Store extends Page implements HasTable
             ->icon(Heroicon::OutlinedCog6Tooth)
             ->button()
             ->color('gray')
-            ->visible(fn (): bool => $this->setting()->hasIdentity());
+            ->visible(fn (): bool => $this->hasRegistration());
+    }
+
+    /** An identity, or a status left over from one that can no longer be read. */
+    protected function hasRegistration(): bool
+    {
+        return $this->setting()->hasIdentity() || $this->setting()->registration_status !== StoreSetting::UNREGISTERED;
     }
 
     /**

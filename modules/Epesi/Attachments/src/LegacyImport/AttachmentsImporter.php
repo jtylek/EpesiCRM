@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Attachments\LegacyImport;
 
 use App\Enums\RecordPermission;
+use App\Models\StoredFile;
 use App\Services\FileStorage;
 use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\ImportSummary;
@@ -60,6 +61,15 @@ class AttachmentsImporter extends Importer
 
         $this->refs = LegacyRecordRefs::fromImporters();
     }
+
+    /**
+     * Kept for modules that still call it (Grants, DomainsRegister): a note's
+     * link now resolves through whichever importer brings the recordset over
+     * (LegacyRecordRefs), so registering a target does nothing.
+     *
+     * @param  class-string<Model>  $model
+     */
+    public static function addTarget(string $legacyTab, string $model): void {}
 
     public function legacyTab(): string
     {
@@ -203,6 +213,12 @@ class AttachmentsImporter extends Importer
 
         $ids = [];
 
+        // What an earlier run stored for this note: found again rather than
+        // stored a second time.
+        $previous = StoredFile::query()->with('content')->whereKey(
+            Attachment::withTrashed()->where('legacy_id', $row->id)->value('files') ?? [],
+        )->get();
+
         foreach ($legacyFileIds as $legacyFileId) {
             $source = $this->legacyFile((int) $legacyFileId);
 
@@ -221,7 +237,7 @@ class AttachmentsImporter extends Importer
                 continue;
             }
 
-            $stored = app(FileStorage::class)->putFile($path, $filename);
+            $stored = app(FileStorage::class)->putFile($path, $filename, $previous);
             $ids[] = (string) $stored->getKey();
         }
 

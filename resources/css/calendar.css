@@ -362,3 +362,13 @@
         flex: 0 0 100%;
     }
 }
+
+/* The Gregorian title picker is the form date picker (calendar.blade.php): its
+   field stays invisible over the title, only its popup is seen. */
+#epesi-calendar-goto .fi-input-wrp {
+    visibility: hidden;
+}
+
+#epesi-calendar-goto .fi-fo-date-time-picker-panel {
+    visibility: visible;
+}

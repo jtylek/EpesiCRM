@@ -10,10 +10,11 @@ $checks = array();
 $failed = 0;
 
 $versionOk = ! version_compare(PHP_VERSION, $requirements['php'], '<');
+$minimumPhp = preg_replace('/\.0$/', '', $requirements['php']);
 $checks[] = array(
-    'PHP '.PHP_VERSION,
+    'PHP '.PHP_VERSION.' (supported '.$minimumPhp.' to '.$requirements['php_tested'].')',
     $versionOk,
-    $versionOk ? 'OK' : 'needs '.preg_replace('/\.0$/', '', $requirements['php']).' or newer',
+    $versionOk ? 'OK' : 'needs '.$minimumPhp.' or newer',
 );
 
 foreach ($requirements['extensions'] as $extension) {
@@ -46,8 +47,40 @@ foreach ($checks as $index => $check) {
     }
 }
 
+// Cron.php runs this too, with the command line's PHP, which can be another binary than the web
+// server's (cPanel's alt-php versions, for one, ship without mbstring until someone enables it).
+// A failure there has no page to show on: it says so on stderr and leaves a note that
+// Administration -> Server Check shows. The next clean cron run takes the note away.
+$cronNote = dirname(__DIR__).'/storage/framework/cron-preflight.json';
+
+if (PHP_SAPI === 'cli') {
+    if (! $failed) {
+        if (is_file($cronNote)) {
+            @unlink($cronNote);
+        }
+    } else {
+        $problems = array();
+
+        foreach ($checks as $check) {
+            if (! $check[1]) {
+                $problems[] = $check[0].': '.$check[2];
+            }
+        }
+
+        @file_put_contents($cronNote, json_encode(array(
+            'time' => date('Y-m-d H:i:s'),
+            'php' => PHP_VERSION,
+            'binary' => PHP_BINARY,
+            'problems' => $problems,
+        )));
+
+        fwrite(STDERR, 'epesi cannot run with this PHP ('.PHP_BINARY."):\n  ".implode("\n  ", $problems)."\n");
+        exit(1);
+    }
+}
+
 if (! $failed) {
-    unset($requirements, $checks, $failed, $versionOk, $missingExtensions, $index, $extension, $loaded, $drivers, $found, $directory, $writable, $check);
+    unset($requirements, $checks, $failed, $versionOk, $missingExtensions, $index, $extension, $loaded, $drivers, $found, $directory, $writable, $check, $cronNote);
 
     return;
 }

@@ -54,6 +54,24 @@ final class AppletTooltip
             .'</div>');
     }
 
+    /**
+     * A bold one-line heading and labelled rows under it, in the same markup
+     * as details().
+     *
+     * @param  array<string, ?string>  $rows  label => value; a blank value shows "-"
+     */
+    public static function lines(string $heading, array $rows): HtmlString
+    {
+        $html = '<div class="epesi-calendar-tooltip" style="font-size: 0.8125rem; line-height: 1.35;">'
+            .'<div style="white-space: nowrap;"><strong>'.e($heading).'</strong></div>';
+
+        foreach ($rows as $label => $value) {
+            $html .= self::row($label, e(filled($value) ? $value : '-'));
+        }
+
+        return new HtmlString($html.'</div>');
+    }
+
     /** @return list<string> */
     public static function customers(Model $record): array
     {

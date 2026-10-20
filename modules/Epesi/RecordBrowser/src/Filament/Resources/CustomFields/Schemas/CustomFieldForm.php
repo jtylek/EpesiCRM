@@ -187,11 +187,14 @@ class CustomFieldForm
                     // Legacy keeps this list in a recordset of its own per
                     // field (task_related); here it's the field's setting.
                     Select::make('recordsets')
-                        ->label('Recordsets')
+                        ->label('Can link to')
                         ->multiple()
-                        ->options(fn (): array => LinkableRecordsets::options())
+                        ->options(fn (): array => collect(LinkableRecordsets::options())
+                            ->map(fn (string $label, string $alias): string => LinkableRecordsets::iconLabel($alias, $label))
+                            ->all())
+                        ->allowHtml()
                         ->statePath('params.recordsets')
-                        ->helperText(__('Which kinds of record it can link to. Empty offers them all.'))
+                        ->helperText(__('Which recordsets it can link to, its own included. Empty offers every recordset, including ones installed later.'))
                         ->visible(fn (Get $get): bool => $get('type') === FieldType::Related->value),
 
                     // Legacy's "Minutes Interval" choices, 60 being full hours.

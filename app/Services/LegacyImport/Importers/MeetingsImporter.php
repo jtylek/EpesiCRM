@@ -103,6 +103,6 @@ class MeetingsImporter extends Importer
         ));
         $model->customerCompanies()->sync($customerCompanyIds);
 
-        $this->importRelated($row, $model);
+        $this->importRelated($row, $model, field: 'linked_to');
     }
 }

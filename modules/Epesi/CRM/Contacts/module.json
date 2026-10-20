@@ -3,7 +3,7 @@
     "name": "Contacts",
     "description": "People: the CRM contact recordset, with addons for their tasks, phone calls and meetings, and the link to a portal login.",
     "version": "1.0.0",
-    "epesi_core": "^2.0",
+    "epesi_core": "^3.0",
     "category": "CRM",
     "icon": "heroicon-o-user",
     "namespace": "Epesi\\Modules\\CRM\\Contacts\\",

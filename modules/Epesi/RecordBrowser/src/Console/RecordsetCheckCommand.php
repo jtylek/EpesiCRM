@@ -9,7 +9,9 @@ use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -76,7 +78,26 @@ class RecordsetCheckCommand extends Command
         $problems = 0;
         $displayed = [];
 
-        foreach ($resource::fields() as $field) {
+        $queries = [];
+        DB::listen(function ($query) use (&$queries): void {
+            $queries[] = $query->sql;
+        });
+        $fields = $resource::fields();
+        // listen() cannot be removed; this closure only records into $queries.
+        $queries = array_values(array_unique($queries));
+
+        // fields() runs on every request that touches the resource, including
+        // ones that never show a form; a lookup belongs in a closure
+        // (Field::select(..., fn () => ...)) that runs only when needed.
+        if ($queries !== []) {
+            $this->components->twoColumnDetail(
+                "{$resource}::fields()",
+                '<fg=red>runs '.count($queries).' database query(ies) while being declared (first: '.Str::limit($queries[0], 80).') — pass options as a closure so they load only when needed</>',
+            );
+            $problems++;
+        }
+
+        foreach ($fields as $field) {
             $displayed[] = $field->getStateName();
 
             if ($field->type === FieldType::Customer) {
@@ -186,11 +207,46 @@ class RecordsetCheckCommand extends Command
             }
         }
 
+        $this->hintDefaultSortIndex($resource, $table, $columns);
+
         if ($this->option('strict')) {
             $problems += $this->reportUndisplayedColumns($resource, $table, $columns, $displayed);
         }
 
         return $problems;
+    }
+
+    /**
+     * A hint, not a problem: the list works without it. But a table sorted on a
+     * column nothing indexes is sorted in full on every page, search and page
+     * change, which a demo's few hundred rows never show. Soft deletes put
+     * `deleted_at` in front, so an index counts when its first column, or the one
+     * after `deleted_at`, is the sort column.
+     *
+     * @param  class-string<RecordsetResource>  $resource
+     * @param  list<string>  $columns
+     */
+    protected function hintDefaultSortIndex(string $resource, string $table, array $columns): void
+    {
+        $sort = $resource::defaultSortColumn();
+
+        if ($sort === null || ! in_array($sort, $columns, true)) {
+            return;
+        }
+
+        foreach (Schema::getIndexes($table) as $index) {
+            $lead = array_values($index['columns']);
+            $lead = ($lead[0] ?? null) === 'deleted_at' ? ($lead[1] ?? null) : ($lead[0] ?? null);
+
+            if ($lead === $sort) {
+                return;
+            }
+        }
+
+        $this->components->twoColumnDetail(
+            "{$resource} default sort",
+            "<fg=yellow>no index starts with `{$table}`.`{$sort}` (after deleted_at) — the list sorts the whole table once it holds many thousands of rows</>",
+        );
     }
 
     /**

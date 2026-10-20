@@ -27,17 +27,38 @@ class FakeMailbox implements Mailbox
         return $this->validity[$folder] ?? 1;
     }
 
-    public function uidsAfter(int $uid): array
+    public function uidsWithMessageId(string $messageId): array
     {
-        $uids = array_filter(array_keys($this->messages[$this->current] ?? []), fn (int $u): bool => $u > $uid);
+        $uids = [];
+
+        foreach ($this->messages[$this->current] ?? [] as $uid => $raw) {
+            if (preg_match('/^Message-ID:\s*<?'.preg_quote($messageId, '/').'>?\s*$/mi', $raw)) {
+                $uids[] = $uid;
+            }
+        }
+
         sort($uids);
 
-        return array_values($uids);
+        return $uids;
     }
 
     public function fetchRaw(int $uid): string
     {
         return $this->messages[$this->current][$uid];
+    }
+
+    public bool $moveFails = false;
+
+    public function move(string $folder, array $uids, string $target): void
+    {
+        if ($this->moveFails) {
+            throw new \RuntimeException('MOVE failed');
+        }
+
+        foreach ($uids as $uid) {
+            $this->messages[$target][] = $this->messages[$folder][$uid];
+            unset($this->messages[$folder][$uid]);
+        }
     }
 
     /** @var array<string, array<int, string>> folder => appended raw messages */

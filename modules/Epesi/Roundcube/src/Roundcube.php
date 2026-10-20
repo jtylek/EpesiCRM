@@ -40,11 +40,16 @@ class Roundcube
 
     /**
      * The app's URL path, e.g. `/epesi-laravel/`: Roundcube's cookies are set
-     * on it, so they also reach Laravel's requests.
+     * on it, so they also reach Laravel's requests. In a web request it is the
+     * folder the app is really served from; only the console, which has no
+     * request, falls back to APP_URL.
      */
     public static function cookiePath(): string
     {
-        $path = trim((string) parse_url((string) config('app.url'), PHP_URL_PATH), '/');
+        $path = app()->runningInConsole()
+            ? (string) parse_url((string) config('app.url'), PHP_URL_PATH)
+            : request()->getBasePath();
+        $path = trim($path, '/');
 
         return $path === '' ? '/' : '/'.$path.'/';
     }

@@ -92,6 +92,11 @@ Two consequences worth internalising:
   `build*` methods know Filament exists. That separation is what would keep a future
   UI-framework question answerable, should one ever come up.
 
+`fields()` runs on every request that touches a resource, so it must not query the database.
+`Field::select()` and `multiselect()` therefore accept a closure for lists read from the database
+(`Field::select('series', fn () => Series::pluck('name', 'id')->all())`); it runs once, when a form, filter
+or label needs the options. `recordset:check` reports any resource whose `fields()` runs a query.
+
 ### What Filament provides
 
 Versions here are `filament/* v5.7.8`. The component lists are read off `vendor/`; re-check
@@ -639,6 +644,10 @@ this one.
   a later run once its target exists.
 - **Administration → Fields.** Offered, with a **Recordsets** setting (empty offers them all).
 - **Checks.** `recordset:check` reports a Related field on a model without `HasRecordLinks`.
+
+[Step 12](#step-12-linked-to-on-any-recordset) renames this field to **Linked to**. It also adds
+module defaults and administrator overrides for which recordsets it can link to, same-recordset
+links (never to the record itself) and a two-step popup picker.
 
 Not built yet: offering only some records of a recordset. Legacy's `related_crits` could in
 principle filter records as well as recordsets, though the CRM's never did.
@@ -1237,7 +1246,7 @@ records as they come, none of which needs a column added first.
 
 ## Implementation plan
 
-Eleven steps, in order. Each one ships on its own and leaves the engine working.
+Twelve steps, in order. Each one ships on its own and leaves the engine working.
 
 | Step | What | Size | Needs | Status |
 | --- | --- | --- | --- | --- |
@@ -1252,6 +1261,7 @@ Eleven steps, in order. Each one ships on its own and leaves the engine working.
 | 9 | Notes and Mail on the shared link table | 2–3 days | Step 8 | |
 | 10 | `->calculated()` | 1 day | — | |
 | 11 | `currency` | 3–4 days | A new Currencies module | **Built** |
+| 12 | "Linked to" on any recordset, with a popup picker | 4–6 days | Step 3; step 9 for Notes and Mail | **Built** |
 
 Why this order:
 
@@ -1272,6 +1282,9 @@ Why this order:
   Step 9 needs step 8.
 - `calculated` and `currency` come last because no recordset needs them yet. The first modules
   that handle money will.
+- Step 12 came later, from wanting step 3's field on every recordset. Its engine part (rename,
+  allowed recordsets, picker) doesn't need step 9. Step 9 then puts Notes and Mail on the same
+  picker.
 
 ### What every new type touches
 
@@ -1476,11 +1489,17 @@ What differs from the plan:
 
 - A migration copies `epesi_attachment_links` into `epesi_recordbrowser_links`
   (`source_type = 'attachment'`, `field = 'attached_to'`), and `epesi_mail_links` likewise
-  (`field = 'related'`). It then drops both tables.
-- A note's "Attached to" and a mail's links become `Related` fields, and `Mail::linkTo()` writes
-  a `RecordLink`.
+  (`field = 'linked_to'`, the name step 12 gives the field). It then drops both tables.
+- A note's "Attached to" and a mail's links become Linked to fields (`Field::linkedTo()`, step
+  12), and `Mail::linkTo()` writes a `RecordLink`. Notes' label becomes "Linked to" too
+  (decided in step 12), in the form, the View page, the list and its messages.
 - Their tabs come from step 8. Notes stays first. `Attachments::enableFor()` goes: the record
-  types a note can attach to are its `Related` field's recordsets.
+  types a note can attach to are its field's allowed recordsets (step 12's code default and
+  administrator override). That replaces the Notes and E-mails rows of Related modules
+  (`RecordsetFeatures`).
+- **One picker.** Both use step 12's `RecordPicker` popup. Mail's `LinkRecordAction` becomes a
+  thin wrapper around it, and Notes' Type + Record repeater (`attach_to`) goes. Notes keeps its
+  own rules on top: at least one record, and starting on your own contact.
 - **Tests:** the existing Notes and Mail tests pass unchanged on the new storage.
 
 ### Step 10: `->calculated()`
@@ -1561,11 +1580,179 @@ Field::decimal('net_total')->calculated(fn (Invoice $record) => $record->items->
   - History shows one line;
   - the import splits the values.
 
+### Step 12: Linked to on any recordset
+
+**Built** (2026-10-08), as below, except:
+
+- Mail's `LinkRecordAction` still has its own picker until it moves onto `RecordPicker`.
+- Notes uses the same picker (`LinkedToField` on `attach_to`, its state "alias:id" tokens, its
+  recordsets `AttachmentsServiceProvider::recordTypes()`), labelled "Linked to", but still stores
+  its links in `epesi_attachment_links`; moving the storage is step 9.
+- An administrator-added Linked to field keeps its multi-select of recordsets (now with icons,
+  labelled "Can link to"; empty means any recordset). The *Any recordset* switch and checkboxes
+  are on module fields (`ModuleFieldForm`).
+- Linked-record badges on the View page and in the list keep their "Company: Acme Ltd" text; only
+  the form's badges carry the recordset icon.
+- History: `syncRecordLinks()` logs a change as tokens, joining the save's entry
+  (`logRecordLinkChange()`, as `HasCollections` does), so Customers fields are logged too.
+  `Field::formatLoggedChange()` shows it as "− Company: Acme Ltd + Contact: Ann Buyer", titles
+  read at display time through each record's visibility ("Company #12" for one the reader can't
+  see). Notes' own links aren't logged yet (step 9).
+- The incoming-links tab for records of the viewed record's own recordset is titled "Linked
+  from: Tasks" (`IncomingLinks::tabLabel()`).
+
+Where it lives: `Field::linkedTo()`, `LinkedTo` (constants, `offer()`), `RecordPicker`,
+`LinkableRecordsets::icon()`/`iconLabel()`/`title()`, the `LinkedToField` form component and its
+view `epesi-recordbrowser::forms.linked-to`, `FieldOverrides::withOffers()` and the `recordsets`
+property, the migration `2026_10_08_160000_rename_related_fields_to_linked_to`, and
+`tests/Feature/Modules/LinkedToFieldTest.php`. Premium SalesOpportunity reads and writes
+`linked_to` too; Premium Timesheets keeps its own `related` field.
+
+The goal: one global field that links a record of any recordset to records of any
+other recordset, or of its own. The use case is a task whose customer is ABC that is also linked
+to XYZ. Step 3's `Related` field already does most of this: one shared table
+(`epesi_recordbrowser_links`), the ownership scope applied to every target, and the reverse tab
+(step 8). Step 12 generalises it rather than building something new.
+
+What it starts from:
+
+- `Field::related()` on Tasks, Meetings and Phone Calls, each limited to Company and Contact. It
+  is a single searchable select over every offered recordset, with nothing listed until you type.
+- Mail's `LinkRecordAction`: already the two-step picker (recordset, then record, recent records
+  before you search), but private to Mail, with a hard-coded `SEARCH` column list.
+- Notes' `attach_to` repeater: a third copy of the same idea (a Type + Record row per link).
+- The wording: Mail says "Linked to" and Notes "Attached to". This field said "Related".
+
+**1. The rename.**
+
+- Add `Field::linkedTo(string $name = 'linked_to', array|string $recordsets = LinkedTo::ANY)`.
+  `Field::related()` stays as a deprecated alias, so a third-party module keeps working.
+- The stored type value stays `'related'`, so administrator-added fields need no data migration.
+  Only `FieldType::label()` changes, to "Linked to".
+- Tasks, Meetings and Phone Calls rename their field `related` → `linked_to`, still defaulting to
+  Company and Contact. They remain the only built-in Linked to fields. A RecordBrowser
+  migration rewrites `epesi_recordbrowser_links.field` and any `epesi_recordbrowser_field_overrides`
+  rows for those three recordsets.
+- Code that writes `'related'` moves with it: `Importer::importRelated()` and Followup (which
+  copies the links onto the follow-up), plus their tests.
+- The Tasks dashboard applet's `related` setting is unrelated (it filters by employees or
+  customers) and stays.
+
+**2. Which recordsets it can link to: module, installation, administrator.**
+
+- **Module default:** the field's second argument. Either `LinkedTo::ANY`, every linkable
+  recordset (`LinkableRecordsets::options()`), including one installed later, or a list of
+  models or morph aliases.
+- **Another module joining in:** `LinkedTo::offer('task', 'linked_to', 'project')`, as
+  `RecordsetFeatures::enableByDefault()` does. Projects can make itself linkable from Tasks
+  without the Tasks module naming it.
+- **Installation default:** what the modules declared. Nothing is stored until an administrator
+  changes it.
+- **Administrator:** Administration → Recordsets, the recordset, Edit on the field: a **Can link
+  to** setting, made of an *Any recordset* toggle or else a checkbox list of recordsets. It is
+  stored as a `recordsets` property in `FieldOverrides` (`editable()` allows it on a Linked to
+  field only), and wins over the module default in either direction. It replaces
+  `CustomFieldForm`'s `params.recordsets` select, so module and administrator fields are edited
+  the same way.
+- `Field::relatedRecordsets()` resolves the three layers, and the picker and `syncRecordLinks()`
+  both read it.
+- **A recordset taken off the list:** its existing links stay and still show. It just isn't
+  offered for new ones, the same rule as Related modules.
+
+**3. Its own recordset, but never the record itself.**
+
+- A field may list its own recordset (a task linked to another task). None of the built-in
+  fields does by default (see Decisions below), so this comes from an administrator's override
+  or a custom field.
+- The picker leaves out the record being edited (`whereKeyNot`) when the chosen recordset is its
+  own. On Create there is no key yet, so nothing is left out.
+- `syncRecordLinks()` drops a token naming the record itself. That is the server-side guard, as
+  `TicketResource::afterFormSave()` detaches a ticket from its own Required tickets.
+- Required tickets itself stays a `Relations` field. It carries more than a link: Blocking, no
+  closed tickets offered, the dependency icon. Only the self-exclusion pattern carries over.
+
+**4. The popup picker (`RecordPicker`, `LinkedToField`).**
+
+- **On the form,** the linked records are `LinkedRecords` badges, each with × and its
+  recordset's icon (the same `LinkableRecordsets::icon()`), and a **Link a record** button. The button is a hint action, as Notes' "Attach to a record" is.
+- **The button opens a modal:**
+  1. **Recordset:** the allowed ones, by label, each with its module's icon (the resource's
+     `getNavigationIcon()`, the one in the sidebar) so recordsets are told apart at a glance. It
+     is an `allowHtml()` select built the way the Customers field's options are
+     (`customerOptionLabel()`/`customerIcon()`), which moves into a shared helper,
+     `LinkableRecordsets::icon($alias)` plus an option-label renderer. The title stays escaped
+     next to the icon. A recordset without an icon shows just its label. It starts on the last
+     recordset this user picked in this field.
+
+     **Don't break Phone Calls' Customer.** Moving the icon code touches `Field::customer()`
+     (`customerSelect()`), which Phone Calls' Customer is built on. Only the icon lookup moves.
+     These stay exactly as they are:
+     - the Customer field's token (`alias:id`) and its `live()`/`afterStateUpdated()`;
+     - `suggestPhoneNumbers('phone_number')`, which fills Phone Number from the picked
+       contact's or company's first number (`customerPhoneNumber()`), and checks whether it has
+       one;
+     - `PhoneCallResource::customerPhoneOptions()`, the number select re-filled from whichever
+       customer is picked;
+     - the "Other Customer (not in system)" switch between the two Phone Number fields.
+
+     The Customer field is not the field being renamed (`related` → `linked_to`), so its name
+     and stored columns (`customer_type`, `customer_id`) don't change.
+  2. **Record:** searchable, with the search box on the first line. Before you type, it lists
+     your recent records of that recordset when the recordset keeps a recent list
+     (`getRecentLimit() > 0`, from `RecentRecords::visitsOf()`), and "Start typing to search"
+     when it doesn't. Search goes through the resource's `applyPickerSearch()`, which drops
+     Mail's `SEARCH` constant. Records already linked are left out, and so is the record itself.
+  - The footer has **Link** and **Link & add another**.
+- **State:** the same `alias:id` token list as today, `dehydrated(false)`, saved by
+  `saveRelationshipsUsing()` → `syncRecordLinks()`. Nothing changes on the storage side.
+- **Where the code comes from:** `typeField()`, `recordField()`, `recent()` and `search()` move
+  out of Mail's `LinkRecordAction` into RecordBrowser as `RecordPicker`, which step 9 reuses.
+  Unlike Mail's `recent()`, it shows nothing rather than the newest records when the user has no
+  recent ones.
+
+**5. The reverse side and History.**
+
+- Step 8's `IncomingLinks` already gives the target a tab. A same-recordset link shows on the
+  other task as a Tasks tab. It needs its own label ("Linked from: Tasks") so it can't be
+  confused with the task's own fields.
+- Log added and removed links in History, through `syncRecordLinks()`, the one place they change
+  (otherwise listed under [Not in this plan](#not-in-this-plan)). Optional, but cheap once every
+  link goes through it.
+
+**6. Tests** (`RelatedFieldTest` becomes `LinkedToFieldTest`):
+
+- `ANY` against a listed default;
+- an administrator override winning in either direction;
+- `offer()` from another module;
+- a same-recordset link saved, and a link to itself refused by the server;
+- recent records on an empty search, and none for a recordset without a recent list;
+- each recordset option carries its resource's icon, and its label is escaped;
+- Phone Calls' Customer still fills Phone Number from the picked customer's number and lists
+  its numbers, and still leaves Phone Number empty for a customer without one. The existing
+  Phone Calls tests must pass unchanged;
+- a link to a record the user can't see kept on save;
+- the `related` → `linked_to` migration;
+- `recordset:check` still accepts the field.
+
+**Decisions** (settled 2026-10-08):
+
+- **Required tickets** stays a `Relations` field (Ticket ↔ Ticket), as point 3 says. It is not
+  converted to a Linked to field.
+- **Notes' label** changes from "Attached to" to "Linked to" in step 9, matching Mail and this
+  field.
+- **Built-in fields:** only Tasks, Meetings and Phone Calls, renamed from Related. Contacts,
+  Companies, Projects and Tickets get no built-in Linked to field for now. Where one is wanted,
+  an administrator adds it as a custom field.
+- **Defaults:** Tasks, Meetings and Phone Calls keep Company and Contact as their Linked to
+  default, not `ANY`. An administrator widens it under Administration → Recordsets (point 2),
+  for example to let a task link to another task. Their Customers field is unchanged.
+
 ### Not in this plan
 
 - **Registry.** Whether to turn `FieldType` into a registry modules can extend (see
   [The registry gap](#the-registry-gap)). The new cases keep that option open.
-- **History of link-table changes.** Logging `Relations` and `Related` changes in History.
+- **History of link-table changes.** Logging `Relations` changes in History. Step 12 covers the
+  Linked to field (`Related`).
 - **Callbacks.** Legacy's PHP display and form callbacks typed in the browser.
 - **Collection types defined in the browser.** They need tables created at run time (see
   [Custom fields and administrators](#custom-fields-and-administrators)).

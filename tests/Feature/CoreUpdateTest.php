@@ -93,6 +93,18 @@ class CoreUpdateTest extends TestCase
         $this->assertSame(2, $result['removed']);
     }
 
+    public function test_a_2_0_release_candidate_updates_to_3_0(): void
+    {
+        // 3.0 renumbered 2.0 before its final release, so an installation on a
+        // 2.0 RC must take 3.0 as an ordinary update.
+        $this->release('3.0.0RC6', ['VERSION' => '3.0.0RC6', 'artisan' => 'x', 'composer.json' => '{}', 'vendor/autoload.php' => 'x']);
+
+        $result = $this->updater()->apply($this->zip);
+
+        $this->assertSame('3.0.0RC6', $result['to']);
+        $this->assertSame('3.0.0RC6', $this->read('VERSION'));
+    }
+
     public function test_it_refuses_an_update_that_is_not_newer(): void
     {
         $this->release('2.0.0RC1', ['VERSION' => '2.0.0RC1', 'artisan' => 'x', 'composer.json' => '{}', 'vendor/autoload.php' => 'x']);
