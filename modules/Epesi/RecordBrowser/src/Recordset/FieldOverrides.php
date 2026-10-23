@@ -117,7 +117,7 @@ class FieldOverrides
                 $properties = array_diff($properties, ['filterable']);
             }
         }
-        if ($field->type->hasColumn()) {
+        if ($field->hasColumn()) {
             if (! isset($this->columns[$model])) {
                 // Model initialization resolves its collection fields through this service.
                 $this->columns[$model] = [];

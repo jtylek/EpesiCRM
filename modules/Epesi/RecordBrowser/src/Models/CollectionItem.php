@@ -91,7 +91,7 @@ abstract class CollectionItem extends Model
         $columns = ['kind'];
 
         foreach (static::fields() as $field) {
-            if (! $field->type->hasColumn()) {
+            if (! $field->hasColumn()) {
                 continue;
             }
 
@@ -183,7 +183,7 @@ abstract class CollectionItem extends Model
     {
         return array_values(array_map(
             fn (Field $field): string => $field->name,
-            array_filter(static::resolvedFields(), fn (Field $field): bool => $field->type->hasColumn() && $field->isSearchable()),
+            array_filter(static::resolvedFields(), fn (Field $field): bool => $field->hasColumn() && $field->isSearchable()),
         ));
     }
 
@@ -253,7 +253,7 @@ abstract class CollectionItem extends Model
         $values = [];
 
         foreach (static::resolvedFields() as $field) {
-            if (in_array($field->name, $declared, true) || ! $field->isInView() || ! $field->type->hasColumn()) {
+            if (in_array($field->name, $declared, true) || ! $field->isInView() || ! $field->hasColumn()) {
                 continue;
             }
 

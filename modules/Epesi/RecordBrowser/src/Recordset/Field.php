@@ -5,6 +5,7 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
 use App\Models\StoredFile;
 use App\Services\FileStorage;
 use App\Support\Files\FileChip;
+use App\Support\Files\InlineImages;
 use BackedEnum;
 use Closure;
 use Epesi\Modules\CommonData\Facades\CommonData;
@@ -69,6 +70,7 @@ use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ClosureValidationRule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use LogicException;
 use Spatie\Activitylog\Models\Activity;
 use Throwable;
 
@@ -178,6 +180,12 @@ class Field
     protected ?Closure $filterUsing = null;
 
     protected ?Closure $crits = null;
+
+    /** @var (Closure(?Model, Closure(string): mixed): mixed)|null see calculated() */
+    protected ?Closure $calculated = null;
+
+    /** @var list<string> */
+    protected array $calculatedFrom = [];
 
     /** @var (Closure(mixed, mixed, Activity, bool): (string|Htmlable|null))|null see historyUsing() */
     protected ?Closure $historyUsing = null;
@@ -578,10 +586,14 @@ class Field
 
         if ($this->inForm && ! $this->required && $this->type !== FieldType::Autonumber) {
             $properties[] = 'show_in_form';
-            $properties[] = 'required';
+
+            // Nothing to fill in on a calculated field.
+            if (! $this->isCalculated()) {
+                $properties[] = 'required';
+            }
         }
 
-        if ($this->type !== FieldType::Time && $this->type !== FieldType::Autonumber) {
+        if ($this->type !== FieldType::Time && $this->type !== FieldType::Autonumber && ! $this->isCalculated()) {
             $properties[] = 'filterable';
         }
 
@@ -844,6 +856,65 @@ class Field
         return $this->inForm(false)->inView(false)->inTable();
     }
 
+    /**
+     * A read-only value worked out from the record's other fields each time
+     * it's shown, never stored: Epesi's `calculated` field without its
+     * optional stored copy (that one is an ordinary field the model fills in
+     * its `saving` event). The field's type still decides how the value
+     * looks; it must be a scalar one.
+     *
+     * $using gets the record (null on Create) and a reader for another
+     * field's value (`$value('started_at')`); it returns the value to show,
+     * null for nothing. On View and in the list the reader gives the record's
+     * attributes, cast. On Create/Edit, where it shows read-only, it gives the
+     * form's live state instead, so a date is the input's string there, and
+     * the fields named in $dependsOn turn live so the value follows them.
+     *
+     * With no column it doesn't sort, search or filter, nothing is logged in
+     * History, and recordset:check doesn't look for its column.
+     *
+     * @param  Closure(?Model $record, Closure(string): mixed $value): mixed  $using
+     * @param  list<string>  $dependsOn  the fields $using reads, by state name
+     */
+    public function calculated(Closure $using, array $dependsOn = []): static
+    {
+        if ($this->type->isRelational() || $this->type->isMultiple() || ! $this->type->hasColumn()
+            || in_array($this->type, [FieldType::File, FieldType::Currency], true)) {
+            throw new LogicException("Field {$this->name}: a {$this->type->value} field can't be calculated, only a scalar one.");
+        }
+
+        $this->calculated = $using;
+        $this->calculatedFrom = $dependsOn;
+
+        return $this;
+    }
+
+    public function isCalculated(): bool
+    {
+        return $this->calculated !== null;
+    }
+
+    /** @return list<string> the fields a calculated field reads, which its form makes live */
+    public function calculatedFrom(): array
+    {
+        return $this->calculatedFrom;
+    }
+
+    /**
+     * Whether the value is a column on the record's own table: as its type
+     * says (FieldType::hasColumn()), unless it's calculated.
+     */
+    public function hasColumn(): bool
+    {
+        return $this->calculated === null && $this->type->hasColumn();
+    }
+
+    /** @param  Closure(string): mixed  $value */
+    protected function calculatedState(?Model $record, Closure $value): mixed
+    {
+        return ($this->calculated)($record, $value);
+    }
+
     public function filterable(bool $filterable = true, bool $itemFieldsOnly = false): static
     {
         $this->filterable = $filterable;
@@ -953,6 +1024,10 @@ class Field
     {
         $options = $this->getParam('options');
 
+        if ($this->isCalculated()) {
+            return null;
+        }
+
         return match ($this->type) {
             FieldType::Boolean => 'boolean',
             FieldType::Date => 'date',
@@ -969,26 +1044,46 @@ class Field
 
     // ---------------------------------------------------------------- Form --
 
-    public function toFormComponent(): mixed
+    /**
+     * @param  bool  $live  a calculated field on the same form reads this one
+     *                      (calculated()'s $dependsOn): send its changes as
+     *                      they're made — a typed text on leaving the box
+     */
+    public function toFormComponent(bool $live = false): mixed
     {
-        // A group of two inputs, not one: it takes no required() or default()
-        // of its own, so currencyGroup() passes those to the amount.
-        $component = $this->type === FieldType::Currency
-            ? $this->currencyGroup()->label($this->getLabel())->markAsRequired($this->required)->helperText($this->help)
-            : $this->buildFormComponent()
+        $component = match (true) {
+            // The View page's entry, not a disabled input: worked out again
+            // on every render from the form's live state, and never
+            // submitted (an entry doesn't dehydrate).
+            $this->isCalculated() => $this->buildInfolistEntry()
+                ->state(fn (Get $get, ?Model $record): mixed => $this->calculatedState($record, fn (string $name): mixed => $get($name)))
+                ->placeholder($this->placeholder ?? '-')
+                ->label($this->getLabel())
+                ->helperText($this->help),
+            // A group of two inputs, not one: it takes no required() or default()
+            // of its own, so currencyGroup() passes those to the amount.
+            $this->type === FieldType::Currency => $this->currencyGroup()->label($this->getLabel())->markAsRequired($this->required)->helperText($this->help),
+            default => $this->buildFormComponent()
                 ->label($this->getLabel())
                 ->required($this->required)
-                ->helperText($this->help);
+                ->helperText($this->help),
+        };
 
         if ($this->isFullWidth()) {
             $component = $component->columnSpanFull();
         }
 
-        if ($this->default !== null && $this->type !== FieldType::Currency) {
+        if ($this->default !== null && $this->type !== FieldType::Currency && ! $this->isCalculated()) {
             $component = $component->default($this->default);
         }
 
-        return $this->formUsing ? ($this->formUsing)($component, $this) : $component;
+        $component = $this->formUsing ? ($this->formUsing)($component, $this) : $component;
+
+        if ($live && method_exists($component, 'live')) {
+            $component = $component->live(onBlur: $component instanceof TextInput || $component instanceof Textarea);
+        }
+
+        return $component;
     }
 
     protected function buildFormComponent(): mixed
@@ -1771,7 +1866,7 @@ class Field
         }
 
         foreach ($type::resolvedFields() as $field) {
-            if ($field->isInTable() && $field->type->hasColumn()) {
+            if ($field->isInTable() && $field->hasColumn()) {
                 return $field;
             }
         }
@@ -1976,7 +2071,7 @@ class Field
         ];
 
         foreach ($type::resolvedFields() as $field) {
-            if (! $field->filterable || ! $field->type->hasColumn()) {
+            if (! $field->filterable || ! $field->hasColumn()) {
                 continue;
             }
 
@@ -2090,6 +2185,10 @@ class Field
     public function toInfolistEntry(): SchemaComponent
     {
         $entry = $this->buildInfolistEntry()->label($this->getLabel());
+
+        if ($this->isCalculated()) {
+            $entry = $entry->state(fn (Model $record): mixed => $this->calculatedState($record, fn (string $name): mixed => $record->getAttribute($name)));
+        }
 
         if ($entry instanceof TextEntry) {
             $entry = $entry->placeholder($this->placeholder ?? '-');
@@ -2245,6 +2344,10 @@ class Field
         $column = $this->buildTableColumn()
             ->label($this->columnLabel())
             ->toggleable(isToggledHiddenByDefault: ! $this->inTable);
+
+        if ($this->isCalculated()) {
+            $column = $column->state(fn (Model $record): mixed => $this->calculatedState($record, fn (string $name): mixed => $record->getAttribute($name)));
+        }
 
         if ($column instanceof TextColumn) {
             $column = $column->placeholder($this->placeholder ?? '-');
@@ -2431,11 +2534,16 @@ class Field
         }
 
         return ! $this->type->isRelational() && ! $this->type->isMultiple() && ! $this->isMultipleValued()
+            && ! $this->isCalculated()
             && ! in_array($this->type, [FieldType::Autonumber, FieldType::File, FieldType::Customer], true);
     }
 
     protected function isSearchableByDefault(): bool
     {
+        if ($this->isCalculated()) {
+            return false;
+        }
+
         if ($this->type === FieldType::Collection) {
             return $this->collectionSearchColumns() !== [];
         }
@@ -2445,7 +2553,8 @@ class Field
 
     public function toTableFilter(): ?BaseFilter
     {
-        if (! $this->filterable) {
+        // A calculated value has nothing in SQL to filter by.
+        if (! $this->filterable || $this->isCalculated()) {
             return null;
         }
 
@@ -2651,7 +2760,10 @@ class Field
             return new HtmlString('-');
         }
 
-        return new HtmlString($this->richText ? Str::sanitizeHtml((string) $value) : nl2br(e((string) $value)));
+        // Pasted images get their address only when shown (InlineImages).
+        return new HtmlString($this->richText
+            ? Str::sanitizeHtml(app(InlineImages::class)->render((string) $value))
+            : nl2br(e((string) $value)));
     }
 
     /**

@@ -64,7 +64,8 @@ this machine, and `SendMessage` reaches each one. Other agents rely on the lock 
 ## Running tests meanwhile
 
 - Run the tests for what you changed: the test file, or `php artisan test --filter=Name`.
-  Keep the full suite for just before committing.
+  Keep the full suite for just before pushing, or before committing a change to shared
+  infrastructure (see "When to run tests" in AGENTS.md).
 - A failure outside your change, or failures that differ from run to run, are probably not
   yours. Rerun only the failing files, and check `git status` for other sessions' uncommitted
   files in the code under test.

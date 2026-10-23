@@ -4,8 +4,10 @@ namespace Epesi\Modules\Attachments\Models;
 
 use App\Enums\NoteFormat;
 use App\Enums\RecordPermission;
+use App\Models\Concerns\HasInlineImages;
 use App\Models\StoredFile;
 use App\Models\User;
+use App\Support\Files\InlineImages;
 use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +30,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class Attachment extends Model
 {
-    use HasOwnershipVisibility, LogsActivity, SoftDeletes;
+    use HasInlineImages, HasOwnershipVisibility, LogsActivity, SoftDeletes;
 
     /** Allows the edit workflow to replace ciphertext after validating the password. */
     public bool $allowEncryptedNoteWrite = false;
@@ -86,6 +88,17 @@ class Attachment extends Model
         });
 
         static::forceDeleted(fn (Attachment $note) => $note->storedFiles()->each->delete());
+    }
+
+    /**
+     * Images pasted into the note are tracked (HasInlineImages): the image
+     * route serves them to whoever may view the note.
+     *
+     * @return list<string>
+     */
+    public function richTextColumns(): array
+    {
+        return ['note'];
     }
 
     /**
@@ -164,7 +177,9 @@ class Attachment extends Model
     }
 
     /**
-     * The body as HTML, whatever it was written in.
+     * The body as safe HTML, whatever it was written in. Sanitized here, not
+     * by the caller: the stored HTML is whatever the request sent, and the
+     * Notes list prints this into raw markup.
      */
     public function bodyHtml(): string
     {
@@ -172,7 +187,8 @@ class Attachment extends Model
             return '';
         }
 
-        return ($this->format ?? NoteFormat::Html)->toHtml($this->note);
+        // Pasted images get their address only now (InlineImages).
+        return Str::sanitizeHtml(app(InlineImages::class)->render(($this->format ?? NoteFormat::Html)->toHtml($this->note)));
     }
 
     /** Never reveal ciphertext through searchable/plain-text labels. */

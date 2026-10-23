@@ -336,6 +336,28 @@ class AttachmentsTest extends TestCase
         $this->assertSame('<p>Hi <b>there</b></p>', $note->fresh()->bodyHtml());
     }
 
+    public function test_a_stored_html_note_cannot_run_script_in_the_list_preview(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $note = Attachment::create([
+            'title' => 'Crafted',
+            'note' => '<p>Safe <b>part</b></p><script>alert(1)</script><img src="x" onerror="alert(2)"><a href="javascript:alert(3)">x</a>',
+            'permission' => RecordPermission::Public,
+        ]);
+
+        $this->assertStringContainsString('<b>part</b>', $note->bodyHtml());
+        $this->assertStringNotContainsString('<script', $note->bodyHtml());
+        $this->assertStringNotContainsString('onerror', $note->bodyHtml());
+        $this->assertStringNotContainsString('javascript:', $note->bodyHtml());
+
+        Livewire::test(ListAttachments::class)
+            ->assertCanSeeTableRecords([$note])
+            ->assertSeeHtml('<b>part</b>')
+            ->assertDontSeeHtml('<script>alert(1)</script>')
+            ->assertDontSeeHtml('onerror=')
+            ->assertDontSeeHtml('javascript:alert(3)');
+    }
+
     public function test_a_note_is_edited_on_its_page_and_saves_to_its_view_page(): void
     {
         $this->actingAs($this->userWithRole('employee'));

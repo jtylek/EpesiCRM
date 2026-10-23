@@ -67,7 +67,7 @@ removed, or its purpose changes.
     removing one, Active against Drop column, Repair columns, the field limit and the types
     offered;
   - legacy Epesi's field types against the port's: `file`, "link to any record" with its shared
-    link table, the missing `currency` and `calculated`, the add-field screen, and the closed
+    link table, `currency` and `calculated`, the add-field screen, and the closed
     enum;
   - collections and related records: addresses, phone numbers (with the messengers on each),
     e-mail addresses and online accounts as collections a record owns, a tab on each record for
@@ -96,8 +96,9 @@ removed, or its purpose changes.
   Roundcube webmail as a full IMAP client (the `Epesi/Roundcube` module): downloading and
   upgrading Roundcube, why it lives in `storage/`, the generated config, single sign-on through one-time tickets, the
   `epesi_*` Roundcube plugins (archive button, CRM address book), the Mailbox page, logout,
-  the web-server requirements, and two Windows traps: recursive deletes follow junctions, and
-  fresh directories can't be renamed straight away.
+  the web-server requirements, why the web entry and plugins are stubs and copies rather than
+  links (and how older linked installs migrate), and two Windows traps: recursive deletes follow
+  junctions, and fresh directories can't be renamed straight away.
 - [Epesi-Laravel-distro.md](Epesi-Laravel-distro.md) — the downloadable epesi zip: how
   `epesi:package` builds it (and how to keep `vendor/` to release contents when Composer
   clones packages), how the browser wizard takes it from an unpacked folder to a running
@@ -134,6 +135,11 @@ removed, or its purpose changes.
   system" as php.ini's mail settings (a Windows XAMPP PC reaching Papercut), the Test button,
   a new user or Reset Password left blank e-mailing a link to choose a password, trying it on a
   Windows PC, and what isn't done.
+- [Multi-AI-agents-messaging.md](Multi-AI-agents-messaging.md) — how Claude Code, Codex and
+  Copilot hand work to each other and message each other in this checkout: the `.wip/`
+  handoff index each agent checks at the start of a session, the file mailbox and
+  acknowledgements, the tested notice channel for each product (`SendMessage`, `codex queue`,
+  `code chat`), and the `handoff` and `agent-mailbox` skills.
 - [Navigation-groups.md](Navigation-groups.md) — folding related sidebar pages under one
   collapsible heading: how a resource or page joins one (`$navigationGroup`), why there's no
   central registry, the CRM group as the working example, the icon constraint (a group or its
@@ -142,7 +148,9 @@ removed, or its purpose changes.
   module): kept once in the shared file storage, the pill per file with its View, Download and
   Get link buttons, the two routes (signed-in download and preview, and the signed link that
   needs no login), which types can be previewed and why SVG can't, how Epesi's file popup maps
-  here, what isn't built (e-mailing a file, a download log), the traps (a row link can't wrap a
+  here, what isn't built (e-mailing a file, a download log), images pasted into rich text (kept
+  in the file storage by id, served only to viewers of the record, released on permanent
+  deletion, the one-off move off the public disk), the traps (a row link can't wrap a
   file link; the pills' CSS lives in the plugin), and the note's History tab: its labels, a word
   diff of any long text instead of two copies of it, files by name, the Show modal with Restore,
   and why the history is kept.

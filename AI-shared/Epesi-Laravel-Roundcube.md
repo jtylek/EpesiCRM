@@ -99,12 +99,20 @@ The installer:
    2026-09-06, which needs PHP 8.1–8.5.
 2. Verifies the checksum and refuses on a mismatch. It then extracts with `PharData` into
    `storage/roundcube/`.
-3. Links `public/epesi-webmail` → `storage/roundcube/public_html`, with `Filesystem::link()`.
-   That is a directory junction on Windows, so no admin rights are needed.
-4. Links each plugin directory under `modules/Epesi/Roundcube/roundcube-plugins/` into
-   `storage/roundcube/plugins/`, so the plugins stay live with the module's code. Roundcube
-   only loads plugins from its own `plugins/`. `static.php` serves plugin assets through the
-   link because it checks an allowed path prefix, not the resolved real path.
+3. Copies each plugin directory under `modules/Epesi/Roundcube/roundcube-plugins/` into
+   `storage/roundcube/plugins/`, replacing an earlier copy. Roundcube only loads plugins from
+   its own `plugins/`. A fingerprint of the module's plugin files goes into
+   `storage/roundcube/plugins/.epesi-plugins`; see "Keeping the plugins up to date" below.
+4. Writes the web entry `public/epesi-webmail/`: a real directory holding a copy of
+   `public_html/.htaccess` and two stubs, `index.php` and `static.php`, each a single
+   `require` of the same file in `public_html` (by a path relative to the stub, or an absolute
+   one when the two are on different Windows drives). Roundcube's `index.php` finds the rest
+   of Roundcube from its own `__DIR__`, and `static.php` sets its install path the same way
+   and serves the file named by the URL's path info, so both behave as if served from
+   `public_html`. Only `rcmail::startup()` reads `SCRIPT_FILENAME`, for its basename, which is
+   still `index.php`. `installer.php` gets no stub, so Roundcube's installer stays
+   unreachable. The stubs carry the marker `epesi-roundcube-entry`: the installer rewrites a
+   directory that is empty or whose `index.php` has it, and refuses to touch any other.
 5. Writes `config/config.inc.php` (see below).
 6. Creates the `rc_*` tables, or upgrades them when they already exist, with
    `RoundcubeSchema`. It runs Roundcube's own SQL files (`SQL/<driver>.initial.sql`, then the
@@ -115,27 +123,74 @@ The installer:
    "The Process class relies on proc_open"). A web server's PHP binary is `httpd.exe` or `lsphp`
    anyway, and finding a command-line `php` was guesswork.
 
+### Why no links
+
+Installs used to link `public/epesi-webmail` → `storage/roundcube/public_html` and each
+`storage/roundcube/plugins/epesi_*` → the module's plugin source (directory junctions on
+Windows, symlinks elsewhere). Web servers may refuse to follow them:
+
+- Apache on Windows (seen with PHP 8.5 under `apache2handler`) refuses a junction made without
+  administrator rights: Windows error 448, `ERROR_UNTRUSTED_MOUNT_POINT` (Redirection Guard).
+  A directory symlink fails too (403, "unable to read htaccess"). PHP's `is_file()` on files
+  behind the link is then false under Apache and true on the command line. Mailbox said
+  Roundcube wasn't installed, and with the plugin links unreadable `epesi_sso` didn't load, so
+  Roundcube showed its own login form.
+- A Linux host may not allow `FollowSymLinks`, and some deploys don't keep symlinks.
+
+So nothing the web server reads goes through a link: the entry is stubs, the plugins are
+copies.
+
+### Existing installs
+
+Running the installer again (`php artisan roundcube:install`, `--configure-only` to skip the
+download, or the install button) migrates an install that still has links. At each of the
+four places, a link is removed and replaced with the real directory. A link under the entry's
+old name, `public/roundcube`, is removed when it points at the same `public_html`. Until then,
+the Mailbox page says the web server can't read Roundcube's files and to install again
+(`Roundcube::isUnreadable()`: the config is there, and `lstat()` still sees the entry or the
+`epesi_sso` plugin, while the web server can't read the files behind them).
+
+Removing a link must never use `Filesystem::deleteDirectory()` or anything else recursive (the
+trap below). The installer removes only the link: `rmdir()` on Windows, `unlink()` elsewhere.
+Both fail on a real directory that isn't empty, so a wrong guess can't delete files. To tell a
+link from a directory (`isLink()`): on Windows PHP's `is_link()` doesn't report a junction,
+`filetype()` returns `unknown` for one (dangling or not), `realpath()` resolves it to its
+target, and `readlink()` returns an ordinary directory's own path, so it can't tell them
+apart. The installer checks `is_link()`, then `filetype()`, then whether `realpath()` differs
+from the path itself.
+
+### Windows traps
+
 Two Windows traps the installer handles, which any other code touching `storage/roundcube`
 has to handle too:
 
-- **Never delete `storage/roundcube` recursively with the links still inside.** On Windows,
-  `Filesystem::deleteDirectory()` follows a junction and empties its target. It would delete
-  the module's own plugin sources through `storage/roundcube/plugins/epesi_*`. On XAMPP,
-  `is_link()` doesn't report a junction, and `readlink()` can return the path of an ordinary
-  directory too. The installer compares each entry's resolved path with the corresponding
-  module plugin source before removing it: `rmdir()` removes a Windows junction and leaves its
-  target alone; `unlink()` does the same for a Unix symlink. It then retries transient
-  directory-removal failures (`deleteInstall()`).
+- **Never delete a tree recursively with a link inside.** On Windows,
+  `Filesystem::deleteDirectory()` follows a junction and empties its target. An install made
+  with plugin links would lose the module's own plugin sources through
+  `storage/roundcube/plugins/epesi_*`. Before deleting an old install (`deleteInstall()`), the
+  installer removes every link in its `plugins/` as above, then retries transient
+  directory-removal failures.
 - **A freshly extracted directory inside the project can't be renamed for a second or two**
   ("Access is denied" while a file watcher or virus scanner still has it open). The move
   into place retries for up to 30 seconds. `Filesystem::moveDirectory()` and
-  `Filesystem::link()` return quietly on failure, so the installer checks the result of every
-  move and link itself.
+  `Filesystem::copyDirectory()` don't throw on failure, so the installer checks the result of
+  every move and copy itself.
 
 Running the command again is safe, and it is how Roundcube is upgraded: bump the pinned
-version and checksum, then run it. `--configure-only` only rewrites the config, for example
-after a database password or `APP_KEY` changes. `--release=` together with `--sha256=`
-installs another version.
+version and checksum, then run it. `--configure-only` skips the download: it rewrites the web
+entry, the plugin copies and the config and updates the tables, for example after a database
+password or `APP_KEY` changes. `--release=` together with `--sha256=` installs another version.
+
+### Keeping the plugins up to date
+
+The copies would go stale whenever the module's plugins change without the installer running:
+a module zip update, a new release unpacked before `epesi:update`, a git pull or an rsync
+deploy. Neither a module install nor `epesi:update` has a hook a module can run code from (they
+only run migrations), so the Mailbox page refreshes the copies itself. Before it opens
+Roundcube, it calls `RoundcubeInstaller::refreshPlugins()`, which compares the fingerprint of
+the module's plugin files (paths and content hashes) with `plugins/.epesi-plugins` and copies
+them again when they differ. The iframe is only ever opened from that page, so Roundcube never
+runs a plugin older than the module's. A failed refresh is reported and the page carries on.
 
 ## Why `storage/roundcube`
 
@@ -149,7 +204,8 @@ why it can't be committed). `storage/` is the only place in the project that fit
 - **Not `public/`.** Only `public_html` has to be reachable from the web. Everything else
   must not be served. `config/config.inc.php` holds the database password and the derived
   keys. `vendor/`, `bin/`, `SQL/` and `installer/` are code and scripts, not web pages. So the
-  whole copy sits in `storage/`, and `public/epesi-webmail` is only a link to its `public_html`.
+  whole copy sits in `storage/`, and `public/epesi-webmail` only holds stubs that run its
+  `public_html` scripts.
   That is the layout Roundcube is built for: `public_html` as the one document root.
 - **Writable.** The installer creates, replaces and deletes the whole tree on every install
   and upgrade. `storage/` is the directory the app is expected to write to, on any
@@ -160,7 +216,7 @@ why it can't be committed). `storage/` is the only place in the project that fit
 
 The cost is that `storage/` normally holds data, not code. A backup of `storage/` includes
 the Roundcube copy, and anyone clearing out `storage/` has to know it is there. On Windows,
-clearing it out also runs into the junction trap above.
+clearing out an install that still has links runs into the junction trap above.
 
 ## Generated configuration
 
@@ -271,8 +327,11 @@ page, which is shown before any login, when there is no ticket to read a languag
   the panel's precompiled stylesheet has no classes a module adds.
 - **Empty states:**
   - no account: a link to Settings → Mail accounts;
-  - Roundcube not installed (no `public/epesi-webmail/index.php`): "run `php artisan
-    roundcube:install`".
+  - Roundcube not installed (`Roundcube::isInstalled()`: `public/epesi-webmail/index.php`,
+    the generated config and `plugins/epesi_sso/epesi_sso.php`): the install button for a
+    super_admin, "ask your administrator" for everyone else;
+  - installed but unreadable by the web server (an install that still has links, see "Existing
+    installs"): the same, saying to install again.
 - **Messages from the iframe:** an Alpine `message` listener checks the origin and that the
   source is the iframe, then handles two messages. `archived` runs the fetcher and shows a
   toast. `login-required` reloads the iframe with a new ticket.
@@ -289,20 +348,20 @@ would otherwise fail to decrypt a cookie it didn't write and pass on null.
 ## Permissions: `public/` must be writable by the web user
 
 Installing from the browser runs as the web server user (e.g. `nfsnobody` on XAMPP/Linux), and
-its last step creates the `public/epesi-webmail` link. If `public/` isn't writable by that user the
-install stops with `symlink(): Permission denied` (the installer's message now names the
-directory). Make `public/` writable (`sudo chmod o+w public`), or create the link once by hand
-or run `php artisan roundcube:install` as the directory's owner; an existing link that points
-at `storage/roundcube/public_html` is accepted. The setup wizard and Administration → Server
-check list `public/ writable` as an optional requirement (`Requirements::check()`).
+it writes the web entry `public/epesi-webmail/`. If `public/` isn't writable by that user the
+install stops with "Permission denied" (the installer's message names the directory). Make
+`public/` writable (`sudo chmod o+w public`), or run `php artisan roundcube:install` as the
+directory's owner. The setup wizard and Administration → Server check list `public/ writable` as
+an optional requirement (`Requirements::check()`).
 
 ## Web server requirements
 
-The link is named `epesi-webmail`, not `roundcube`, because hosting panels such as DirectAdmin
+The entry is named `epesi-webmail`, not `roundcube`, because hosting panels such as DirectAdmin
 alias `/roundcube` globally to their own Roundcube: on eurolider.epesi.cloud that alias answered
 the Mailbox iframe with a stock Roundcube (default config, no `epesi_sso`), so nothing logged in.
-An install made before the rename still has `public/roundcube`; re-run `php artisan roundcube:install`
-(or the Administration button) to create the new link, then delete the old one.
+An install made before the rename still has a `public/roundcube` link; re-running
+`php artisan roundcube:install` (or the Administration button) writes the new entry and removes
+that link.
 
 Roundcube runs outside Laravel, so the web server must serve `public/epesi-webmail/` as real files.
 That includes two kinds of URL:
@@ -366,6 +425,11 @@ Setups differ:
 - The config writer produces the expected DSN, prefix, `session_path` and stable derived
   keys.
 - The installer refuses a checksum mismatch (`Http::fake`).
+- The installer writes the entry as stubs that run `public_html`'s scripts and copies the
+  plugins, with no links; `refreshPlugins()` copies again only after the sources change.
+- It replaces an earlier install's links (and the old `public/roundcube` one) and leaves what
+  they point at intact. It refuses an entry directory it didn't write.
+- The page says when the web server can't read an installed Roundcube.
 
 `PageHeaderTest` picks up the Mailbox page automatically.
 

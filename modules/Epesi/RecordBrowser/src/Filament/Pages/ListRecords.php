@@ -160,6 +160,7 @@ abstract class ListRecords extends BaseListRecords
         // "My records": the ones its user created or has changed.
         if ($table->getFilter('employees') === null
             && $table->getFilter('employee') === null
+            && $table->getFilter('employee_id') === null
             && $table->getFilter('edited_by') === null
             && $table->getFilter(self::MY_RECORDS_FILTER) === null
             && method_exists($model = app(static::getModel()), 'activities')
@@ -401,7 +402,7 @@ abstract class ListRecords extends BaseListRecords
 
     protected function myRecordsEmployeesFilter(?Table $table = null): ?SelectFilter
     {
-        foreach (['employees', 'employee', 'edited_by'] as $name) {
+        foreach (['employees', 'employee', 'employee_id', 'edited_by'] as $name) {
             $filter = ($table ?? $this->getTable())->getFilter($name);
 
             if ($filter instanceof SelectFilter) {

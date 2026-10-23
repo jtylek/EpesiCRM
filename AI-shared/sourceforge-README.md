@@ -56,7 +56,7 @@ Administration → Database update (or run `php artisan epesi:update`).
 ## Support and source
 
 - Website and demo: https://epesicrm.com
-- Source code: https://github.com/jtylek/EpesiCRM (branch `laravel`)
+- Source code: https://github.com/jtylek/EpesiCRM
 - Questions and bug reports: https://github.com/jtylek/EpesiCRM/issues
 
 Epesi is released under the MIT license.

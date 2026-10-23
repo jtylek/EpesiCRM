@@ -124,6 +124,22 @@ class RecordsetCheckCommand extends Command
                 continue;
             }
 
+            // Worked out from other fields, not stored; the ones it reads
+            // must exist, or the form would never make them live.
+            if ($field->isCalculated()) {
+                $names = array_map(fn (Field $one): string => $one->getStateName(), $fields);
+
+                foreach (array_diff($field->calculatedFrom(), $names) as $missing) {
+                    $this->components->twoColumnDetail(
+                        "{$resource}::fields() {$field->name}",
+                        "<fg=red>depends on `{$missing}`, which isn't a field of this recordset</>",
+                    );
+                    $problems++;
+                }
+
+                continue;
+            }
+
             // Kept in the shared link table, which the model reaches through
             // HasRecordLinks (HasCustomFields brings it) — Customers is the
             // same storage, just restricted to Field::customers()'s $models.
@@ -290,7 +306,7 @@ class RecordsetCheckCommand extends Command
 
         $columns = Schema::getColumnListing($table);
 
-        foreach (['owner_type', 'owner_id', 'field', 'kind', 'position', ...array_map(fn (Field $one): string => $one->name, array_filter($type::fields(), fn (Field $one): bool => $one->type->hasColumn()))] as $column) {
+        foreach (['owner_type', 'owner_id', 'field', 'kind', 'position', ...array_map(fn (Field $one): string => $one->name, array_filter($type::fields(), fn (Field $one): bool => $one->hasColumn()))] as $column) {
             if (! in_array($column, $columns, true)) {
                 $this->components->twoColumnDetail(
                     "{$type}::fields() {$column}",

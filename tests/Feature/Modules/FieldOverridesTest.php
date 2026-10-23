@@ -240,10 +240,10 @@ class FieldOverridesTest extends TestCase
         }
     }
 
-    public function test_reorder_uses_the_default_recordset_and_requires_no_search_or_origin_filter(): void
+    public function test_reorder_requires_one_recordset_and_no_search_or_origin_filter(): void
     {
         $page = Livewire::test(ListCustomFields::class);
-        $this->assertTrue($page->instance()->canReorderFields());
+        $this->assertFalse($page->instance()->canReorderFields());
         $page->filterTable('model_type', 'company');
         $this->assertTrue($page->instance()->canReorderFields());
         $page->searchTable('name');

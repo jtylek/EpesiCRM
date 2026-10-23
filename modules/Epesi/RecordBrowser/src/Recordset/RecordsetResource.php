@@ -6,6 +6,7 @@ use App\Filament\Concerns\LimitsGlobalSearchResults;
 use App\Filament\Concerns\TranslatesResourceLabels;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -174,9 +175,13 @@ abstract class RecordsetResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        $fields = array_filter(static::resolvedFields(), fn (Field $field): bool => $field->isInForm());
+        // What a Calculated field reads goes live, so it follows the inputs.
+        $watched = array_merge(...array_values(array_map(fn (Field $field): array => $field->calculatedFrom(), $fields)));
+
         $sections = static::groupIntoSections(
-            array_filter(static::resolvedFields(), fn (Field $field): bool => $field->isInForm()),
-            fn (Field $field): mixed => $field->toFormComponent(),
+            $fields,
+            fn (Field $field): mixed => $field->toFormComponent(live: in_array($field->getStateName(), $watched, true)),
         );
 
         return static::extendForm($schema->components([
@@ -340,6 +345,7 @@ abstract class RecordsetResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ...static::bulkActions(),
                     // Shield's Gate::before lets super_admin past the policy, so records frozen by
                     // their own rule (an issued invoice) are skipped here instead of throwing.
                     DeleteBulkAction::make()->using(function (Collection $records): void {
@@ -400,7 +406,7 @@ abstract class RecordsetResource extends Resource
                 foreach ($field->collectionSearchColumns() as $column) {
                     $searchable[] = "{$field->name}.{$column}";
                 }
-            } elseif (! $field->type->isRelational() && ($field->type->isTextual() || $field->type === FieldType::LongText)) {
+            } elseif ($field->hasColumn() && ! $field->type->isRelational() && ($field->type->isTextual() || $field->type === FieldType::LongText)) {
                 $searchable[] = $field->name;
             }
         }
@@ -421,7 +427,7 @@ abstract class RecordsetResource extends Resource
         $columns = [];
 
         foreach (static::resolvedFields() as $field) {
-            if (! $field->type->isRelational() && $field->type->isTextual() && $field->type !== FieldType::LongText) {
+            if ($field->hasColumn() && ! $field->type->isRelational() && $field->type->isTextual() && $field->type !== FieldType::LongText) {
                 $columns[] = $field->name;
             }
         }
@@ -588,6 +594,14 @@ abstract class RecordsetResource extends Resource
     protected static function extendTable(Table $table): Table
     {
         return $table;
+    }
+
+    /**
+     * @return array<int, BulkAction>
+     */
+    protected static function bulkActions(): array
+    {
+        return [];
     }
 
     protected static function modelSoftDeletes(): bool

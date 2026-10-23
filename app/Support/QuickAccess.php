@@ -101,8 +101,9 @@ class QuickAccess
     }
 
     /**
-     * The items to show, in the sidebar's order: the chosen ones that still
-     * exist and that this user may open.
+     * The items to show: the chosen ones that still exist and that this user
+     * may open, the dashboard first and the rest alphabetical by label (the
+     * sidebar's group order would scatter them).
      *
      * @return list<NavigationItem>
      */
@@ -114,11 +115,19 @@ class QuickAccess
 
         $chosen = self::selected();
 
-        return array_values(array_filter(
+        $items = array_filter(
             self::available(),
             fn (string $key): bool => in_array($key, $chosen, true),
             ARRAY_FILTER_USE_KEY,
-        ));
+        );
+
+        $dashboard = $items[self::DASHBOARD] ?? null;
+        unset($items[self::DASHBOARD]);
+
+        $items = array_values($items);
+        usort($items, fn (NavigationItem $a, NavigationItem $b): int => strcasecmp($a->getLabel(), $b->getLabel()));
+
+        return $dashboard ? [$dashboard, ...$items] : $items;
     }
 
     private static function keyOf(Panel $panel, NavigationItem $item): ?string

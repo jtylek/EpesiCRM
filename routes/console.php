@@ -28,6 +28,12 @@ Schedule::command('demo:reset', ['--force'])
     ->evenInMaintenanceMode()
     ->withoutOverlapping();
 
+// Images pasted into an editor and never saved with a record, or whose record
+// was deleted behind its model's back (App\Support\Files\InlineImages).
+Schedule::command('filestorage:prune-inline-images')
+    ->dailyAt('03:00')
+    ->withoutOverlapping();
+
 // Builds Laravel's and Filament's caches on an installation, rebuilds them
 // after a change, and picks memcached when it works (FrameworkCaches,
 // CacheStore). No withoutOverlapping(): its lock lives in the cache store,

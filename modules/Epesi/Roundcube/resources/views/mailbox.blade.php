@@ -6,7 +6,11 @@
     @if (! $this->isInstalled())
         <x-filament::section>
             <p style="font-size: 0.875rem;">
-                {{ __('The mail client, Roundcube, isn\'t installed yet.') }}
+                @if ($this->isUnreadable())
+                    {{ __('The mail client, Roundcube, is installed, but the web server can\'t read its files: an earlier installation linked them, and this web server doesn\'t follow links. Installing it again (php artisan roundcube:install, or Download and install Roundcube) copies them in place.') }}
+                @else
+                    {{ __('The mail client, Roundcube, isn\'t installed yet.') }}
+                @endif
             </p>
             @if ($this->installRoundcubeAction->isVisible())
                 <div style="margin-top: 1rem;">{{ $this->installRoundcubeAction }}</div>

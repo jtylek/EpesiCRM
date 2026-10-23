@@ -66,7 +66,8 @@ storage/app/private/filestorage/a/1/b/2/c/3d4…
   transaction) is reused rather than written again; a `stored_files` row whose file is gone from
   disk is a "missing file", and the download answers 404.
 
-Nothing serves the disk directly. A file is reachable only through the two routes below.
+Nothing serves the disk directly. A note's file is reachable only through the two routes below;
+an image pasted into a note's text has a route of its own (see "Images in rich text").
 
 ## What the user sees
 
@@ -184,6 +185,103 @@ choices are inline buttons.
 - **A test file's MIME type comes from its bytes.** `'%PDF …'` content is stored as
   `application/pdf`; use another extension with plain content (`report.docx`) for a type that
   is not previewable.
+
+## Images in rich text
+
+**Status: built.** Covered by `tests/Feature/InlineImagesTest.php`.
+
+An image pasted or dropped into a rich-text editor (a note's HTML editor) or a Markdown editor
+goes to the same file storage as a note's files, and is shown to whoever may view the record
+whose text holds it. `App\Support\Files\InlineImages` does it all.
+
+### Which editors take images
+
+Every `RichEditor` and `MarkdownEditor` gets the same defaults
+(`AppServiceProvider::keepEditorImagesInFileStorage()`, `InlineImages::configure()`), but takes
+images only on a form
+of a model with `App\Models\Concerns\HasInlineImages`. Today that is `Attachment` (`note`). An
+editor anywhere else has no attach button and refuses a paste, because nothing would record which
+record holds the image: a mail being composed and a mail account's signature (an image there would
+have to reach the recipient, which needs `cid:` embedding, not built), a sticky note, a Campaign
+template (which says `fileAttachments(false)` itself). RecordBrowser's `Field::longText()
+->richText()` builds a plain `Textarea`, so it takes no images unless a resource's `formUsing()`
+puts a `RichEditor` on a model with the trait. To let another model's editors take images, add the
+trait and list its columns in `richTextColumns()`; the model needs a morph alias. Demo mode turns
+images off in both editors.
+
+### What is stored
+
+- **The text keeps the id, not an address.** Filament's `<img data-id="12">`, with no `src`
+  (the editors' file-attachment visibility is `private`, so Filament drops `src` when it saves).
+  The address is added each time the text is shown: in the editor (`getFileAttachmentUrlUsing()`),
+  on the note's View page and in the Notes list and tab (`Attachment::bodyHtml()`), in the form's
+  Preview (`AttachmentResource::editorHtml()`, with `InlineImages` as the renderer's
+  `FileAttachmentProvider`), and in History's Show modal (`Field::formatLoggedVersion()`).
+- **A Markdown editor has no ids**, so its text holds the image route's address. `render()`
+  rewrites any `…/files/inline/<id>` address to this installation's, so a copy on another host
+  still shows its images.
+- **The bytes** are a `StoredFile` like any other: deduplicated by content, on the private disk.
+
+### Who may see one: `stored_file_links`
+
+| Column | Meaning |
+|---|---|
+| `stored_file_id` | the image (cascade on delete) |
+| `owner_type`, `owner_id` | a record whose text shows it (morph alias); both null for an upload no record has claimed yet |
+
+The migration is `database/migrations/2026_10_23_000000_create_stored_file_links_table.php`.
+
+- **Upload:** the StoredFile and a link with no owner. Only its uploader (`created_by`) can see
+  it, which covers a create form before the record exists and a save that failed after the upload.
+- **Save:** `HasInlineImages` (on `saved`, when a rich-text column changed) calls `sync()`, which
+  links each image the text names to the record. It takes an image only if it is already this
+  record's, an unclaimed upload of the signed-in user, or already shown by a record the user may
+  see (pasted from another note; both records then hold it). An id typed into the text for anything
+  else stays unlinked and shows nothing.
+- **The route:** `GET files/inline/{storedFile}`, `epesi.files.inline`,
+  `App\Http\Controllers\InlineImageController`. A guest gets 403. Otherwise each owner is loaded
+  through its own query (so its ownership scope hides someone else's private note) and asked the
+  `view` policy, as `DownloadController` does for a note's files; no owner the user may see is a
+  404, the same as a file that doesn't exist. A StoredFile with no link at all (a note's file, an
+  e-mail attachment) is never served here. Inline only for an `image/*` type that
+  `isPreviewable()` allows (never SVG), anything else downloads; `X-Content-Type-Options: nosniff`
+  and a private one-day cache.
+
+### Release
+
+- **Taking an image out of the text keeps it.** History's Show modal still shows the old text,
+  and Restore puts it back, images and all.
+- **Deleting the record for good** (`forceDeleted` on a soft-deleting model, `deleted` otherwise)
+  deletes its links, and each image no other record shows; the file storage then drops a content
+  nothing else uses.
+- **Daily at 03:00**, `filestorage:prune-inline-images` (`InlineImages::prune()`, see
+  [cron.md](cron.md)) deletes uploads no record claimed within 24 hours (`--older-than`), and links
+  whose record is gone without its model's events (a trashed record still counts). A record type
+  whose module is off is left alone.
+- `filestorage:prune` counts every linked StoredFile as referenced.
+
+### Encrypted notes refuse images
+
+Only a note's text is encrypted; an image would sit in the file storage as it is. The note editors
+fail validation ("An encrypted note cannot hold images…") when **Encrypt this note with a
+password** is on and the text holds an image (`AttachmentResource::noImagesWhenEncrypted()`). The
+rule runs before Filament stores a pasted image, so nothing is uploaded.
+
+### Before this: images on the public disk
+
+Filament's default kept a pasted image on the `public` disk and wrote `<img src="/storage/x.png"
+data-id="x.png">`. A host without the `public/storage` symlink (some refuse symlinks) answered
+404, and anyone with the address could open it. `App\Support\Files\PublicEditorImages` converts that
+content once: for every model with `HasInlineImages`, each such image is moved into the file
+storage, the text names it by id, it is linked to the record, and the record's History entries are
+rewritten the same way (Show and Restore read them). The rewrite goes past the model, so it adds no
+History entry. Other addresses of a moved file (a Markdown image, a link) become the image route's.
+The public copies are deleted only after every text is rewritten; an address whose file isn't on
+the public disk is left as it is and reported. Running it again finds nothing to do.
+
+- `database/migrations/2026_10_23_000100_move_public_editor_images_to_file_storage.php` runs it on
+  every installation during the update; a failure is logged, not fatal.
+- `php artisan filestorage:move-public-images [--dry-run]` runs it again or shows what it would do.
 
 ## The History tab of a note
 
@@ -327,6 +425,11 @@ entry, there is one button per field ("Restore Note").
 
 - `app/Services/FileStorage.php`, `app/Models/StoredFile.php`, `app/Models/StoredFileContent.php`:
   the storage, and `isPreviewable()`.
+- `app/Support/Files/InlineImages.php`, `app/Models/StoredFileLink.php`,
+  `app/Models/Concerns/HasInlineImages.php`, `app/Http/Controllers/InlineImageController.php`,
+  `app/Console/Commands/PruneInlineImages.php`: images in rich text.
+  `app/Support/Files/PublicEditorImages.php` and `app/Console/Commands/MovePublicEditorImages.php`:
+  the one-off move off the public disk.
 - `modules/Epesi/Attachments/routes/web.php`: the two routes.
 - `modules/Epesi/Attachments/src/Http/Controllers/DownloadController.php`,
   `SharedFileController.php`.

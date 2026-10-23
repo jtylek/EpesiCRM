@@ -56,7 +56,8 @@ class PruneFileStorage extends Command
     }
 
     /**
-     * Every StoredFile id a note, an e-mail or a record's file field holds.
+     * Every StoredFile id a note, an e-mail, a record's file field or a
+     * record's rich text (stored_file_links) holds.
      * Read straight from the tables, past the models' scopes: a trashed record
      * still holds its files.
      *
@@ -70,6 +71,12 @@ class PruneFileStorage extends Command
             foreach (DB::table('epesi_attachments')->whereNotNull('files')->pluck('files') as $raw) {
                 array_push($ids, ...StoredFileIds::decode($raw));
             }
+        }
+
+        // Images pasted into an editor (InlineImages), claimed or not: their
+        // own clean-up is filestorage:prune-inline-images.
+        if (Schema::hasTable('stored_file_links')) {
+            array_push($ids, ...DB::table('stored_file_links')->pluck('stored_file_id')->all());
         }
 
         if (Schema::hasTable('epesi_mail_attachments')) {

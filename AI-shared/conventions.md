@@ -122,8 +122,9 @@ interest without opening the filter panel and setting it by hand.
   global default (`AppServiceProvider::styleFormModalButtons()`), so a new modal needs
   nothing.
 - **Clone** is a dedicated header action on View pages, not Filament's own `ReplicateAction`:
-  it warns and clones immediately on confirm (no pre-fill edit modal), then redirects to the
-  new record's Edit page. Unique/identity columns that would collide (email, linked user,
+  it warns on confirm, then opens the resource's Create page pre-filled with the cloned values
+  (`CloneRecordAction::pendingState()`, carried in the session). Nothing is saved until Save, so
+  leaving the form leaves no record. Unique/identity columns that would collide (email, linked user,
   etc.) are blanked on the clone; `created_by` always attributes to whoever cloned it.
 
 ## Click 2 Fill

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CronController;
+use App\Http\Controllers\InlineImageController;
 use App\Http\Controllers\LeaveImpersonationController;
 use App\Http\Controllers\VerifyContactEmailController;
 use App\Http\Controllers\WebAppManifestController;
@@ -24,6 +25,12 @@ Route::post('/impersonation/leave', LeaveImpersonationController::class)->name('
 Route::get('/manifest.webmanifest', WebAppManifestController::class)
     ->withoutMiddleware('web')
     ->name('web-app.manifest');
+
+// An image pasted into a rich-text editor, for whoever may view a record whose
+// text shows it (InlineImageController, App\Support\Files\InlineImages).
+Route::get('/files/inline/{storedFile}', InlineImageController::class)
+    ->whereNumber('storedFile')
+    ->name('epesi.files.inline');
 
 // The cron URL (Administration → Cron), called every minute by a host's cron
 // or an outside service: no session, no cookies.

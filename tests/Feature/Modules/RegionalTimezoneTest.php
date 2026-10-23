@@ -10,6 +10,8 @@ use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Calendar\TaskCalendarProvider;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SignsInUsers;
@@ -43,6 +45,16 @@ class RegionalTimezoneTest extends TestCase
             '15/06/2026 14:30',
             RegionalSetting::display(Carbon::parse('2026-06-15 12:30:00', 'UTC')),
         );
+    }
+
+    public function test_date_time_pickers_hand_their_format_to_the_typed_date_parser(): void
+    {
+        $this->actingAs($this->warsawUser('h:i A'));
+
+        // resources/js/datetime-clock.js reads typed dates with it, in day.js tokens.
+        $this->assertSame('DD/MM/YYYY hh:mm A', DateTimePicker::make('at')->getExtraTriggerAttributes()['data-display-format']);
+        $this->assertSame('DD/MM/YYYY', DatePicker::make('on')->getExtraTriggerAttributes()['data-display-format']);
+        $this->assertSame('YYYY-MM-DD', DateTimePicker::make('at')->displayFormat('Y-m-d')->getExtraTriggerAttributes()['data-display-format']);
     }
 
     public function test_a_user_without_settings_gets_the_system_defaults(): void

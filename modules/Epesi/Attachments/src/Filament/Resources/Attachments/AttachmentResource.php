@@ -8,6 +8,7 @@ use App\Models\StoredFile;
 use App\Models\User;
 use App\Services\FileStorage;
 use App\Support\Files\FileChip;
+use App\Support\Files\InlineImages;
 use BackedEnum;
 use Closure;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
@@ -167,11 +168,13 @@ class AttachmentResource extends Resource
                 ->extraInputAttributes(['class' => 'epesi-note-editor'])
                 ->visible(fn (Get $get): bool => $get('editor') !== 'preview' && NoteFormat::fromState($get('format')) !== NoteFormat::Markdown)
                 ->dehydratedWhenHidden()
+                ->rule(static::noImagesWhenEncrypted(...))
                 ->columnSpanFull(),
             MarkdownEditor::make('note_markdown')
                 ->hiddenLabel()
                 ->visible(fn (Get $get): bool => $get('editor') !== 'preview' && NoteFormat::fromState($get('format')) === NoteFormat::Markdown)
                 ->dehydrated(false)
+                ->rule(static::noImagesWhenEncrypted(...))
                 ->columnSpanFull(),
             Section::make(__('Encryption'))
                 ->compact()
@@ -303,6 +306,20 @@ class AttachmentResource extends Resource
         return $data;
     }
 
+    /**
+     * An encrypted note takes no images: only its text is encrypted, and an
+     * image would stay in the file storage as it is, readable by anyone who
+     * may see the note. Checked before the form stores a pasted image.
+     */
+    public static function noImagesWhenEncrypted(Get $get): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+            if ($get('encrypt_note') && InlineImages::hasImages($value)) {
+                $fail(__('An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.'));
+            }
+        };
+    }
+
     /** Apply the separate password controls to note data before it reaches the model. */
     public static function applyEncryptionState(array $data, array $state): array
     {
@@ -349,7 +366,10 @@ class AttachmentResource extends Resource
      */
     public static function editorHtml(mixed $state): string
     {
-        return is_array($state) ? RichContentRenderer::make($state)->toHtml() : (string) $state;
+        // Pasted images get the image route's address (InlineImages).
+        return is_array($state)
+            ? RichContentRenderer::make($state)->fileAttachmentProvider(app(InlineImages::class))->toHtml()
+            : app(InlineImages::class)->render((string) $state);
     }
 
     public static function infolist(Schema $schema): Schema

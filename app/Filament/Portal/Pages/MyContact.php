@@ -101,7 +101,7 @@ class MyContact extends Page
                         // held before save()'s update() changed it, not after.
                         // A collection reads its items off the record itself.
                         ...array_map(
-                            fn (Field $field): mixed => ($field->type->hasColumn()
+                            fn (Field $field): mixed => ($field->hasColumn()
                                 ? $field->toInfolistEntry()->state(fn (): mixed => $this->contact->getAttribute($field->name))
                                 : $field->toInfolistEntry())
                                 ->visible(fn (): bool => ! $this->editing),
@@ -159,7 +159,7 @@ class MyContact extends Page
     {
         return array_values(array_map(
             fn (Field $field): string => $field->name,
-            array_filter($this->fields(), fn (Field $field): bool => $field->type->hasColumn()),
+            array_filter($this->fields(), fn (Field $field): bool => $field->hasColumn()),
         ));
     }
 

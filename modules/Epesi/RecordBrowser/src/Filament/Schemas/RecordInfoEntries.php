@@ -2,9 +2,9 @@
 
 namespace Epesi\Modules\RecordBrowser\Filament\Schemas;
 
-use Carbon\CarbonInterface;
+use App\Models\User;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\View;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -29,32 +29,47 @@ use Illuminate\Database\Eloquent\Model;
 class RecordInfoEntries
 {
     /**
-     * @return array<TextEntry>
+     * One three-column table (label | who | when) in a single view, since
+     * inline-label entries can't line a third column up across rows.
+     *
+     * @param  string|null  $recordset  The resource slug, shown before the ID (companies/90).
+     * @return array<View>
      */
-    public static function components(): array
+    public static function components(?string $recordset = null): array
     {
         return [
-            TextEntry::make('id')
-                ->label(__('Record ID')),
-            TextEntry::make('updated_at')
-                ->label(__('Updated'))
-                ->dateTime()
-                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
-                ->suffix(function (Model $record): string {
-                    $by = method_exists($record, 'lastUpdater') ? $record->lastUpdater()?->displayName() : null;
-
-                    return $by ? ' '.__('by :name', ['name' => $by]) : '';
-                }),
-            TextEntry::make('created_at')
-                ->label(__('Created'))
-                ->dateTime()
-                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
-                ->suffix(fn (Model $record): string => ($by = $record->creator?->displayName()) ? ' '.__('by :name', ['name' => $by]) : ''),
-            TextEntry::make('deleted_at')
-                ->label(__('Deleted'))
-                ->dateTime()
-                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
-                ->visible(fn (Model $record): bool => method_exists($record, 'trashed') && $record->trashed()),
+            View::make('filament.components.record-info')->viewData(fn (Model $record): array => [
+                'id' => ($recordset ? $recordset.'/' : '').$record->getKey(),
+                'rows' => array_values(array_filter([
+                    [__('Updated'), self::name(self::updater($record)), RegionalSetting::display($record->updated_at)],
+                    [__('Created'), self::name(self::creator($record)), RegionalSetting::display($record->created_at)],
+                    method_exists($record, 'trashed') && $record->trashed()
+                        ? [__('Deleted'), null, RegionalSetting::display($record->deleted_at)]
+                        : null,
+                ])),
+            ]),
         ];
+    }
+
+    private static function name(?User $user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        $contact = $user->contact;
+        $name = $contact ? trim("{$contact->last_name} {$contact->first_name}") : '';
+
+        return $name !== '' ? $name : $user->name;
+    }
+
+    private static function creator(Model $record): ?User
+    {
+        return method_exists($record, 'creator') ? $record->creator : null;
+    }
+
+    private static function updater(Model $record): ?User
+    {
+        return method_exists($record, 'lastUpdater') ? $record->lastUpdater() : null;
     }
 }

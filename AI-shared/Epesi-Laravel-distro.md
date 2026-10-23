@@ -558,8 +558,9 @@ All four end in the same installer (`RoundcubeSetup` → `RoundcubeInstaller`):
 1. Downloads the Roundcube release pinned in `config/epesi-roundcube.php` (currently 1.7.4)
    and verifies its SHA-256 checksum. It refuses on a mismatch.
 2. Unpacks it into `storage/roundcube/`, outside the web root.
-3. Links `public/roundcube` → `storage/roundcube/public_html`, and links epesi's own
-   Roundcube plugins (single sign-on, filing to the CRM) into Roundcube's `plugins/`.
+3. Writes `public/epesi-webmail/`, small stubs that run `storage/roundcube/public_html`, and
+   copies epesi's own Roundcube plugins (single sign-on, filing to the CRM) into Roundcube's
+   `plugins/`. No links, since some web servers refuse to follow them.
 4. Writes Roundcube's configuration from epesi's `.env` (database, key).
 5. Creates the `rc_*` tables from Roundcube's own SQL files, through epesi's database
    connection (`RoundcubeSchema`). No PHP process is started: shared hosts disable
@@ -667,7 +668,7 @@ listing.
 | `app/Filament/Setup/Pages/FinishSetup.php` | `/setup/finish`, the module pages |
 | `app/Services/Setup/Installer.php`, `ModulePlan.php`, `ModuleLoader.php` | the install itself |
 | `app/Services/Setup/RoundcubeSetup.php` | Roundcube's module part and notice |
-| `modules/Epesi/Roundcube/src/Services/RoundcubeInstaller.php`, `RoundcubeSchema.php` | download, links, config; tables |
+| `modules/Epesi/Roundcube/src/Services/RoundcubeInstaller.php`, `RoundcubeSchema.php` | download, web entry and plugin copies, config; tables |
 | `app/Console/Commands/EpesiInstall.php` | the same setup with a shell |
 | `config/setup.php` | profiles, setup code path, `SETUP_TOKEN`, marker path |
 | `app/Services/Setup/SystemUpdate.php` | pending migrations (core and enabled modules) and running them |

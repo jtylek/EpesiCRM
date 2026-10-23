@@ -119,9 +119,9 @@ class Requirements
         $modules = is_writable(base_path('modules'));
         $rows[] = $this->row('modules/ writable', $modules, $modules ? 'OK' : 'not writable (installing modules from the web page won\'t work)', required: false);
 
-        // Installing Roundcube links public/epesi-webmail to its public_html; as the
-        // web server user that fails with "symlink(): Permission denied" when
-        // public/ isn't writable. Optional: Roundcube is a module.
+        // Installing Roundcube writes its web entry, public/epesi-webmail; as the
+        // web server user that fails with "Permission denied" when public/
+        // isn't writable. Optional: Roundcube is a module.
         $public = is_writable(public_path());
         $rows[] = $this->row('public/ writable', $public, $public ? 'OK' : 'not writable (installing Roundcube from the web page won\'t work)', required: false);
 

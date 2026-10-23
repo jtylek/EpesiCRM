@@ -224,7 +224,7 @@ abstract class ViewRecord extends BaseViewRecord
                 ->modalHeading(__('Record Info'))
                 ->modalSubmitAction(false)
                 ->modalCancelAction(false)
-                ->schema(fn (Schema $schema): Schema => $schema->record($record)->inlineLabel()->components(RecordInfoEntries::components())),
+                ->schema(fn (Schema $schema): Schema => $schema->record($record)->inlineLabel()->components(RecordInfoEntries::components(static::getResource()::getSlug()))),
             Action::make('history')
                 ->label(__('History'))
                 ->icon(Heroicon::OutlinedClock)

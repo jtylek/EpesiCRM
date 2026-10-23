@@ -10,9 +10,9 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * field, so renaming a case is a stored-data change and needs a migration.
  *
  * Some of Epesi's types aren't cases here: `hidden` is `->onlyInTable()`/
- * `active = false`, and `page_split` is `Field::section()`. `calculated` has
- * no equivalent yet: an accessor-backed field has no column to sort or search
- * on. Currency is an amount and an ISO code in two columns (`{name}`,
+ * `active = false`, `page_split` is `Field::section()`, and `calculated` is
+ * `->calculated()` on a field of the type it shows as (no column, so its
+ * Field::hasColumn() is false whatever the type says). Currency is an amount and an ISO code in two columns (`{name}`,
  * `{name}_currency`), not legacy's one encoded string `amount__currencyid`.
  * A select over several named recordsets (`contact,company`) becomes one
  * Relation(s) field per target; one over any recordset (`__RECORDSETS__`) is

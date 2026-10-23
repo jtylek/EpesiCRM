@@ -76,10 +76,10 @@ To try Epesi before installing it, use the [live demo](https://epesicrm.com/demo
    redeploy, the same way the old Epesi worked.
 3. **Browser-based, wizard-driven installation.** Unpack, open the site, follow the wizard.
    Modules can add their own setup steps to it.
-4. **RecordBrowser does the tedious work.** A module declares its record type's fields once,
-   and the RecordBrowser engine builds the list, view, create and edit screens, filters,
-   search and change history from that declaration. Custom fields added by an administrator
-   go through the same code, so they appear everywhere a built-in field does.
+4. **RecordBrowser does the tedious work.** For record-based features, a module declares its
+   fields once and gets consistent list, view, create and edit screens, filters, search and
+   change history. Administrator-added custom fields use the same path and appear alongside
+   built-in fields.
 
 ## How to install (developers)
 
@@ -90,7 +90,7 @@ PHP, Apache and MariaDB ready for Epesi development. Its setup for Epesi is desc
 [AI-shared/DEVSTACK-SETUP.md](AI-shared/DEVSTACK-SETUP.md).
 
 ```bash
-git clone -b laravel https://github.com/jtylek/EpesiCRM.git epesi
+git clone https://github.com/jtylek/EpesiCRM.git epesi
 cd epesi
 composer install
 npm install
@@ -148,12 +148,39 @@ Use `CompanyResource` in [modules/Epesi/CRM/Companies](modules/Epesi/CRM/Compani
 reference example. `php artisan module:package Acme/Invoices` builds the zip that other
 installations install.
 
+### RecordBrowser or Filament?
+
+RecordBrowser is Epesi's shared recordset engine, built on top of Filament. It is not a
+replacement UI framework: Filament supplies the components, panels and Livewire integration;
+RecordBrowser supplies Epesi's conventions and the reusable machinery for business records.
+
+Use **RecordBrowser** when a feature is centered on a collection of records that people create,
+find, view and edit. Extending `RecordsetResource` and declaring fields once gives a developer:
+
+- Generated list, view, create and edit pages, with table columns, filters and search derived
+  from the fields declaration.
+- A shared `Field` DSL for common field types and their form, table, filter and view behavior,
+  with customization hooks when a field needs special handling.
+- Change history and custom fields that follow the same display and editing path as built-in
+  fields, including fields administrators add later.
+- Shared record pages, linked-record behavior, related-data addons, and the engine's common
+  ownership visibility rules, so each resource does not have to recreate those patterns.
+
+Use **Filament directly** for pages and workflows that are not recordsets: dashboards, calendars,
+settings, setup wizards, reports, one-off tools, or a specialized interaction that does not fit a
+record's list/view/create/edit lifecycle. Filament remains available for custom schemas, tables,
+actions and pages, and can also be used to customize a RecordBrowser resource where its hooks
+are sufficient. Start with RecordBrowser for a normal business record; use Filament directly
+when the feature's shape is a page or workflow rather than a reusable record type.
+
 Read more:
 
 - [AGENTS.md](AGENTS.md): the rules for working in this repository, for people and AI agents
   alike.
 - [AI-shared/](AI-shared/README.md): technical notes on the architecture, conventions, fields,
   themes, translations, setup and more.
+- [AI-shared/Epesi-custom-fields.md](AI-shared/Epesi-custom-fields.md): the `Field` DSL,
+  administrator-added custom fields, collections and related records.
 - [AI-shared/Epesi-Laravel-distro.md](AI-shared/Epesi-Laravel-distro.md): building a release zip
   (`php artisan epesi:package`) and installing on shared hosting.
 

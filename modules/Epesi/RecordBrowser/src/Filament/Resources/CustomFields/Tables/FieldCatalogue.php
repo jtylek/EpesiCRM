@@ -94,9 +94,9 @@ class FieldCatalogue
             ->filtersFormColumns(['default' => 1, 'sm' => 2])
             ->filters([
                 SelectFilter::make('model_type')->label('Recordset')
-                    ->options(fn (): array => collect(app(FieldOverrides::class)->recordsets())->map(fn (array $recordset): string => __($recordset['label']))->all() + CustomFieldRegistry::participatingModels())
-                    ->selectablePlaceholder(false)
-                    ->default(fn (): ?string => array_key_first(app(FieldOverrides::class)->recordsets())),
+                    ->options(fn (): array => collect(collect(app(FieldOverrides::class)->recordsets())->map(fn (array $recordset): string => __($recordset['label']))->all() + CustomFieldRegistry::participatingModels())
+                        ->sort(fn (string $a, string $b): int => strnatcasecmp($a, $b))
+                        ->all()),
                 SelectFilter::make('origin')->label('Origin')->options(['Module' => __('Module'), 'Custom' => __('Custom')]),
             ])
             ->recordUrl(fn (array $record): ?string => $record['custom_id'] ? CustomFieldResource::getUrl('view', ['record' => $record['custom_id']]) : null)

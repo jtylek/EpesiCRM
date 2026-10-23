@@ -2,7 +2,9 @@
 
 namespace Epesi\Modules\Mail\Services;
 
+use App\Models\StoredFile;
 use App\Models\User;
+use App\Support\Files\InlineImages;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
@@ -73,8 +75,10 @@ class MailSender
         $email = (new Email)
             ->from(new Address($account->email, (string) ($account->from_name ?: $user->displayName())))
             ->to(...$to)
-            ->subject($subject)
-            ->html($this->withSignature($html, $account))
+            ->subject($subject);
+
+        $email
+            ->html($this->embedImages($email, $this->withSignature($html, $account), $user))
             ->text(trim(html_entity_decode(strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>'], "\n", $html)))));
 
         if ($cc !== []) {
@@ -171,6 +175,28 @@ class MailSender
         }
 
         throw new RuntimeException('there is no such folder on the server');
+    }
+
+    /**
+     * Images pasted into the message or the signature live behind this
+     * installation's login, which a recipient doesn't have: each goes into
+     * the message itself and is shown by its `cid:`. The Sent copy and the
+     * CRM archive are this same message, so they show them too.
+     */
+    protected function embedImages(Email $email, string $html, User $user): string
+    {
+        $embedded = [];
+
+        return app(InlineImages::class)->replace($html, $user, function (StoredFile $file) use ($email, &$embedded): string {
+            $name = 'image-'.$file->getKey().'.'.(pathinfo((string) $file->name, PATHINFO_EXTENSION) ?: 'img');
+
+            if (! isset($embedded[$name])) {
+                $email->embed((string) $file->read(), $name, $file->mimeType());
+                $embedded[$name] = true;
+            }
+
+            return 'cid:'.$name;
+        });
     }
 
     protected function withSignature(string $html, MailAccount $account): string

@@ -24,7 +24,8 @@ Everything about a recordset's fields, in one place:
 - **An administrator's field is a real column.** Administration → Fields adds a field to any
   recordset from the browser. It becomes a column on the recordset's own table (`cf_<id>`) and
   behaves like a shipped field everywhere, History included.
-- **Against legacy Epesi, one type is missing:** `calculated` (`currency` is built, Step 11). A select over
+- **Against legacy Epesi, no type is missing:** `calculated` is the `->calculated()` modifier
+  (Step 10) and `currency` is built (Step 11). A select over
   several named recordsets is one field per target, and a select over any recordset is "Link to
   any record" (`Related`). Administration → Fields can add every type, links to records and
   shared lists included.
@@ -525,7 +526,7 @@ but that is the internal `id` row every recordset gets on install, not a field t
 | `hidden` | `->onlyInTable()`, or `inForm(false)->inView(false)->notInTable()` for a field shown nowhere | Done |
 | `file` | `File` (`Field::file()`) | Done; see [below](#file) |
 | `currency` | `Currency` (`Field::currency()`) | Built: two columns, `{name}` and `{name}_currency` |
-| `calculated` | — | **Missing** |
+| `calculated` | `->calculated()` on a scalar field | Built, without the stored copy; see [Step 10](#step-10--calculated) |
 
 The port's own `Select` / `Multiselect` take a fixed list of choices from an enum or an array.
 Legacy has no such type: its `select` always points at a recordset or a commondata list.
@@ -699,16 +700,9 @@ column. Legacy core uses it for:
 
 An administrator could add one too, by typing PHP into the field form.
 
-**In the port**, there is no type. The workaround is an Eloquent accessor plus a field kept off the
-form (`inForm(false)`). It shows on the View page and in the list, but it doesn't hold up:
-
-- `recordset:check` reports the field as a missing column.
-- A scalar-typed field is sortable by default, and a text-like one is searchable, so the list
-  queries a column that doesn't exist unless the module turns both off.
-
-A code-only field fixes this: no column, never on the form, and not sortable, searchable or
-filterable unless the module supplies the query. `recordset:check` would skip it, the way it skips
-`Autonumber`. [Step 10](#step-10--calculated) makes it a modifier rather than a type.
+**In the port** it is the `->calculated()` modifier, built in [Step 10](#step-10--calculated): a
+code-only field with no column, not sortable, searchable or filterable, which `recordset:check`
+skips the way it skips `Autonumber`. Timesheets' Duration (End − Start) is the first one.
 
 Skip the administrator half. Formulas defined in the browser would need an expression evaluator
 and a reactive Livewire component.
@@ -1259,7 +1253,7 @@ Twelve steps, in order. Each one ships on its own and leaves the engine working.
 | 7 | E-mail addresses as a collection | 3–4 days | Step 5 | Done |
 | 8 | A tab for every recordset that links here | 3–5 days | — | Done |
 | 9 | Notes and Mail on the shared link table | 2–3 days | Step 8 | |
-| 10 | `->calculated()` | 1 day | — | |
+| 10 | `->calculated()` | 1 day | — | **Built** |
 | 11 | `currency` | 3–4 days | A new Currencies module | **Built** |
 | 12 | "Linked to" on any recordset, with a popup picker | 4–6 days | Step 3; step 9 for Notes and Mail | **Built** |
 
@@ -1504,32 +1498,43 @@ What differs from the plan:
 
 ### Step 10: `->calculated()`
 
-Make it a modifier on `Field`, not a `FieldType` case, as `page_split` became `->section()` and
-`hidden` became `->onlyInTable()`. The field's type still decides how the value looks:
+**Built**, as a modifier on `Field`, not a `FieldType` case, as `page_split` became `->section()`
+and `hidden` became `->onlyInTable()`. The field's type still decides how the value looks:
 
 ```php
-Field::decimal('net_total')->calculated(fn (Invoice $record) => $record->items->sum('net'))
+Field::text('duration')->label('Duration')->calculated(
+    fn (?Timesheet $record, Closure $value): ?string => /* from $value('started_at'), $value('ended_at') */,
+    ['started_at', 'ended_at'],
+)
 ```
 
-- **Where it shows.** Not on the form. The View page and the list take their state from the
-  closure.
-- **Sort, search and filter.** Off unless the module gives a query: add `->sortUsing()` and
-  `->searchUsing()`, which feed Filament's `sortable(query:)` and `searchable(query:)`, and use
-  the existing `filterUsing()`. It's left out of global search.
+- **The closure** gets the record (null on Create) and a reader for another field's value, and
+  returns the value to show, null for the placeholder. On View and in the list the reader gives
+  the record's attributes, cast; on Create/Edit it gives the form's live state, so a date is the
+  input's string there and the closure has to read both (`TimesheetResource::minutesBetween()`).
+- **Where it shows.** View and the list, and read-only on Create/Edit: the type's View entry,
+  worked out again on every render and never submitted. The fields named in the second argument
+  turn `live()` on the form (`live(onBlur: true)` for a text box), so the value follows them as
+  they change; `RecordsetResource::form()` does this, and `recordset:check` reports a name that
+  isn't a field. `formUsing()` receives that entry, not an input. Administrators can hide it from
+  the form or the view, but not make it required or filterable.
+- **No column.** `Field::hasColumn()` is false whatever the type says; code that asks whether a
+  field is a column uses it rather than `FieldType::hasColumn()`. No cast either.
+- **Sort, search and filter.** Off. `->sortUsing()`/`->searchUsing()` are not built yet; until
+  they are, an explicit `->sortable()` or `->searchable()` would query a column that doesn't exist.
 - **History.** Nothing is logged, since nothing is stored.
 - **Checks.** `recordset:check` skips the column check.
 - **Limits.**
-  - It is allowed only on scalar types. On `Relation`, `Relations`, `Related`, `File` or
-    `Collection` it throws a `LogicException`.
+  - It is allowed only on scalar types. On `Relation`, `Relations`, `Related`, `Customer(s)`,
+    `File`, `Currency`, `Autonumber`, `Collection` or a multiple select it throws a
+    `LogicException`.
   - It is never offered in Administration → Fields. Legacy's administrator half means typing PHP
     into the browser, which the port doesn't reproduce.
 - **A calculated value that is stored** (legacy's `calculated` with a column type in `param`)
   needs no engine work. It's an ordinary field with `inForm(false)`, which the model fills in its
   own `saving` event. It stays sortable and filterable because it has a column.
-- **Tests:**
-  - the value shows on View and in the list;
-  - the list doesn't sort or search it without a query;
-  - `recordset:check` passes.
+- **Tests:** `CalculatedFieldTest` (engine), and Timesheets' `DurationFieldTest` (the form
+  following Start/End, View, and a Billed Time different from the duration surviving a save).
 
 ### Step 11: `currency`
 

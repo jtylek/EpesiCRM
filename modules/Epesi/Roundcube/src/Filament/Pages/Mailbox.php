@@ -16,6 +16,7 @@ use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Support\Records;
 use Epesi\Modules\Roundcube\Roundcube;
+use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
 use Epesi\Modules\Roundcube\Services\TicketIssuer;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -79,12 +80,37 @@ class Mailbox extends Page
 
         $this->accountId = $account?->getKey();
         UiState::remember('mailbox.account', $this->accountId);
+        $this->refreshPlugins();
         $this->frameUrl = $account && $this->isInstalled() ? $this->ticketUrl($account) : null;
     }
 
     public function isInstalled(): bool
     {
         return Roundcube::isInstalled();
+    }
+
+    /** Installed, but the web server can't read the files (see Roundcube::isUnreadable()). */
+    public function isUnreadable(): bool
+    {
+        return Roundcube::isUnreadable();
+    }
+
+    /**
+     * The epesi_* plugins Roundcube runs are copies of the module's: a module
+     * update or a deploy changes the module's without running the installer,
+     * so the copies are brought up to date before Roundcube opens.
+     */
+    protected function refreshPlugins(): void
+    {
+        if (! Roundcube::isDownloaded()) {
+            return;
+        }
+
+        try {
+            app(RoundcubeInstaller::class)->refreshPlugins();
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /** Shown in place of the mail client until Roundcube is downloaded. */

@@ -6,6 +6,7 @@ use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -59,6 +60,21 @@ trait HasOwnershipVisibility
         static::creating(function ($model) {
             $model->created_by ??= Auth::id();
         });
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Who made the most recent change, per the activity log LogsActivity
+     * writes: there's no updated_by column. Models using this trait also
+     * use LogsActivity; the ones with their own copy simply override it.
+     */
+    public function lastUpdater(): ?User
+    {
+        return $this->activities()->latest('created_at')->first()?->causer;
     }
 
     /**

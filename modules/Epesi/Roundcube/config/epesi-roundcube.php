@@ -14,9 +14,10 @@ return [
     ],
 
     /*
-     * Where Roundcube is installed, and where its public_html is linked into
-     * the web root. Roundcube runs as its own application, served straight by
-     * the web server, so the link must be a real directory under public/.
+     * Where Roundcube is installed, and its web entry in the web root: a
+     * directory of stubs that run public_html's scripts. Roundcube runs as its
+     * own application, served straight by the web server, so the entry must
+     * be under public/.
      */
     'path' => storage_path('roundcube'),
 

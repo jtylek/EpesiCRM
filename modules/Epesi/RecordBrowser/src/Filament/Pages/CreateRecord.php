@@ -4,6 +4,7 @@ namespace Epesi\Modules\RecordBrowser\Filament\Pages;
 
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
+use App\Support\CloneRecordAction;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
@@ -11,6 +12,7 @@ use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord as BaseCreateRecord;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
@@ -26,6 +28,50 @@ abstract class CreateRecord extends BaseCreateRecord
 
     /** No "Create & create another" button (AI-shared/conventions.md). */
     protected static bool $canCreateAnother = false;
+
+    /** Id of the record this form was cloned from, kept for the History entry on save. */
+    public ?string $clonedFrom = null;
+
+    /** Opened by the Clone action: start from the cloned values instead of the defaults. */
+    protected function fillForm(): void
+    {
+        $state = CloneRecordAction::pendingState(static::getResource(), request()->query('clone'));
+
+        if ($state === null) {
+            parent::fillForm();
+
+            return;
+        }
+
+        $this->clonedFrom = (string) request()->query('clone');
+        $this->callHook('beforeFill');
+        $this->form->fill($state);
+
+        // Link-style fields (Customer, Related, …) re-read their value from the
+        // record while filling, and a new record has none, so set them afterwards.
+        foreach ($state as $name => $value) {
+            $this->data[$name] = $value;
+        }
+        $this->callHook('afterFill');
+    }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $record = parent::handleRecordCreation($data);
+
+        // Kept in the session until now so a page refresh keeps the cloned values.
+        CloneRecordAction::forget();
+
+        if ($this->clonedFrom !== null && method_exists($record, 'getLogNameToUse')) {
+            activity($record->getLogNameToUse())
+                ->performedOn($record)
+                ->causedBy(auth()->user())
+                ->event('cloned')
+                ->log("cloned from #{$this->clonedFrom}");
+        }
+
+        return $record;
+    }
 
     protected function afterFill(): void
     {

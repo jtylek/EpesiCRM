@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: its signed /storage URLs are unused.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
@@ -62,8 +63,7 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             // Not built from APP_URL, so a copy in another folder or on another
-            // host doesn't link to the old address. Nothing serves this disk
-            // yet; when something does, set ASSET_URL (or resolve it from the request).
+            // host doesn't link to the old address.
             'url' => rtrim((string) env('ASSET_URL', ''), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\FileStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -34,6 +35,18 @@ class StoredFile extends Model
     public function content(): BelongsTo
     {
         return $this->belongsTo(StoredFileContent::class, 'content_id');
+    }
+
+    /**
+     * The records whose rich text shows this file as an image (see
+     * App\Support\Files\InlineImages). Empty for a note's file or an e-mail
+     * attachment, which their own tables hold.
+     *
+     * @return HasMany<StoredFileLink, $this>
+     */
+    public function links(): HasMany
+    {
+        return $this->hasMany(StoredFileLink::class);
     }
 
     /**

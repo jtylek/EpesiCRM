@@ -23,10 +23,34 @@ class Roundcube
         return rtrim((string) config('epesi-roundcube.public_path'), '\\/');
     }
 
+    /** Whether the web server can run it: its web entry, its config and the login plugin. */
     public static function isInstalled(): bool
     {
         return is_file(static::publicPath().DIRECTORY_SEPARATOR.'index.php')
-            && is_file(static::path('config'.DIRECTORY_SEPARATOR.'config.inc.php'));
+            && is_file(static::path('config'.DIRECTORY_SEPARATOR.'config.inc.php'))
+            && is_file(static::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso'.DIRECTORY_SEPARATOR.'epesi_sso.php'));
+    }
+
+    /** Roundcube's own files are in place, whether or not the web entry works. */
+    public static function isDownloaded(): bool
+    {
+        return is_dir(static::path('program'));
+    }
+
+    /**
+     * Installed, but the web server can't read the entry or the plugins: what
+     * an install made before they were copied looks like where the web server
+     * refuses to follow its links (Apache on Windows, for a junction made
+     * without administrator rights). lstat() sees the link even then.
+     */
+    public static function isUnreadable(): bool
+    {
+        if (static::isInstalled() || ! is_file(static::path('config'.DIRECTORY_SEPARATOR.'config.inc.php'))) {
+            return false;
+        }
+
+        return @lstat(static::publicPath()) !== false
+            || @lstat(static::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso')) !== false;
     }
 
     /**

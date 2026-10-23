@@ -43,6 +43,7 @@ This is what `php artisan schedule:list` shows on an installation with every mod
 | `reminders:send` | every minute | Reminders module | Delivers due reminders to the bell, and by e-mail if asked |
 | `mail:check` | every 5 minutes (`MAIL_CHECK_SCHEDULE`) | Mail module | Caches each IMAP account's INBOX unread count for the Mail widget (10 minutes), which reads only that cache. Reads no message and archives nothing: mail is archived only with Roundcube's Archive button |
 | `model:prune --model=…\Subscription` | daily at 00:00 | Watchdog module | Deletes watched-record subscriptions with nothing happening for 90 days (see [Watchdog_and_Notifications.md](Watchdog_and_Notifications.md#subscriptions-lapse)) |
+| `filestorage:prune-inline-images` | daily at 03:00 | core | Deletes images pasted into an editor that no record was saved with within 24 hours, and those of records deleted for good behind their model's back (see [Notes-Files-storage.md](Notes-Files-storage.md#images-in-rich-text)) |
 | `demo:reset --force` | daily at `DEMO_RESET_AT` (in `DEMO_TIMEZONE`), and every 15 minutes while a reset is unfinished | core, demo mode only | Puts the demo data back (see [Demo-mode.md](Demo-mode.md)) |
 | `epesi:optimize` | every minute, on an installation (not a git checkout) or with `CACHE_STORE=auto` | core | Builds Laravel's and Filament's caches, rebuilds them after a change, and picks memcached when it works (see [Epesi-optimization.md](Epesi-optimization.md)) |
 
@@ -62,6 +63,7 @@ don't happen:
 - mail is never fetched from IMAP. Uploading `.eml` files and sending from the CRM still
   archive mail;
 - Watchdog subscriptions never lapse;
+- images pasted into an editor and never saved with a record stay in the file storage;
 - a demo is never reset;
 - the caches that make every page faster are never built, and memcached is never used.
 

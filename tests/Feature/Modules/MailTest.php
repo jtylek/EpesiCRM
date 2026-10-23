@@ -7,6 +7,7 @@ use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
 use App\Services\FileStorage;
+use App\Support\Files\InlineImages;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ListContacts;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
@@ -35,6 +36,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -287,7 +289,11 @@ class MailTest extends TestCase
         $this->assertSame(4, app(UnreadCounter::class)->cached($fresh)['count'], 'the widget reads the cache, not the server');
 
         $server->failing = true;
+        Log::spy();
         $this->artisan('mail:check')->assertFailed();
+        Log::shouldHaveReceived('warning')->once()->with('mail:check failed for an account', \Mockery::on(
+            fn (array $context): bool => $context['account_id'] === $account->id && $context['email'] === 'me@ourcompany.test' && $context['error'] === 'connection refused',
+        ));
         $this->assertSame('connection refused', $account->fresh()->last_error, 'the error is kept on the account');
     }
 
@@ -424,6 +430,47 @@ class MailTest extends TestCase
             $this->transport->sent[0]->getOriginalMessage()->getTo(),
         ), 'compose on a contact starts with their address');
         $this->assertTrue($this->ann->mails()->where('subject', 'Hello Ann')->exists());
+    }
+
+    private function png(string $name = 'paste.png'): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent($name, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
+    }
+
+    public function test_an_image_pasted_into_compose_or_the_signature_goes_out_inside_the_message(): void
+    {
+        $this->assertTrue(InlineImages::supports(MailAccount::class), 'the signature editor takes images');
+
+        $logo = app(InlineImages::class)->store($this->png('logo.png'));
+        $account = $this->account(['signature' => '<p>Eli</p><p><img data-id="'.$logo->getKey().'"></p>']);
+        $this->assertTrue($logo->links()->where('owner_type', 'mail_account')->where('owner_id', $account->getKey())->exists(), 'saving claims it for the account');
+
+        // Someone else's image, its id typed into the message by hand.
+        $this->actingAs($this->userWithRole('employee'));
+        $foreign = app(InlineImages::class)->store($this->png('secret.png'));
+        $this->actingAs($this->user);
+
+        Livewire::test(ComposeMail::class)
+            ->set('componentFileAttachments.data.body.pasted-key', $this->png())
+            ->fillForm([
+                'to' => ['ann@customer.test'],
+                'subject' => 'Screenshot',
+                'body' => '<p>Look:</p><p><img src="blob:temporary" data-id="pasted-key"></p><p><img data-id="'.$foreign->getKey().'"></p>',
+            ])
+            ->call('send')
+            ->assertHasNoFormErrors();
+
+        $pasted = StoredFile::query()->where('name', 'paste.png')->sole();
+        $email = $this->transport->sent[0]->getOriginalMessage();
+        $html = (string) $email->getHtmlBody();
+        $inline = array_map(fn ($part) => $part->getFilename(), $email->getAttachments());
+
+        $this->assertEqualsCanonicalizing(['image-'.$pasted->getKey().'.png', 'image-'.$logo->getKey().'.png'], $inline, 'the pasted image and the signature\'s, not the other user\'s');
+        $this->assertStringContainsString('src="cid:image-'.$pasted->getKey().'.png"', $html);
+        $this->assertStringContainsString('src="cid:image-'.$logo->getKey().'.png"', $html);
+        $this->assertStringNotContainsString('data-id', $html);
+        $this->assertStringNotContainsString('/files/inline/', $html, 'no link a recipient could not open');
+        $this->assertStringContainsString('Content-ID:', $this->transport->sent[0]->toString());
     }
 
     public function test_an_address_in_a_list_is_cut_short_and_mails_to_without_an_account(): void

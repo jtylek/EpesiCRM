@@ -28,7 +28,7 @@
 /node_modules
 /public/build
 /public/hot
-# Roundcube, downloaded by `php artisan roundcube:install`, and its web-root link.
+# Roundcube, downloaded by `php artisan roundcube:install`, and its web entry (old name: roundcube).
 /public/roundcube
 /public/epesi-webmail
 /public/storage
@@ -49,3 +49,6 @@ Thumbs.db
 
 # OpenSSL random-state file, left behind by openssl on Windows
 /.rnd
+
+# Agent handoffs and mailbox (AI-shared/Multi-AI-agents-messaging.md)
+/.wip

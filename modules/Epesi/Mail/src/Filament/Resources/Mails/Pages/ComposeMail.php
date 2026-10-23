@@ -112,8 +112,11 @@ class ComposeMail extends Page
                     ->inlineLabel()
                     ->required()
                     ->maxLength(500),
+                // Pasted images are embedded when the message is sent
+                // (MailSender), so no record needs to keep them.
                 RichEditor::make('body')
                     ->label('Message')
+                    ->fileAttachments(true)
                     ->extraFieldWrapperAttributes(['class' => 'epesi-compose-body'])
                     ->required(),
                 FileUpload::make('files')

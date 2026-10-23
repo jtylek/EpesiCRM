@@ -19,6 +19,7 @@ use App\Services\Cron\CronLog;
 use App\Services\LegacyImport\ImporterRegistry;
 use App\Support\Auth\PortalEmails;
 use App\Support\Demo;
+use App\Support\Files\InlineImages;
 use App\Support\Mail\ServerMailTransport;
 use App\Support\NoIdentityAutofill;
 use App\Support\RequestMemo;
@@ -36,6 +37,7 @@ use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContrac
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -144,14 +146,20 @@ class AppServiceProvider extends ServiceProvider
     {
         // Not the browser's native date/time input — that follows the browser's
         // locale (AM/PM, mm/dd/yyyy) — but Filament's own, which shows the
-        // user's Regional Settings formats.
+        // user's Regional Settings formats. Filament renders its text box
+        // read-only; resources/js/datetime-clock.js makes it take typed dates,
+        // parsed in the format handed over on the trigger.
         DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker
             ->minutesStep(5)
             ->native(false)
             ->displayFormat(fn (DateTimePicker $component): string => $component->hasTime()
                 ? RegionalSetting::dateTimeFormat()
-                : RegionalSetting::dateFormat()));
+                : RegionalSetting::dateFormat())
+            ->extraTriggerAttributes(fn (DateTimePicker $component): array => [
+                'data-display-format' => e(convert_date_format($component->getDisplayFormat())->to('day.js')),
+            ]));
 
+        $this->keepEditorImagesInFileStorage();
         $this->preferViewOverEditOnRecordClick();
         $this->blockIdentityAutofillOnAllTextFields();
         $this->useEpesiFormLayoutOnResourcePages();
@@ -325,6 +333,9 @@ class AppServiceProvider extends ServiceProvider
         RichEditor::configureUsing(fn (RichEditor $editor): RichEditor => Demo::enabled()
             ? $editor->fileAttachments(false)
             : $editor, isImportant: true);
+        MarkdownEditor::configureUsing(fn (MarkdownEditor $editor): MarkdownEditor => Demo::enabled()
+            ? $editor->fileAttachments(false)
+            : $editor, isImportant: true);
 
         // Returning false from a MessageSending listener cancels the message.
         Event::listen(MessageSending::class, fn (): ?bool => Demo::enabled() ? false : null);
@@ -334,6 +345,21 @@ class AppServiceProvider extends ServiceProvider
         if (Demo::enabled()) {
             config(['livewire.temporary_file_upload.rules' => ['required', 'file', 'max:1024']]);
         }
+    }
+
+    /**
+     * Every rich-text and Markdown editor: an image pasted or dropped into it
+     * goes to the file storage, and the text keeps its StoredFile id rather
+     * than an address on the public disk (which a host without the
+     * public/storage symlink doesn't serve, and which anyone could open).
+     * The image route serves it to whoever may view the record holding it.
+     * Only on a form of a model that keeps track of its images
+     * (HasInlineImages); see App\Support\Files\InlineImages.
+     */
+    private function keepEditorImagesInFileStorage(): void
+    {
+        RichEditor::configureUsing(fn (RichEditor $editor): RichEditor => InlineImages::configure($editor));
+        MarkdownEditor::configureUsing(fn (MarkdownEditor $editor): MarkdownEditor => InlineImages::configure($editor));
     }
 
     /**

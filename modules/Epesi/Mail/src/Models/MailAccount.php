@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Mail\Models;
 
 use App\Casts\Encrypted;
+use App\Models\Concerns\HasInlineImages;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class MailAccount extends Model
 {
+    // The signature's pasted images, visible to whoever may view the account.
+    use HasInlineImages;
+
     protected $table = 'epesi_mail_accounts';
 
     protected $fillable = [
@@ -87,6 +91,11 @@ class MailAccount extends Model
                 $others->update(['is_default' => false]);
             }
         });
+    }
+
+    public function richTextColumns(): array
+    {
+        return ['signature'];
     }
 
     /**

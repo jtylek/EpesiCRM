@@ -5,6 +5,7 @@ namespace Epesi\Modules\Mail\Console;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\UnreadMailCheckDispatcher;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Refreshes every account's INBOX unread count for the Mail widget. It reads
@@ -40,6 +41,14 @@ class CheckMailCommand extends Command
             if ($result['count'] === null) {
                 $failed++;
                 $this->error("{$account->email}: {$result['error']}");
+                // Logged as well: the scheduler drops this command's output and
+                // logs only its exit code, and the next good check clears last_error.
+                Log::warning('mail:check failed for an account', [
+                    'account_id' => $account->getKey(),
+                    'email' => $account->email,
+                    'imap_host' => $account->imap_host,
+                    'error' => $result['error'],
+                ]);
             } else {
                 $this->line("{$account->email}: {$result['count']} unread");
             }

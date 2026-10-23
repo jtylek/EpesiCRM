@@ -43,7 +43,7 @@ class PackageRelease extends Command
      */
     protected const EXCLUDE = [
         // Notes for developers and their AI assistants.
-        'AI-shared/', '.claude/', 'AGENTS.md', 'CLAUDE.md', 'PORTING.md', 'README.md',
+        'AI-shared/', '.claude/', '.agents/', '.wip/', 'AGENTS.md', 'CLAUDE.md', 'PORTING.md', 'README.md',
         // Git and editor settings.
         '.editorconfig', '.gitattributes', '.gitignore', 'database/.gitignore',
         'tests/', 'phpunit.xml',

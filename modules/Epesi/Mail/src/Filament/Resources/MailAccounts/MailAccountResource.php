@@ -109,7 +109,7 @@ class MailAccountResource extends Resource
                     ->required(fn (Get $get): bool => (bool) $get('save_to_sent'))
                     ->columnSpan(2),
                 RichEditor::make('signature')->columnSpanFull()
-                    ->toolbarButtons(['bold', 'italic', 'underline', 'link', 'bulletList']),
+                    ->toolbarButtons(['bold', 'italic', 'underline', 'link', 'bulletList', 'attachFiles']),
             ]),
             Section::make(__('Archiving'))->columns(2)->compact()->schema([
                 Toggle::make('archive_on_sending')->label('Archive sent messages by default')->default(false)->inline(false),

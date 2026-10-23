@@ -91,6 +91,72 @@ class RoundcubeTest extends TestCase
         File::put(Roundcube::publicPath().DIRECTORY_SEPARATOR.'index.php', '<?php');
         File::ensureDirectoryExists(Roundcube::path('config'));
         File::put(Roundcube::path('config'.DIRECTORY_SEPARATOR.'config.inc.php'), '<?php');
+        File::ensureDirectoryExists(Roundcube::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso'));
+        File::put(Roundcube::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso'.DIRECTORY_SEPARATOR.'epesi_sso.php'), '<?php');
+    }
+
+    /** A downloaded Roundcube's files that publishing touches, and module plugins to copy, all in the sandbox. */
+    protected function fakeDownload(): void
+    {
+        $webRoot = Roundcube::path('public_html');
+        File::ensureDirectoryExists(Roundcube::path('program'));
+        File::ensureDirectoryExists(Roundcube::path('plugins'));
+        File::ensureDirectoryExists($webRoot);
+        File::put($webRoot.DIRECTORY_SEPARATOR.'index.php', "<?php echo 'index in '.basename(__DIR__);");
+        File::put($webRoot.DIRECTORY_SEPARATOR.'static.php', "<?php echo 'static in '.basename(__DIR__);");
+        File::put($webRoot.DIRECTORY_SEPARATOR.'installer.php', '<?php');
+        File::put($webRoot.DIRECTORY_SEPARATOR.'.htaccess', "RewriteEngine On\n");
+        File::ensureDirectoryExists($this->pluginSource());
+        File::put($this->pluginSource('epesi_sso.php'), '<?php // one');
+    }
+
+    protected function pluginSource(string $file = ''): string
+    {
+        return $this->sandbox.DIRECTORY_SEPARATOR.'module-plugins'.DIRECTORY_SEPARATOR.'epesi_sso'.($file === '' ? '' : DIRECTORY_SEPARATOR.$file);
+    }
+
+    /** The installer, copying plugins from the sandbox instead of the module's real ones. */
+    protected function sandboxedInstaller(): RoundcubeInstaller
+    {
+        return new class(new Filesystem, new RoundcubeConfigWriter, new RoundcubeSchema, dirname($this->pluginSource())) extends RoundcubeInstaller
+        {
+            public function __construct(Filesystem $files, RoundcubeConfigWriter $config, RoundcubeSchema $schema, protected string $sources)
+            {
+                parent::__construct($files, $config, $schema);
+            }
+
+            protected function pluginSources(): string
+            {
+                return $this->sources;
+            }
+
+            public function publishNow(): void
+            {
+                $this->publish(function (string $line): void {});
+            }
+        };
+    }
+
+    /** What an earlier install made: a junction on Windows, a symlink elsewhere. */
+    protected function link(string $target, string $link): void
+    {
+        File::ensureDirectoryExists(dirname($link));
+        windows_os() ? File::link($target, $link) : symlink($target, $link);
+        clearstatcache();
+        $this->assertNotFalse(@lstat($link), "the link {$link} was made");
+    }
+
+    protected function entryOutput(string $file): string
+    {
+        ob_start();
+
+        try {
+            include $file;
+        } finally {
+            $output = (string) ob_get_clean();
+        }
+
+        return $output;
     }
 
     /** epesi_sso_ticket::redeem() over this test's database, as the plugin runs it over Roundcube's. */
@@ -170,6 +236,89 @@ class RoundcubeTest extends TestCase
 
         $this->assertFalse(is_dir($directory));
         $this->assertSame(2, $files->deleteAttempts);
+    }
+
+    /** Some web servers refuse to follow links (Apache on Windows, a junction made without admin rights), so none are made. */
+    public function test_the_installer_serves_roundcube_through_stubs_and_copies_without_links(): void
+    {
+        $this->fakeDownload();
+        $installer = $this->sandboxedInstaller();
+
+        $installer->publishNow();
+
+        $public = Roundcube::publicPath();
+        $this->assertSame('dir', filetype($public), 'a real directory, not a link');
+        $this->assertSame(realpath($public), realpath(dirname($public)).DIRECTORY_SEPARATOR.basename($public));
+        $this->assertSame('index in public_html', $this->entryOutput($public.DIRECTORY_SEPARATOR.'index.php'),
+            'the stub runs Roundcube\'s own index.php, which finds the rest from its own __DIR__');
+        $this->assertSame('static in public_html', $this->entryOutput($public.DIRECTORY_SEPARATOR.'static.php'));
+        $this->assertStringContainsString("require __DIR__.'/", (string) file_get_contents($public.DIRECTORY_SEPARATOR.'index.php'), 'by a relative path');
+        $this->assertStringContainsString('RewriteEngine On', (string) file_get_contents($public.DIRECTORY_SEPARATOR.'.htaccess'));
+        $this->assertFileDoesNotExist($public.DIRECTORY_SEPARATOR.'installer.php', 'Roundcube\'s installer stays unreachable');
+
+        $copy = Roundcube::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso');
+        $this->assertSame('dir', filetype($copy));
+        $this->assertSame('<?php // one', file_get_contents($copy.DIRECTORY_SEPARATOR.'epesi_sso.php'));
+
+        $this->assertFalse($installer->refreshPlugins(), 'nothing changed');
+        File::put($this->pluginSource('epesi_sso.php'), '<?php // two');
+        File::put($this->pluginSource('extra.js'), '');
+        $this->assertTrue($installer->refreshPlugins(), 'a module update changed the plugin');
+        $this->assertSame('<?php // two', file_get_contents($copy.DIRECTORY_SEPARATOR.'epesi_sso.php'));
+        $this->assertFileExists($copy.DIRECTORY_SEPARATOR.'extra.js');
+
+        $installer->publishNow();
+        $this->assertSame('index in public_html', $this->entryOutput($public.DIRECTORY_SEPARATOR.'index.php'), 'running it again rewrites its own entry');
+    }
+
+    public function test_the_installer_replaces_an_earlier_installs_links_without_touching_what_they_point_at(): void
+    {
+        $this->fakeDownload();
+        $webRoot = Roundcube::path('public_html');
+        $plugin = Roundcube::path('plugins'.DIRECTORY_SEPARATOR.'epesi_sso');
+        $old = dirname(Roundcube::publicPath()).DIRECTORY_SEPARATOR.'roundcube';
+        $this->link($webRoot, Roundcube::publicPath());
+        $this->link($this->pluginSource(), $plugin);
+        $this->link($webRoot, $old);
+
+        $this->sandboxedInstaller()->publishNow();
+
+        $this->assertFileExists($this->pluginSource('epesi_sso.php'), 'the module\'s own plugin is still there');
+        $this->assertFileExists($webRoot.DIRECTORY_SEPARATOR.'index.php');
+        $this->assertFileExists($webRoot.DIRECTORY_SEPARATOR.'installer.php');
+        $this->assertSame('dir', filetype(Roundcube::publicPath()));
+        $this->assertSame('dir', filetype($plugin));
+        $this->assertSame('index in public_html', $this->entryOutput(Roundcube::publicPath().DIRECTORY_SEPARATOR.'index.php'));
+        clearstatcache();
+        $this->assertFalse(@lstat($old), 'the link under the old name is gone');
+    }
+
+    public function test_the_installer_leaves_a_directory_it_did_not_write_alone(): void
+    {
+        $this->fakeDownload();
+        File::ensureDirectoryExists(Roundcube::publicPath());
+        File::put(Roundcube::publicPath().DIRECTORY_SEPARATOR.'index.php', '<?php // someone else\'s');
+
+        try {
+            $this->sandboxedInstaller()->publishNow();
+            $this->fail('it overwrote the directory');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString("wasn't written by the Roundcube installer", $e->getMessage());
+        }
+
+        $this->assertSame('<?php // someone else\'s', file_get_contents(Roundcube::publicPath().DIRECTORY_SEPARATOR.'index.php'));
+    }
+
+    public function test_the_page_says_when_the_web_server_cannot_read_roundcube(): void
+    {
+        $this->pretendInstalled();
+        // What the web server sees of an entry it won't follow: something there, but no index.php.
+        File::delete(Roundcube::publicPath().DIRECTORY_SEPARATOR.'index.php');
+
+        $this->assertTrue(Roundcube::isUnreadable());
+        $this->get(Mailbox::getUrl())->assertOk()
+            ->assertSee('the web server can\'t read its files')
+            ->assertDontSee('isn\'t installed yet');
     }
 
     public function test_an_expired_ticket_is_refused_and_later_purged(): void

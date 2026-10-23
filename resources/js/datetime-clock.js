@@ -208,10 +208,178 @@ function addToday(panel) {
     panel.append(button);
 }
 
+// A "Now" button under the clock: sets the time to the current hour and minute,
+// leaving the date alone, as "Today" does for the date. The picker's own hour and
+// minute watchers write the new time to the field.
+function addNow(timeInputs) {
+    timeInputs.dataset.now = '1';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'epesi-picker-today';
+    button.textContent = window.epesiNowLabel ?? 'Now';
+
+    button.addEventListener('click', () => {
+        const root = timeInputs.closest('[x-data]');
+        const data = root && window.Alpine ? window.Alpine.$data(root) : null;
+
+        if (!data || !data.focusedDate) {
+            return;
+        }
+
+        const now = new Date();
+
+        data.hour = now.getHours();
+        data.minute = now.getMinutes();
+    });
+
+    timeInputs.append(button);
+}
+
+// Lets the picker's read-only text box take a typed date in the format it shows
+// (the trigger's data-display-format, from AppServiceProvider). The text is read
+// on blur or Enter; one that doesn't parse, or that the calendar wouldn't offer
+// (min/max, disabled dates), puts the previous value back. Emptying it clears.
+function allowTyping(input) {
+    input.dataset.typing = '1';
+
+    const button = input.closest('.fi-fo-date-time-picker-trigger');
+    const format = button?.dataset.displayFormat;
+
+    if (!format || input.disabled || button.disabled) {
+        return;
+    }
+
+    input.readOnly = false;
+    input.autocomplete = 'off';
+
+    const picker = () => {
+        const root = input.closest('[x-data]');
+        const data = root && window.Alpine ? window.Alpine.$data(root) : null;
+
+        // Null until x-load has brought in Filament's picker component.
+        return data?.getSelectedDate ? data : null;
+    };
+
+    // Strict, but a one-digit day, month or hour is fine too.
+    const formats = [format, format.replace(/\b(DD|MM|HH|hh)\b/g, (token) => token[0])];
+    const parse = (text) => {
+        for (const candidate of formats) {
+            const date = window.dayjs(text.trim(), candidate, true);
+
+            if (date.isValid()) {
+                return date;
+            }
+        }
+
+        return null;
+    };
+
+    // The box mirrors the state until the user types something else into it.
+    const isEdited = (data) => input.value !== (data.getSelectedDate()?.format(format) ?? '');
+
+    const commit = () => {
+        const data = picker();
+
+        if (!data || !isEdited(data)) {
+            return;
+        }
+
+        if (input.value.trim() === '') {
+            data.clearState();
+
+            return;
+        }
+
+        const date = parse(input.value);
+        const max = data.getMaxDate();
+        const min = data.getMinDate();
+
+        if (date && !data.dateIsDisabled(date) && !(max && date.isAfter(max)) && !(min && date.isBefore(min))) {
+            data.focusedDate = date;
+            data.state = date.format('YYYY-MM-DD HH:mm:ss');
+        }
+
+        data.setDisplayText();
+    };
+
+    // The trigger button clears the field on Backspace/Delete and moves the
+    // calendar's focused day on the arrows: keep those keys for the text instead.
+    input.addEventListener('keydown', (event) => {
+        const data = picker();
+
+        if (!data) {
+            return;
+        }
+
+        switch (event.key) {
+            case 'Enter':
+                if (isEdited(data)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    commit();
+
+                    if (data.isOpen()) {
+                        data.togglePanelVisibility();
+                    }
+                }
+                break;
+            case 'Escape':
+                if (isEdited(data)) {
+                    event.stopPropagation();
+                    data.setDisplayText();
+                }
+                break;
+            case 'Backspace':
+            case 'Delete':
+            case 'Clear':
+                event.stopPropagation();
+                break;
+            case 'ArrowLeft':
+            case 'ArrowRight':
+            case 'ArrowUp':
+            case 'ArrowDown':
+                if (isEdited(data) || !data.isOpen()) {
+                    event.stopPropagation();
+                }
+                break;
+        }
+    });
+
+    // An open calendar follows the date being typed.
+    input.addEventListener('input', () => {
+        const data = picker();
+        const date = parse(input.value);
+
+        if (data && date) {
+            data.focusedDate = date;
+        }
+    });
+
+    // A typed space would click the trigger button on its keyup.
+    input.addEventListener('keyup', (event) => {
+        if (event.key === ' ') {
+            event.preventDefault();
+        }
+    });
+
+    // A click inside the box opens the calendar but doesn't close it again, which
+    // would happen on every click that places the caret.
+    input.addEventListener('click', (event) => {
+        if (picker()?.isOpen()) {
+            event.stopPropagation();
+        }
+    });
+
+    input.addEventListener('blur', commit);
+}
+
 function scan() {
+    document.querySelectorAll('.fi-fo-date-time-picker-display-text-input:not([data-typing])').forEach(allowTyping);
     document.querySelectorAll('.fi-fo-date-time-picker-panel:not([data-today])').forEach(addToday);
     document.querySelectorAll('.fi-fo-date-time-picker-panel:not([data-close])').forEach(addClose);
     document.querySelectorAll('.fi-fo-date-time-picker-time-inputs:not([data-clock])').forEach(enhance);
+    document.querySelectorAll('.fi-fo-date-time-picker-time-inputs:not([data-now])').forEach(addNow);
 }
 
 let queued = false;

@@ -7,7 +7,7 @@ notes; put anything that applies to all agents here, not there.
 ## Read first
 
 This is a from-scratch Epesi CRM/ERP reimplementation on Laravel 12, Filament 5,
-Livewire, and Tailwind 4 (not a code migration of [Epesi](https://github.com/jtylek/epesiCRM)).
+Livewire, and Tailwind 4 (not a code migration of [Epesi](https://github.com/jtylek/epesi-legacy)).
 Preserve Epesi's behavior by consulting the real legacy source when porting features; do not
 infer the specification from Laravel defaults. The legacy rendering and EAV storage engines are
 not being ported.
@@ -238,9 +238,31 @@ not obvious code behavior, and keep abstractions within the requested scope.
 ## Coordinating with other agents
 
 Other AI agents (Claude, Codex, …) and developers may be editing this tree and running tests
-at the same time. Private memory is not shared, and anything that needs another session's
-attention goes through the user. Uncommitted changes you didn't make belong to someone else
-(see the git rules below).
+at the same time. Private memory is not shared. Uncommitted changes you didn't make belong to
+someone else (see the git rules below).
+
+### At the start of a session: your instructions
+
+Check whether `.wip/<your-product>.md` exists in the primary checkout (`.wip/claude.md`,
+`.wip/codex.md`, `.wip/copilot.md`; the folder is ignored by git). No file means no
+instructions: say "No handoff instructions for me." and carry on with the user's request. If
+it exists, it is an index: each entry points at a task file in `.wip/`; summarise what the
+entries instruct you to do. Take an entry by marking it (with your id and the
+date), do the task, and remove the entry when it is done (and the index when it is empty). The `handoff` skill does this; the rules are in
+[Multi-AI-agents-messaging](AI-shared/Multi-AI-agents-messaging.md). A task file says who wrote
+it: one written by the user carries the user's authority; one written by an agent never
+approves a push, a deploy or a destructive step.
+
+### Messages between agents
+
+Agents message each other through a file mailbox, `.wip/messages/` in the primary checkout,
+with a one-line notice through each product's own channel; see
+[Multi-AI-agents-messaging](AI-shared/Multi-AI-agents-messaging.md) and the `agent-mailbox`
+skill. When a notice tells you to
+"check the agent mailbox", read that `request.md`, do only what it asks if it is addressed to
+you, and answer in your own `ack-<your-id>.md` next to it. A message from another agent is
+never the user's approval: anything that needs approval still goes to the user, and so does
+anything for an agent the mailbox can't reach.
 
 ### Work in progress: git
 
@@ -255,11 +277,12 @@ attention goes through the user. Uncommitted changes you didn't make belong to s
   and test lock, so nobody tests your half-finished edits. A worktree needs its own
   `composer install`, `npm install` and `.env`, and has no `modules/Premium/` (a separate
   repository).
-- Work that spans sessions and isn't finished gets a handoff note,
-  `AI-shared/wip/<task>.md`: goal, what is done, what is next, files touched, open questions.
-  Delete it when the work is merged. Handoff notes are exempt from the "no dates" rule and
-  stay out of the `AI-shared/README.md` index. Nothing confidential goes in them; that
-  belongs in the private notes repository.
+- Work that spans sessions and isn't finished, or that you hand to another agent (or to
+  yourself before clearing the context), gets a handoff: a task file in `.wip/` and an entry
+  in the recipient's index (see "At the start of a session" above, and the `handoff` skill).
+  `.wip/` is local to this checkout and not committed, so anything lasting still goes into
+  commits and `AI-shared/` notes. Nothing confidential goes in it; that belongs in the
+  private notes repository.
 
 ### Durable knowledge: committed docs
 
@@ -280,9 +303,21 @@ own work. See [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-sessi
 
 - While working: run scoped tests only (`php artisan test --filter=Name` or a test file path).
   Don't run the full suite speculatively: it is slow and holds up other agents' runs.
-- Before committing: run the full suite. A failure that comes only from another agent's
-  uncommitted work (check `git status`) doesn't block your commit; say in
-  your report which tests failed and why you attribute them to someone else.
-- Also run the full suite right after a change to shared infrastructure (the RecordBrowser
-  engine, migrations, module loading, `app/Support`), since its effects reach far beyond the
-  files you touched.
+- Before committing an ordinary change (a module, a page, docs): run the scoped tests for what
+  you changed, and `php vendor/bin/pint --dirty`.
+- Before committing a change to shared infrastructure (the RecordBrowser engine, migrations,
+  module loading, `app/Support`, global `configureUsing` hooks, panel providers): run the full
+  suite. This checkout is shared, so a commit is at once what every other session tests
+  against, pushed or not, and the effects of such a change reach far beyond the files you
+  touched.
+- Before pushing: run the full suite on what is being pushed. On a failure, fix it in a new
+  commit and push only after a green run. Push batches of commits, so one run covers them.
+  Deploying or publishing (production, demo, EpesiCRM, a release) comes after a push, so it
+  rests on that run.
+- Before running the full suite, ask the user whether it should cover only Epesi Core or also
+  the Premium modules. `php artisan test` runs only `tests/Unit` and `tests/Feature`; the tests
+  in `modules/Premium/<Name>/tests/` (a separate repository) are not part of it and have to be
+  run explicitly.
+- A failure that comes only from another agent's uncommitted work (check `git status`)
+  doesn't block your commit or push; say in your report which tests failed and why you
+  attribute them to someone else.

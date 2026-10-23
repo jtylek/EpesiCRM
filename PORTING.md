@@ -1,7 +1,7 @@
 # Porting status: Epesi → epesi-laravel
 
 This file tracks which parts of the original PHP Epesi app
-([jtylek/epesi](https://github.com/jtylek/epesi)) exist here and which don't.
+([jtylek/epesi-legacy](https://github.com/jtylek/epesi-legacy)) exist here and which don't.
 The "Epesi module" column uses that repository's `modules/` paths.
 
 ## Ported

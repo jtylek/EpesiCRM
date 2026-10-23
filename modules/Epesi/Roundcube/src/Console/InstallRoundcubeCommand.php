@@ -16,7 +16,7 @@ class InstallRoundcubeCommand extends Command
     protected $signature = 'roundcube:install
         {--release= : Another Roundcube version than the one pinned in config/epesi-roundcube.php}
         {--sha256= : The checksum of that version\'s -complete.tar.gz, from roundcube.net}
-        {--configure-only : Only rewrite Roundcube\'s config and update its tables}';
+        {--configure-only : No download: only rewrite the web entry, the Epesi plugins and Roundcube\'s config, and update its tables}';
 
     protected $description = 'Download, install or upgrade the Roundcube webmail for the Mailbox page';
 
