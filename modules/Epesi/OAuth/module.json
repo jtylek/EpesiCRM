@@ -1,0 +1,17 @@
+{
+    "id": "epesi/oauth",
+    "name": "OAuth",
+    "description": "Connects epesi to services that sign in with OAuth2 (Microsoft 365, Google and others): the client credentials per installation, the stored tokens, the connect flow and their renewal.",
+    "version": "1.1.0",
+    "epesi_core": "^3.0",
+    "category": "Administration",
+    "icon": "heroicon-o-key",
+    "namespace": "Epesi\\Modules\\OAuth\\",
+    "path": "Epesi/OAuth",
+    "provider_class": "Epesi\\Modules\\OAuth\\OAuthServiceProvider",
+    "plugin_class": "Epesi\\Modules\\OAuth\\OAuthPlugin",
+    "panels": ["administration"],
+    "core": true,
+    "requires": [],
+    "provides": []
+}

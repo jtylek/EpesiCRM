@@ -31,12 +31,21 @@ and give it full context since it starts cold. Here, escalate to `deep` for:
 - boot-order, morph-map or MySQL-vs-SQLite DDL questions;
 - access rules (ownership scopes, policies, Shield, panel access).
 
-Use `quick` for repo-wide searches. **Every test run goes to `quick`**, scoped or the full
-suite: give it the exact command and ask for pass/fail counts plus each failing test with its
+Use `quick` for repo-wide searches. **Every test run goes to `quick`** (Haiku), scoped or the
+full suite, and runs as ParaTest (`php artisan test --parallel`; see AGENTS.md, "When to run
+tests"): give it the exact command and ask for pass/fail counts plus each failing test with its
 key error line. The calling session keeps the coordination: it sends the
 `ListAgents`/`SendMessage` announcements before and after, and reads the timestamps
 for a full-suite run. It also decides what a failure means; `quick` only reports it.
 Before a `git push`, the calling session has `quick` run the full suite (AGENTS.md, "When to
 run tests") and pushes only after a green run or failures it can attribute to someone else.
+
+Before a test run, check that `yoga.local` is reachable (`ssh-yoga` skill) and run the suite
+there with `run-tests-yoga` (or `yoga-sync` for a scoped test). **Never run tests locally
+without the user's permission** (AGENTS.md, "When to run tests"): if YOGA is unavailable, tell
+the user and wait. This binds subagents too: when you brief `deep`, `quick` or any other agent
+for work that includes tests, tell it to run them on YOGA or not at all, and never write
+"prefer local" or "run locally" into a brief. The YOGA run is always ParaTest (`--parallel`) and is supervised by
+`quick` (Haiku): hand it the `run-tests-yoga` steps, then read its report yourself.
 
 Subagents still follow the test-lock and git rules in AGENTS.md.

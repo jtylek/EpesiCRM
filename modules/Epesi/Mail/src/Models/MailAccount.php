@@ -5,6 +5,12 @@ namespace Epesi\Modules\Mail\Models;
 use App\Casts\Encrypted;
 use App\Models\Concerns\HasInlineImages;
 use App\Models\User;
+use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
+use Epesi\Modules\OAuth\Concerns\HasOAuthTokens;
+use Epesi\Modules\OAuth\Contracts\OAuthOwner;
+use Epesi\Modules\OAuth\Contracts\OAuthRecipients;
+use Epesi\Modules\OAuth\Providers\GoogleProvider;
+use Epesi\Modules\OAuth\Providers\MicrosoftProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,11 +19,24 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * One user's mailbox — an `rc_accounts` record. Accounts are strictly
  * personal: Epesi's view crit was `epesi_user = USER_ID` for everyone,
  * administrators included, and MailAccountPolicy keeps that.
+ *
+ * An account signs in with its password, or with an OAuth2 access token
+ * (XOAUTH2) from Microsoft 365 or Google: `auth_method` names the provider,
+ * and the token is held by the OAuth module, owned by the account.
  */
-class MailAccount extends Model
+class MailAccount extends Model implements OAuthOwner, OAuthRecipients
 {
     // The signature's pasted images, visible to whoever may view the account.
     use HasInlineImages;
+    use HasOAuthTokens;
+
+    public const AUTH_PASSWORD = 'password';
+
+    /** auth_method => the OAuth provider key it signs in with. */
+    public const OAUTH_METHODS = [
+        MicrosoftProvider::KEY => MicrosoftProvider::KEY,
+        GoogleProvider::KEY => GoogleProvider::KEY,
+    ];
 
     protected $table = 'epesi_mail_accounts';
 
@@ -25,6 +44,7 @@ class MailAccount extends Model
         'user_id',
         'name',
         'email',
+        'auth_method',
         'from_name',
         'imap_host',
         'imap_port',
@@ -52,6 +72,7 @@ class MailAccount extends Model
 
     /** The table's defaults, so a freshly created account carries them too. */
     protected $attributes = [
+        'auth_method' => self::AUTH_PASSWORD,
         'imap_security' => 'ssl',
         'smtp_security' => 'tls',
         'smtp_auth' => true,
@@ -128,6 +149,21 @@ class MailAccount extends Model
         return (string) ($this->imap_login ?: $this->email);
     }
 
+    /**
+     * The mailbox this account logs in to. Accounts with the same key (a
+     * shared address, set up once per user) read the same INBOX.
+     */
+    public function mailboxKey(): string
+    {
+        return mb_strtolower(trim((string) $this->imap_host)).':'.$this->imapPort().':'.mb_strtolower($this->imapLogin());
+    }
+
+    /** An empty port means the security's standard one. */
+    public function imapPort(): int
+    {
+        return $this->imap_port ?: ($this->imap_security === 'ssl' ? 993 : 143);
+    }
+
     /** Empty SMTP credentials mean the IMAP ones, as Epesi filled them in. */
     public function smtpLogin(): string
     {
@@ -137,6 +173,44 @@ class MailAccount extends Model
     public function smtpPassword(): string
     {
         return (string) ($this->smtp_password ?: $this->imap_password);
+    }
+
+    /** The OAuth provider key this account signs in with, null for a password. */
+    public function oauthProvider(): ?string
+    {
+        return self::OAUTH_METHODS[$this->auth_method] ?? null;
+    }
+
+    public function usesOAuth(): bool
+    {
+        return $this->oauthProvider() !== null;
+    }
+
+    /** Only the account's own user, as MailAccountPolicy, with no super-admin bypass. */
+    public function mayConnectOAuth(User $user): bool
+    {
+        return $this->user_id !== null && (int) $this->user_id === (int) $user->getKey();
+    }
+
+    /** The account's user, not the super admins: nobody else can connect it. */
+    public function oauthRecipients(): iterable
+    {
+        return array_filter([$this->user]);
+    }
+
+    public function oauthLabel(): string
+    {
+        return __('the mail account :name', ['name' => $this->name]);
+    }
+
+    public function oauthLoginHint(): ?string
+    {
+        return filled($this->email) ? (string) $this->email : null;
+    }
+
+    public function oauthUrl(): ?string
+    {
+        return rescue(fn (): string => MailAccountResource::getUrl('edit', ['record' => $this], panel: 'user-settings'), null, report: false);
     }
 
     public function canSend(): bool

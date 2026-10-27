@@ -63,8 +63,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             // Not built from APP_URL, so a copy in another folder or on another
-            // host doesn't link to the old address.
-            'url' => rtrim((string) env('ASSET_URL', ''), '/').'/storage',
+            // host doesn't link to the old address. Without ASSET_URL,
+            // AppServiceProvider::servePublicDiskFromThisInstallation() puts
+            // this installation's subdirectory (if any) in front.
+            'url' => filled(env('ASSET_URL')) ? rtrim((string) env('ASSET_URL'), '/').'/storage' : null,
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -83,7 +84,7 @@ class FieldOverrides
             }
             $model = $resource::getModel();
             if ($alias = CustomFieldRegistry::aliasFor($model)) {
-                $recordsets[$alias] = ['label' => $resource::getPluralModelLabel(), 'model' => $model, 'fields' => $resource::fields()];
+                $recordsets[$alias] = ['label' => Str::ucfirst($resource::getPluralModelLabel()), 'model' => $model, 'fields' => $resource::fields()];
             }
         }
         foreach (Relation::morphMap() as $alias => $model) {

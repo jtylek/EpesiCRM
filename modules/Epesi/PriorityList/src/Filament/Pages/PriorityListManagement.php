@@ -36,9 +36,9 @@ class PriorityListManagement extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
 
-    protected static ?string $navigationLabel = 'Priority list types';
+    protected static ?string $navigationLabel = 'Priority list';
 
-    protected static ?string $title = 'Priority list types';
+    protected static ?string $title = 'Priority list';
 
     protected static ?string $slug = 'priority-list-types';
 
@@ -49,9 +49,9 @@ class PriorityListManagement extends Page implements HasTable
         return $table
             ->records(fn (): Collection => collect(PriorityList::candidateTypes())->map(fn (string $alias): array => [
                 '__key' => $alias,
-                'label' => PriorityList::typeLabelFor($alias),
+                'label' => PriorityList::recordsetLabelFor($alias),
                 'enabled' => PriorityList::isEnabled($alias),
-            ]))
+            ])->sortBy('label', SORT_NATURAL | SORT_FLAG_CASE)->values())
             ->columns([
                 TextColumn::make('label')->label(__('Type')),
                 IconColumn::make('enabled')->label(__('Enabled'))->boolean(),
@@ -78,7 +78,7 @@ class PriorityListManagement extends Page implements HasTable
 
                 Notification::make()
                     ->success()
-                    ->title($record['label'].' is now '.($record['enabled'] ? 'disabled' : 'enabled'))
+                    ->title(PriorityList::typeLabelFor($record['__key']).' is now '.($record['enabled'] ? 'disabled' : 'enabled'))
                     ->send();
             });
     }

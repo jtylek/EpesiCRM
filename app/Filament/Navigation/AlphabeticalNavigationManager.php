@@ -3,6 +3,8 @@
 namespace App\Filament\Navigation;
 
 use Collator;
+use Filament\Facades\Filament;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Navigation\NavigationManager;
 
@@ -22,11 +24,28 @@ class AlphabeticalNavigationManager extends NavigationManager
 
         $navigation = parent::get();
 
+        // A panel that declares its own group order (Administration) keeps it.
+        if (blank(Filament::getCurrentPanel()?->getNavigationGroups())) {
+            // The ungrouped items stay on top; the groups follow by label.
+            usort($navigation, fn (NavigationGroup $a, NavigationGroup $b): int => filled($a->getLabel()) <=> filled($b->getLabel())
+                ?: $collator->compare((string) $a->getLabel(), (string) $b->getLabel()));
+        }
+
         foreach ($navigation as $group) {
             $items = collect($group->getItems())->all();
 
             usort($items, fn (NavigationItem $a, NavigationItem $b): int => min($a->getSort(), -1) <=> min($b->getSort(), -1)
                 ?: $collator->compare($a->getLabel(), $b->getLabel()));
+
+            foreach ($items as $item) {
+                if (filled($item->getChildItems())) {
+                    $children = collect($item->getChildItems())->all();
+
+                    usort($children, fn (NavigationItem $a, NavigationItem $b): int => $collator->compare($a->getLabel(), $b->getLabel()));
+
+                    $item->childItems($children);
+                }
+            }
 
             $group->items($items);
         }

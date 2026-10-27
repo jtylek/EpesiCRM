@@ -22,7 +22,6 @@ use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Epesi\Modules\Watchdog\Watchdog;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -81,24 +80,14 @@ class MailServiceProvider extends ServiceProvider
         Gate::policy(Mail::class, MailPolicy::class);
         Gate::policy(MailAccount::class, MailAccountPolicy::class);
 
-        // Not only on the command line: the cron URL and "Run now" under
-        // Administration → Cron run it within a web request.
+        // Not scheduled: the Mail widget asks for its own counts while it is on
+        // screen. The command stays for checking an account by hand.
         $this->commands([CheckMailCommand::class]);
 
         if ($this->app->runningInConsole()) {
             // `import:legacy mail` (and part of `import:legacy all`).
             $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class, last: true);
         }
-
-        // The Mail widget's unread counts, asked for in the background so no
-        // page waits on a mail server. Laravel's scheduler, run by cron
-        // (cron.php; AI-shared/cron.md).
-        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
-            $schedule->command('mail:check')
-                ->cron((string) config('epesi-mail.check_schedule'))
-                ->withoutOverlapping()
-                ->runInBackground();
-        });
 
         $this->relinkWhenAnAddressChanges();
 
@@ -111,7 +100,8 @@ class MailServiceProvider extends ServiceProvider
             RecordExtensions::headerActions(
                 'mail',
                 fn (Model $record): array => [ComposeAction::make($record)->color('gray')],
-                $types,
+                // Not on a company or contact: their e-mail addresses already open compose.
+                array_values(array_diff($types, ['company', 'contact'])),
             );
             // An address clicked on a record opens the compose page for it,
             // filed with that record — else the engine's plain mailto:.

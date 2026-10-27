@@ -57,7 +57,10 @@ Enable the new modules on an existing install with `php artisan module:register 
   changed records.
 - Mail: no embedded webmail (Epesi bundled Roundcube). Reading mail stays in the user's own
   mail client, and the CRM archives it.
-- Mail: no OAuth sign-in (Gmail and Microsoft 365 need an app password).
+- Mail: an account can sign in with Microsoft 365 or Google (OAuth2, XOAUTH2) for epesi's own
+  IMAP and SMTP, but the Roundcube Mailbox page doesn't open such accounts yet (see
+  [AI-shared/OAuth2-plan.md](AI-shared/OAuth2-plan.md)). Their tokens are renewed by
+  `oauth:refresh`, which needs cron.
 - Mail: `import:legacy mail` imports accounts, extra addresses and archived mail (with links,
   threads and attachments), but not per-user Watchdog subscriptions to mails or the
   attachment download history. Set `LEGACY_DATA_DIR` to the legacy `data/` directory, or

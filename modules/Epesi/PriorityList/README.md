@@ -52,7 +52,7 @@ The applet has no settings: the list is never longer than 10, so it is always sh
 
 To change the cap, change `PriorityList::LIMIT`.
 
-## Administration → Priority list types
+## Administration → Priority list
 
 Every RecordsetResource in the main panel — every recordset a module ships, core or not — is a
 *candidate* type with no code of its own: `PriorityList::candidateTypes()` finds it by scanning
@@ -108,7 +108,7 @@ The flag appears on the covered types' View pages through
 | `src/PriorityListServiceProvider.php` | Registers tasks, meetings and phone calls' due dates, the flag, and the listeners that take finished records off every list |
 | `src/Filament/Widgets/PriorityListWidget.php` | The dashboard applet (implements the dashboard's `Applet` contract): the entries, and drag, Done and Take off the list, each checked against your own list |
 | `resources/views/widget.blade.php` | The list itself, dragged with Livewire's `wire:sort` rather than a Filament table, whose rows only drag in a reorder mode that hides ✓ and ✕ |
-| `src/Filament/Pages/PriorityListManagement.php` | Administration → Priority list types: every candidate, and its on/off toggle |
+| `src/Filament/Pages/PriorityListManagement.php` | Administration → Priority list: every candidate, and its on/off toggle |
 | `src/Models/Entry.php` | One record on one user's list |
 | `src/Models/PriorityListSetting.php` | Single-row settings: which types an administrator turned on or off |
 | `database/migrations/` | The `epesi_priority_list_entries` and `epesi_priority_list_settings` tables |

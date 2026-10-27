@@ -23,7 +23,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
@@ -133,9 +132,7 @@ class PhoneCallResource extends RecordsetResource
                 ->formUsing(fn (DateTimePicker $component): DateTimePicker => $component
                     ->default(fn (): string => now()->parse(request()->query('called_at') ?: now())->roundMinutes(5)->toDateTimeString())),
 
-            // Scoped to the acting user's own company's staff — Epesi's
-            // employees_crits().
-            Field::relations('employees', Contact::class)
+            Field::employees()
                 ->tableOrder(6)
                 ->inTable()
                 ->filterable()
@@ -157,8 +154,7 @@ class PhoneCallResource extends RecordsetResource
 
                     return $contactId === null ? [] : [(string) $contactId];
                 })
-                ->required()
-                ->crits(fn (Builder $query): Builder => $query->ofCompany(Auth::user()?->companyId())),
+                ->required(),
             // Any other record the call is about — Epesi's `__RECORDSETS__`
             // Related field. Companies and Contacts by default (unrestricted
             // it would put Phone Calls on Mail's and Notes' own "linked from" tabs

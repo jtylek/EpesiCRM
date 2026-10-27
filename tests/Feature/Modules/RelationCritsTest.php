@@ -6,16 +6,21 @@ use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\Pages\CreateMeeting;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\Pages\EditMeeting;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\Pages\CreatePhoneCall;
+use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\CreateTask;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\EditTask;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Recordset\Field;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -179,38 +184,38 @@ class RelationCritsTest extends TestCase
 
     public function test_meeting_date_time_form_uses_the_selected_calendar(): void
     {
-        \Epesi\Modules\RegionalSettings\Models\RegionalSetting::query()->create([
+        RegionalSetting::query()->create([
             'user_id' => Auth::id(),
             'timezone' => 'UTC',
             'calendar_system' => 'jalali',
         ]);
         $this->assertSame(
             '2024-03-20 10:15:00',
-            \Epesi\Modules\RegionalSettings\Models\RegionalSetting::parseDateTimeInput('۱۴۰۳-۰۱-۰۱ 10:15'),
+            RegionalSetting::parseDateTimeInput('۱۴۰۳-۰۱-۰۱ 10:15'),
         );
 
-        $dateField = collect(\Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource::fields())
+        $dateField = collect(MeetingResource::fields())
             ->first(fn ($field): bool => $field->name === 'date');
 
         $this->assertInstanceOf(
-            \Filament\Forms\Components\TextInput::class,
+            TextInput::class,
             $dateField->toFormComponent(),
         );
     }
 
     public function test_task_deadline_form_uses_the_selected_calendar(): void
     {
-        \Epesi\Modules\RegionalSettings\Models\RegionalSetting::query()->create([
+        RegionalSetting::query()->create([
             'user_id' => Auth::id(),
             'timezone' => 'UTC',
             'calendar_system' => 'jalali',
         ]);
 
-        $deadlineField = collect(\Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource::fields())
+        $deadlineField = collect(TaskResource::fields())
             ->first(fn ($field): bool => $field->name === 'deadline');
 
         $this->assertInstanceOf(
-            \Filament\Forms\Components\TextInput::class,
+            TextInput::class,
             $deadlineField->toFormComponent(),
         );
     }
@@ -226,5 +231,27 @@ class RelationCritsTest extends TestCase
             ->assertHasFormErrors(['employees.1']);
 
         $this->assertSame([$this->colleague->id], $task->employees()->pluck('contacts.id')->all());
+    }
+
+    public function test_an_employees_field_offers_only_the_own_company_and_has_watchers(): void
+    {
+        $field = Field::employees();
+
+        $this->assertSame(Contact::class, $field->getParam('model'));
+        $this->assertSame('employees', $field->getParam('relationship'));
+        $this->assertTrue($field->offers($this->colleague));
+        $this->assertFalse($field->offers($this->leaver));
+        $this->assertTrue($field->hasWatchers());
+        $this->assertFalse(Field::employees()->withoutWatchers()->hasWatchers());
+        $this->assertFalse(Field::relations('assignees', Contact::class)->hasWatchers());
+    }
+
+    public function test_the_crm_employees_fields_have_watchers(): void
+    {
+        foreach ([TaskResource::class, MeetingResource::class, PhoneCallResource::class] as $resource) {
+            $employees = collect($resource::fields())->firstWhere('name', 'employees');
+
+            $this->assertTrue($employees->hasWatchers(), $resource);
+        }
     }
 }

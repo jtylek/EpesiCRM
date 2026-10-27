@@ -2,6 +2,7 @@
 
 namespace App\Filament\Administration\Resources\Modules;
 
+use App\Filament\Administration\Resources\Modules\Pages\DiscoverModules;
 use App\Filament\Administration\Resources\Modules\Pages\ListModules;
 use App\Filament\Administration\Resources\Modules\Pages\ViewModule;
 use App\Filament\Administration\Resources\Modules\Schemas\ModuleInfolist;
@@ -50,6 +51,8 @@ class ModuleResource extends Resource
     {
         return [
             'index' => ListModules::route('/'),
+            // Before /{record}, which would take "discover" for a module id.
+            'discover' => DiscoverModules::route('/discover'),
             'view' => ViewModule::route('/{record}'),
         ];
     }

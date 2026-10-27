@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RecordBrowser;
 
+use App\Console\Commands\CheckModule;
 use Epesi\Modules\RecordBrowser\Console\CustomFieldsSyncCommand;
 use Epesi\Modules\RecordBrowser\Console\MakeRecordsetCommand;
 use Epesi\Modules\RecordBrowser\Console\RecordsetCheckCommand;
@@ -183,6 +184,7 @@ class RecordBrowserServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                CheckModule::class,
                 MakeRecordsetCommand::class,
                 RecordsetCheckCommand::class,
                 CustomFieldsSyncCommand::class,

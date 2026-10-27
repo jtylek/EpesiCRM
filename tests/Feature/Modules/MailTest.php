@@ -33,6 +33,7 @@ use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -44,6 +45,8 @@ use Tests\Fakes\Eml;
 use Tests\Fakes\FakeMailbox;
 use Tests\Fakes\RecordingTransport;
 use Tests\TestCase;
+use Webklex\PHPIMAP\Exceptions\AuthFailedException;
+use Webklex\PHPIMAP\Exceptions\RuntimeException as ImapRuntimeException;
 
 class MailTest extends TestCase
 {
@@ -292,9 +295,64 @@ class MailTest extends TestCase
         Log::spy();
         $this->artisan('mail:check')->assertFailed();
         Log::shouldHaveReceived('warning')->once()->with('mail:check failed for an account', \Mockery::on(
-            fn (array $context): bool => $context['account_id'] === $account->id && $context['email'] === 'me@ourcompany.test' && $context['error'] === 'connection refused',
+            fn (array $context): bool => $context['account_id'] === $account->id && $context['user_id'] === $account->user_id && $context['user'] === $account->user->email && $context['email'] === 'me@ourcompany.test' && $context['error'] === 'connection refused',
         ));
         $this->assertSame('connection refused', $account->fresh()->last_error, 'the error is kept on the account');
+    }
+
+    public function test_mail_check_is_not_scheduled_the_widget_asks_for_itself(): void
+    {
+        $commands = collect(app(Schedule::class)->events())->map(fn ($event): string => (string) $event->command);
+
+        $this->assertFalse($commands->contains(fn (string $command): bool => str_contains($command, 'mail:check')));
+    }
+
+    public function test_mail_check_logs_in_to_a_shared_mailbox_once(): void
+    {
+        $mine = $this->account();
+        // The same address set up by a colleague, with the host and login spelled differently
+        // and SSL's standard port filled in where mine leaves it empty.
+        $theirs = $this->account(['user_id' => $this->userWithRole('employee')->id, 'imap_host' => 'IMAP.test', 'imap_login' => 'Me', 'imap_port' => 993]);
+        $other = $this->account(['email' => 'sales@ourcompany.test', 'imap_login' => 'sales']);
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => []]));
+        $server->unseenCounts['INBOX'] = 3;
+
+        $this->artisan('mail:check')
+            ->expectsOutput('me@ourcompany.test: 3 unread')
+            ->expectsOutput("me@ourcompany.test: same mailbox as account {$mine->id}, not asked again")
+            ->expectsOutput('sales@ourcompany.test: 3 unread')
+            ->assertSuccessful();
+
+        $this->assertSame(2, $server->unseenCalls, 'one login per mailbox');
+        $this->assertSame(['count' => 3, 'error' => null], app(UnreadCounter::class)->cached($theirs->fresh()));
+        $this->assertNotNull($theirs->fresh()->last_checked_at);
+        $this->assertSame([$theirs->id], app(UnreadCounter::class)->sameMailbox($mine)->modelKeys());
+        $this->assertCount(0, app(UnreadCounter::class)->sameMailbox($other));
+    }
+
+    public function test_a_failed_shared_mailbox_is_tried_with_the_next_account(): void
+    {
+        $this->account();
+        $theirs = $this->account(['user_id' => $this->userWithRole('employee')->id]);
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => []]));
+        $server->failing = true;
+
+        $this->artisan('mail:check')->assertFailed();
+
+        $this->assertSame(2, $server->unseenCalls, "another user's credentials may still work");
+        $this->assertSame('connection refused', $theirs->fresh()->last_error);
+    }
+
+    public function test_a_failed_login_keeps_what_the_server_did(): void
+    {
+        $account = $this->account();
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => []]));
+        // What webklex throws when the server closes the connection during LOGIN.
+        $server->failure = new AuthFailedException('failed to authenticate', 0, new ImapRuntimeException('empty response'));
+
+        $this->artisan('mail:check')->assertFailed();
+
+        $this->assertSame('failed to authenticate: empty response', $account->fresh()->last_error);
     }
 
     public function test_an_empty_imap_login_means_the_e_mail_address(): void

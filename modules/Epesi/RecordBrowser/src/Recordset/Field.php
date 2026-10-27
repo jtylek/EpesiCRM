@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
 use App\Models\StoredFile;
+use App\Models\User;
 use App\Services\FileStorage;
 use App\Support\Files\FileChip;
 use App\Support\Files\InlineImages;
@@ -346,6 +347,44 @@ class Field
     }
 
     /**
+     * The installation's own staff: a belongsToMany of contacts offering only
+     * those of the acting user's company — Epesi's employees_crits(). Its
+     * people watch the record, and Watchdog shows next to each whether they
+     * have seen its latest change, where the record type is watchable at all;
+     * withoutWatchers() opts out. A field that may also hold outsiders (Tickets'
+     * Assignees, freelancers) is not an Employees field and uses relations().
+     *
+     * The contact model is looked up by its morph alias: Contacts is a module
+     * that depends on RecordBrowser, not the other way round.
+     */
+    public static function employees(string $name = 'employees'): static
+    {
+        return static::relations($name, Relation::getMorphedModel('contact'))
+            ->watchers()
+            ->crits(function (Builder $query): Builder {
+                $user = auth()->user();
+
+                return $query->ofCompany($user instanceof User ? $user->companyId() : null);
+            });
+    }
+
+    /** The people this relation holds watch the record (see employees()). */
+    public function watchers(bool $watchers = true): static
+    {
+        return $this->param('watchers', $watchers);
+    }
+
+    public function withoutWatchers(): static
+    {
+        return $this->watchers(false);
+    }
+
+    public function hasWatchers(): bool
+    {
+        return (bool) $this->getParam('watchers', false);
+    }
+
+    /**
      * A morphTo over several kinds of record at once — Epesi's Company-or-
      * Contact "Customer" field type, one typeahead rather than a Relation
      * per kind. $name is the relationship name: the table needs both
@@ -375,12 +414,18 @@ class Field
                 // this call (type or id, dedup keeps only the first) — read
                 // both columns from the entry directly instead, so the title
                 // resolves correctly regardless of which one that was.
-                $typeOf = fn (string $side): ?string => data_get($entry->properties->get($side, []), "{$name}_type")
-                    ?? $entry->subject?->getAttribute("{$name}_type");
-                $idOf = fn (string $side): mixed => data_get($entry->properties->get($side, []), "{$name}_id")
-                    ?? $entry->subject?->getAttribute("{$name}_id");
+                // A column the entry didn't log is unchanged, so the record's
+                // current value stands in; one logged as null was empty, and
+                // must stay empty rather than read as the record's current pick.
+                $columnOf = function (string $side, string $column) use ($entry): mixed {
+                    $logged = (array) $entry->properties->get($side, []);
 
-                $oldTitle = $entry->event === 'created' ? null : static::customerLoggedTitle($typeOf('old'), $idOf('old'));
+                    return array_key_exists($column, $logged) ? $logged[$column] : $entry->subject?->getAttribute($column);
+                };
+                $typeOf = fn (string $side): ?string => $columnOf($side, "{$name}_type");
+                $idOf = fn (string $side): mixed => $columnOf($side, "{$name}_id");
+
+                $oldTitle = $entry->event === 'created' ? null : (static::customerLoggedTitle($typeOf('old'), $idOf('old')) ?? '-');
                 $newTitle = static::customerLoggedTitle($typeOf('attributes'), $idOf('attributes')) ?? '-';
 
                 return new HtmlString($oldTitle === null
@@ -2277,11 +2322,49 @@ class Field
      */
     protected function relationEntry(): TextEntry
     {
-        return LinkedRecords::style(
+        return $this->withWatcherBadges(LinkedRecords::style(
             TextEntry::make((string) $this->getParam('relationship'))
-                ->state(fn (Model $record): array => $this->relatedTitles($record)),
+                ->state(function (Model $record): array {
+                    $this->prepareWatcherBadges(new EloquentCollection([$record]));
+
+                    return $this->relatedTitles($record);
+                }),
             fn (Model $record, string $state): ?string => $this->relatedUrl($record, $state),
-        );
+        ));
+    }
+
+    /**
+     * Watchdog's eye in front of each person's name, for a field marked with
+     * watchers (employees(), watchers()). The URL and the link icon still
+     * come from the plain title, so only the label changes.
+     *
+     * @template T of TextColumn|TextEntry
+     *
+     * @param  T  $component
+     * @return T
+     */
+    protected function withWatcherBadges(TextColumn|TextEntry $component): TextColumn|TextEntry
+    {
+        if (! $this->hasWatchers() || ! RecordExtensions::hasWatcherBadges()) {
+            return $component;
+        }
+
+        return $component
+            ->formatStateUsing(function (string $state, Model $record): HtmlString {
+                $related = $this->relatedTitled($record, $state);
+                $badge = $related ? RecordExtensions::watcherBadgeFor($this, $record, $related) : null;
+
+                return new HtmlString(($badge?->toHtml() ?? '').e($state));
+            })
+            ->html();
+    }
+
+    /** @param  EloquentCollection<int, Model>  $records */
+    protected function prepareWatcherBadges(EloquentCollection $records): void
+    {
+        if ($this->hasWatchers() && RecordExtensions::hasWatcherBadges()) {
+            RecordExtensions::prepareWatcherBadges($this, $records);
+        }
     }
 
     // --------------------------------------------------------------- Table --
@@ -2464,15 +2547,16 @@ class Field
     /** The same badges as on the View page, one per row, capped at 3 with a "+N" count beyond that. */
     protected function relationColumn(): TextColumn
     {
-        return LinkedRecords::style(
+        return $this->withWatcherBadges(LinkedRecords::style(
             TextColumn::make((string) $this->getParam('relationship'))
                 ->state(function (TextColumn $column, Model $record): array {
                     static::preloadOnPage($column, (string) $this->getParam('relationship'));
+                    $this->prepareWatcherBadges(static::pageRecords($column) ?? new EloquentCollection([$record]));
 
                     return $this->relatedTitles($record);
                 }),
             fn (Model $record, string $state): ?string => $this->relatedUrl($record, $state),
-        )->listWithLineBreaks()->limitList(3);
+        )->listWithLineBreaks()->limitList(3));
     }
 
     /** A badge linking to the picked record, iconed by its kind — a contact reads differently from a company at a glance. */
@@ -2510,10 +2594,19 @@ class Field
             return null;
         }
 
-        $related = $this->relatedRecords($record)
-            ->first(fn (Model $related): bool => (string) $resource::getRecordTitle($related) === $state);
+        $related = $this->relatedTitled($record, $state);
 
         return $related ? $resource::getUrl('view', ['record' => $related]) : null;
+    }
+
+    /** The related record shown as the badge $state, by the same title relatedTitles() gave it. */
+    protected function relatedTitled(Model $record, string $state): ?Model
+    {
+        $resource = $this->relatedResource();
+
+        return $this->relatedRecords($record)->first(fn (Model $related): bool => (string) ($resource
+            ? $resource::getRecordTitle($related)
+            : $related->getAttribute($this->relatedTitleAttribute())) === $state);
     }
 
     /**

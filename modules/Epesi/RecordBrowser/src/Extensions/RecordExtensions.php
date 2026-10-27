@@ -4,13 +4,16 @@ namespace Epesi\Modules\RecordBrowser\Extensions;
 
 use Closure;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
+use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 
 /**
  * How one module reaches into another's record pages — the port of Epesi's
@@ -49,6 +52,12 @@ class RecordExtensions
 
     /** @var array<string, array{callback: Closure, types: array<int, string>|null}> */
     protected static array $emailLinks = [];
+
+    /** @var array<string, array{prepare: Closure, badge: Closure}> */
+    protected static array $watcherBadges = [];
+
+    /** @var array<string, Closure> */
+    protected static array $recordInfoRows = [];
 
     /**
      * @param  class-string<RelationManager>  $manager
@@ -95,6 +104,68 @@ class RecordExtensions
     public static function emailLink(string $key, Closure $callback, ?array $types = null): void
     {
         static::$emailLinks[$key] = ['callback' => $callback, 'types' => $types];
+    }
+
+    /**
+     * Something drawn in front of each badge of a relation field marked with
+     * watchers (Field::employees(), ->watchers()): Watchdog's eye, saying
+     * whether that person has seen the record's latest change. $prepare gets
+     * every record the field is drawn for at once (a list page's rows), so
+     * $badge can answer from what it loaded rather than query per badge.
+     *
+     * @param  Closure(Field, Collection<int, Model>): void  $prepare
+     * @param  Closure(Field, Model, Model): ?Htmlable  $badge  the field, the record, one related record
+     */
+    public static function watcherBadge(string $key, Closure $prepare, Closure $badge): void
+    {
+        static::$watcherBadges[$key] = ['prepare' => $prepare, 'badge' => $badge];
+    }
+
+    public static function hasWatcherBadges(): bool
+    {
+        return static::$watcherBadges !== [];
+    }
+
+    /**
+     * @param  Collection<int, Model>  $records
+     */
+    public static function prepareWatcherBadges(Field $field, Collection $records): void
+    {
+        foreach (static::$watcherBadges as $entry) {
+            ($entry['prepare'])($field, $records);
+        }
+    }
+
+    public static function watcherBadgeFor(Field $field, Model $record, Model $related): ?Htmlable
+    {
+        $parts = collect(static::$watcherBadges)
+            ->map(fn (array $entry): ?Htmlable => ($entry['badge'])($field, $record, $related))
+            ->filter();
+
+        return $parts->isEmpty() ? null : new HtmlString($parts->map->toHtml()->implode(''));
+    }
+
+    /**
+     * More rows for the Record Info popup, below Updated and Created: label,
+     * who, and when (or any short third column). Watchdog lists the record's
+     * watchers here.
+     *
+     * @param  Closure(Model): array<int, array{0: string, 1: string|Htmlable|null, 2: string|null}>  $callback
+     */
+    public static function recordInfoRows(string $key, Closure $callback): void
+    {
+        static::$recordInfoRows[$key] = $callback;
+    }
+
+    /**
+     * @return array<int, array{0: string, 1: string|Htmlable|null, 2: string|null}>
+     */
+    public static function recordInfoRowsFor(Model $record): array
+    {
+        return collect(static::$recordInfoRows)
+            ->flatMap(fn (Closure $callback): array => $callback($record))
+            ->values()
+            ->all();
     }
 
     /**
@@ -160,6 +231,8 @@ class RecordExtensions
         static::$headerActions = [];
         static::$statusActionFactory = null;
         static::$emailLinks = [];
+        static::$watcherBadges = [];
+        static::$recordInfoRows = [];
     }
 
     /**

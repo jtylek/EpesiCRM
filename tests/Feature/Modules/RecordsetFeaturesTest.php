@@ -104,7 +104,7 @@ class RecordsetFeaturesTest extends TestCase
         // Optional modules (e.g. Premium ones) may add their own pages to these groups.
         $shipped = fn (array $expected, array $actual): array => array_values(array_intersect($actual, $expected));
         $serverSetup = ['Background worker', 'Cron', 'Mail Server', 'Regional Settings', 'Server Check', 'Translations'];
-        $data = ['Common Data', 'Currencies', 'Exchange Rates', 'Priority list types', 'Recordsets', 'Related modules'];
+        $data = ['Common Data', 'Currencies', 'Exchange Rates', 'Priority list', 'Recordsets', 'Related modules'];
         $this->assertSame($serverSetup, $shipped($serverSetup, $labels('Server Setup')));
         $this->assertSame($data, $shipped($data, $labels('Data')));
         $this->assertSame(['Server Setup', 'Data'], $navigation->map(fn ($g) => $g->getLabel())->filter()->take(2)->values()->all());

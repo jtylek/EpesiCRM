@@ -150,13 +150,15 @@ class ModuleInstaller
     }
 
     /**
-     * Removes the module's files and its registry row. Its database tables are
-     * left alone on purpose: a module's `down()` migrations are rarely written
-     * with real data in mind, and silently dropping tables holding a customer's
-     * records is worse than leaving them behind. Old Epesi never had a real
-     * undo here either.
+     * Removes the module's registry row and its files, and with $deleteData
+     * everything it brought into the database (ModuleDataRemover), so the
+     * application is as it was before the module was installed. Without it the
+     * tables keep their data and a reinstall reuses them.
+     *
+     * A module directory that is a git checkout keeps its files: it is a
+     * developer's working copy, and deleting it would take unpushed commits.
      */
-    public function uninstall(Module $module): void
+    public function uninstall(Module $module, bool $deleteData = true): UninstallReport
     {
         $this->assertNotCore($module, 'uninstalled');
         $this->assertNothingDependsOn($module, 'Uninstalling', enabledOnly: false);
@@ -176,15 +178,21 @@ class ModuleInstaller
 
         $directory = $module->directory();
 
+        // Before the files go: the rollback needs the module's migrations.
+        $warnings = $deleteData ? app(ModuleDataRemover::class)->remove($module) : [];
+
         $module->delete();
 
-        if (is_dir($directory)) {
+        $filesKept = is_dir($directory.DIRECTORY_SEPARATOR.'.git');
+
+        if (is_dir($directory) && ! $filesKept) {
             File::deleteDirectory($directory);
+            $this->pruneEmptyParents($directory);
         }
 
-        $this->pruneEmptyParents($directory);
-
         $this->afterChange();
+
+        return new UninstallReport($deleteData, $filesKept, $warnings);
     }
 
     /**

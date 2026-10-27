@@ -25,7 +25,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 use UnitEnum;
@@ -41,6 +40,8 @@ class TaskResource extends RecordsetResource
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $recordsetDefaultSort = 'deadline';
+
+    protected static string $recordsetDefaultSortDirection = 'desc';
 
     protected static bool $recordsetFavorites = true;
 
@@ -164,9 +165,7 @@ class TaskResource extends RecordsetResource
                 ->default(RecordPermission::Public)
                 ->notInTable(),
 
-            // Scoped to the acting user's own company's staff — Epesi's
-            // employees_crits().
-            Field::relations('employees', Contact::class)
+            Field::employees()
                 ->inTable()
                 ->filterable()
                 ->filterUsing(fn (SelectFilter $filter): SelectFilter => $filter
@@ -187,12 +186,7 @@ class TaskResource extends RecordsetResource
 
                     return $contactId === null ? [] : [(string) $contactId];
                 })
-                ->required()
-                ->crits(function (Builder $query): Builder {
-                    $user = Auth::user();
-
-                    return $query->ofCompany($user instanceof User ? $user->companyId() : null);
-                }),
+                ->required(),
             Field::customers('customers', [Contact::class, Company::class])
                 ->label('Customers')
                 ->inTable(),

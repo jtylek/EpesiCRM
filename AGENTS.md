@@ -46,9 +46,11 @@ targeted searches and partial reads of large files over reading whole files.
   registries/contracts. Extend these rather than adding module-specific branches
   to shared pages.
 - Other core modules: `Epesi/Store` (administration: browses a module catalog and installs
-  from it; the catalog server is a separate module outside this repository) and
+  from it; the catalog server is a separate module outside this repository),
   `Epesi/Currencies` (currencies, the dated home currency, daily ECB/NBP rates through
-  `RateResolver`; see [currencies](AI-shared/Epesi-currencies.md)).
+  `RateResolver`; see [currencies](AI-shared/Epesi-currencies.md)) and `Epesi/OAuth` (the
+  shared OAuth2 layer: provider registry, app credentials, tokens and their locked refresh,
+  used by Mail's XOAUTH2; see [OAuth2](AI-shared/OAuth2-plan.md)).
 - `Epesi/Roundcube` embeds the Roundcube webmail on a Mailbox page. Roundcube itself is
   downloaded by `php artisan roundcube:install` into `storage/roundcube` and never committed;
   read [Roundcube](AI-shared/Epesi-Laravel-Roundcube.md) before touching it. Mail is archived
@@ -100,8 +102,9 @@ also apply to them cannot rely on a policy denial alone.
 - Support MySQL/MariaDB, even though tests use SQLite. Keep index/foreign-key names
   within 64 characters; explicitly name long generated identifiers (e.g.
   `morphs('subscribable', 'epesi_watchdog_subscriptions_subscribable_index')`). Before
-  `module:register`, run `php artisan migrate --pretend --path=modules/<Vendor>/<Name>/database/migrations`
-  to see the generated names. MySQL doesn't roll back table creation, so a failed module
+  `module:register`, run `php artisan migrate --pretend --force --path=modules/<Vendor>/<Name>/database/migrations`
+  to see the generated names (without `--force`, an `APP_ENV=production` checkout waits silently
+  at the "Application in production" prompt; with `--pretend` nothing is run either way). MySQL doesn't roll back table creation, so a failed module
   migration leaves a half-built table that has to be dropped before retrying. Review timestamp
   defaults: a first non-null timestamp can acquire implicit `ON UPDATE` behavior
   on some MariaDB installations. Use explicit defaults or nullable columns as appropriate
@@ -224,8 +227,20 @@ Use [AI-shared/README.md](AI-shared/README.md) as the topic index. In particular
 - Accounts: [users](AI-shared/User-management.md), [portal](AI-shared/Customer-portal.md),
   [mail settings](AI-shared/Mail-server-settings.md), [demo mode](AI-shared/Demo-mode.md).
 
-`modules/Premium/` is a separate, ignored repository. Do not fold
-its contents into the main repository. Runtime modules outside `modules/Epesi`,
+`modules/Premium/` and `modules/Custom/` are ignored by the main repository and
+hold separately managed nested repositories. Custom modules, including
+`modules/Custom/Tutorial/`, follow the same repository boundary as Premium modules:
+commit their work only in their own repositories, never force-add their contents to
+the main repository.
+
+Premium modules always live at `modules/Premium/<Name>/` (`"path": "Premium/<Name>"` in
+`module.json`), never under `modules/Epesi/`. That directory holds the main repository's own
+modules. If you find a Premium module under `modules/Epesi/` (for example
+`modules/Epesi/Premium/<Name>`), or someone asks to put one there, say so and place it in
+`modules/Premium/` instead. Module ids (`epesi/premium-*`) and namespaces
+(`Epesi\Modules\Premium\*`) don't depend on the directory.
+
+Runtime modules outside `modules/Epesi`,
 downloaded Roundcube, credentials, `vendor/`, `node_modules/`, and `public/build/`
 are also excluded from main-repository commits; respect `.gitignore`.
 
@@ -275,8 +290,8 @@ anything for an agent the mailbox can't reach.
 - For long or risky work, prefer a separate git worktree on its own branch
   (`git worktree add ../<dir> <branch>`) where practical: it then has its own working tree
   and test lock, so nobody tests your half-finished edits. A worktree needs its own
-  `composer install`, `npm install` and `.env`, and has no `modules/Premium/` (a separate
-  repository).
+  `composer install`, `npm install` and `.env`, and has no `modules/Premium/` or
+  `modules/Custom/` (separately managed repositories).
 - Work that spans sessions and isn't finished, or that you hand to another agent (or to
   yourself before clearing the context), gets a handoff: a task file in `.wip/` and an entry
   in the recipient's index (see "At the start of a session" above, and the `handoff` skill).
@@ -301,6 +316,29 @@ own work. See [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-sessi
 
 ## When to run tests
 
+- **Tests run on YOGA, never on the local PC without the user's permission.** A local run
+  (even a scoped one, serial or parallel) uses all of the PC's CPU, and YOGA is the dedicated,
+  faster machine for it. This holds for every agent and every subagent, a full suite or a
+  single test file. If YOGA is unavailable, don't fall back to a local run: tell the user
+  (what you tried and what failed) and wait for their decision. Local runs happen only when
+  the user has said so for that run.
+- Run tests in parallel with ParaTest (`php artisan test --parallel`), not serially, and have
+  them run by the cheapest model your tool offers (Claude Code: the `quick` Haiku agent).
+  Serial runs only to reproduce a failure that appears only in parallel. Check that the
+  per-worker isolation in [concurrent-session-tests](AI-shared/concurrent-session-tests.md)
+  holds (fake disks, compiled views) before trusting a parallel result.
+- Prefer the YOGA test runner (`yoga.local`, a Linux machine) for full-suite runs: it is faster
+  and keeps the local PC's CPU free. First check that it answers with the `ssh-yoga` wrapper
+  (`.agents/skills/ssh-yoga/scripts/yoga.sh true`; a plain `ssh yoga.local` is refused, as ssh
+  offers the wrong key and user); if it is unreachable, run locally. The `yoga-sync` and
+  `run-tests-yoga` skills sync the working tree and run the suite there. A sync copies the
+  whole project, so the YOGA copy matches the PC: every module in `modules/`, including
+  `modules/Premium/` and `modules/Custom/` with their nested `.git` directories. Only
+  per-machine or rebuilt parts stay behind (`.env`, `vendor/`, `node_modules/`,
+  `public/build/`, runtime `storage/`). On YOGA the suite
+  runs as ParaTest (`--parallel`), and the cheapest model your tool offers (Claude Code: the
+  `quick` Haiku agent) supervises the run: it starts it, waits, and reports the counts and the
+  failures; the calling session decides what a failure means.
 - While working: run scoped tests only (`php artisan test --filter=Name` or a test file path).
   Don't run the full suite speculatively: it is slow and holds up other agents' runs.
 - Before committing an ordinary change (a module, a page, docs): run the scoped tests for what

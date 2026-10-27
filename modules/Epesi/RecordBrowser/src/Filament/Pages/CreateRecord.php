@@ -57,6 +57,18 @@ abstract class CreateRecord extends BaseCreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
+        // A Customer picker holds a token, not columns (dehydrated(false)), and would
+        // write `{name}_type`/`{name}_id` only after this insert, logging a second,
+        // "updated" entry for a new record. Put the columns in the insert itself.
+        $resource = static::getResource();
+
+        foreach (is_subclass_of($resource, RecordsetResource::class) ? $resource::resolvedFields() : [] as $field) {
+            if ($field->type === FieldType::Customer && ($pick = RecordLink::parseToken($this->data[$field->name] ?? null)) !== null) {
+                $data["{$field->name}_type"] = $pick[0];
+                $data["{$field->name}_id"] = $pick[1];
+            }
+        }
+
         $record = parent::handleRecordCreation($data);
 
         // Kept in the session until now so a page refresh keeps the cloned values.

@@ -78,8 +78,19 @@ class FakeMailbox implements Mailbox
         $this->appended[$folder][] = $raw;
     }
 
+    /** Thrown by unseen() in place of the plain "connection refused". */
+    public ?\Throwable $failure = null;
+
+    public int $unseenCalls = 0;
+
     public function unseen(string $folder = 'INBOX'): int
     {
+        $this->unseenCalls++;
+
+        if ($this->failure) {
+            throw $this->failure;
+        }
+
         if ($this->failing) {
             throw new \RuntimeException('connection refused');
         }

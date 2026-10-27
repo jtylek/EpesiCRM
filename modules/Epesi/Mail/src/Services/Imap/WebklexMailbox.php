@@ -3,6 +3,8 @@
 namespace Epesi\Modules\Mail\Services\Imap;
 
 use Epesi\Modules\Mail\Models\MailAccount;
+use Epesi\Modules\OAuth\Exceptions\OAuthException;
+use Epesi\Modules\OAuth\Services\OAuthTokens;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 use Webklex\PHPIMAP\Connection\Protocols\ProtocolInterface;
@@ -107,21 +109,39 @@ class WebklexMailbox implements Mailbox
             return $this->client;
         }
 
-        $security = $this->account->imap_security;
+        $this->client = (new ClientManager)->make($this->clientConfig());
 
-        $this->client = (new ClientManager)->make([
+        return $this->client->connect();
+    }
+
+    /**
+     * The webklex client's settings. An OAuth account logs in with
+     * AUTHENTICATE XOAUTH2 and a fresh access token in place of the password.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws OAuthException the account's connection is missing or refused
+     */
+    public function clientConfig(): array
+    {
+        $security = $this->account->imap_security;
+        $oauth = $this->account->usesOAuth();
+
+        return [
             'host' => $this->account->imap_host,
-            'port' => $this->account->imap_port ?: ($security === 'ssl' ? 993 : 143),
+            'port' => $this->account->imapPort(),
             'protocol' => 'imap',
             'encryption' => in_array($security, ['ssl', 'tls'], true) ? $security : false,
             // Epesi connected with `novalidate-cert`; keep certificate checks
             // on unless the operator turns them off for self-signed servers.
             'validate_cert' => (bool) config('epesi-mail.imap_validate_cert', true),
             'username' => $this->account->imapLogin(),
-            'password' => (string) $this->account->imap_password,
-            'timeout' => 30,
-        ]);
-
-        return $this->client->connect();
+            'password' => $oauth
+                ? app(OAuthTokens::class)->accessToken($this->account, $this->account->oauthProvider())
+                : (string) $this->account->imap_password,
+            'authentication' => $oauth ? 'oauth' : null,
+            // Gmail now and then answers a login late or drops it; 30 seconds failed too often.
+            'timeout' => 60,
+        ];
     }
 }

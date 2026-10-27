@@ -12,6 +12,6 @@
     "plugin_class": "Epesi\\Modules\\Mail\\MailPlugin",
     "panels": ["main", "user-settings"],
     "core": true,
-    "requires": ["epesi/recordbrowser"],
+    "requires": ["epesi/recordbrowser", "epesi/oauth"],
     "provides": []
 }

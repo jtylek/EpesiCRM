@@ -3,6 +3,7 @@
 namespace Tests\Feature\Modules;
 
 use App\Enums\RecordPermission;
+use App\Support\RelativeUrl;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
@@ -119,7 +120,7 @@ class WatchdogTest extends TestCase
         $this->assertTrue(Watchdog::isSubscribed($viewer, $task));
     }
 
-    public function test_its_links_open_the_records_history_in_any_language(): void
+    public function test_its_links_open_the_record_and_history_stays_available_in_any_language(): void
     {
         $author = $this->userWithRole('employee');
         $colleague = $this->userWithRole('employee');
@@ -131,16 +132,15 @@ class WatchdogTest extends TestCase
         $this->actingAs($colleague);
         $task->update(['title' => 'Call the bank today']);
 
+        // The link opens the record itself, not its History.
         $url = Watchdog::url($task);
-        $this->assertSame(ViewTask::getUrl(['record' => $task, 'action' => 'history'], panel: 'main'), $url);
+        $this->assertSame(RelativeUrl::of(ViewTask::getUrl(['record' => $task], panel: 'main')), $url);
+        $this->assertStringStartsNotWith('http', $url);
         $this->assertSame($url, $author->notifications()->sole()->data['actions'][0]['url']);
 
-        // `?action=history` is what the URL asks the page to mount on load
-        // (Filament's own InteractsWithActions::$defaultAction); simulate
-        // that mount directly since a plain HTTP `get()` can't run the
-        // `wire:init` JS that does it in the browser. Livewire::test() mounts
-        // the component directly, skipping the SetLocale middleware a real
-        // request would run, so the author's Polish is set by hand here.
+        // History is still reachable on the record's View page: mount it
+        // directly (Livewire::test() skips the SetLocale middleware a real
+        // request would run, so the author's Polish is set by hand here).
         $this->actingAs($author);
         app()->setLocale('pl');
         $action = Livewire::test(ViewTask::class, ['record' => $task->getKey()])

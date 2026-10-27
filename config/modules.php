@@ -57,6 +57,11 @@ return [
 
         // Core too: the dashboard config and the demo data name its classes.
         'Epesi\\Modules\\StickyNotes\\' => 'Epesi/StickyNotes',
+
+        // Mail's MailAccount implements its OAuthOwner contract. An
+        // installation whose code is updated before `epesi:update` registers
+        // the module would otherwise fail to load Mail's classes at all.
+        'Epesi\\Modules\\OAuth\\' => 'Epesi/OAuth',
     ],
 
     /*
@@ -91,6 +96,35 @@ return [
          * without an extension is rejected.
          */
         'allowed_filenames' => ['LICENSE', 'CHANGELOG', 'README'],
+    ],
+
+    /*
+     * Shared tables whose rows a module's migrations may seed, recorded per
+     * module so that uninstalling deletes them again (ModuleFootprint). Only
+     * definition tables belong here: in a table users write to at the same
+     * time, a migration's new ids could include their rows.
+     */
+    'footprint_rows' => ['common_data'],
+
+    /*
+     * Columns that store a class name, as table => column: rows naming one of
+     * an uninstalled module's classes are deleted with its data.
+     */
+    'class_columns' => [
+        'dashboard_applets' => 'widget',
+    ],
+
+    /*
+     * Columns that name a recordset by its morph alias without pointing at a
+     * record (no `*_id` beside them), as table.column: an uninstalled module's
+     * rows in them are deleted with its data. Morph pairs are found without
+     * being listed.
+     */
+    'recordset_type_columns' => [
+        'custom_fields.model_type',
+        'epesi_recordbrowser_field_overrides.model_type',
+        'epesi_recordbrowser_recordset_features.model_type',
+        'epesi_recordbrowser_browse_modes.recordable_type',
     ],
 
 ];

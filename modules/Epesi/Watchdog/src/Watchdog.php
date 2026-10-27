@@ -2,8 +2,9 @@
 
 namespace Epesi\Modules\Watchdog;
 
-use App\Support\RequestMemo;
 use App\Models\User;
+use App\Support\RelativeUrl;
+use App\Support\RequestMemo;
 use Epesi\Modules\Watchdog\Models\CategorySubscription;
 use Epesi\Modules\Watchdog\Models\Subscription;
 use Filament\Facades\Filament;
@@ -62,9 +63,14 @@ class Watchdog
         }
     }
 
+    /**
+     * By the class's alias without getMorphClass(), which throws for a model
+     * with no alias under the enforced morph map: every resource's save asks
+     * this (Watchers::subscribe()), Administration's Currencies included.
+     */
     public static function watches(Model $record): bool
     {
-        return in_array($record->getMorphClass(), static::$recordTypes, true);
+        return in_array(Relation::getMorphAlias($record::class), static::$recordTypes, true);
     }
 
     public static function isToggleable(Model $record): bool
@@ -113,6 +119,7 @@ class Watchdog
         $memo = app(RequestMemo::class);
         $memo->forget(static::stateKey($user, $record));
         $memo->forget("watchdog:badge:{$user->id}");
+        Watchers::forget();
     }
 
     public static function toggle(User $user, Model $record): bool
@@ -217,6 +224,7 @@ class Watchdog
         }
 
         app(RequestMemo::class)->forget("watchdog:badge:{$user->id}");
+        Watchers::forget();
 
         Subscription::query()
             ->where(['user_id' => $user->id, 'subscribable_type' => $type, 'subscribable_id' => $id])
@@ -354,14 +362,9 @@ class Watchdog
     }
 
     /**
-     * The record's View page with its History modal open: everywhere this
-     * links from (the bell, the Watched list) says the record changed, and
-     * History is where the changes are. `?action=history` is Filament's own
-     * `InteractsWithActions::$defaultAction` convention (any page mounts and
-     * opens the named action on load) — History lives behind
-     * ViewRecord's kebab as an action named 'history' rather than a tab, since
-     * modules/Epesi/RecordBrowser moved Record Info/History off the addon tab
-     * strip into modal actions.
+     * The record's View page: everywhere this links from (the bell, the
+     * Watched list) opens the record itself, as Reminders do. History is one
+     * click away in ViewRecord's kebab (`?action=history` deep-links to it).
      */
     public static function url(Model $record): ?string
     {
@@ -371,10 +374,7 @@ class Watchdog
             return null;
         }
 
-        return $resource::getUrl('view', [
-            'record' => $record,
-            'action' => 'history',
-        ], panel: 'main');
+        return RelativeUrl::of($resource::getUrl('view', ['record' => $record], panel: 'main'));
     }
 
     /**

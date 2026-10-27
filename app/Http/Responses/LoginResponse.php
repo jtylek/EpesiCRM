@@ -21,8 +21,10 @@ class LoginResponse implements Responsable
         $user = auth()->user();
         $last = $user instanceof User ? UiState::lastUrl($user) : null;
 
-        if ($last && parse_url($last, PHP_URL_HOST) === $request->getHost()) {
-            return redirect()->intended($last);
+        // A path already under this installation's directory: url()->to() would
+        // add the directory again, so only the scheme and host go in front.
+        if ($last !== null && str_starts_with($last, '/') && ! str_starts_with($last, '//')) {
+            return redirect()->intended($request->getSchemeAndHttpHost().$last);
         }
 
         return redirect()->intended(Filament::getUrl());

@@ -91,8 +91,15 @@ class UiState
         session()->put(self::HASH_KEY, $hash);
     }
 
+    /**
+     * Kept without the host, and given back fitted to this installation, so a
+     * database copied from another site (production into a subdirectory
+     * install) still signs people in where they were, on this site.
+     */
     public static function saveLastUrl(User $user, string $url): void
     {
+        $url = RelativeUrl::of($url);
+
         if (session()->get('ui_state_last_url') === $url) {
             return;
         }
@@ -105,7 +112,9 @@ class UiState
     public static function lastUrl(User $user): ?string
     {
         try {
-            return DB::table(self::TABLE)->where('user_id', $user->getKey())->value('last_url');
+            $url = DB::table(self::TABLE)->where('user_id', $user->getKey())->value('last_url');
+
+            return is_string($url) && $url !== '' ? RelativeUrl::forThisInstallation($url) : null;
         } catch (Throwable) {
             return null;
         }

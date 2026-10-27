@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RecordBrowser\Filament\Schemas;
 
 use App\Models\User;
+use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Schemas\Components\View;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,7 @@ class RecordInfoEntries
                     method_exists($record, 'trashed') && $record->trashed()
                         ? [__('Deleted'), null, RegionalSetting::display($record->deleted_at)]
                         : null,
+                    ...RecordExtensions::recordInfoRowsFor($record),
                 ])),
             ]),
         ];

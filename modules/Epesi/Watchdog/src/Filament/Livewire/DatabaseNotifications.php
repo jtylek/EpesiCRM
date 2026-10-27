@@ -2,9 +2,11 @@
 
 namespace Epesi\Modules\Watchdog\Filament\Livewire;
 
+use App\Support\RelativeUrl;
 use Epesi\Modules\Watchdog\Watchdog;
 use Filament\Actions\Action;
 use Filament\Livewire\DatabaseNotifications as BaseDatabaseNotifications;
+use Filament\Notifications\Notification;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -41,6 +43,29 @@ class DatabaseNotifications extends BaseDatabaseNotifications
         return $this->isPaginated()
             ? $unread->simplePaginate(50, pageName: 'database-notifications-page')
             : $unread->get();
+    }
+
+    /**
+     * Links are stored without a host, but a database copied from a site
+     * installed in another directory (production at the root, this one under
+     * /bim.epe.si/) holds paths for the wrong base: each is made to fit this
+     * installation as it is shown.
+     */
+    public function getNotification(DatabaseNotification $notification): Notification
+    {
+        $data = $notification->data;
+
+        foreach ($data['actions'] ?? [] as $i => $action) {
+            if (is_string($action['url'] ?? null)) {
+                $data['actions'][$i]['url'] = RelativeUrl::forThisInstallation($action['url']);
+            }
+        }
+
+        // A clone, not replicate(): that leaves out the timestamps and the id.
+        $fitted = clone $notification;
+        $fitted->data = $data;
+
+        return parent::getNotification($fitted);
     }
 
     public function clearNotificationsAction(): Action

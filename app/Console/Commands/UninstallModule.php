@@ -9,9 +9,10 @@ use Illuminate\Console\Command;
 
 class UninstallModule extends Command
 {
-    protected $signature = 'module:uninstall {module : module id, e.g. epesi/roundcube}';
+    protected $signature = 'module:uninstall {module : module id, e.g. epesi/roundcube}
+        {--keep-data : leave its tables, lists, history and files for a reinstall}';
 
-    protected $description = 'Remove an installed module (its database tables are left alone)';
+    protected $description = 'Remove an installed module and, unless --keep-data, everything it put in the database';
 
     public function handle(ModuleInstaller $installer): int
     {
@@ -24,21 +25,25 @@ class UninstallModule extends Command
             return self::FAILURE;
         }
 
-        $this->components->warn("This removes modules/{$module->path}. Any tables the module created keep their data.");
+        $keep = (bool) $this->option('keep-data');
+
+        $this->components->warn($keep
+            ? "This removes modules/{$module->path}. Its tables keep their data."
+            : "This removes modules/{$module->path} and deletes all of its data: tables, lists, history, links and files.");
 
         if (! $this->confirm("Uninstall {$id}?", false)) {
             return self::SUCCESS;
         }
 
         try {
-            $installer->uninstall($module);
+            $report = $installer->uninstall($module, ! $keep);
         } catch (ModuleException $exception) {
             $this->components->error($exception->getMessage());
 
             return self::FAILURE;
         }
 
-        $this->components->info("Uninstalled {$id}.");
+        $this->components->info("Uninstalled {$id}. ".$report->summary());
 
         return self::SUCCESS;
     }

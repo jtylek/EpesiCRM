@@ -21,10 +21,10 @@
 # Epesi vendor ship with the core.
 /modules/*
 !/modules/Epesi
-# Separately licensed modules: each one is its own nested git repo, not part of
-# this one.
+# Premium and Custom modules live in separate nested git repositories and are
+# never tracked by this repository.
 /modules/Premium/
-/modules/Epesi/Premium/
+/modules/Custom/
 /node_modules
 /public/build
 /public/hot
@@ -52,3 +52,5 @@ Thumbs.db
 
 # Agent handoffs and mailbox (AI-shared/Multi-AI-agents-messaging.md)
 /.wip
+
+/Workshop1982_Data/

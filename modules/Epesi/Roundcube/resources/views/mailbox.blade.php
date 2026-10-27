@@ -30,6 +30,17 @@
                 </a>
             </p>
         </x-filament::section>
+    @elseif ($oauthError)
+        {{-- An OAuth account without a valid access token: connecting it is done in its settings. --}}
+        <x-filament::section>
+            <p style="font-size: 0.875rem;">
+                {{ $oauthError }}
+                <a href="{{ $this->accountsUrl() }}" style="display: inline-flex; align-items: center; gap: 0.35rem; margin-inline-start: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 9999px; background: color-mix(in oklab, var(--primary-500) 12%, transparent); color: var(--primary-600); font-weight: 500; text-decoration: none; white-space: nowrap;">
+                    <x-filament::icon icon="heroicon-m-link" aria-hidden="true" style="width: 0.875rem; height: 0.875rem;" />
+                    {{ __('Mail accounts') }}
+                </a>
+            </p>
+        </x-filament::section>
     @else
         {{--
             The page's own gutter (the theme's compact-tables.css) would otherwise

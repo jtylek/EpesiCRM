@@ -155,6 +155,7 @@ abstract class ViewRecord extends BaseViewRecord
                 $fields = IncomingLinks::for($ownerRecord)[$resource];
 
                 return Tab::make(IncomingLinks::tabLabel($resource, $ownerRecord))
+                    ->icon($resource::getNavigationIcon())
                     ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
                     ->badge(fn (): string => (string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
                     ->badgeColor(fn (?string $badge): ?string => $badge === '0' ? 'gray' : null)

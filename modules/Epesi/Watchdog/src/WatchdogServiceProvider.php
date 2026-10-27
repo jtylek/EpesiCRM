@@ -10,11 +10,13 @@ use Epesi\Modules\Watchdog\Models\CategorySubscription;
 use Epesi\Modules\Watchdog\Models\Subscription;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Resources\Events\RecordSaved;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Spatie\Activitylog\ActivitylogServiceProvider;
@@ -37,6 +39,15 @@ class WatchdogServiceProvider extends ServiceProvider
         $activity::created(fn (Model $row) => app(NotifySubscribers::class)($row));
 
         RecordExtensions::headerActions('watchdog', fn (Model $record, ViewRecord $page): array => static::headerActions($record, $page));
+
+        // A record's Employees (and other fields marked with watchers) watch
+        // it once the page has saved them: Filament saves a belongsToMany
+        // after the record, so the record's own `created` entry is too early.
+        // Filament dispatches it by name with the record as the first
+        // argument, not as an event object.
+        Event::listen(RecordSaved::class, fn (Model $record) => Watchers::subscribe($record, Auth::user()));
+        RecordExtensions::watcherBadge('watchdog', Watchers::prepare(...), Watchers::badge(...));
+        RecordExtensions::recordInfoRows('watchdog', Watchers::recordInfoRows(...));
 
         // Subscriptions with nothing happening for 90 days lapse (see
         // Subscription::prunable()), and read notifications, which the bell

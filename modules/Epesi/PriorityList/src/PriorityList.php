@@ -2,10 +2,10 @@
 
 namespace Epesi\Modules\PriorityList;
 
-use App\Support\RequestMemo;
 use App\Enums\RecordStatus;
 use App\Filament\Dashboard\AppletTooltip;
 use App\Models\User;
+use App\Support\RequestMemo;
 use BackedEnum;
 use Carbon\CarbonInterface;
 use Closure;
@@ -56,8 +56,9 @@ class PriorityList
      * Register a type's due date, shown beside the record and red once
      * passed ($allDay says the date has no time of day, so it is due until
      * the day ends). Optional: every RecordsetResource is already a
-     * candidate type without this (see candidateTypes()) — this only adds
-     * the due date shown beside it once an administrator turns it on.
+     * candidate type without this (see candidateTypes()), but off until an
+     * administrator turns it on. Registering a type here also turns it on by
+     * default (see isEnabled()); an administrator can still turn it off.
      *
      * @param  (Closure(Model): ?CarbonInterface)|null  $due
      * @param  (Closure(Model): bool)|null  $allDay
@@ -441,6 +442,15 @@ class PriorityList
         $resource = $class !== null ? static::resourceForClass($class) : null;
 
         return $resource ? Str::ucfirst($resource::getModelLabel()) : Str::headline($alias);
+    }
+
+    /** The recordset's name as Administration → Recordsets lists it ("Companies"), for the admin page's rows. */
+    public static function recordsetLabelFor(string $alias): string
+    {
+        $class = Relation::getMorphedModel($alias);
+        $resource = $class !== null ? static::resourceForClass($class) : null;
+
+        return $resource ? Str::ucfirst($resource::getPluralModelLabel()) : Str::headline($alias);
     }
 
     public static function title(Model $record): string

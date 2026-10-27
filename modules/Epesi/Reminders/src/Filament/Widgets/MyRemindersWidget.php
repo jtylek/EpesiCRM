@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Reminders\Filament\Widgets;
 
 use App\Filament\Dashboard\AppletTooltip;
+use Carbon\CarbonInterface;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Models\Task;
@@ -11,6 +12,8 @@ use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Reminders;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -24,7 +27,8 @@ use Illuminate\Support\Str;
 /**
  * "My reminders" — the Messenger applet ("Messenger alarms"): the signed-in
  * user's reminders that are still on, due ones first (as a checkbox to turn
- * off, Epesi's turn_off()), then upcoming ones. Records the user can no
+ * off, Epesi's turn_off()), then upcoming ones up to the chosen horizon (1 day
+ * to 1 month ahead). Records the user can no
  * longer see drop out, through each record type's own ownership scope.
  */
 class MyRemindersWidget extends RecordsetApplet
@@ -48,10 +52,41 @@ class MyRemindersWidget extends RecordsetApplet
         return __('Your reminders that are due or coming up');
     }
 
+    /** How far ahead the applet looks, by setting value. */
+    private const HORIZONS = [
+        'day' => '1 day',
+        '3days' => '3 days',
+        'week' => '1 week',
+        '2weeks' => '2 weeks',
+        'month' => '1 month',
+    ];
+
+    public static function getAppletSettingsDefaults(): array
+    {
+        return [
+            'subtitle' => null,
+            'horizon' => '2weeks',
+        ];
+    }
+
+    public static function getAppletSettingsSchema(): array
+    {
+        return [
+            TextInput::make('subtitle')
+                ->label('Additional title')
+                ->maxLength(64),
+            Select::make('horizon')
+                ->label('Show reminders up to')
+                ->options(array_map(fn (string $label): string => __($label), self::HORIZONS))
+                ->required()
+                ->native(false),
+        ];
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => static::query())
+            ->query(fn (): Builder => $this->reminders())
             ->defaultSort('remind_at')
             ->defaultPaginationPageOption(5)
             ->poll('60s')
@@ -120,10 +155,23 @@ class MyRemindersWidget extends RecordsetApplet
         );
     }
 
+    /** The end of the look-ahead window; overdue reminders are always included. */
+    private function horizon(): CarbonInterface
+    {
+        return match ($this->appletSetting('horizon')) {
+            'day' => now()->addDay(),
+            '3days' => now()->addDays(3),
+            'week' => now()->addWeek(),
+            '2weeks' => now()->addWeeks(2),
+            'month' => now()->addMonth(),
+            default => now()->addWeeks(2),
+        };
+    }
+
     /**
      * @return Builder<Reminder>
      */
-    public static function query(): Builder
+    public function reminders(): Builder
     {
         $types = array_filter(array_map(
             fn (string $alias): ?string => Relation::getMorphedModel($alias),
@@ -132,6 +180,7 @@ class MyRemindersWidget extends RecordsetApplet
 
         return Reminder::query()
             ->activeFor(Auth::user())
+            ->where('remind_at', '<=', $this->horizon())
             // whereHasMorph() runs each type's global scopes as the signed-in
             // user: someone else's private record, or a trashed one, is out.
             ->whereHasMorph('remindable', $types)

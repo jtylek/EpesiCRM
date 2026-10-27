@@ -9,12 +9,6 @@ return [
     'imap_validate_cert' => (bool) env('MAIL_IMAP_VALIDATE_CERT', true),
 
     /*
-     * How often `mail:check` refreshes the Mail widget's unread counts, as a
-     * cron expression. Requires cron (cron.php), as Epesi did.
-     */
-    'check_schedule' => env('MAIL_CHECK_SCHEDULE', '*/5 * * * *'),
-
-    /*
      * Appended to every message sent from the CRM, after the account's own
      * signature — Epesi's crm_mail_global_signature variable. Empty for none.
      */

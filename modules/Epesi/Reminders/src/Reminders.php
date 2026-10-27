@@ -4,6 +4,7 @@ namespace Epesi\Modules\Reminders;
 
 use App\Models\User;
 use App\Support\Locale\Locales;
+use App\Support\RelativeUrl;
 use BackedEnum;
 use Carbon\CarbonInterface;
 use Closure;
@@ -269,7 +270,8 @@ class Reminders
             ->body(static::describe($reminder, $record))
             ->icon('heroicon-o-bell-alert')
             ->iconColor('warning')
-            ->actions($url ? [Action::make('open')->label(__('Open'))->url($url)->markAsRead()] : [])
+            // Stored in the database, so host-less; the e-mail below needs the full URL.
+            ->actions($url ? [Action::make('open')->label(__('Open'))->url(RelativeUrl::of($url))->markAsRead()] : [])
             ->toDatabase());
 
         if ($reminder->send_email && filled($user->email)) {

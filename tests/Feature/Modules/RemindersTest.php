@@ -4,6 +4,7 @@ namespace Tests\Feature\Modules;
 
 use App\Enums\RecordPermission;
 use App\Models\User;
+use App\Support\RelativeUrl;
 use Closure;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\Pages\ViewMeeting;
@@ -222,7 +223,8 @@ class RemindersTest extends TestCase
         $data = $author->notifications()->first()->data;
         $this->assertSame('Reminder: Task: Call the bank', $data['title']);
         $this->assertStringContainsString('Account number!', $data['body']);
-        $this->assertStringContainsString(ViewTask::getUrl(['record' => $public]), json_encode($data['actions'], JSON_UNESCAPED_SLASHES));
+        // Without the host: a copied database must not link to the original site.
+        $this->assertSame(RelativeUrl::of(ViewTask::getUrl(['record' => $public])), $data['actions'][0]['url']);
         $this->assertNotNull($due->recipientRows()->where('user_id', $author->id)->value('sent_at'));
 
         // Only once.
@@ -301,6 +303,30 @@ class RemindersTest extends TestCase
         $this->assertNotNull($due->recipientRows()->sole()->dismissed_at);
 
         $this->get('/')->assertOk()->assertSeeLivewire(MyRemindersWidget::class);
+    }
+
+    public function test_the_widget_only_looks_ahead_as_far_as_its_setting(): void
+    {
+        $me = $this->userWithRole('employee');
+        $this->actingAs($me);
+        $task = Task::create(['title' => 'Call the bank']);
+
+        $overdue = $this->remind($task, now()->subDays(5)->toDateTimeString(), [$me]);
+        $tomorrow = $this->remind($task, now()->addHours(20)->toDateTimeString(), [$me]);
+        $fiveDays = $this->remind($task, now()->addDays(5)->toDateTimeString(), [$me]);
+        $tenDays = $this->remind($task, now()->addDays(10)->toDateTimeString(), [$me]);
+        $twentyDays = $this->remind($task, now()->addDays(20)->toDateTimeString(), [$me]);
+        $tenMonths = $this->remind($task, now()->addMonths(10)->toDateTimeString(), [$me]);
+
+        $shown = fn (string $horizon) => Livewire::test(MyRemindersWidget::class, ['appletSettings' => ['horizon' => $horizon]]);
+
+        $shown('day')->assertCanSeeTableRecords([$overdue, $tomorrow])->assertCanNotSeeTableRecords([$fiveDays]);
+        $shown('3days')->assertCanSeeTableRecords([$overdue, $tomorrow])->assertCanNotSeeTableRecords([$fiveDays]);
+        $shown('week')->assertCanSeeTableRecords([$fiveDays])->assertCanNotSeeTableRecords([$tenDays]);
+        $shown('2weeks')->assertCanSeeTableRecords([$tenDays])->assertCanNotSeeTableRecords([$twentyDays]);
+        $shown('month')->assertCanSeeTableRecords([$twentyDays])->assertCanNotSeeTableRecords([$tenMonths]);
+        // The default is two weeks.
+        Livewire::test(MyRemindersWidget::class)->assertCanSeeTableRecords([$tenDays])->assertCanNotSeeTableRecords([$twentyDays]);
     }
 
     public function test_the_widget_uses_the_recordset_icon_for_each_reminder_type(): void

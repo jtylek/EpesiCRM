@@ -4,11 +4,13 @@ namespace Epesi\Modules\Watchdog\Listeners;
 
 use App\Models\User;
 use App\Support\Locale\Locales;
+use Closure;
 use Epesi\Modules\Watchdog\Watchdog;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use Spatie\Activitylog\Contracts\Activity;
 
@@ -37,15 +39,18 @@ class NotifySubscribers
             Watchdog::subscribe($causer, $record);
         }
 
-        if (Watchdog::notificationsMuted()) {
-            return;
+        [$recipients, $hidden] = Watchdog::subscribersOf($record)
+            ->reject(fn (User $user): bool => $causer !== null && $user->is($causer))
+            ->partition(fn (User $user): bool => Watchdog::canSee($user, $record));
+
+        // Someone watching a record they can no longer see has nothing to
+        // catch up on, as new_event() marked them notified: otherwise their
+        // eye next to the record's employees would stay orange for good.
+        foreach ($hidden as $user) {
+            Watchdog::markSeen($user, $record);
         }
 
-        $recipients = Watchdog::subscribersOf($record)
-            ->reject(fn (User $user): bool => $causer !== null && $user->is($causer))
-            ->filter(fn (User $user): bool => Watchdog::canSee($user, $record));
-
-        if ($recipients->isEmpty()) {
+        if (Watchdog::notificationsMuted() || $recipients->isEmpty()) {
             return;
         }
 
@@ -58,6 +63,18 @@ class NotifySubscribers
             Watchdog::subscribe($user, $record, firstUnseen: $activity->getKey());
         }
 
+        $this->send($recipients, $record, $activity, fn (): string => $this->describe($activity, $record, $causer));
+    }
+
+    /**
+     * The bell notification about $activity to each of $recipients, its body
+     * from $body, which runs in each recipient's language.
+     *
+     * @param  Collection<int, User>  $recipients
+     * @param  Closure(): string  $body
+     */
+    public function send(Collection $recipients, Model $record, Model $activity, Closure $body): void
+    {
         $url = Watchdog::url($record);
 
         // One notification per language: it is stored as rendered text, so
@@ -65,7 +82,7 @@ class NotifySubscribers
         foreach ($recipients->groupBy(fn (User $user): string => $user->preferredLocale()) as $locale => $group) {
             $notification = Locales::using($locale, fn () => Notification::make()
                 ->title(Watchdog::label($record))
-                ->body($this->describe($activity, $record, $causer))
+                ->body($body())
                 ->icon('heroicon-o-eye')
                 ->actions($url ? [Action::make('open')->label(__('Open'))->url($url)->markAsRead()] : [])
                 ->toDatabase());

@@ -8,6 +8,7 @@ use App\Services\Modules\ModuleInstaller;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Artisan;
@@ -153,17 +154,28 @@ class ModuleActions
             ->visible(fn (Module $record): bool => ! $record->isCore())
             ->requiresConfirmation()
             ->modalHeading(fn (Module $record): string => __('Uninstall :module?', ['module' => $record->name]))
-            ->modalDescription(fn (Module $record): string => "This deletes modules/{$record->path}. Any database tables the module created keep their data — reinstalling reuses them.")
-            ->action(function (Module $record): void {
+            ->modalDescription(fn (Module $record): string => __('This deletes modules/:path (a git repository is kept).', ['path' => $record->path]))
+            ->schema([
+                Toggle::make('delete_data')
+                    ->label(__("Also delete all of this module's data"))
+                    ->helperText(__('Its tables, lists, history, links and files go, as before it was installed. Turn this off to keep them for a reinstall.'))
+                    ->default(true),
+            ])
+            ->action(function (Module $record, array $data): void {
                 try {
-                    app(ModuleInstaller::class)->uninstall($record);
+                    $report = app(ModuleInstaller::class)->uninstall($record, (bool) ($data['delete_data'] ?? true));
                 } catch (ModuleException $exception) {
                     Notification::make()->danger()->title(__('Could not uninstall'))->body($exception->getMessage())->persistent()->send();
 
                     return;
                 }
 
-                Notification::make()->success()->title(__('Uninstalled :module', ['module' => $record->module_id]))->send();
+                Notification::make()
+                    ->status($report->warnings === [] ? 'success' : 'warning')
+                    ->title(__('Uninstalled :module', ['module' => $record->module_id]))
+                    ->body($report->summary())
+                    ->persistent($report->warnings !== [])
+                    ->send();
             });
     }
 }

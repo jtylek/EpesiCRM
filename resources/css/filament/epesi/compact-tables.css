@@ -189,6 +189,42 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
         margin-top: 0.5rem !important;
     }
 
+    /*
+     * Each addon tab is two lines, icon and count badge above the name, so the
+     * strip stays short enough to fit without a horizontal scrollbar.
+     */
+    .epesi-addon-tabs .fi-tabs-item {
+        display: inline-grid;
+        grid-template-columns: auto auto;
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
+        column-gap: 0.375rem;
+        row-gap: 0.125rem;
+        padding-block: 0.375rem;
+    }
+
+    .epesi-addon-tabs .fi-tabs-item.fi-active {
+        outline: 1px solid var(--primary-500);
+        outline-offset: -1px;
+    }
+
+    .epesi-addon-tabs .fi-tabs-item > svg {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    .epesi-addon-tabs .fi-tabs-item > .fi-badge {
+        grid-row: 1;
+        grid-column: 2;
+    }
+
+    .epesi-addon-tabs .fi-tabs-item > .fi-tabs-item-label {
+        grid-row: 2;
+        grid-column: 1 / -1;
+        white-space: nowrap;
+    }
+
     .epesi-addon-tabs > .fi-sc-tabs-tab.fi-active {
         margin-top: 0.75rem !important;
     }

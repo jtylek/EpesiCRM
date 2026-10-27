@@ -4,6 +4,7 @@ namespace Epesi\Modules\Roundcube\Services;
 
 use App\Models\User;
 use Epesi\Modules\Mail\Models\MailAccount;
+use Epesi\Modules\OAuth\Exceptions\OAuthException;
 use Epesi\Modules\Roundcube\Roundcube;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\DB;
@@ -47,23 +48,41 @@ class TicketIssuer
     /**
      * What epesi_sso logs in with and keeps for the other epesi_* plugins.
      *
+     * An OAuth account logs in with XOAUTH2: the IMAP "password" is a valid
+     * access token, SMTP uses the session's (empty here), and `oauth` holds
+     * what epesi_sso asks Epesi for the next one with (OAuthGrants). The
+     * token is fetched first, so an account that needs connecting again
+     * throws before anything is stored.
+     *
      * @return array<string, mixed>
+     *
+     * @throws OAuthException an OAuth account's connection is missing or refused
      */
     public function login(MailAccount $account, User $user): array
     {
+        $grants = app(OAuthGrants::class);
+        $token = $account->usesOAuth() ? $grants->accessToken($account) : null;
+
         return [
             'user_id' => $user->getKey(),
             'account_id' => $account->getKey(),
             'imap' => [
                 'host' => $this->host($account->imap_security, $account->imap_host, $account->imap_port, 143, 993),
                 'user' => $account->imapLogin(),
-                'pass' => (string) $account->imap_password,
+                'pass' => $token ? $token['access_token'] : (string) $account->imap_password,
             ],
-            // Ports as SmtpTransportFactory picks them.
+            // Ports as SmtpTransportFactory picks them; an OAuth account
+            // always authenticates, as there.
             'smtp' => ! $account->canSend() ? null : [
                 'host' => $this->host($account->smtp_security, $account->smtp_host, $account->smtp_port, $account->smtp_security === 'tls' ? 587 : 25, 465),
-                'user' => $account->smtp_auth ? $account->smtpLogin() : '',
-                'pass' => $account->smtp_auth ? $account->smtpPassword() : '',
+                'user' => $token || $account->smtp_auth ? $account->smtpLogin() : '',
+                'pass' => ! $token && $account->smtp_auth ? $account->smtpPassword() : '',
+            ],
+            'oauth' => ! $token ? null : [
+                'grant' => $grants->issue($account, $user),
+                'url' => $grants->url(),
+                'expires_at' => $token['expires_at'],
+                'ca' => $grants->caBundle(),
             ],
             'email' => $account->email,
             'name' => $account->from_name ?: $user->displayName(),

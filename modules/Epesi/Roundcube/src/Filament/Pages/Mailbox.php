@@ -15,6 +15,7 @@ use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Support\Records;
+use Epesi\Modules\OAuth\Exceptions\OAuthException;
 use Epesi\Modules\Roundcube\Roundcube;
 use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
 use Epesi\Modules\Roundcube\Services\TicketIssuer;
@@ -66,6 +67,10 @@ class Mailbox extends Page
 
     #[Locked]
     public ?string $frameUrl = null;
+
+    /** Why an OAuth account's frame can't log in (not connected, refused), shown instead of it. */
+    #[Locked]
+    public ?string $oauthError = null;
 
     public static function canAccess(): bool
     {
@@ -144,7 +149,12 @@ class Mailbox extends Page
         if ($account) {
             $this->accountId = $account->getKey();
             UiState::remember('mailbox.account', $this->accountId);
+
             $this->load($account);
+
+            if ($this->showsOAuthError($account)) {
+                return;
+            }
 
             // getHeaderActions() was already cached once, from $this->accountId
             // as it was before this method ran — Livewire's bootedInteractsWithActions()
@@ -175,7 +185,23 @@ class Mailbox extends Page
     {
         if ($account = $this->account()) {
             $this->load($account);
+            $this->showsOAuthError($account);
         }
+    }
+
+    /**
+     * The frame (wire:ignore) can't show why an OAuth account didn't get a
+     * ticket: the page is rendered again, with the message.
+     */
+    protected function showsOAuthError(MailAccount $account): bool
+    {
+        if ($this->oauthError === null) {
+            return false;
+        }
+
+        $this->redirect(static::getUrl(['account' => $account->getKey()]));
+
+        return true;
     }
 
     /**
@@ -405,14 +431,29 @@ class Mailbox extends Page
     protected function load(MailAccount $account): void
     {
         $this->frameUrl = $this->ticketUrl($account);
-        $this->dispatch('epesi-roundcube-load', url: $this->frameUrl, folder: $this->rememberedFolder());
+
+        if ($this->frameUrl !== null) {
+            $this->dispatch('epesi-roundcube-load', url: $this->frameUrl, folder: $this->rememberedFolder());
+        }
     }
 
-    protected function ticketUrl(MailAccount $account): string
+    /**
+     * Null, with $oauthError set, when an OAuth account has no valid access
+     * token to log in with (XOAUTH2): not connected, or it must be connected
+     * again. Its message never carries a token.
+     */
+    protected function ticketUrl(MailAccount $account): ?string
     {
         /** @var User $user */
         $user = Auth::user();
+        $this->oauthError = null;
 
-        return app(TicketIssuer::class)->url($account, $user);
+        try {
+            return app(TicketIssuer::class)->url($account, $user);
+        } catch (OAuthException $e) {
+            $this->oauthError = $e->getMessage();
+
+            return null;
+        }
     }
 }

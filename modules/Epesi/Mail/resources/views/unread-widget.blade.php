@@ -29,9 +29,9 @@
         </x-slot>
 
         {{--
-            Renders only from the cache mail:check fills every 5 minutes; no mail server
-            is asked while rendering. An account without a cached count (cron not running,
-            a just edited account) shows "checking…" and is asked by checkMissing, in a
+            Renders only from the cache (UnreadCounter::CACHE_SECONDS); no mail server is
+            asked while rendering. Nothing is scheduled: an account whose count has expired
+            (or a just edited one) shows "checking…" and is asked by checkMissing, in a
             request of its own once the widget is on screen.
         --}}
         @php($accounts = $this->accounts())

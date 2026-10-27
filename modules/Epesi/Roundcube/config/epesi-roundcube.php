@@ -28,4 +28,13 @@ return [
 
     /* Seconds a Mailbox page's login ticket stays valid. */
     'ticket_ttl' => 60,
+
+    /*
+     * For an OAuth mail account, Roundcube asks Epesi for each new access
+     * token from the server, at the address the browser uses. Where the
+     * server can't reach itself there (a NAT without hairpinning, a
+     * self-signed certificate), set the scheme and host it can, such as
+     * http://127.0.0.1; the app's path is kept.
+     */
+    'internal_url' => env('ROUNDCUBE_INTERNAL_URL'),
 ];

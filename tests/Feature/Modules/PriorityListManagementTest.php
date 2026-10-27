@@ -11,7 +11,7 @@ use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
 /**
- * Administration → Priority list types: turning a discovered record type on
+ * Administration → Priority list: turning a discovered record type on
  * or off, with no code needed to make it a candidate in the first place.
  */
 class PriorityListManagementTest extends TestCase

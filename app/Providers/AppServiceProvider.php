@@ -17,6 +17,7 @@ use App\Models\StoredFileContent;
 use App\Models\User;
 use App\Services\Cron\CronLog;
 use App\Services\LegacyImport\ImporterRegistry;
+use App\Services\Modules\ModuleFootprint;
 use App\Support\Auth\PortalEmails;
 use App\Support\Demo;
 use App\Support\Files\InlineImages;
@@ -58,6 +59,9 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Events\MigrationEnded;
+use Illuminate\Database\Events\MigrationsEnded;
+use Illuminate\Database\Events\MigrationStarted;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Event;
@@ -78,6 +82,9 @@ class AppServiceProvider extends ServiceProvider
         // plain version fails when parallel requests compile the same view
         // (see RetryingFilesystem). Nothing has resolved it yet at this point.
         $this->app->singleton('files', fn (): RetryingFilesystem => new RetryingFilesystem);
+
+        // Keeps what a module migration started with until it has ended.
+        $this->app->singleton(ModuleFootprint::class);
 
         // Administration → Translations: custom translations load last.
         $this->app->extend('translation.loader', fn (Loader $loader): Loader => new CustomTranslationLoader($loader));
@@ -159,6 +166,7 @@ class AppServiceProvider extends ServiceProvider
                 'data-display-format' => e(convert_date_format($component->getDisplayFormat())->to('day.js')),
             ]));
 
+        $this->servePublicDiskFromThisInstallation();
         $this->keepEditorImagesInFileStorage();
         $this->preferViewOverEditOnRecordClick();
         $this->blockIdentityAutofillOnAllTextFields();
@@ -177,6 +185,10 @@ class AppServiceProvider extends ServiceProvider
         $this->wrapWidePreBlocksInsteadOfOverflowing();
 
         Event::listen(Logout::class, FinalizeLoginAudit::class);
+        // What each module's migrations create, so uninstalling can remove it again.
+        Event::listen(MigrationStarted::class, [ModuleFootprint::class, 'started']);
+        Event::listen(MigrationEnded::class, [ModuleFootprint::class, 'ended']);
+        Event::listen(MigrationsEnded::class, fn () => app(ModuleFootprint::class)->flush());
         Event::listen(LoginEvent::class, RestoreUiState::class);
         // The reset link went to the login address, so it proves the mailbox is theirs.
         Event::listen(PasswordReset::class, fn (PasswordReset $event) => $event->user instanceof User ? PortalEmails::verifyLogin($event->user) : null);
@@ -344,6 +356,18 @@ class AppServiceProvider extends ServiceProvider
 
         if (Demo::enabled()) {
             config(['livewire.temporary_file_upload.rules' => ['required', 'file', 'max:1024']]);
+        }
+    }
+
+    /**
+     * The public disk's address under this installation, at the root or in a
+     * subdirectory: config/filesystems.php can't know it (config is cached,
+     * and there is no request yet), so without ASSET_URL it is set here, host-less.
+     */
+    private function servePublicDiskFromThisInstallation(): void
+    {
+        if (blank(config('filesystems.disks.public.url'))) {
+            config(['filesystems.disks.public.url' => rtrim((string) parse_url(url('/'), PHP_URL_PATH), '/').'/storage']);
         }
     }
 

@@ -6,6 +6,8 @@ use App\Support\UiState;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
@@ -63,13 +65,30 @@ class UiStateTest extends TestCase
 
         $this->actingAs($user)->get('/')->assertOk();
 
-        $this->assertSame(url('/'), UiState::lastUrl($user));
+        $this->assertSame('/', UiState::lastUrl($user));
 
         UiState::saveLastUrl($user, url('/contacts?x=1'));
         auth()->login($user);
 
+        $this->assertSame('/contacts?x=1', DB::table('user_ui_states')->where('user_id', $user->getKey())->value('last_url'));
         $this->assertSame(
             url('/contacts?x=1'),
+            app(LoginResponse::class)->toResponse(request())->getTargetUrl(),
+        );
+    }
+
+    public function test_a_last_url_copied_from_another_site_returns_to_this_one(): void
+    {
+        $user = $this->userWithRole('employee');
+        UiState::saveLastUrl($user, url('/contacts'));
+        // A production database, installed at its host's root.
+        DB::table('user_ui_states')->where('user_id', $user->getKey())->update(['last_url' => 'https://crm.example.com/contacts?x=1']);
+        URL::forceRootUrl('http://localhost/epesi-laravel');
+        auth()->login($user);
+
+        $this->assertSame('/epesi-laravel/contacts?x=1', UiState::lastUrl($user));
+        $this->assertSame(
+            'http://localhost/epesi-laravel/contacts?x=1',
             app(LoginResponse::class)->toResponse(request())->getTargetUrl(),
         );
     }

@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Store\Services;
 
 use App\Models\User;
+use App\Support\RelativeUrl;
 use App\Support\Version;
 use Epesi\Modules\Store\Filament\Pages\Store;
 use Epesi\Modules\Store\Models\StoreSetting;
@@ -189,7 +190,7 @@ class Registration
                 ->actions([
                     Action::make('open')
                         ->label(__('Epesi Store'))
-                        ->url(Store::getUrl(panel: 'administration'))
+                        ->url(RelativeUrl::of(Store::getUrl(panel: 'administration')))
                         ->markAsRead(),
                 ]);
 

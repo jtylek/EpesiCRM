@@ -181,6 +181,8 @@ Read more:
   themes, translations, setup and more.
 - [AI-shared/Epesi-custom-fields.md](AI-shared/Epesi-custom-fields.md): the `Field` DSL,
   administrator-added custom fields, collections and related records.
+- [AI-shared/AI-agent-module-development.md](AI-shared/AI-agent-module-development.md): a
+  module-building and validation workflow for AI agents.
 - [AI-shared/Epesi-Laravel-distro.md](AI-shared/Epesi-Laravel-distro.md): building a release zip
   (`php artisan epesi:package`) and installing on shared hosting.
 

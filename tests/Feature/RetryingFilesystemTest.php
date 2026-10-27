@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Support\RetryingFilesystem;
 use ErrorException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\View\Compilers\Compiler;
 use ReflectionProperty;
 use Tests\TestCase;
@@ -161,8 +162,11 @@ class RetryingFilesystemTest extends TestCase
     {
         $folder = fn (string $path): string => str_replace('\\', '/', $path);
 
+        // Under `php artisan test --parallel` Laravel adds a folder per worker.
+        $worker = ParallelTesting::token() ? '/test_'.ParallelTesting::token() : '';
+
         $this->assertSame(
-            $folder(storage_path('framework/testing/views')),
+            $folder(storage_path('framework/testing/views')).$worker,
             $folder(dirname(app('blade.compiler')->getCompiledPath('page.blade.php'))),
         );
     }

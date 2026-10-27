@@ -42,6 +42,8 @@ class MeetingResource extends RecordsetResource
 
     protected static ?string $recordsetDefaultSort = 'date';
 
+    protected static string $recordsetDefaultSortDirection = 'desc';
+
     protected static bool $recordsetFavorites = true;
 
     protected static int $recordsetRecent = 50;
@@ -128,9 +130,7 @@ class MeetingResource extends RecordsetResource
                 ->filterable()
                 ->notInTable(),
 
-            // Scoped to the acting user's own company's staff — Epesi's
-            // employees_crits().
-            Field::relations('employees', Contact::class)
+            Field::employees()
                 ->inTable()
                 ->filterable()
                 ->filterUsing(fn (SelectFilter $filter): SelectFilter => $filter
@@ -151,12 +151,7 @@ class MeetingResource extends RecordsetResource
 
                     return $contactId === null ? [] : [(string) $contactId];
                 })
-                ->required()
-                ->crits(function (Builder $query): Builder {
-                    $user = Auth::user();
-
-                    return $query->ofCompany($user instanceof User ? $user->companyId() : null);
-                }),
+                ->required(),
             Field::customers('customers', [Contact::class, Company::class])->label('Customers')->inTable(),
             // Any other record the meeting is about — Epesi's `__RECORDSETS__`
             // Related field. Companies and Contacts by default (unrestricted

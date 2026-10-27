@@ -31,6 +31,7 @@ class RecordInfoTest extends TestCase
 
         $this->assertStringContainsString('contacts/'.$record->getKey(), $html);
         $this->assertStringContainsString('Myself Me', $html);
-        $this->assertSame(['Updated', 'Created'], array_column($viewData['rows'], 0));
+        // Then Watchdog's rows: the author watches the record they created.
+        $this->assertSame(['Updated', 'Created', 'Watching'], array_column($viewData['rows'], 0));
     }
 }

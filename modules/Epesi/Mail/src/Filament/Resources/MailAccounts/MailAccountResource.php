@@ -12,6 +12,9 @@ use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
 use Epesi\Modules\Mail\Services\UnreadCounter;
+use Epesi\Modules\OAuth\Filament\Actions\ConnectOAuthAction;
+use Epesi\Modules\OAuth\Providers\GoogleProvider;
+use Epesi\Modules\OAuth\Providers\MicrosoftProvider;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,8 +24,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -85,23 +90,34 @@ class MailAccountResource extends Resource
                 TextInput::make('from_name')->label('Sender name')->maxLength(255)
                     ->placeholder(fn (): string => Auth::user()?->displayName() ?? ''),
                 Toggle::make('is_default')->label('Default account')->inline(false),
+                Select::make('auth_method')->label('Sign in with')
+                    ->options(fn (): array => static::authMethodOptions())
+                    ->default(MailAccount::AUTH_PASSWORD)
+                    ->selectablePlaceholder(false)
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (?string $state, Get $get, Set $set) => static::fillServers($state, $get, $set))
+                    ->helperText(__('Microsoft 365 and Gmail accept a sign-in at Microsoft or Google (OAuth2) instead of a password.')),
+                ...static::oauthComponents(),
             ]),
             Section::make(__('Incoming mail (IMAP)'))->columns(3)->compact()->schema([
                 TextInput::make('imap_host')->label('Server')->maxLength(255)->columnSpan(2),
                 TextInput::make('imap_port')->label('Port')->integer()->placeholder('993 / 143'),
                 Select::make('imap_security')->label('Security')->options(self::securityOptions())->default('ssl')->selectablePlaceholder(false),
                 TextInput::make('imap_login')->label('Login')->maxLength(255)->placeholder(__('Same as e-mail')),
-                static::password('imap_password'),
+                static::password('imap_password')->visible(fn (Get $get): bool => ! static::isOAuth($get)),
             ]),
             Section::make(__('Outgoing mail (SMTP)'))->columns(3)->compact()->schema([
                 TextInput::make('smtp_host')->label('Server')->maxLength(255)->columnSpan(2),
                 TextInput::make('smtp_port')->label('Port')->integer()->placeholder('465 / 587'),
                 Select::make('smtp_security')->label('Security')->options(self::securityOptions())->default('tls')->selectablePlaceholder(false),
-                Toggle::make('smtp_auth')->label('Authentication')->default(true)->inline(false)->live(),
+                // An OAuth account always signs in, with XOAUTH2.
+                Toggle::make('smtp_auth')->label('Authentication')->default(true)->inline(false)->live()
+                    ->visible(fn (Get $get): bool => ! static::isOAuth($get)),
                 TextInput::make('smtp_login')->label('Login')->maxLength(255)
-                    ->placeholder(__('Same as IMAP'))->visible(fn (Get $get): bool => (bool) $get('smtp_auth')),
+                    ->placeholder(__('Same as IMAP'))->visible(fn (Get $get): bool => static::isOAuth($get) || (bool) $get('smtp_auth')),
                 static::password('smtp_password')->placeholder(__('Same as IMAP'))
-                    ->visible(fn (Get $get): bool => (bool) $get('smtp_auth')),
+                    ->visible(fn (Get $get): bool => ! static::isOAuth($get) && (bool) $get('smtp_auth')),
                 Toggle::make('save_to_sent')->label('Save sent messages on the server')->default(true)->inline(false)->live()
                     ->helperText(__('Copies each message sent from the CRM into your IMAP Sent folder.')),
                 TextInput::make('sent_folder')->label('Sent folder')->default('Sent')->maxLength(255)
@@ -117,6 +133,102 @@ class MailAccountResource extends Resource
                     ->helperText(__('Every message you move into this IMAP folder, from any mail client, is archived.')),
             ]),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected static function authMethodOptions(): array
+    {
+        return [
+            MailAccount::AUTH_PASSWORD => __('Password'),
+            MicrosoftProvider::KEY => __('Microsoft 365 (OAuth2)'),
+            GoogleProvider::KEY => __('Google (OAuth2)'),
+        ];
+    }
+
+    protected static function isOAuth(Get $get): bool
+    {
+        return isset(MailAccount::OAUTH_METHODS[(string) $get('auth_method')]);
+    }
+
+    /** The provider's servers, into the fields still empty. */
+    protected static function fillServers(?string $method, Get $get, Set $set): void
+    {
+        $servers = match ($method) {
+            MicrosoftProvider::KEY => ['imap_host' => 'outlook.office365.com', 'smtp_host' => 'smtp.office365.com'],
+            GoogleProvider::KEY => ['imap_host' => 'imap.gmail.com', 'smtp_host' => 'smtp.gmail.com'],
+            default => [],
+        };
+
+        if ($servers === []) {
+            return;
+        }
+
+        $defaults = [...$servers, 'imap_port' => 993, 'imap_security' => 'ssl', 'smtp_port' => 587, 'smtp_security' => 'tls'];
+
+        if (blank($get('imap_host')) && blank($get('smtp_host'))) {
+            foreach ($defaults as $field => $value) {
+                $set($field, $value);
+            }
+        }
+    }
+
+    /**
+     * The connection's state and its Connect / Disconnect buttons, for an
+     * OAuth account. Connecting needs the account saved with that method
+     * first: the token belongs to the saved account.
+     *
+     * @return array<int, Callout>
+     */
+    protected static function oauthComponents(): array
+    {
+        $saved = fn (?MailAccount $record, Get $get): bool => $record?->exists && $record->auth_method === $get('auth_method');
+        $provider = fn (MailAccount $record): ?string => $record->oauthProvider();
+        $label = fn (Get $get): string => static::authMethodOptions()[(string) $get('auth_method')] ?? '';
+
+        return [
+            Callout::make(fn (Get $get): string => __('Save the account, then connect it (:method).', ['method' => $label($get)]))
+                ->info()
+                ->columnSpanFull()
+                ->visible(fn (?MailAccount $record, Get $get): bool => static::isOAuth($get) && ! $saved($record, $get)),
+            Callout::make(fn (?MailAccount $record): string => $record ? static::connectionHeading($record) : '')
+                ->description(fn (?MailAccount $record): ?string => $record ? static::connectionDescription($record) : null)
+                ->status(fn (?MailAccount $record): string => match (true) {
+                    $record?->oauthToken($record->oauthProvider()) === null => 'warning',
+                    $record->oauthToken($record->oauthProvider())->needsReconnect() => 'danger',
+                    default => 'success',
+                })
+                ->columnSpanFull()
+                ->visible(fn (?MailAccount $record, Get $get): bool => static::isOAuth($get) && $saved($record, $get))
+                ->actions([
+                    ConnectOAuthAction::connect($provider, fn (MailAccount $record): string => static::getUrl('edit', ['record' => $record])),
+                    ConnectOAuthAction::disconnect($provider),
+                ]),
+        ];
+    }
+
+    protected static function connectionHeading(MailAccount $record): string
+    {
+        $token = $record->oauthToken($record->oauthProvider());
+
+        return match (true) {
+            $token === null => __('Not connected yet'),
+            $token->needsReconnect() => __('Connect the account again'),
+            filled($token->account) => __('Connected as :account', ['account' => $token->account]),
+            default => __('Connected'),
+        };
+    }
+
+    protected static function connectionDescription(MailAccount $record): ?string
+    {
+        $token = $record->oauthToken($record->oauthProvider());
+
+        if ($token === null) {
+            return __('Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.');
+        }
+
+        return $token->needsReconnect() ? $token->last_error : null;
     }
 
     public static function table(Table $table): Table
@@ -185,7 +297,7 @@ class MailAccountResource extends Resource
             });
     }
 
-    /** The INBOX's unread count, now rather than at the next `mail:check`. Archives nothing. */
+    /** The INBOX's unread count, now rather than at the Mail widget's next poll. Archives nothing. */
     public static function checkAction(): Action
     {
         return Action::make('check')

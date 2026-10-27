@@ -3,6 +3,9 @@
 namespace Epesi\Modules\Mail\Services;
 
 use Epesi\Modules\Mail\Models\MailAccount;
+use Epesi\Modules\OAuth\Exceptions\OAuthException;
+use Epesi\Modules\OAuth\Services\OAuthTokens;
+use Symfony\Component\Mailer\Transport\Smtp\Auth\XOAuth2Authenticator;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
@@ -12,6 +15,9 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
  */
 class SmtpTransportFactory
 {
+    /**
+     * @throws OAuthException an OAuth account's connection is missing or refused
+     */
     public function forAccount(MailAccount $account): TransportInterface
     {
         $security = $account->smtp_security;
@@ -29,7 +35,13 @@ class SmtpTransportFactory
             $transport->setAutoTls(false);
         }
 
-        if ($account->smtp_auth) {
+        if ($account->usesOAuth()) {
+            // XOAUTH2 only, with a fresh access token as the "password":
+            // Microsoft 365 and Gmail refuse a password login here.
+            $transport->setAuthenticators([new XOAuth2Authenticator]);
+            $transport->setUsername($account->smtpLogin());
+            $transport->setPassword(app(OAuthTokens::class)->accessToken($account, $account->oauthProvider()));
+        } elseif ($account->smtp_auth) {
             $transport->setUsername($account->smtpLogin());
             $transport->setPassword($account->smtpPassword());
         }

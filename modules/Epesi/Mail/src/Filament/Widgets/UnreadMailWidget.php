@@ -60,7 +60,8 @@ class UnreadMailWidget extends Widget implements Applet
     /**
      * Asks the server only for the accounts with no cached count — called
      * after the widget is already on screen, so rendering never waits on a
-     * mail server even when cron hasn't filled the cache.
+     * mail server. Polled every 3 minutes, so an expired count is renewed
+     * while the widget is on screen.
      */
     public function checkMissing(): void
     {
