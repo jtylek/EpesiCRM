@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,6 +35,72 @@ class DashboardTab extends Model
     public function isSystem(): bool
     {
         return $this->key !== null;
+    }
+
+    /**
+     * The name to show. A system tab under its default name is stored in
+     * English and translated here, for whoever looks at it: stored
+     * translated, it kept the language of whoever opened the dashboard first,
+     * and on the demo every visitor shares the accounts. A name the user gave
+     * the tab is shown as they typed it.
+     */
+    public function label(): string
+    {
+        return $this->key !== null && $this->key === config('dashboard.keys.'.$this->name)
+            ? __($this->name)
+            : $this->name;
+    }
+
+    /**
+     * Legacy set_default_applets(), with config('dashboard.default') in place
+     * of an administrator's default dashboard. An applet $available turns
+     * down (its module off) is left out, and so is a tab left with none.
+     *
+     * @param  callable(class-string): bool  $available
+     * @return Collection<int, self>
+     */
+    public static function createDefaults(int $userId, callable $available): Collection
+    {
+        $layout = collect(config('dashboard.default', []))
+            ->map(fn (array $columns): array => array_map(
+                fn (array $widgets): array => array_values(array_filter($widgets, $available)),
+                $columns,
+            ))
+            ->filter(fn (array $columns): bool => array_merge(...$columns) !== []);
+
+        // The dashboard needs a tab, even with nothing to put on it.
+        if ($layout->isEmpty()) {
+            $layout = collect(['Dashboard' => []]);
+        }
+
+        $tabs = new Collection;
+
+        foreach ($layout as $name => $columns) {
+            $key = config('dashboard.keys.'.$name);
+
+            $tab = self::query()->create([
+                'user_id' => $userId,
+                // A system tab is translated by label(); any other is the user's own from now on.
+                'name' => $key === null ? __($name) : $name,
+                'key' => $key,
+                'pos' => $tabs->count(),
+            ]);
+
+            foreach ($columns as $col => $widgets) {
+                foreach ($widgets as $pos => $widget) {
+                    $tab->applets()->create([
+                        'user_id' => $userId,
+                        'widget' => $widget,
+                        'col' => $col,
+                        'pos' => $pos,
+                    ]);
+                }
+            }
+
+            $tabs->push($tab);
+        }
+
+        return $tabs;
     }
 
     /**

@@ -86,8 +86,7 @@ To try Epesi before installing it, use the [live demo](https://epesicrm.com/demo
 **You need:** git, PHP 8.3–8.5 with Composer, Node.js with npm, and MySQL or MariaDB.
 
 On Windows, [PHP Windows DevStack](https://github.com/jtylek/PHP-windows-devstack) gives you
-PHP, Apache and MariaDB ready for Epesi development. Its setup for Epesi is described in
-[AI-shared/DEVSTACK-SETUP.md](AI-shared/DEVSTACK-SETUP.md).
+PHP, Apache and MariaDB ready for Epesi development.
 
 ```bash
 git clone https://github.com/jtylek/EpesiCRM.git epesi
@@ -115,7 +114,7 @@ at `/login` as `admin@example.com`, `manager@example.com` or `employee@example.c
 password `password`.
 
 Run the tests with `php artisan test`. They use an in-memory SQLite database, so they don't
-touch your development database.
+touch your development database. Check a change's code style with `php vendor/bin/pint --dirty`.
 
 **Tip:** [ScreenCapture](https://github.com/jtylek/ScreenCapture) is a handy utility for sending
 screenshots to AI coding agents while you work on the application.
@@ -175,16 +174,10 @@ when the feature's shape is a page or workflow rather than a reusable record typ
 
 Read more:
 
-- [AGENTS.md](AGENTS.md): the rules for working in this repository, for people and AI agents
-  alike.
-- [AI-shared/](AI-shared/README.md): technical notes on the architecture, conventions, fields,
-  themes, translations, setup and more.
-- [AI-shared/Epesi-custom-fields.md](AI-shared/Epesi-custom-fields.md): the `Field` DSL,
-  administrator-added custom fields, collections and related records.
-- [AI-shared/AI-agent-module-development.md](AI-shared/AI-agent-module-development.md): a
-  module-building and validation workflow for AI agents.
-- [AI-shared/Epesi-Laravel-distro.md](AI-shared/Epesi-Laravel-distro.md): building a release zip
-  (`php artisan epesi:package`) and installing on shared hosting.
+- [PORTING.md](PORTING.md): which parts of the old Epesi exist here, and which don't yet.
+- [INSTALL.md](INSTALL.md): installing a release zip, and fixing common server problems.
+- `php artisan recordset:check --strict` checks your record types' field declarations.
+- `php artisan epesi:package` builds a release zip with its dependencies and built assets.
 
 ## License
 

@@ -37,7 +37,7 @@
                     wire:click="$set('tab', {{ $tab->id }})"
                     wire:key="dashboard-tab-{{ $tab->id }}"
                 >
-                    {{ $tab->name }}
+                    {{ $tab->label() }}
                 </x-filament::tabs.item>
             @endforeach
         </x-filament::tabs>

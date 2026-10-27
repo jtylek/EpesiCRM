@@ -11,7 +11,7 @@ The "Epesi module" column uses that repository's `modules/` paths.
 | CRM/Contacts (contacts, companies) | `modules/Epesi/CRM/{Contacts,Companies}` | |
 | CRM/PhoneCall, CRM/Tasks, CRM/Meeting | `modules/Epesi/CRM/{PhoneCalls,Tasks,Meetings}` | **Tasks** and **Phone Calls** dashboard applets, with Epesi's settings (statuses, your role in the task, missed/today/future calls) |
 | CRM/Calendar | `app/Filament/Pages/Calendar.php` | Providers are pluggable (`CalendarRegistry`). The **Agenda** dashboard applet lists your own open events for the next 1 day to 2 months |
-| Base/Dashboard | `app/Filament/Pages/Dashboard.php` | Each user's own tabs of applets in three columns: drag by the title bar, **Add applet** (the same applet more than once), the gear for each applet's settings, which tab it is on, and removing it; **Tabs** to add, rename, reorder and delete tabs. Applets so far: Agenda, Tasks, Phone Calls, My reminders, Shoutbox, Mail. See [AI-shared/Dashboard.md](AI-shared/Dashboard.md) |
+| Base/Dashboard | `app/Filament/Pages/Dashboard.php` | Each user's own tabs of applets in three columns: drag by the title bar, **Add applet** (the same applet more than once), the gear for each applet's settings, which tab it is on, and removing it; **Tabs** to add, rename, reorder and delete tabs. Applets so far: Agenda, Tasks, Phone Calls, My reminders, Shoutbox, Mail |
 | CRM/LoginAudit | Administration → Login audits | |
 | Base/User, Base/Acl | Administration → Users, Shield roles | |
 | Utils/RecordBrowser | `modules/Epesi/RecordBrowser` | Engine, custom fields, history. `RecordExtensions` lets modules add addon tabs and header actions to any record |
@@ -25,7 +25,7 @@ The "Epesi module" column uses that repository's `modules/` paths.
 | Apps/Shoutbox | `modules/Epesi/Shoutbox` | Dashboard widget with public and private messages. Authors can delete a message for 10 minutes; super admins can delete any message |
 | Utils/CommonData | `modules/Epesi/CommonData` | Administration → Common Data: the editable lookup lists (countries and states, contact and company groups). CRM/Status, CRM/Access and CRM/Priority stay PHP enums |
 | Base/RegionalSettings | `modules/Epesi/RegionalSettings` | Per-user language, timezone, date/time format and location, under Settings in the main panel |
-| Base/Lang | `lang/`, each module's `lang/`, `App\Support\Locale\Locales` | English and Polish. Each user picks a language (system default from setup, browser language on the login page). Bell notifications and reminder e-mails go out in the recipient's language. `php artisan lang:import-epesi <code> <epesi path>` starts another language from Epesi's translation files. Base/Lang/Administrator's Translations tab is Administration → Translations: an administrator's own translations, kept apart from the shipped ones and loaded over them; Epesi's sending of translations to a central server became links to GitHub and the forum. See [AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md) |
+| Base/Lang | `lang/`, each module's `lang/`, `App\Support\Locale\Locales` | English and Polish. Each user picks a language (system default from setup, browser language on the login page). Bell notifications and reminder e-mails go out in the recipient's language. `php artisan lang:import-epesi <code> <epesi path>` starts another language from Epesi's translation files. Base/Lang/Administrator's Translations tab is Administration → Translations: an administrator's own translations, kept apart from the shipped ones and loaded over them; Epesi's sending of translations to a central server became links to GitHub and the forum. |
 | setup.php, FirstRun | `php artisan epesi:install`, `/setup` | `epesi:install` checks the server, writes `.env` (database, app key) and creates the tables (setup.php). The `/setup` wizard asks whether to install Roundcube and load demo data, then the administrator and system mail, installs every `"core": true` module (Epesi's `distros.ini` profiles aren't ported — every module ships core except Roundcube) plus Roundcube if chosen, in dependency order, then shows each installed module's own page (FirstRun's `post_install`): **Your company** from CRM/Contacts, **Regional settings** defaults. Modules add pages with `SetupSteps::register()`. Optional demo data and `SETUP_TOKEN` are new |
 | Legacy data | `php artisan import:legacy` | Modules can add their own tabs through `ImporterRegistry`; CommonData adds `commondata`, Mail adds `mail`, Shoutbox adds `shoutbox` |
 
@@ -58,9 +58,8 @@ Enable the new modules on an existing install with `php artisan module:register 
 - Mail: no embedded webmail (Epesi bundled Roundcube). Reading mail stays in the user's own
   mail client, and the CRM archives it.
 - Mail: an account can sign in with Microsoft 365 or Google (OAuth2, XOAUTH2) for epesi's own
-  IMAP and SMTP, but the Roundcube Mailbox page doesn't open such accounts yet (see
-  [AI-shared/OAuth2-plan.md](AI-shared/OAuth2-plan.md)). Their tokens are renewed by
-  `oauth:refresh`, which needs cron.
+  IMAP and SMTP, but the Roundcube Mailbox page doesn't open such accounts yet. Their tokens
+  are renewed by `oauth:refresh`, which needs cron.
 - Mail: `import:legacy mail` imports accounts, extra addresses and archived mail (with links,
   threads and attachments), but not per-user Watchdog subscriptions to mails or the
   attachment download history. Set `LEGACY_DATA_DIR` to the legacy `data/` directory, or

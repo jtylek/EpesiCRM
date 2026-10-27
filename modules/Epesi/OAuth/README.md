@@ -10,9 +10,6 @@ It is a **core** module (`epesi/oauth`, `"core": true`): Mail, also core, requir
 namespace is in `config('modules.core_namespaces')`, so Mail's classes load even before
 `epesi:update` has registered the module on an updated installation.
 
-Background, provider requirements and what is still to come:
-[AI-shared/OAuth2-plan.md](../../../AI-shared/OAuth2-plan.md).
-
 ## For administrators
 
 ### Administration → OAuth Apps
@@ -81,15 +78,13 @@ When a provider stops accepting a connection (revoked, password changed, unused 
 the account shows *Connect the account again*, and its user gets a bell notification.
 
 The Roundcube **Mailbox** page logs in to an OAuth account with XOAUTH2, too. Epesi keeps the
-refresh token, and Roundcube asks Epesi for each new access token (see
-[AI-shared/Epesi-Laravel-Roundcube.md](../../../AI-shared/Epesi-Laravel-Roundcube.md)). While an
+refresh token, and Roundcube asks Epesi for each new access token. While an
 account isn't connected, or must be connected again, the page says so instead of opening the
 mail client.
 
 ### Cron
 
-`oauth:refresh` runs every 15 minutes (cron must be set up, see
-[AI-shared/cron.md](../../../AI-shared/cron.md)). It renews tokens that expire within the next
+`oauth:refresh` runs every 15 minutes (cron must be set up). It renews tokens that expire within the next
 20 minutes, so a refused connection is found early, and keeps refresh tokens in use.
 
 ## For developers

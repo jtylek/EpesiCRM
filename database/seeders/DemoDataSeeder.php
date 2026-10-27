@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\RecordPermission;
 use App\Enums\RecordPriority;
 use App\Enums\RecordStatus;
+use App\Models\DashboardTab;
 use App\Models\User;
 use App\Services\FileStorage;
 use App\Support\Demo;
@@ -481,6 +482,14 @@ class DemoDataSeeder extends Seeder
         ]);
 
         $this->mail($admin, $manager, $employee);
+
+        // Every demo account starts with the default dashboard rather than
+        // having it made by whoever opens it first.
+        foreach ([$admin, $manager, $employee] as $user) {
+            if (! DashboardTab::query()->where('user_id', $user->id)->exists()) {
+                DashboardTab::createDefaults($user->id, fn (string $class): bool => class_exists($class));
+            }
+        }
     }
 
     /**

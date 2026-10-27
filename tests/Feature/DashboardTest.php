@@ -261,6 +261,68 @@ class DashboardTest extends TestCase
         $undoRepeaterFake();
     }
 
+    public function test_system_tab_names_are_stored_in_english_and_shown_in_the_viewers_language(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+
+        // Whoever opens the dashboard first doesn't decide its language for everyone else.
+        app()->setLocale('pl');
+        $this->columns();
+        $this->assertSame(['Main', 'Agenda', 'Notes'], $this->tabNames($user));
+
+        $tabs = DashboardTab::query()->where('user_id', $user->id)->orderBy('pos')->get();
+        $this->assertSame(['Główna', 'Terminarz', 'Notatki'], $tabs->map->label()->all());
+
+        app()->setLocale('en');
+        $this->assertSame(['Main', 'Agenda', 'Notes'], $tabs->map->label()->all());
+
+        // A name the user gave a system tab, or a tab of their own, is shown as they typed it.
+        $tabs[0]->update(['name' => 'Mine']);
+        DashboardTab::query()->create(['user_id' => $user->id, 'name' => 'Agenda', 'pos' => 9]);
+        app()->setLocale('pl');
+        $this->assertSame(['Mine', 'Terminarz', 'Notatki', 'Agenda'], DashboardTab::query()->where('user_id', $user->id)->orderBy('pos')->get()->map->label()->all());
+    }
+
+    public function test_saving_the_tabs_form_keeps_a_system_tab_name_it_showed_translated(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+        $this->columns();
+        [$main, $agenda, $notes] = DashboardTab::query()->orderBy('pos')->get()->all();
+        $undoRepeaterFake = Repeater::fake();
+        app()->setLocale('pl');
+
+        Livewire::test(Dashboard::class)
+            ->callAction('manageTabs', ['tabs' => [
+                ['id' => $main->id, 'name' => 'Główna'],
+                ['id' => $agenda->id, 'name' => 'Plan'],
+                ['id' => $notes->id, 'name' => 'Notatki'],
+            ]])
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(['Main', 'Plan', 'Notes'], $this->tabNames($user));
+
+        $undoRepeaterFake();
+    }
+
+    public function test_the_update_puts_back_the_english_name_of_a_system_tab_stored_translated(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+        $this->columns();
+        [$main, $agenda, $notes] = DashboardTab::query()->orderBy('pos')->get()->all();
+        $main->update(['name' => 'Главная']);
+        $agenda->update(['name' => 'Terminarz']);
+        $notes->update(['name' => 'My notes']);
+        // A tab of the user's own isn't a system tab, whatever its name.
+        DashboardTab::query()->create(['user_id' => $user->id, 'name' => 'Notatki', 'pos' => 9]);
+
+        (require database_path('migrations/2026_10_27_190000_store_system_dashboard_tab_names_in_english.php'))->up();
+
+        $this->assertSame(['Main', 'Agenda', 'My notes', 'Notatki'], $this->tabNames($user));
+    }
+
     public function test_the_tabs_form_offers_no_delete_button_for_a_system_tab(): void
     {
         $this->actingAs($this->userWithRole('employee'));

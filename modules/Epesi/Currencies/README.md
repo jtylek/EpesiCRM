@@ -4,8 +4,6 @@ The currencies an installation works in, its home currency, and daily exchange r
 core module: it is always installed and can't be switched off. RecordBrowser's **currency field
 type** (`Field::currency()`) and Regional Settings' default currency are built on it.
 
-Developer reference with more detail: `AI-shared/Epesi-currencies.md` in the repository.
-
 ## For administrators
 
 ### Administration → Currencies

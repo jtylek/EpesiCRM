@@ -252,7 +252,7 @@ class Dashboard extends BaseDashboard
             ->modalSubmitActionLabel(__('Save'))
             ->fillForm(fn (): array => [
                 'tabs' => $this->dashboardTabs
-                    ->map(fn (DashboardTab $tab): array => ['id' => $tab->id, 'name' => $tab->name, 'system' => $tab->isSystem()])
+                    ->map(fn (DashboardTab $tab): array => ['id' => $tab->id, 'name' => $tab->label(), 'system' => $tab->isSystem()])
                     ->all(),
             ])
             ->schema([
@@ -305,7 +305,7 @@ class Dashboard extends BaseDashboard
                     ->statePath('settings'),
                 Select::make('tab')
                     ->label('Tab')
-                    ->options(fn (): array => $this->tabsFor($this->findApplet($arguments)->widget)->pluck('name', 'id')->all())
+                    ->options(fn (): array => $this->tabsFor($this->findApplet($arguments)->widget)->mapWithKeys(fn (DashboardTab $tab): array => [$tab->id => $tab->label()])->all())
                     ->required()
                     ->selectablePlaceholder(false)
                     ->visible(fn (): bool => $this->tabsFor($this->findApplet($arguments)->widget)->count() > 1),
@@ -380,53 +380,15 @@ class Dashboard extends BaseDashboard
     }
 
     /**
-     * Legacy set_default_applets(), with config('dashboard.default') in place
-     * of an administrator's default dashboard. An applet not in the panel
-     * (its module off) is left out, and so is a tab left with none. One the
-     * user may not see yet (Mail, before they have an account) is placed all
-     * the same and stays hidden until they may.
+     * The default dashboard, without the applets not in the panel (their
+     * module off). One the user may not see yet (Mail, before they have an
+     * account) is placed all the same and stays hidden until they may.
      *
      * @return Collection<int, DashboardTab>
      */
     private function createDefaultTabs(): Collection
     {
-        $layout = collect(config('dashboard.default', []))
-            ->map(fn (array $columns): array => array_map(
-                fn (array $widgets): array => array_values(array_filter($widgets, fn (string $class): bool => isset($this->appletWidgets[$class]))),
-                $columns,
-            ))
-            ->filter(fn (array $columns): bool => array_merge(...$columns) !== []);
-
-        // The dashboard needs a tab, even with nothing to put on it.
-        if ($layout->isEmpty()) {
-            $layout = collect(['Dashboard' => []]);
-        }
-
-        $tabs = collect();
-
-        foreach ($layout as $name => $columns) {
-            $tab = DashboardTab::query()->create([
-                'user_id' => Auth::id(),
-                'name' => __($name),
-                'key' => config('dashboard.keys.'.$name),
-                'pos' => $tabs->count(),
-            ]);
-
-            foreach ($columns as $col => $widgets) {
-                foreach ($widgets as $pos => $widget) {
-                    $tab->applets()->create([
-                        'user_id' => Auth::id(),
-                        'widget' => $widget,
-                        'col' => $col,
-                        'pos' => $pos,
-                    ]);
-                }
-            }
-
-            $tabs->push($tab);
-        }
-
-        return $tabs;
+        return DashboardTab::createDefaults(Auth::id(), fn (string $class): bool => isset($this->appletWidgets[$class]));
     }
 
     /**
@@ -440,7 +402,12 @@ class Dashboard extends BaseDashboard
             $tab = $this->dashboardTabs->firstWhere('id', (int) ($row['id'] ?? 0))
                 ?? new DashboardTab(['user_id' => Auth::id()]);
 
-            $tab->fill(['name' => $row['name'], 'pos' => $pos])->save();
+            // A system tab's name left as the form showed it stays the default, translated for each viewer.
+            if (! $tab->exists || $row['name'] !== $tab->label()) {
+                $tab->name = $row['name'];
+            }
+
+            $tab->fill(['pos' => $pos])->save();
             $kept[] = $tab->id;
         }
 

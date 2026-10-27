@@ -15,8 +15,10 @@ return [
      * Epesi's administrator-made default dashboard: tab name => its three
      * columns, left to right, each a list of applets top to bottom. An
      * applet whose module isn't installed or enabled is left out, and a tab
-     * left with none is skipped. Tab names go through __(). A tab named in
-     * 'keys' is a system tab: every dashboard has it and it can't be deleted.
+     * left with none is skipped. A tab named in 'keys' is a system tab: every
+     * dashboard has it, it can't be deleted, and its name is stored in English
+     * and translated when shown (DashboardTab::label()) until the user renames
+     * it. Any other tab name is translated once, when the tab is made.
      */
     'keys' => [
         'Main' => 'main',

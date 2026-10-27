@@ -6,6 +6,8 @@ use App\Enums\RecordPermission;
 use App\Enums\RecordStatus;
 use App\Filament\Administration\Pages\DemoDataPage;
 use App\Filament\Widgets\AgendaWidget;
+use App\Models\DashboardApplet;
+use App\Models\DashboardTab;
 use App\Models\User;
 use App\Support\Demo;
 use App\Support\DemoData;
@@ -66,6 +68,20 @@ class DemoDataTest extends TestCase
     protected function records(string $model): int
     {
         return $model::query()->withoutGlobalScopes()->count();
+    }
+
+    public function test_every_demo_account_starts_with_the_default_dashboard_in_english(): void
+    {
+        foreach (User::query()->get() as $user) {
+            $this->assertSame(
+                ['Main' => 'main', 'Agenda' => 'agenda', 'Notes' => 'notes'],
+                DashboardTab::query()->where('user_id', $user->id)->orderBy('pos')->pluck('key', 'name')->all(),
+                $user->email,
+            );
+        }
+
+        $this->assertSame(3, DashboardApplet::query()->where('user_id', $this->admin->id)
+            ->whereHas('tab', fn ($query) => $query->where('key', 'main'))->count());
     }
 
     public function test_the_demo_fills_the_lists(): void
