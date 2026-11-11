@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notification;
 /**
  * The link e-mailed to an address a customer added in the portal: opening it
  * proves the address is theirs (PortalEmails). Sent at once, not queued: epesi
- * runs no queue worker (AI-shared/cron.md).
+ * runs no queue worker (AI-shared/operations/cron.md).
  */
 class VerifyContactEmail extends Notification
 {

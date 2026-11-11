@@ -7,6 +7,7 @@ use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\ViewCompany;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\CreateTask;
@@ -14,8 +15,17 @@ use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\LinkedRecordsRelationManager;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Premium\Accounting\Filament\Resources\Expenses\ExpenseResource;
+use Premium\Accounting\Filament\Resources\Invoices\InvoiceResource;
+use Premium\DomainsRegister\Filament\Resources\Domains\DomainResource;
+use Premium\ProjectsTickets\Filament\Resources\Projects\ProjectResource;
+use Premium\ProjectsTickets\Filament\Resources\Tickets\TicketResource;
+use Premium\SalesOpportunity\Filament\Resources\SalesOpportunities\SalesOpportunityResource;
+use Premium\Timesheets\Filament\Resources\Rates\RateResource;
+use Premium\Timesheets\Filament\Resources\Timesheets\TimesheetResource;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
@@ -122,5 +132,35 @@ class IncomingLinksTest extends TestCase
         Livewire::withQueryParams(['link' => 'contact:'.$contact->id])
             ->test(CreateTask::class)
             ->assertFormSet(['customers' => ['contact:'.$contact->id]]);
+    }
+
+    public function test_a_contacts_tabs_list_only_the_fields_that_mean_this_person_is_involved(): void
+    {
+        $this->actingAs($this->userWithRole('manager'));
+        $contact = Contact::create(['last_name' => 'Customer', 'first_name' => 'Ann']);
+        $links = IncomingLinks::for($contact);
+
+        $names = fn (string $resource): ?array => isset($links[$resource]) ? collect($links[$resource])->map->name->sort()->values()->all() : null;
+
+        $this->assertSame(['customers', 'employees', 'linked_to'], $names(MeetingResource::class));
+
+        $expected = [
+            ExpenseResource::class => null,
+            InvoiceResource::class => ['customer'],
+            DomainResource::class => ['client'],
+            ProjectResource::class => ['customers'],
+            TicketResource::class => ['assignees', 'ticket_owner_id'],
+            SalesOpportunityResource::class => ['customers'],
+            RateResource::class => null,
+            TimesheetResource::class => ['customer', 'employee_id'],
+        ];
+
+        foreach ($expected as $resource => $fields) {
+            if (! class_exists($resource) || ! in_array($resource, Filament::getPanel('main')->getResources(), true)) {
+                continue;
+            }
+
+            $this->assertSame($fields, $names($resource), $resource);
+        }
     }
 }

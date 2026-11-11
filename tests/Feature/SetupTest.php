@@ -317,7 +317,7 @@ class SetupTest extends TestCase
     public function test_an_installation_runs_queued_work_straight_away(): void
     {
         // Every .env starts from this file, and epesi runs no queue worker
-        // (AI-shared/cron.md): with `database`, whatever Laravel, Filament or
+        // (AI-shared/operations/cron.md): with `database`, whatever Laravel, Filament or
         // a module queues would wait in `jobs` for good.
         $this->assertSame('sync', Dotenv::parse(File::get(base_path('.env.example')))['QUEUE_CONNECTION']);
     }

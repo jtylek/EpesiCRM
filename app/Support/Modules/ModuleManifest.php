@@ -74,6 +74,13 @@ class ModuleManifest
             throw new ModuleException("Invalid module path \"{$path}\" — expected \"Vendor/Name\", optionally nested (\"Vendor/Group/Name\").");
         }
 
+        // Premium modules are separate nested repositories in modules/Premium/, which
+        // .gitignore keeps out of this one. Under modules/Epesi/ they would be
+        // committed here, so no install, archive, discovery or registration may use it.
+        if (preg_match('#^epesi/premium(/|$)#i', $path)) {
+            throw new ModuleException("Invalid module path \"{$path}\" — Premium modules live in \"Premium/<Name>\", never under Epesi/.");
+        }
+
         if (! preg_match('/^([A-Za-z_][A-Za-z0-9_]*\\\\)+$/', $namespace)) {
             throw new ModuleException("Invalid namespace \"{$namespace}\" — expected a PSR-4 prefix ending in a backslash.");
         }

@@ -23,6 +23,35 @@
 <div
     x-data="{
         url: null, kind: 'frame', name: '', download: '', maximized: false, touch: false,
+        async renderText(frame) {
+            // A plain-text file (isPreviewable()'s text/plain, text/csv,
+            // application/json) is loaded raw in an iframe. Left to the
+            // browser's own viewer, its colours follow the OS/browser dark
+            // setting, not this app's light/dark toggle — black-on-white in
+            // app-light-but-OS-dark, or an invisible white-on-white in
+            // app-dark-but-OS-light. Writing the document ourselves, coloured
+            // from the app's own theme, keeps text readable either way.
+            const url = this.url;
+            try {
+                const res = await fetch(url, { credentials: 'same-origin' });
+                const text = await res.text();
+                if (this.url !== url) return;
+                const dark = document.documentElement.classList.contains('dark');
+                const doc = frame.contentDocument;
+                doc.open();
+                doc.write(
+                    '<!doctype html><meta charset=utf-8><style>body{margin:0;padding:.75rem;'
+                    + 'font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;'
+                    + 'word-break:break-word;background:' + (dark ? '#18181b' : '#fff') + ';'
+                    + 'color:' + (dark ? '#e4e4e7' : '#18181b') + '}</style>'
+                );
+                doc.close();
+                doc.body.textContent = text;
+            } catch (e) {
+                console.error(e);
+                if (this.url === url) frame.srcdoc = '<p style=padding:.75rem;font-family:sans-serif>' + @js(__('This file could not be previewed.')) + '</p>';
+            }
+        },
         async renderPdf(pages) {
             // Phone browsers download a PDF instead of showing it in a frame,
             // so draw its pages with pdf.js (bundled in public/vendor/pdfjs: the legacy
@@ -58,7 +87,7 @@
     x-on:click.window="
         const link = $event.target.closest('a[data-file-preview]');
         if (! link || $event.button !== 0 || $event.ctrlKey || $event.metaKey || $event.shiftKey || $event.altKey) return;
-        if (['frame'].includes(link.dataset.kind) && window.matchMedia('(pointer: coarse)').matches) return;
+        if (['text', 'frame'].includes(link.dataset.kind) && window.matchMedia('(pointer: coarse)').matches) return;
         touch = window.matchMedia('(pointer: coarse)').matches;
         $event.preventDefault();
         url = link.href;
@@ -147,6 +176,14 @@
 
         <template x-if="url && kind === 'pdf' && touch">
             <div class="epesi-file-preview-pdf" x-init="$nextTick(() => renderPdf($el))"></div>
+        </template>
+
+        <template x-if="url && kind === 'text'">
+            <iframe
+                class="epesi-file-preview-frame"
+                x-bind:title="name"
+                x-init="$nextTick(() => renderText($el)); $watch('url', () => $nextTick(() => renderText($el)))"
+            ></iframe>
         </template>
 
         <template x-if="url && kind === 'frame' || url && kind === 'pdf' && ! touch">

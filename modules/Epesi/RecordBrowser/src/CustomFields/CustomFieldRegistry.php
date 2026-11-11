@@ -374,11 +374,32 @@ class CustomFieldRegistry
     {
         try {
             $rows = DB::table('custom_fields')
-                ->where('active', true)
-                ->orderBy('model_type')
-                ->orderBy('position')
-                ->orderBy('id')
-                ->get();
+                ->leftJoin('modules', 'modules.module_id', '=', 'custom_fields.module_id')
+                ->where('custom_fields.active', true)
+                ->where(function ($query): void {
+                    $query->whereNull('custom_fields.module_id')
+                        ->orWhere('modules.enabled', true);
+                })
+                ->orderBy('custom_fields.model_type')
+                ->orderBy('custom_fields.position')
+                ->orderBy('custom_fields.id')
+                ->get([
+                    'custom_fields.id',
+                    'custom_fields.model_type',
+                    'custom_fields.column',
+                    'custom_fields.name',
+                    'custom_fields.label',
+                    'custom_fields.type',
+                    'custom_fields.params',
+                    'custom_fields.required',
+                    'custom_fields.section',
+                    'custom_fields.show_in_form',
+                    'custom_fields.show_in_view',
+                    'custom_fields.show_in_table',
+                    'custom_fields.filterable',
+                    'custom_fields.exportable',
+                    'custom_fields.help',
+                ]);
         } catch (Throwable) {
             return null;
         }

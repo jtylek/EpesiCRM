@@ -5,7 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\PanelLogin;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
-use App\Filament\Portal\Pages\MyContact;
+use App\Filament\Portal\Resources\PortalContactResource;
 use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\RedirectToSetup;
@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
- * The beginning of a customer portal (see AI-shared/Customer-portal.md): a
+ * The beginning of a customer portal (see AI-shared/features/access/customer-portal.md): a
  * contact linked to a login with the 'customer' role — made in Administration
  * → Users, same as any other login — signs in here to nothing but their own
  * contact (MyContact, this panel's only page, so it's also the panel's home
@@ -70,7 +70,7 @@ class PortalPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             // One page, nothing to navigate between.
             ->navigation(false)
-            ->pages([MyContact::class])
+            ->resources([PortalContactResource::class])
             ->middleware([
                 DisabledInDemo::class,
                 EncryptCookies::class,

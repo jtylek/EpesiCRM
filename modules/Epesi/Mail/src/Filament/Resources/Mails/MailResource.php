@@ -100,7 +100,7 @@ class MailResource extends Resource
                         ->inlineLabel()
                         ->weight(FontWeight::Bold)
                         ->placeholder(__('(no subject)')),
-                    LinkedRecords::badges(TextEntry::make('linked'), static::linkedRecords(...), Records::label(...))
+                    LinkedRecords::badges(TextEntry::make('linked'), static::linkedRecords(...), Records::badgeLabel(...))
                         ->label('Linked to')
                         ->placeholder(__('Not linked to any record'))
                         ->inlineLabel(),
@@ -198,7 +198,7 @@ class MailResource extends Resource
      * instead of the visitor's system mail client — legacy Epesi routed
      * these through Roundcube (CRM_RoundcubeCommon::get_mailto_link()); the
      * CRM's own ComposeAction covers it here instead, deliberately not
-     * Roundcube (see AI-shared/Epesi-Laravel-Roundcube.md, "Deliberately not
+     * Roundcube (see AI-shared/features/mail/roundcube.md, "Deliberately not
      * carried over"). Left as plain mailto: when the viewer can't send,
      * same fallback as RecordExtensions::emailLink().
      */
@@ -230,7 +230,13 @@ class MailResource extends Resource
      */
     protected static function composeLinkTag(array $match): string
     {
-        $to = explode('?', urldecode($match[3]), 2)[0];
+        // html_entity_decode() first: PlainBody's sanitizer re-serializes
+        // attribute values with numeric references for characters like '@'
+        // and '=' (valid HTML, the address decodes the same either way),
+        // so the raw match text isn't the plain address yet — only
+        // urldecode()-ing it would leave "ann&#64;customer.test" instead
+        // of "ann@customer.test".
+        $to = explode('?', urldecode(html_entity_decode($match[3])), 2)[0];
         $tag = str_replace($match[1], 'href="'.ComposeAction::url(to: $to).'"', $match[0]);
         $tag = preg_replace('/\s+target\s*=\s*(["\']).*?\1/i', '', $tag, 1);
 

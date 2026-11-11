@@ -22,7 +22,7 @@ use UnitEnum;
  * Administration → Themes: named looks (an accent colour and a density) an
  * admin creates once and every user then picks from on the Appearance page
  * (Filament\Pages\Appearance, "user-settings" panel) — see
- * AI-shared/Epesi-custom-themes.md. Lives in the super_admin-only
+ * AI-shared/user-interface/themes.md. Lives in the super_admin-only
  * "administration" panel; access is gated there by User::canAccessPanel(),
  * same as Login Audit, Users and Modules. No Policy: every visitor to this
  * panel already is a super_admin (see ModuleResource/UserResource, neither

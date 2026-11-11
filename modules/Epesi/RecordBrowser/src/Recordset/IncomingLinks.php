@@ -70,12 +70,19 @@ class IncomingLinks
      * The tab's title for $resource's records linking to $target: the
      * recordset's plural name ("Tasks"), or "Linked from: Tasks" when they
      * are of $target's own recordset, so it isn't taken for $target's own
-     * fields or a list of its own kind.
+     * fields or a list of its own kind. A field's own title
+     * (Field::listedOnTargetAs()) wins over both.
      *
      * @param  class-string<RecordsetResource>  $resource
      */
     public static function tabLabel(string $resource, Model $target): string
     {
+        foreach (static::for($target)[$resource] ?? [] as $field) {
+            if ($field->getTargetLabel() !== null) {
+                return __($field->getTargetLabel());
+            }
+        }
+
         $label = $resource::getTitleCasePluralModelLabel();
 
         return $resource::getModel() === $target::class

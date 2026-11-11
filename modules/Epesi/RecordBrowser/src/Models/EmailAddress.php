@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Carbon;
 
 /**
@@ -19,17 +20,25 @@ use Illuminate\Support\Carbon;
  * Private, Other) — as many as a record needs. Any recordset takes them with
  * `Field::collection('emails', EmailAddress::class)`.
  *
- * An address belongs to one record: it is unique across every record using
- * this type (contacts, companies, and any module's recordset that takes it),
- * so mail from it files to exactly one of them. The form's rule
+ * An address belongs to one live record: it is unique across every record
+ * using this type (contacts, companies, and any module's recordset that takes
+ * it), so mail from it files to exactly one of them. The form's rule
  * (uniqueRule()) checks this before save and names the record that already
- * has it; a plain unique index on `value` enforces it regardless.
+ * has it; a unique index on `live_value` enforces it regardless.
+ *
+ * `live_value` is `value` while the owner holds the address, NULL once a soft
+ * delete has released it: a deleted record keeps its addresses for Restore
+ * without keeping them from anyone else. Its login address stays held, as the
+ * account can still sign in with it. Restore takes an address back unless
+ * another record has it by then; then the live record keeps it and the
+ * restored one's History shows it gone (ownerRestored()).
  *
  * `verified_at` is set only by the customer portal's verification link or a
  * password reset (App\Support\Auth\PortalEmails), never by a form: it isn't a
  * field.
  *
  * @property ?string $value
+ * @property ?string $live_value
  * @property ?Carbon $verified_at
  */
 class EmailAddress extends CollectionItem
@@ -40,6 +49,7 @@ class EmailAddress extends CollectionItem
     {
         static::saving(function (self $address): void {
             $address->value = mb_strtolower(trim((string) $address->value));
+            $address->live_value = $address->ownerHoldsIt() ? $address->value : null;
 
             // A changed address is a different one: not verified until its owner says so.
             if ($address->exists && $address->isDirty('value') && ! $address->isDirty('verified_at')) {
@@ -99,10 +109,66 @@ class EmailAddress extends CollectionItem
      */
     public function isLocked(): bool
     {
-        $userId = $this->owner?->getAttribute('user_id');
+        $owner = $this->owner;
 
-        return $userId !== null
-            && mb_strtolower((string) User::query()->whereKey($userId)->value('email')) === mb_strtolower((string) $this->value);
+        return $owner !== null && static::loginOf($owner) === mb_strtolower((string) $this->value);
+    }
+
+    /** A soft delete releases the owner's addresses, all but its login. */
+    public static function ownerTrashed(Model $owner): void
+    {
+        static::query()
+            ->where('owner_type', $owner->getMorphClass())
+            ->where('owner_id', $owner->getKey())
+            ->when(static::loginOf($owner), fn ($query, string $login) => $query->where('value', '!=', $login))
+            ->toBase()
+            ->update(['live_value' => null]);
+    }
+
+    /** Takes back each address no one else has taken meanwhile, and removes the others. */
+    public static function ownerRestored(Model $owner): array
+    {
+        $dropped = [];
+
+        $released = static::query()
+            ->where('owner_type', $owner->getMorphClass())
+            ->where('owner_id', $owner->getKey())
+            ->whereNull('live_value')
+            ->get();
+
+        foreach ($released as $item) {
+            if (static::query()->where('live_value', $item->value)->exists()) {
+                $item->delete();
+                $dropped[] = $item;
+
+                continue;
+            }
+
+            static::query()->whereKey($item->getKey())->toBase()->update(['live_value' => $item->value]);
+        }
+
+        return $dropped;
+    }
+
+    /** Asked of the owner's row itself: `owner` hides a soft-deleted one. */
+    protected function ownerHoldsIt(): bool
+    {
+        $class = Relation::getMorphedModel((string) $this->owner_type);
+        $owner = $class !== null ? $class::query()->withoutGlobalScopes()->find($this->owner_id) : null;
+
+        return $owner === null
+            || ! method_exists($owner, 'trashed')
+            || ! $owner->trashed()
+            || static::loginOf($owner) === $this->value;
+    }
+
+    /** The address $owner's linked user signs in with, lower-cased; null without one. */
+    protected static function loginOf(Model $owner): ?string
+    {
+        $userId = $owner->getAttribute('user_id');
+        $login = $userId !== null ? User::query()->whereKey($userId)->value('email') : null;
+
+        return $login !== null ? mb_strtolower((string) $login) : null;
     }
 
     public function flags(): array
@@ -139,10 +205,12 @@ class EmailAddress extends CollectionItem
     }
 
     /**
-     * Not whether the address is real, but whether another record already
-     * has it: an address belongs to one record, so mail from it files to
-     * one. Excludes this item itself (by id, from the repeater's own hidden
+     * Not whether the address is real, but whether another live record
+     * already has it: an address belongs to one record, so mail from it files
+     * to one. Excludes this item itself (by id, from the repeater's own hidden
      * field), so re-saving an unchanged address never conflicts with itself.
+     * A deleted record's form may keep an address it has released, even when
+     * someone has taken it since.
      */
     protected static function uniqueRule(Get $get): Closure
     {
@@ -153,9 +221,13 @@ class EmailAddress extends CollectionItem
                 return;
             }
 
+            if (filled($get('id')) && static::query()->whereKey($get('id'))->whereNull('live_value')->where('value', $value)->exists()) {
+                return;
+            }
+
             $conflict = static::query()
                 ->when($get('id'), fn ($query, $id) => $query->whereKeyNot($id))
-                ->whereRaw('LOWER(value) = ?', [$value])
+                ->whereRaw('LOWER(live_value) = ?', [$value])
                 ->with('owner')
                 ->first();
 

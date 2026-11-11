@@ -17,14 +17,17 @@ use Illuminate\Support\Facades\Storage;
 class AppearanceSetting extends Model
 {
     /**
-     * The logo "kinds" and the column each is kept in: the login pages' logo and
-     * the customer portal's, each for light mode and (-dark) for dark mode.
+     * The logo "kinds" and the column each is kept in: the login pages' logo,
+     * the customer portal's and the dealer portal's, each for light mode and
+     * (-dark) for dark mode.
      */
     public const LOGO_COLUMNS = [
         'login' => 'login_logo',
         'login-dark' => 'login_logo_dark',
         'portal' => 'portal_logo',
         'portal-dark' => 'portal_logo_dark',
+        'dealer' => 'dealer_logo',
+        'dealer-dark' => 'dealer_logo_dark',
     ];
 
     protected $table = 'epesi_appearance_settings';
@@ -38,6 +41,9 @@ class AppearanceSetting extends Model
         'portal_logo',
         'login_logo_dark',
         'portal_logo_dark',
+        'dealer_title',
+        'dealer_logo',
+        'dealer_logo_dark',
     ];
 
     public static function current(): self
@@ -62,7 +68,7 @@ class AppearanceSetting extends Model
         return Storage::disk('local');
     }
 
-    /** Path on the disk of the uploaded logo for 'login' or 'portal', or null. */
+    /** Path on the disk of the uploaded logo of a kind (LOGO_COLUMNS), or null. */
     public static function logoPath(string $kind): ?string
     {
         $column = static::LOGO_COLUMNS[$kind] ?? null;
@@ -83,7 +89,7 @@ class AppearanceSetting extends Model
     }
 
     /**
-     * The uploaded logos of the 'login' or 'portal' page, by colour mode: a mode
+     * The uploaded logos of the 'login', 'portal' or 'dealer' page, by colour mode: a mode
      * with no picture of its own shows the other mode's, if there is one.
      *
      * @return array{light: ?string, dark: ?string}
@@ -93,12 +99,23 @@ class AppearanceSetting extends Model
         $light = static::logoUrl($target);
         $dark = static::logoUrl($target.'-dark');
 
-        return ['light' => $light ?? $dark, 'dark' => $dark ?? $light];
+        $path = static::logoPath($target) ?? static::logoPath($target.'-dark');
+        $mail = $path && in_array($target, ['login', 'portal', 'dealer'], true)
+            ? route('epesi.appearance.logo.mail', ['kind' => $target, 'v' => crc32($path.'v2')])
+            : null;
+
+        return ['light' => $light ?? $dark, 'dark' => $dark ?? $light, 'mail' => $mail];
     }
 
     /** The customer portal's title: "Customer Portal" until an administrator sets one. */
     public static function portalTitle(): string
     {
         return static::current()->portal_title ?: __('Customer Portal');
+    }
+
+    /** The dealer portal's title: "Dealer Portal" until an administrator sets one. */
+    public static function dealerTitle(): string
+    {
+        return static::current()->dealer_title ?: __('Dealer Portal');
     }
 }

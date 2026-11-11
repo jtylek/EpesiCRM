@@ -19,6 +19,7 @@ use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,6 +79,37 @@ class AttachmentsTest extends TestCase
             ->assertCanNotSeeTableRecords([$private]);
 
         $this->assertSame($editor->id, $edited->fresh()->latestEdit->causer_id);
+    }
+
+    public function test_the_list_says_who_edited_a_note_and_when_to_the_minute(): void
+    {
+        $author = $this->userWithRole('employee', ['name' => 'Ann Author']);
+        $editor = $this->userWithRole('employee', ['name' => 'Ed Editor']);
+        $this->actingAs($author);
+        $edited = Attachment::create(['title' => 'Edited', 'permission' => RecordPermission::Public]);
+        $seeded = Attachment::create(['title' => 'Seeded', 'permission' => RecordPermission::Public]);
+        $seeded->activities()->update(['causer_id' => null, 'causer_type' => null]);
+        $this->actingAs($editor);
+        $edited->update(['note' => 'Latest edit']);
+
+        $date = fn (Attachment $note): string => RegionalSetting::toUser($note->fresh()->updated_at)->translatedFormat(RegionalSetting::dateTimeFormat());
+
+        // An edit logged without a user falls back to the note's creator, in
+        // the line and in the "Edited by" filter alike.
+        // A fresh session opens on "My notes" (Edited by = the editor); show all.
+        $list = Livewire::test(ListAttachments::class)
+            ->removeTableFilter('edited_by')
+            ->assertCanSeeTableRecords([$edited, $seeded]);
+        preg_match_all('/epesi-note-meta-label">(Edited (?:by|on):)<\/span>([^<]*)</', $list->html(), $matches, PREG_SET_ORDER);
+
+        $this->assertEqualsCanonicalizing([
+            'Edited by: Ed Editor on '.$date($edited),
+            'Edited by: Ann Author on '.$date($seeded),
+        ], array_map(fn (array $match): string => $match[1].' '.html_entity_decode($match[2]), $matches));
+
+        $list->filterTable('edited_by', $author->id)
+            ->assertCanSeeTableRecords([$seeded])
+            ->assertCanNotSeeTableRecords([$edited]);
     }
 
     public function test_notes_can_be_filtered_by_an_inclusive_edited_date_range(): void
@@ -201,13 +233,28 @@ class AttachmentsTest extends TestCase
         Attachment::create(['title' => 'Loose note', 'note' => 'On nothing', 'permission' => RecordPermission::Public]);
 
         Livewire::test(ListAttachments::class)
-            ->assertSee(['Secret plan', 'Open plan', 'Loose note', 'Contact: '.$public->full_name]);
+            ->assertSee(['Secret plan', 'Open plan', 'Loose note', $public->full_name]);
 
         $this->actingAs($this->userWithRole('employee'));
 
         Livewire::test(ListAttachments::class)
             ->assertSee(['Open plan', 'Loose note'])
             ->assertDontSee('Secret plan');
+    }
+
+    public function test_the_notes_list_has_view_and_edit_icons_and_deletes_in_bulk(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        $note = Attachment::create(['title' => 'Old note', 'note' => 'Gone soon', 'permission' => RecordPermission::Public]);
+
+        Livewire::test(ListAttachments::class)
+            ->assertActionVisible(TestAction::make('view')->table($note))
+            ->assertActionVisible(TestAction::make('edit')->table($note))
+            ->assertActionDoesNotExist(TestAction::make('delete')->table($note))
+            ->selectTableRecords([$note->getKey()])
+            ->callAction(TestAction::make('delete')->table()->bulk());
+
+        $this->assertSoftDeleted($note);
     }
 
     public function test_a_note_started_from_the_list_can_be_attached_to_a_record(): void
@@ -297,6 +344,56 @@ class AttachmentsTest extends TestCase
         $this->assertStringNotContainsString('<script', $note->bodyHtml());
         $this->assertStringNotContainsString('javascript:', $note->bodyHtml());
         $this->assertStringStartsWith('Heading', $note->plainText());
+    }
+
+    public function test_the_note_form_runs_title_editor_files_linked_to_permission_sticky_then_encryption(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $html = Livewire::test(CreateAttachment::class)->html();
+
+        $positions = array_map(fn (string $path): int|false => strpos($html, "'data.{$path}'") ?: strpos($html, "\"data.{$path}\""),
+            ['title', 'editor', 'files', 'attach_to', 'permission', 'sticky', 'encrypt_note']);
+
+        $this->assertNotContains(false, $positions);
+        $sorted = $positions;
+        sort($sorted);
+        $this->assertSame($sorted, $positions);
+    }
+
+    public function test_super_admins_can_show_deleted_notes_and_restore_them(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        $kept = Attachment::create(['title' => 'Kept', 'permission' => RecordPermission::Public]);
+        $deleted = Attachment::create(['title' => 'Deleted', 'permission' => RecordPermission::Public]);
+        $deleted->delete();
+
+        Livewire::test(ListAttachments::class)
+            ->assertCanSeeTableRecords([$kept])
+            ->assertCanNotSeeTableRecords([$deleted])
+            ->filterTable('trashed', true)
+            ->assertCanSeeTableRecords([$kept, $deleted])
+            ->filterTable('trashed', false)
+            ->assertCanSeeTableRecords([$deleted])
+            ->assertCanNotSeeTableRecords([$kept])
+            ->selectTableRecords([$deleted->getKey()])
+            ->callAction(TestAction::make('restore')->table()->bulk());
+
+        $this->assertNotSoftDeleted($deleted);
+    }
+
+    public function test_others_do_not_get_the_deleted_notes_filter(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $this->assertNull(Livewire::test(ListAttachments::class)->instance()->getTable()->getFilter('trashed'));
+    }
+
+    public function test_the_plain_text_preview_keeps_paragraphs_and_lines_apart(): void
+    {
+        $this->assertSame(
+            'Closed on holidays. Next steps Call back',
+            NoteFormat::Html->toPlainText('<p>Closed on holidays.</p><p>Next steps<br>Call back</p>'),
+        );
     }
 
     public function test_switching_the_editor_converts_the_text_and_the_default_comes_from_user_settings(): void
@@ -536,7 +633,8 @@ class AttachmentsTest extends TestCase
 
         $this->get(AttachmentResource::getUrl('view', ['record' => $note]))
             ->assertOk()
-            ->assertSee('Contact: Ann Smith')
+            ->assertSee('Ann Smith')
+            ->assertDontSee('Contact: Ann Smith')
             ->assertSee('href="'.e(ContactResource::getUrl('view', ['record' => $contact])).'"', escape: false);
     }
 
@@ -775,7 +873,7 @@ class AttachmentsTest extends TestCase
 
         $files = strpos($html, 'report.pdf');
         $attachedTo = strpos($html, 'Linked to');
-        $editedOn = strpos($html, 'epesi-note-meta-label">Edited on</span>');
+        $editedOn = strpos($html, 'epesi-note-meta-label">Edited by:</span>');
 
         $this->assertNotFalse($files);
         $this->assertLessThan($attachedTo, $files);

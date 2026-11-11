@@ -2,7 +2,7 @@
     The user menu's "Keyboard help" item pops this open (its alpineClickHandler
     in MainPanelProvider) rather than linking to a page, the same way the
     command palette and file preview modal are wired: a static reference of
-    every shortcut in AI-shared/Keyboard-shortcuts.md, kept in sync by hand
+    every shortcut in AI-shared/user-interface/keyboard-shortcuts.md, kept in sync by hand
     since there's no single registry of them to build it from automatically.
     Each key is a real <x-filament::badge> rather than a hand-rolled <kbd>, so
     it's themed (light/dark, colour) by Filament's own CSS instead of Tailwind

@@ -2,9 +2,7 @@
 
 namespace Epesi\Modules\Attachments;
 
-use App\Services\LegacyImport\ImporterRegistry;
 use Epesi\Modules\Attachments\Filament\RelationManagers\NotesRelationManager;
-use Epesi\Modules\Attachments\LegacyImport\AttachmentsImporter;
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Policies\AttachmentPolicy;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
@@ -67,10 +65,6 @@ class AttachmentsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-attachments');
 
         Gate::policy(Attachment::class, AttachmentPolicy::class);
-
-        if ($this->app->runningInConsole()) {
-            $this->app->make(ImporterRegistry::class)->register('attachments', AttachmentsImporter::class, last: true);
-        }
 
         // After every provider has booted, so a module enabling Notes for
         // its own record type from its own boot() is picked up regardless of

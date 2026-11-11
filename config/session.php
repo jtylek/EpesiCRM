@@ -127,9 +127,14 @@ return [
     |
     */
 
+    // Unique per installation: browsers share cookies between every app on the
+    // same host (ports and folders don't separate them), so a name built from
+    // APP_NAME alone made installations log each other out. The suffix comes
+    // from APP_URL; the "remember me" cookie follows it (InstallationSessionGuard).
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session'
+        Str::slug((string) env('APP_NAME', 'laravel')).'-session-'
+            .substr(sha1((string) env('APP_URL', 'http://localhost')), 0, 8)
     ),
 
     /*

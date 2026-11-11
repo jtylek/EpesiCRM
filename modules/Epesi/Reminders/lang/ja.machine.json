@@ -17,6 +17,7 @@
     "Reminders": "リマインダー",
     "Set by": "設定者：",
     "Set one from the Reminders tab of a task, meeting or phone call.": "タスク、会議、または電話の「リマインダー」タブから設定してください。",
+    "Show reminders up to": "リマインダーを表示する上限は",
     "Starts :date (:relative)": "開始  :date(:relative)",
     "This record has no time to remind you before.": "このレコードには、事前に通知する時間がありません。",
     "Turn off": "オフにする",

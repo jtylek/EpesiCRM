@@ -12,6 +12,7 @@ use App\Services\Setup\RoundcubeSetup;
 use App\Services\Setup\SetupException;
 use App\Support\Locale\Locales;
 use App\Support\Modules\ModuleManifest;
+use App\Support\Setup\LegacyBootDetector;
 use App\Support\Setup\SetupCode;
 use App\Support\Setup\SetupLocale;
 use App\Support\Setup\SetupState;
@@ -79,6 +80,12 @@ class InstallWizard extends SimplePage
     {
         if (SetupState::isInstalled()) {
             $this->redirect(SetupState::finishPending() ? route('filament.setup.finish') : filament()->getPanel('main')->getUrl());
+
+            return;
+        }
+
+        if (LegacyBootDetector::detect(base_path()) === 'legacy') {
+            $this->redirect(route('filament.setup.migrate'));
 
             return;
         }

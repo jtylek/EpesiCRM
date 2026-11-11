@@ -21,4 +21,10 @@ return [
      * account passwords were encrypted with (data/CRM_Mail/encryption.key).
      */
     'legacy_data_dir' => env('LEGACY_DATA_DIR'),
+
+    /**
+     * Where a sliced run of the mail import keeps its place (set by the Migration Wizard only; `import:legacy`
+     * has none and always runs from the top).
+     */
+    'legacy_checkpoint' => null,
 ];

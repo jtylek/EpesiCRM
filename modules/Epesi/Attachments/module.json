@@ -13,5 +13,6 @@
     "panels": ["main"],
     "core": true,
     "requires": ["epesi/recordbrowser"],
-    "provides": []
+    "provides": [],
+    "legacy_importers": [{"tab": "attachments", "class": "Epesi\\Modules\\Attachments\\LegacyImport\\AttachmentsImporter", "last": true}]
 }

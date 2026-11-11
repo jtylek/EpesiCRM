@@ -100,6 +100,7 @@ return [
 
     'available_locales' => [
         'ar' => 'العربية',
+        'cs' => 'Čeština',
         'de' => 'Deutsch',
         'en' => 'English',
         'es' => 'Español',

@@ -177,6 +177,33 @@ class WatchdogEyesTest extends TestCase
         $this->assertSame([], Watchers::fieldsOf($this->home), 'a company has no Employees field');
     }
 
+    public function test_watchers_of_a_newly_linked_customer_start_watching_the_task(): void
+    {
+        $acme = Company::create(['company_name' => 'Acme']);
+        $carol = User::find($this->userWithRole('employee', ['name' => 'Carol'])->id);
+        Watchdog::subscribe($carol, $acme);
+
+        $this->actingAs($this->ann);
+
+        Livewire::test(CreateTask::class)
+            ->fillForm([
+                'title' => 'Call the bank',
+                'employees' => [$this->annContact->id],
+                'customers' => ['company:'.$acme->id],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $task = Task::query()->withoutGlobalScopes()->where('title', 'Call the bank')->latest('id')->firstOrFail();
+
+        $this->assertTrue(Watchdog::isSubscribed($carol, $task));
+    }
+
+    public function test_only_fields_marked_with_linked_watchers_count(): void
+    {
+        $this->assertSame(['customers'], array_map(fn (Field $field): string => $field->name, Watchers::linkedWatcherFieldsOf(Task::create(['title' => 'x']))));
+    }
+
     public function test_saving_a_model_with_no_morph_alias_is_left_alone(): void
     {
         $model = new class extends Model {};

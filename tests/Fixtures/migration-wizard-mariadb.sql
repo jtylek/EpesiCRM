@@ -1,0 +1,10 @@
+CREATE TABLE variables (id INT PRIMARY KEY, name VARCHAR(100));
+CREATE TABLE modules (id INT PRIMARY KEY, name VARCHAR(100));
+CREATE TABLE user_login (id INT PRIMARY KEY, login VARCHAR(100));
+CREATE TABLE user_password (id INT PRIMARY KEY, password VARCHAR(255));
+CREATE TABLE custom_invoice (id INT PRIMARY KEY, reference VARCHAR(100));
+INSERT INTO variables VALUES (1, 'version');
+INSERT INTO modules VALUES (1, 'Base');
+INSERT INTO user_login VALUES (1, 'fixture');
+INSERT INTO user_password VALUES (1, 'not-a-real-password');
+INSERT INTO custom_invoice VALUES (1, 'sample');

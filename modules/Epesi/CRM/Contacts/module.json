@@ -16,7 +16,8 @@
     "core": true,
     "requires": [
         "epesi/recordbrowser",
-        "epesi/commondata"
+        "epesi/commondata",
+        "epesi/migration-wizard"
     ],
     "provides": []
 }

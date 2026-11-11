@@ -17,7 +17,7 @@ use Throwable;
 /**
  * Laravel's config, event and route caches, Filament's component cache and
  * Blade Icons' manifest: together 100-150 ms off every page (measured in
- * AI-shared/Epesi-optimization.md). Not view:cache, which gained nothing:
+ * AI-shared/operations/performance.md). Not view:cache, which gained nothing:
  * Blade compiles a view on first use anyway.
  *
  * Who does what:

@@ -13,5 +13,6 @@
     "panels": ["main", "administration"],
     "core": true,
     "requires": [],
-    "provides": []
+    "provides": [],
+    "legacy_importers": [{"tab": "currencies", "class": "Epesi\\Modules\\Currencies\\LegacyImport\\CurrenciesImporter", "first": true}]
 }

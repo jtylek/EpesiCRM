@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\Models\Role;
 
 /**
- * The 'customer' role opens the customer portal (AI-shared/Customer-portal.md)
+ * The 'customer' role opens the customer portal (AI-shared/features/access/customer-portal.md)
  * but only the tests ever created it, so Administration → Users had no such
  * role to give. RoleSeeder creates it on a new install; this covers the
  * installations that already exist.

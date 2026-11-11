@@ -4,7 +4,6 @@ namespace App\Support\Auth;
 
 use App\Models\User;
 use Filament\Auth\Notifications\ResetPassword as ResetPasswordNotification;
-use Filament\Facades\Filament;
 use Filament\Panel;
 use Illuminate\Support\Facades\Password;
 use SensitiveParameter;
@@ -66,26 +65,17 @@ class NewAccountMailer
     }
 
     /**
-     * The panel this account's link should open, tried in the order a
-     * person is likeliest to use: the main CRM panel, then the customer
-     * portal. Null when it can open neither.
+     * The panel this account's link should open: the one it works in
+     * (HomePanel). Null when it can open none.
      */
-    protected static function panelFor(User $user): ?Panel
+    public static function panelFor(User $user): ?Panel
     {
-        foreach (['main', 'portal'] as $id) {
-            $panel = Filament::getPanel($id);
-
-            if ($user->canAccessPanel($panel)) {
-                return $panel;
-            }
-        }
-
-        return null;
+        return HomePanel::for($user);
     }
 
     /**
      * Sent straight away: Filament queues this notification, and epesi runs
-     * no queue worker (AI-shared/cron.md). Returns SENT, THROTTLED or FAILED
+     * no queue worker (AI-shared/operations/cron.md). Returns SENT, THROTTLED or FAILED
      * (the mail server is down or misconfigured); a link that went out is
      * written to the user's History.
      *

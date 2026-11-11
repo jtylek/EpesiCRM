@@ -5,6 +5,7 @@ namespace App\Services\LegacyImport\Importers;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use App\Services\LegacyImport\Importer;
+use App\Services\LegacyImport\ImportSummary;
 use App\Services\LegacyImport\LegacyIdMap;
 use App\Services\LegacyImport\LegacyValue;
 use Epesi\Modules\CRM\Companies\Models\Company;
@@ -39,6 +40,13 @@ class ContactsImporter extends Importer
 
     private const GROUP_KEY_REMAP = ['custm' => 'customer'];
 
+    /**
+     * The Contacts/Access keys that are also role names here. 'dealer' (a
+     * dealer company's login, legacy's Dealers module) opens the dealer portal
+     * (AI-shared/features/access/dealer-portal.md); 'accountmanager' has no role here yet.
+     */
+    private const ACCESS_ROLES = ['manager', 'employee', 'dealer'];
+
     /** Column prefix => the kind its address becomes, in order. */
     private const ADDRESSES = ['' => 'business', 'home_' => 'home'];
 
@@ -52,6 +60,24 @@ class ContactsImporter extends Importer
         parent::__construct();
         $this->companies = LegacyIdMap::for(Company::class);
         $this->users = LegacyIdMap::for(User::class);
+    }
+
+    /**
+     * Companies ran before this importer, so the links of their custom fields to contacts (a company's
+     * Account Manager) are filled here, once the contacts exist, together with this recordset's own.
+     */
+    public function run(bool $withHistory = true): ImportSummary
+    {
+        $summary = parent::run($withHistory);
+        // What Premium_MultipleAddresses rows could not be placed (the items themselves went in with the
+        // contacts' and the companies' addresses).
+        foreach ($this->multipleAddresses()->warnings() as $warning) {
+            $summary->warn($warning);
+        }
+        (new CompaniesImporter)->linkCustomRelations($summary);
+        $this->linkCustomRelations($summary);
+
+        return $summary;
     }
 
     public function legacyTab(): string
@@ -76,6 +102,32 @@ class ContactsImporter extends Importer
     protected function uniqueColumns(): array
     {
         return [];
+    }
+
+    /** @var array<string, int|null> legacy login id => id of the contact that keeps the link to it */
+    private array $loginHolders = [];
+
+    /**
+     * Legacy allowed several contacts to name the same login; here one user has one contact. The active contact
+     * keeps the link (the lowest id when several are active, or none is); the others are imported without it.
+     */
+    protected function extraAttributes(object $row): array
+    {
+        $login = trim((string) ($row->f_login ?? ''));
+        if ($login === '') {
+            return [];
+        }
+
+        $this->loginHolders[$login] ??= DB::connection('legacy')->table('contact_data_1')
+            ->where('f_login', $login)->orderByDesc('active')->orderBy('id')->value('id');
+
+        if ((int) $this->loginHolders[$login] === (int) $row->id) {
+            return [];
+        }
+
+        $this->summary->warn("contact#{$row->id}: the login is already used by contact#{$this->loginHolders[$login]}, imported without a user link");
+
+        return ['user_id' => null];
     }
 
     protected function trackedFields(): array
@@ -146,6 +198,9 @@ class ContactsImporter extends Importer
                 $addresses[] = ['kind' => $kind, ...$address];
             }
         }
+
+        // The Shipping addresses of Premium_MultipleAddresses owned by this contact.
+        array_push($addresses, ...$this->multipleAddresses()->forRecord('contact', (int) $row->id));
 
         $phones = [];
 
@@ -227,8 +282,8 @@ class ContactsImporter extends Importer
     }
 
     /**
-     * Contacts/Access ('manager'/'employee') matches this app's role names
-     * directly; user_login.admin (0/1/2 = No/Administrator/Super
+     * Contacts/Access ('manager'/'employee'/'dealer', ACCESS_ROLES) matches
+     * this app's role names directly; user_login.admin (0/1/2 = No/Administrator/Super
      * Administrator — Base_AclCommon's own levels, confirmed via
      * ContactsCommon_0.php's QFfield_admin) additionally grants super_admin
      * at level 2. A linked login with no Access selection and no super_admin
@@ -248,7 +303,7 @@ class ContactsImporter extends Importer
         }
 
         $roles = array_values(array_filter(
-            array_map(fn (string $key) => in_array($key, ['manager', 'employee'], true) ? $key : null, LegacyValue::multi($row->f_access ?? null))
+            array_map(fn (string $key) => in_array($key, self::ACCESS_ROLES, true) ? $key : null, LegacyValue::multi($row->f_access ?? null))
         ));
 
         $adminLevel = (int) (DB::connection('legacy')->table('user_login')->where('id', $row->f_login)->value('admin') ?? 0);

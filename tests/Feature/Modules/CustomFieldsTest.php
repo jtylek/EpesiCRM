@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Models\Module;
+use App\Services\Modules\ModuleInstaller;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
@@ -35,6 +37,39 @@ class CustomFieldsTest extends TestCase
         $company = Company::create(['company_name' => 'Acme Corp', $field->column => '2026-10-01']);
 
         $this->assertSame('2026-10-01', $company->fresh()->{$field->column}->toDateString());
+    }
+
+    public function test_fields_owned_by_a_disabled_module_are_hidden_but_return_when_enabled(): void
+    {
+        $module = Module::create([
+            'module_id' => 'custom/example-fields',
+            'name' => 'Example fields',
+            'description' => null,
+            'version' => '0.1.0',
+            'path' => 'Custom/Example/Fields',
+            'namespace' => 'Custom\\Example\\Fields\\',
+            'manifest' => [],
+            'enabled' => true,
+        ]);
+
+        $field = CustomField::create([
+            'model_type' => 'company',
+            'module_id' => $module->module_id,
+            'name' => 'module_value',
+            'label' => 'Module value',
+            'type' => FieldType::Text,
+        ]);
+
+        $this->assertSame([$field->column], CustomFieldRegistry::columnsFor(Company::class));
+
+        app(ModuleInstaller::class)->disable($module);
+
+        $this->assertSame([], CustomFieldRegistry::fieldsFor(Company::class));
+
+        $module->update(['enabled' => true]);
+        CustomFieldRegistry::refresh();
+
+        $this->assertSame([$field->column], CustomFieldRegistry::columnsFor(Company::class));
     }
 
     public function test_an_autonumber_field_needs_no_column(): void

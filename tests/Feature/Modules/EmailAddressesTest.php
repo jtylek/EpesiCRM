@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Models\User;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\CreateCompany;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\EditCompany;
 use Epesi\Modules\CRM\Companies\Models\Company;
@@ -9,8 +10,10 @@ use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\CreateContact;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\EditContact;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ListContacts;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -18,7 +21,7 @@ use Tests\TestCase;
 
 /**
  * E-mail addresses as a collection — step 7 of the plan in
- * AI-shared/Epesi-custom-fields.md: what replaced a contact's and a
+ * AI-shared/recordbrowser/collections.md: what replaced a contact's and a
  * company's `email` column and Mail's separate "E-mail addresses" table.
  */
 class EmailAddressesTest extends TestCase
@@ -140,5 +143,98 @@ class EmailAddressesTest extends TestCase
             ->assertHasNoFormErrors();
 
         $undoRepeaterFake();
+    }
+
+    public function test_a_deleted_contacts_address_can_be_given_to_another_contact(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $undoRepeaterFake = Repeater::fake();
+
+        $duplicate = Contact::create(['last_name' => 'Anders', 'first_name' => 'Ann']);
+        $duplicate->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@work.test']]);
+        $duplicate->delete();
+
+        $ann = Contact::create(['last_name' => 'Anders', 'first_name' => 'Anna']);
+
+        Livewire::test(EditContact::class, ['record' => $ann->getRouteKey()])
+            ->fillForm(['emails' => [['kind' => 'work', 'value' => 'Ann@Work.test']]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $undoRepeaterFake();
+
+        $this->assertSame(['ann@work.test'], $ann->fresh()->emails->pluck('value')->all());
+        // Still the deleted record's, for Restore.
+        $this->assertSame(['ann@work.test'], Contact::withTrashed()->find($duplicate->id)->emails->pluck('value')->all());
+    }
+
+    public function test_restore_takes_a_free_address_back_and_holds_it_again(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $ann = Contact::create(['last_name' => 'Anders', 'first_name' => 'Ann']);
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@work.test']]);
+
+        $ann->delete();
+        $this->assertNull(EmailAddress::query()->where('value', 'ann@work.test')->sole()->live_value);
+
+        $ann->restore();
+        $this->assertSame('ann@work.test', EmailAddress::query()->where('value', 'ann@work.test')->sole()->live_value);
+
+        $bob = Contact::create(['last_name' => 'Brown', 'first_name' => 'Bob']);
+        $this->expectException(QueryException::class);
+        $bob->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@work.test']]);
+    }
+
+    public function test_restore_leaves_an_address_taken_meanwhile_and_history_shows_it_gone(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $ann = Contact::create(['last_name' => 'Anders', 'first_name' => 'Ann']);
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'shared@work.test'], ['kind' => 'private', 'value' => 'ann@home.test']]);
+        $ann->delete();
+
+        $bob = Contact::create(['last_name' => 'Brown', 'first_name' => 'Bob']);
+        $bob->syncCollection('emails', [['kind' => 'work', 'value' => 'shared@work.test']]);
+
+        $ann->restore();
+
+        $this->assertSame(['ann@home.test'], $ann->fresh()->emails->pluck('value')->all());
+        $this->assertSame(['shared@work.test'], $bob->fresh()->emails->pluck('value')->all());
+
+        $logged = $ann->activities()->get()->map(fn ($entry) => $entry->properties['old']['emails'] ?? null)->filter()->last();
+        $this->assertStringContainsString('shared@work.test', implode(' ', $logged));
+    }
+
+    public function test_a_deleted_contact_keeps_holding_its_login_address(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $user = User::factory()->create(['email' => 'joe@acme.test']);
+        $joe = Contact::create(['last_name' => 'Doe', 'first_name' => 'Joe', 'user_id' => $user->id]);
+        $joe->syncCollection('emails', [['kind' => 'work', 'value' => 'joe@acme.test'], ['kind' => 'private', 'value' => 'joe@home.test']]);
+
+        $joe->delete();
+
+        $this->assertSame('joe@acme.test', EmailAddress::query()->where('value', 'joe@acme.test')->sole()->live_value);
+        $this->assertNull(EmailAddress::query()->where('value', 'joe@home.test')->sole()->live_value);
+    }
+
+    public function test_the_migration_releases_only_what_deleted_records_hold(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $ann = Contact::create(['last_name' => 'Anders', 'first_name' => 'Ann']);
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@work.test']]);
+        $gone = Contact::create(['last_name' => 'Gone', 'first_name' => 'Gary']);
+        $gone->syncCollection('emails', [['kind' => 'work', 'value' => 'gary@work.test']]);
+        $gone->delete();
+
+        $migration = require base_path('modules/Epesi/RecordBrowser/database/migrations/2026_11_07_110000_make_email_addresses_unique_among_live_records.php');
+        $migration->down();
+        $migration->up();
+
+        $this->assertSame('ann@work.test', EmailAddress::query()->where('value', 'ann@work.test')->sole()->live_value);
+        $this->assertNull(EmailAddress::query()->where('value', 'gary@work.test')->sole()->live_value);
     }
 }

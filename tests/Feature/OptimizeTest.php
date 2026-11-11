@@ -19,7 +19,7 @@ use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
 /**
- * The caches that speed up every page (AI-shared/Epesi-optimization.md):
+ * The caches that speed up every page (AI-shared/operations/performance.md):
  * the cached-route fix for an installation in a folder, how cron builds,
  * keeps and forgets the caches, the "auto" cache store, and the login
  * audit's once-a-minute write.

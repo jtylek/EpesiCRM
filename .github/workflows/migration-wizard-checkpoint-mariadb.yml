@@ -1,0 +1,39 @@
+name: Migration Wizard checkpoint MariaDB integration
+
+# Manual-only: GitHub Actions must not auto-run in this repo (limited minutes, private repo).
+# Tests run on YOGA instead - see AGENTS.md, "When to run tests". Don't add push/pull_request
+# triggers back without checking with the user first.
+on:
+  workflow_dispatch:
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root-test-only
+          MARIADB_DATABASE: epesi_migration_fixture
+          MARIADB_USER: migration_test
+          MARIADB_PASSWORD: fixture-test-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      MIGRATION_TEST_MARIADB_DSN: mysql:host=127.0.0.1;port=3306;dbname=epesi_migration_fixture;charset=utf8mb4
+      MIGRATION_TEST_MARIADB_USER: migration_test
+      MIGRATION_TEST_MARIADB_PASSWORD: fixture-test-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, pdo_sqlite, mbstring, dom, xml
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Run real MariaDB checkpoint restart and rollback test
+        run: vendor/bin/phpunit tests/Unit/MigrationWizardMariaDbCheckpointIntegrationTest.php

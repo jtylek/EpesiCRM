@@ -1,0 +1,14 @@
+{
+    "Checking failed": "Échec de la vérification",
+    "checking…": "Vérification en cours…",
+    "Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.": "« Se connecter » vous redirige vers le fournisseur d'accès pour que vous puissiez vous connecter à cette boîte mail et autoriser epesi à l'utiliser.",
+    "Connect the account again": "Reconnectez le compte",
+    "Connected as :account": "Connecté en tant que :account",
+    "Google (OAuth2)": "Google (OAuth2)",
+    "Last checked": "Dernière vérification",
+    "Microsoft 365 (OAuth2)": "Microsoft 365 (OAuth2)",
+    "Not connected yet": "Pas encore connecté",
+    "Save the account, then connect it (:method).": "Enregistrez le compte, puis connectez-le (:method).",
+    "Sign in with": "Se connecter avec",
+    "the mail account :name": "le compte de messagerie :name"
+}

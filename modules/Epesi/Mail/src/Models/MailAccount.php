@@ -111,7 +111,41 @@ class MailAccount extends Model implements OAuthOwner, OAuthRecipients
             } elseif ($account->is_default && $account->isDirty('is_default')) {
                 $others->update(['is_default' => false]);
             }
+
+            // A good check says nothing about a different mailbox.
+            if ($account->exists && $account->isDirty(['email', 'imap_host', 'imap_port', 'imap_security', 'imap_login'])) {
+                $account->last_checked_at = null;
+                $account->last_error = null;
+            }
         });
+    }
+
+    /**
+     * The accounts whose archived mail is this user's: their own, and any
+     * other account on a mailbox they have signed in to. A shared address is
+     * set up once per user, so a mail filed by a colleague through it counts.
+     *
+     * Anyone may add an account with any login and no password check, so a
+     * mailbox counts only after a check of the user's own account succeeded;
+     * typing in support@... must not open that mailbox's archive.
+     *
+     * @return list<int>
+     */
+    public static function idsOpenTo(User $user): array
+    {
+        $accounts = static::query()
+            ->get(['id', 'user_id', 'email', 'imap_host', 'imap_port', 'imap_security', 'imap_login', 'last_checked_at', 'last_error']);
+
+        $mailboxes = $accounts
+            ->filter(fn (self $account): bool => $account->user_id === $user->id
+                && $account->last_checked_at !== null && $account->last_error === null)
+            ->map(fn (self $account): string => $account->mailboxKey())
+            ->all();
+
+        return $accounts
+            ->filter(fn (self $account): bool => $account->user_id === $user->id
+                || in_array($account->mailboxKey(), $mailboxes, true))
+            ->pluck('id')->map(fn ($id): int => (int) $id)->values()->all();
     }
 
     public function richTextColumns(): array

@@ -3,8 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Module;
+use App\Services\LegacyImport\ImporterRegistry;
+use App\Support\Modules\DeclaredLegacyImporters;
 use App\Support\Modules\ModuleRegistry;
+use App\Support\Setup\LegacyBootDetector;
+use App\Support\Setup\SetupState;
 use Composer\Autoload\ClassLoader;
+use Epesi\Modules\MigrationWizard\Detection\LegacyDatabaseConnection;
+use Epesi\Modules\MigrationWizard\MigrationWizardServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -19,6 +25,8 @@ use Illuminate\Support\ServiceProvider;
  */
 class ModuleServiceProvider extends ServiceProvider
 {
+    private ?bool $wizardActive = null;
+
     public function register(): void
     {
         if (! config('modules.load', true)) {
@@ -27,14 +35,88 @@ class ModuleServiceProvider extends ServiceProvider
 
         $modules = ModuleRegistry::enabled();
 
+        // First: detecting the wizard looks for its class, which only the core namespaces make loadable.
         $this->registerAutoloader($modules);
 
-        if ($modules === []) {
+        // The shipped core modules a still-legacy site is about to get are autoloadable (their legacy
+        // importers are classes the scan instantiates) but their providers stay unloaded: nothing of
+        // them may boot against the legacy database.
+        $legacySiteModules = $this->legacyWizardActive($modules) ? DeclaredLegacyImporters::shippedCoreModules() : [];
+
+        if ($legacySiteModules !== []) {
+            $this->registerAutoloader($legacySiteModules);
+        }
+
+        if ($modules !== []) {
+            $this->registerModuleProviders($modules);
+            $this->registerTranslations($modules);
+        }
+
+        $this->registerLegacyImporters([...$modules, ...$legacySiteModules]);
+        $this->registerMigrationWizardForLegacySite($modules);
+    }
+
+    /**
+     * `import:legacy` importers come from the modules' module.json (DeclaredLegacyImporters), not from
+     * their providers, so the Migration Wizard sees them before the modules are installed and the
+     * browser run sees the same set as the CLI. Registered when the registry is first resolved: no
+     * manifest is read on a request that never asks for the importers.
+     *
+     * @param  array<int, array<string, mixed>>  $modules
+     */
+    protected function registerLegacyImporters(array $modules): void
+    {
+        $this->app->resolving(ImporterRegistry::class, function (ImporterRegistry $registry) use ($modules): void {
+            DeclaredLegacyImporters::register($registry, $modules);
+        });
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $modules
+     */
+    protected function legacyWizardActive(array $modules): bool
+    {
+        return $this->wizardActive ??= $this->detectLegacyWizard($modules);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $modules
+     */
+    private function detectLegacyWizard(array $modules): bool
+    {
+        $provider = MigrationWizardServiceProvider::class;
+
+        if (in_array($provider, array_column($modules, 'provider'), true) || ! class_exists($provider)) {
+            return false;
+        }
+
+        return LegacyBootDetector::detect($this->app->basePath()) === 'legacy' && ! SetupState::isInstalled();
+    }
+
+    /**
+     * A folder still holding a legacy Epesi has a `modules` table of its own (name/version
+     * columns), which the registry cannot read, so the Migration Wizard never comes from it:
+     * without its provider the `epesi:migrate-legacy` command, the views, the config and the
+     * importers are missing and the assessment finds no approved schema. Register it here,
+     * after the autoloader (a provider listed in bootstrap/providers.php is dropped by
+     * Laravel's class_exists() filter, which runs before any module namespace is mapped).
+     *
+     * Only when a legacy installation is detected, Epesi 3 is not installed yet and the
+     * registry did not supply the provider itself; Application::register() is idempotent, so
+     * a later registry entry (after the migration installs Epesi 3) does not register it twice.
+     */
+    protected function registerMigrationWizardForLegacySite(array $modules): void
+    {
+        if (! $this->legacyWizardActive($modules)) {
             return;
         }
 
-        $this->registerModuleProviders($modules);
-        $this->registerTranslations($modules);
+        $this->app->register(MigrationWizardServiceProvider::class);
+
+        // Epesi 3 files unpacked over the old folder come with a default .env naming a SQLite file that
+        // does not exist: the application database is the legacy one, from data/config.php. Config only,
+        // no connection is opened here.
+        LegacyDatabaseConnection::apply($this->app->basePath());
     }
 
     /**

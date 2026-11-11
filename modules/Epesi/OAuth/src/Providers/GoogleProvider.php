@@ -7,7 +7,7 @@ use Epesi\Modules\OAuth\Models\OAuthClient;
 /**
  * Google, for Gmail and Google Workspace over IMAP and SMTP (XOAUTH2). The
  * https://mail.google.com/ scope is restricted: each installation uses its
- * own Google Cloud project, Internal on Workspace (AI-shared/OAuth2-plan.md).
+ * own Google Cloud project, Internal on Workspace (AI-shared/features/integrations/oauth.md).
  */
 class GoogleProvider extends OAuthProvider
 {

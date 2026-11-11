@@ -15,6 +15,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
@@ -104,9 +105,20 @@ abstract class RecordsetResource extends Resource
      */
     protected static int $recordsetRecent = 0;
 
+    /**
+     * The list's "My records" button and filter (AI-shared/user-interface/conventions.md);
+     * false leaves the list without them, also when it has an Employees filter.
+     */
+    protected static bool $recordsetMyRecords = true;
+
     public static function hasFavorites(): bool
     {
         return static::$recordsetFavorites;
+    }
+
+    public static function hasMyRecords(): bool
+    {
+        return static::$recordsetMyRecords;
     }
 
     public static function getRecentLimit(): int
@@ -292,7 +304,16 @@ abstract class RecordsetResource extends Resource
 
             $blocks[] = Grid::make(2)
                 ->columnSpanFull()
-                ->extraAttributes(['class' => 'rb-column-flow', 'style' => '--rb-rows: '.(int) ceil(count($run) / 2)])
+                // Rows follow the fields visible *for this record* (a hidden
+                // field is no row), evaluated at render time with the record
+                // and, on forms, the live state available to `visible()`.
+                ->extraAttributes(fn (Grid $component): array => [
+                    'class' => 'rb-column-flow',
+                    'style' => '--rb-rows: '.max(1, (int) ceil(count(array_filter(
+                        $component->getChildComponents(),
+                        fn (mixed $child): bool => ! ($child instanceof Component) || $child->isVisible(),
+                    )) / 2)),
+                ])
                 ->components($run);
             $run = [];
         };

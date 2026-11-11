@@ -3,6 +3,7 @@
 namespace App\Services\LegacyImport\Importers;
 
 use App\Models\User;
+use App\Services\LegacyImport\CountedTables;
 use App\Services\LegacyImport\ImportSummary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,9 +26,19 @@ use Illuminate\Support\Str;
  * depends on the linked Contact's "Access" field and the login's admin
  * level, both only available once ContactsImporter processes that contact —
  * see ContactsImporter::assignRoles().
+ *
+ * A login legacy deactivated (`user_login.active` = 0) is deactivated here
+ * too (`users.active`), so it can't sign in to any panel; its records and
+ * Login Audit rows stay, as for any deactivated account.
  */
-class UsersImporter
+class UsersImporter implements CountedTables
 {
+    /** Every login becomes one user (a deactivated one is deactivated, not skipped). */
+    public function countedTables(): array
+    {
+        return [['table' => 'user_login', 'model' => User::class, 'skip' => null]];
+    }
+
     public function run(): ImportSummary
     {
         $summary = new ImportSummary;
@@ -69,6 +80,7 @@ class UsersImporter
 
             $seenEmails[$user->email] = true;
             $user->legacy_id = $login->id;
+            $user->active = (int) ($login->active ?? 1) === 1;
             $user->save();
 
             $isNew ? $summary->created++ : $summary->updated++;

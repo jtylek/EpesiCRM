@@ -2,7 +2,8 @@
 
 // What epesi needs from PHP. Read both by bootstrap/preflight.php (before
 // anything else loads, on any PHP version) and by the setup wizard's server
-// check (App\Services\Setup\Requirements), so keep it plain PHP 5 syntax.
+// check (App\Services\Setup\Requirements), so keep it plain PHP 5 syntax. It must stay parsable by
+// PHP 7.3 at the very least.
 
 return array(
     // 8.3 since 3.0 (2026-10-16): no openspout release (Filament's export

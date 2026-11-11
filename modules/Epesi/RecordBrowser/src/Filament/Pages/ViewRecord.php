@@ -8,7 +8,9 @@ use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\Schemas\RecordInfoEntries;
+use Epesi\Modules\RecordBrowser\Recordset\ClipboardPattern;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -23,6 +25,8 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -72,6 +76,12 @@ abstract class ViewRecord extends BaseViewRecord
     use HasResourceIconBreadcrumb;
     use HidesPageHeading;
 
+    /**
+     * Past this many characters an addon tab's title is cut short rather than
+     * widening its badge (withTruncatedLabel()).
+     */
+    protected const TAB_LABEL_MAX_LENGTH = 15;
+
     public function mount(int|string $record): void
     {
         parent::mount($record);
@@ -115,8 +125,9 @@ abstract class ViewRecord extends BaseViewRecord
         $favorites = is_subclass_of($resource, RecordsetResource::class) && $resource::hasFavorites()
             ? [Favorites::toggleAction()]
             : [];
+        $clipboard = ($clipboardAction = $this->clipboardAction()) !== null ? [$clipboardAction] : [];
 
-        foreach ([...$favorites, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
+        foreach ([...$favorites, ...$clipboard, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
             if ($action instanceof ActionGroup) {
                 $action->livewire($this);
                 $this->mergeCachedActions($action->getFlatActions());
@@ -139,6 +150,36 @@ abstract class ViewRecord extends BaseViewRecord
         }
     }
 
+    /**
+     * "Copy to clipboard", next to the favorite star — only when the
+     * `clipboard` feature is on for this record type and there is a pattern
+     * to render (a stored override or the module's default;
+     * AI-shared/recordbrowser/clipboard.md). The text itself is built
+     * only once the modal opens (the view's $text), not on every render of
+     * this page.
+     */
+    protected function clipboardAction(): ?Action
+    {
+        $record = $this->getRecord();
+        $alias = $record->getMorphClass();
+
+        if (! RecordsetFeatures::enabled('clipboard', $alias) || ClipboardPattern::patternFor($alias) === null) {
+            return null;
+        }
+
+        return Action::make('clipboard')
+            ->label(__('Copy to clipboard'))
+            ->icon(Heroicon::OutlinedClipboardDocument)
+            ->color('gray')
+            ->modalHeading(__('Copy to clipboard'))
+            ->modalSubmitAction(false)
+            ->modalCancelAction(false)
+            ->modalWidth(Width::TwoExtraLarge)
+            ->modalContent(fn (): ViewContract => view('filament.components.clipboard-pattern-modal', [
+                'text' => ClipboardPattern::render($record, $alias) ?? '',
+            ]));
+    }
+
     public function getRelationManagersContentComponent(): Component
     {
         $ownerRecord = $this->getRecord();
@@ -153,21 +194,30 @@ abstract class ViewRecord extends BaseViewRecord
                 $properties = $manager->getProperties();
                 $resource = $properties['sourceResource'];
                 $fields = IncomingLinks::for($ownerRecord)[$resource];
+                $label = IncomingLinks::tabLabel($resource, $ownerRecord);
 
-                return Tab::make(IncomingLinks::tabLabel($resource, $ownerRecord))
-                    ->icon($resource::getNavigationIcon())
-                    ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
-                    ->badge(fn (): string => (string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
-                    ->badgeColor(fn (?string $badge): ?string => $badge === '0' ? 'gray' : null)
-                    ->schema(fn (): array => [Livewire::make($manager->relationManager, [...$managerLivewireData, ...$properties])->key($resource)]);
+                return static::withTruncatedLabel(
+                    Tab::make($label)
+                        ->icon($resource::getNavigationIcon())
+                        ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
+                        ->badge(function () use ($resource, $ownerRecord, $fields): ?string {
+                            $count = IncomingLinks::query($resource, $ownerRecord, $fields)->count();
+
+                            return $count > 0 ? (string) $count : null;
+                        })
+                        ->schema(fn (): array => [Livewire::make($manager->relationManager, [...$managerLivewireData, ...$properties])->key($resource)]),
+                    $label,
+                );
             }
 
-            return static::withCountBadge($manager::getTabComponent($ownerRecord, static::class), $manager, $ownerRecord)
+            $tab = static::withCountBadge($manager::getTabComponent($ownerRecord, static::class), $manager, $ownerRecord)
                 ->key(static::addonTab($manager), isInheritable: false)
                 ->schema(fn (): array => [
                     Livewire::make($manager, [...$managerLivewireData, ...$manager::getDefaultProperties()])
                         ->key($manager),
                 ]);
+
+            return static::withTruncatedLabel($tab, $tab->getLabel());
         };
 
         $tabs = collect($otherManagers)
@@ -246,9 +296,9 @@ abstract class ViewRecord extends BaseViewRecord
     }
 
     /**
-     * How many records the addon lists, on its tab — "0" included, so a glance
-     * at the strip says which addons are worth opening. A zero is gray, a
-     * count is in the accent color.
+     * How many records the addon lists, on its tab — a zero stays unbadged,
+     * so a glance at the strip says which addons actually hold something,
+     * without every unused one still carrying a gray "0".
      *
      * The count is the addon's own relationship, so it follows the same row
      * visibility as its table; an addon whose table narrows the relationship
@@ -265,10 +315,33 @@ abstract class ViewRecord extends BaseViewRecord
         }
 
         return $tab
-            ->badge(fn (): string => $manager::getBadge($ownerRecord, static::class)
-                ?? (string) $ownerRecord->{$manager::getRelationshipName()}()->count())
-            ->badgeColor($manager::getBadgeColor($ownerRecord, static::class)
-                ?? fn (?string $badge): ?string => $badge === '0' ? 'gray' : null);
+            ->badge(function () use ($manager, $ownerRecord): ?string {
+                $badge = $manager::getBadge($ownerRecord, static::class)
+                    ?? (string) $ownerRecord->{$manager::getRelationshipName()}()->count();
+
+                return $badge === '0' ? null : $badge;
+            })
+            ->badgeColor($manager::getBadgeColor($ownerRecord, static::class));
+    }
+
+    /**
+     * Addon badges size to their own title (compact-tables.css), up to a max
+     * width — past TAB_LABEL_MAX_LENGTH characters ("Sales Opportunities",
+     * "Timesheet Rates") a label would blow that width out, so it's cut to
+     * length plus a trailing "." instead, with the full name kept as the
+     * button's native title tooltip.
+     */
+    protected static function withTruncatedLabel(Tab $tab, string|Htmlable|null $label): Tab
+    {
+        $text = $label instanceof Htmlable ? strip_tags($label->toHtml()) : (string) $label;
+
+        if (mb_strlen($text) <= static::TAB_LABEL_MAX_LENGTH) {
+            return $tab;
+        }
+
+        return $tab
+            ->label(mb_substr($text, 0, static::TAB_LABEL_MAX_LENGTH).'.')
+            ->extraAttributes(['title' => $text], merge: true);
     }
 
     /**

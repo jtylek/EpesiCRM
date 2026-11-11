@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\RequestMemo;
 use ArrayObject;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Epesi\Modules\Watchdog\Listeners\NotifySubscribers;
 use Epesi\Modules\Watchdog\Models\Subscription;
@@ -68,6 +69,12 @@ class Watchers
                 if ($subscription->wasRecentlyCreated && ! isset($added[$user->id])) {
                     $added[$user->id] = [$user, $field];
                 }
+            }
+        }
+
+        foreach (static::linkedWatcherFieldsOf($record) as $field) {
+            foreach (static::linkedRecordsIn($record, $field) as $linked) {
+                Watchdog::subscribeWatchersOf($record, $linked);
             }
         }
 
@@ -238,6 +245,44 @@ class Watchers
         }
 
         return array_values(array_filter($resource::resolvedFields(), fn (Field $field): bool => $field->hasWatchers()));
+    }
+
+    /**
+     * The fields of $record's recordset whose linked contact(s)/company(ies)'
+     * watchers also watch $record (customer(), customers()).
+     *
+     * @return array<int, Field>
+     */
+    public static function linkedWatcherFieldsOf(Model $record): array
+    {
+        $resource = Filament::getPanel('main', isStrict: false)?->getModelResource($record::class);
+
+        if (! $resource || ! is_subclass_of($resource, RecordsetResource::class)) {
+            return [];
+        }
+
+        return array_values(array_filter($resource::resolvedFields(), fn (Field $field): bool => $field->hasLinkedWatchers()));
+    }
+
+    /**
+     * The record(s) $field currently points $record at: customer()'s single
+     * morphTo relation, or customers()'s picks from the shared link table.
+     *
+     * @return Collection<int, Model>
+     */
+    public static function linkedRecordsIn(Model $record, Field $field): Collection
+    {
+        if ($field->type === FieldType::Customer) {
+            $related = $record->{$field->name};
+
+            return $related instanceof Model ? collect([$related]) : collect();
+        }
+
+        if ($field->type === FieldType::Customers && method_exists($record, 'linkedRecords')) {
+            return $record->linkedRecords($field->name);
+        }
+
+        return collect();
     }
 
     /**

@@ -287,6 +287,20 @@ class Watchdog
     }
 
     /**
+     * Whoever watches $linked also starts watching $record — the port of
+     * CRM_MailCommon::subscribe_users_to_record() and the Customer half of
+     * CRM_TasksCommon::subscribed_employees(): watching a contact or company
+     * a record is linked to carries over to the record itself. Silent, like
+     * the rest of a record's watchers from a save — no "added you" bell.
+     */
+    public static function subscribeWatchersOf(Model $record, Model $linked): void
+    {
+        foreach (static::subscribersOf($linked) as $watcher) {
+            static::subscribe($watcher, $record);
+        }
+    }
+
+    /**
      * Whether $user may see $record — asked before telling them about it, so
      * watching a whole record type never leaks someone's private record. It
      * runs the model's own query as that user, which is the only way to put

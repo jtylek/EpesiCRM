@@ -21,7 +21,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
  *
  * - the e-mail goes out straight away. Filament queues it, and on an install
  *   whose .env still says QUEUE_CONNECTION=database it would never leave:
- *   epesi runs no queue worker (AI-shared/cron.md);
+ *   epesi runs no queue worker (AI-shared/operations/cron.md);
  * - an address with no account, or one asked for a minute ago, gets the same
  *   answer as any other, so the page can't tell anyone who has an account;
  * - an e-mail that can't be sent says so, as legacy Epesi did, rather than

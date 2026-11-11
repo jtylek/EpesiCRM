@@ -61,6 +61,9 @@ class CompaniesImporter extends Importer
         ];
     }
 
+    /** Name given to a legacy company that has none. */
+    public const NO_NAME = '(no name)';
+
     private const ADDRESS_FIELDS = ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
 
     /** Legacy field => the kind its number becomes, in order. */
@@ -74,7 +77,7 @@ class CompaniesImporter extends Importer
 
     /**
      * The address as a Business item, when it has a street, a city or a
-     * postal code (Address::isAddress()); the phone and the fax as phone
+     * postal code (Address::isAddress()), then the Premium_MultipleAddresses ones; the phone and the fax as phone
      * numbers of kinds Work and Fax; the web address as an online account
      * of kind Website.
      */
@@ -104,7 +107,12 @@ class CompaniesImporter extends Importer
         ]));
 
         return [
-            'addresses' => Address::isAddress($address) ? [['kind' => 'business', ...$address]] : [],
+            // Then the Shipping addresses of Premium_MultipleAddresses: the company's own, and the copies of
+            // its contacts' rows that name this company (LegacyMultipleAddresses).
+            'addresses' => [
+                ...(Address::isAddress($address) ? [['kind' => 'business', ...$address]] : []),
+                ...$this->multipleAddresses()->forRecord('company', (int) $row->id),
+            ],
             'phones' => $phones,
             'online_accounts' => $web === '' ? [] : [['kind' => 'website', 'value' => $web]],
             'emails' => array_map(
@@ -123,6 +131,8 @@ class CompaniesImporter extends Importer
             'group' => [$column => $this->commonDataKeys(LegacyValue::multi($raw), 'Companies_Groups')],
             'permission' => [$column => $raw !== null && $raw !== '' ? (int) $raw : RecordPermission::Public->value],
             'email' => [$column => $raw !== '' ? $raw : null],
+            // Legacy allowed an empty name (11 companies on one real site); Epesi 3 requires one.
+            'company_name' => [$column => trim((string) $raw) !== '' ? html_entity_decode((string) $raw, ENT_QUOTES | ENT_HTML5) : self::NO_NAME],
             // Plain text, stored through htmlspecialchars() ("A&amp;J").
             default => [$column => $raw !== '' && $raw !== null ? ($column === 'memo' ? $raw : html_entity_decode($raw, ENT_QUOTES | ENT_HTML5)) : null],
         };

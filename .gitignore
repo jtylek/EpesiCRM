@@ -25,6 +25,9 @@
 # never tracked by this repository.
 /modules/Premium/
 /modules/Custom/
+# Never a place for a Premium module (it belongs in /modules/Premium/); ignored as a
+# safety net so a misplaced one can't be committed here by accident.
+/modules/Epesi/Premium/
 /node_modules
 /public/build
 /public/hot
@@ -50,7 +53,13 @@ Thumbs.db
 # OpenSSL random-state file, left behind by openssl on Windows
 /.rnd
 
-# Agent handoffs and mailbox (AI-shared/Multi-AI-agents-messaging.md)
+# Agent handoffs and mailbox (AI-shared/development/agent-coordination.md)
 /.wip
 
+# Claude Code's own per-session git worktrees (EnterWorktree), machine-local
+/.claude/worktrees/
+
 /Workshop1982_Data/
+
+# Claude Code per-machine settings
+/.claude/settings.local.json

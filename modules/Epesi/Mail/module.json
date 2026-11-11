@@ -13,5 +13,6 @@
     "panels": ["main", "user-settings"],
     "core": true,
     "requires": ["epesi/recordbrowser", "epesi/oauth"],
-    "provides": []
+    "provides": [],
+    "legacy_importers": [{"tab": "mail", "class": "Epesi\\Modules\\Mail\\LegacyImport\\MailImporter", "last": true}]
 }

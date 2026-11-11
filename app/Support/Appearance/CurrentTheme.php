@@ -21,7 +21,7 @@ use Illuminate\Support\HtmlString;
  * The same hook pattern as App\Support\Locale\Locales for RegionalSettings:
  * a core middleware/panel provider that named the module's classes directly
  * would crash the instant it's referenced, before the module is registered —
- * exactly what happened here (see AI-shared/Epesi-custom-themes.md).
+ * exactly what happened here (see AI-shared/user-interface/themes.md).
  */
 class CurrentTheme
 {

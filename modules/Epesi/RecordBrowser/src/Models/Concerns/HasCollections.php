@@ -27,7 +27,9 @@ use Spatie\Activitylog\ActivityLogStatus;
  * - One way to write, syncCollection(), which also writes the History entry:
  *   LogsActivity sees only the record's own columns.
  * - Deleting the record for good deletes its items; a soft delete keeps them,
- *   so Restore brings them back, as HasRecordLinks does with links.
+ *   so Restore brings them back, as HasRecordLinks does with links. A type
+ *   whose items are held against other records hears of both
+ *   (CollectionItem::ownerTrashed(), ownerRestored()).
  *
  * Which fields a model has comes from its recordset (CollectionFields).
  */
@@ -43,6 +45,10 @@ trait HasCollections
             }
 
             if (in_array(SoftDeletes::class, class_uses_recursive($record), true) && ! $record->isForceDeleting()) {
+                foreach (CollectionItem::types() as $type) {
+                    $type::ownerTrashed($record);
+                }
+
                 return;
             }
 
@@ -53,6 +59,22 @@ trait HasCollections
                     ->delete();
             }
         });
+
+        if (in_array(SoftDeletes::class, class_uses_recursive(static::class), true)) {
+            static::restored(function (Model $record): void {
+                foreach (CollectionItem::types() as $type) {
+                    foreach (collect($type::ownerRestored($record))->groupBy('field') as $field => $dropped) {
+                        if (CollectionFields::field($record::class, $field) === null) {
+                            continue;
+                        }
+
+                        $kept = $record->collection($field)->get()->map(fn (CollectionItem $item): string => $item->historyLine())->all();
+
+                        $record->logCollectionChange($field, [...$kept, ...$dropped->map(fn (CollectionItem $item): string => $item->historyLine())->all()], $kept);
+                    }
+                }
+            });
+        }
 
         // A save that changes a collection and the record's own fields makes
         // one History entry (SaveActivity). Once per class: models boot again

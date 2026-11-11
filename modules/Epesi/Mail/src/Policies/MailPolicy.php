@@ -34,6 +34,12 @@ class MailPolicy
 
     public function delete(User $user, Mail $mail): bool
     {
+        // The archive holds one copy for everyone: a consultant removes only
+        // a copy he archived himself.
+        if ($user->isConsultant() && ! $user->hasAnyRole(['super_admin', 'manager', 'employee'])) {
+            return $mail->user_id === $user->id;
+        }
+
         return $this->viewAny($user);
     }
 

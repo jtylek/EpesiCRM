@@ -6,6 +6,7 @@ use Closure;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -18,6 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ClosureValidationRule;
 use Throwable;
 
@@ -41,24 +43,14 @@ class MailTable
                 ->size(IconSize::Small)
                 ->grow(false)
                 ->width('1%'),
-            TextColumn::make('date')
-                ->formatStateUsing(fn (Mail $record): ?string => $record->date ? RegionalSetting::effective()->formatDate($record->date) : null)
-                ->description(fn (Mail $record): ?string => $record->date ? RegionalSetting::toUser($record->date)->format(RegionalSetting::timeFormat()) : null)
-                ->grow(false)
-                ->sortable(),
             TextColumn::make('subject')
                 ->label(__('E-mail'))
-                ->weight('medium')
+                ->state(fn (Mail $record): HtmlString => static::summary($record))
+                ->html()
                 ->description(fn (Mail $record): string => $record->snippet(560))
-                ->placeholder(__('(no subject)'))
                 ->wrap()
                 ->grow()
                 ->searchable(['subject', 'from', 'to', 'body_text']),
-            TextColumn::make('from')
-                ->limit(40)
-                ->tooltip(fn (Mail $record): ?string => $record->from)
-                ->grow(false)
-                ->width('12rem'),
             TextColumn::make('attachments_count')
                 ->label('')
                 ->counts('attachments')
@@ -70,6 +62,17 @@ class MailTable
                 ->listWithLineBreaks()
                 ->limitList(3)
                 ->grow(false) : null,
+        ]));
+    }
+
+    protected static function summary(Mail $record): HtmlString
+    {
+        $label = static fn (string $value): string => '<span class="font-medium">'.e($value).':</span>';
+
+        return new HtmlString(implode('', [
+            '<div>'.$label(__('Date')).' '.e((string) RegionalSetting::display($record->date)).' &nbsp; '.$label(__('From')).' '.e((string) $record->from).'</div>',
+            '<div>'.$label(__('To')).' '.e((string) $record->to).'</div>',
+            '<div>'.$label(__('Subject')).' '.e($record->subject ?: __('(no subject)')).'</div>',
         ]));
     }
 
@@ -99,17 +102,17 @@ class MailTable
         };
 
         return [
+            // The list's "My records": the same "mine" as the consultant's
+            // limit, not just the mail filed under the user's own contact.
+            Filter::make(ListRecords::MY_RECORDS_FILTER)
+                ->label('My records')
+                ->toggle()
+                ->query(fn (Builder $query): Builder => $query->mine(Auth::user())),
             SelectFilter::make('employee')
                 ->label('Employees')
                 ->relationship('employee', 'last_name')
                 ->searchable()
-                ->getSearchResultsUsing(fn (string $search): array => ContactResource::searchOptions($search))
-                ->default(function (): ?string {
-                    $user = Auth::user();
-                    $contactId = $user?->contact?->getKey();
-
-                    return $contactId === null ? null : (string) $contactId;
-                }),
+                ->getSearchResultsUsing(fn (string $search): array => ContactResource::searchOptions($search)),
             SelectFilter::make('direction')
                 ->options([Mail::INCOMING => __('Received'), Mail::OUTGOING => 'Sent']),
             // Any part of the sender: a name or an address. Not a list of

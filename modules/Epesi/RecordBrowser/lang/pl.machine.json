@@ -1,8 +1,26 @@
 {
+    ":count record(s) can't be deleted and were left as they are.": ":count Rekordy nie mogą zostać usunięte i pozostawiono je bez zmian.",
     ":field currency": ":field waluta",
     ":field from :value": ":field z :value",
     ":field in :value": ":field w :value",
     ":field until :value": ":field do :value",
+    "admin": "admin",
     "Amount with currency": "Kwota z walutą",
-    "The address this person signs in with. It can not be changed or removed here.": "Adres, z którego ta osoba się loguje. Nie można go tutaj zmienić ani usunąć."
+    "Can link to": "Może zawierać link do",
+    "Can link to any recordset": "Może odnosić się do dowolnego Zbioru rekordów",
+    "Choose at least one recordset it can link to, or any recordset.": "Wybierz co najmniej jeden zbiór rekordów, z którym może się powiązać, lub dowolny zbiór rekordów.",
+    "Choose which addon modules attach to this recordset. A change applies from the next page load.": "Wybierz moduły dodatkowe, które mają być powiązane z tym Zbiorem rekordów. Zmiana zacznie obowiązywać po następnym załadowaniu strony.",
+    "custom": "niestandardowy",
+    "Including recordsets installed later.": "W tym zbiór rekordów zainstalowany później.",
+    "Link": "Link",
+    "Link & add another": "Link i dodaj kolejny",
+    "Link a record": "Połącz rekord",
+    "Linked from: :recordset": "Link z: :recordset",
+    "Links already made stay in place when a module is turned off; they show again when it is turned back on.": "Utworzone już linki pozostają na swoim miejscu po wyłączeniu modułu; pojawiają się ponownie po jego ponownym włączeniu.",
+    "Related modules": "Powiązane moduły",
+    "Related modules saved": "Zapisano powiązane moduły",
+    "Start typing to search": "Zacznij pisać, aby wyszukać",
+    "The address this person signs in with. It can not be changed or removed here.": "Adres, z którego ta osoba się loguje. Nie można go tutaj zmienić ani usunąć.",
+    "Which recordsets it can link to, its own included. Empty offers every recordset, including ones installed later.": "Z jakimi zbiórami rekordów może się łączyć, wliczając w to swój własny. Puste pole oznacza wszystkie zbiórki rekordów, w tym te zainstalowane później.",
+    "Your recent records are listed. Type to search.": "Wyświetlono listę Twoich ostatnich Rekordów. Wpisz tekst, aby wyszukać."
 }

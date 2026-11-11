@@ -56,6 +56,6 @@ class CustomFieldActions
             })
             // The record is gone, so staying on its View page (/{record}) 404s
             // on the next render — send the user back to the index instead.
-            ->successRedirectUrl(fn (): string => CustomFieldResource::getUrl('index'));
+            ->successRedirectUrl(fn (CustomField $record): string => CustomFieldResource::fieldsUrl($record->model_type));
     }
 }

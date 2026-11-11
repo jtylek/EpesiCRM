@@ -25,7 +25,7 @@ class VersionTest extends TestCase
     {
         $this->assertSame(trim(File::get(base_path('VERSION'))), Version::current());
         $this->assertSame(Version::current(), config('modules.core_version'));
-        $this->assertSame('epesi 3.0RC7', Version::label());
+        $this->assertSame('epesi 3.0.1', Version::label());
     }
 
     public function test_a_module_published_for_2x_still_installs_on_3x(): void
@@ -60,7 +60,7 @@ class VersionTest extends TestCase
     {
         User::factory()->create();
 
-        $this->get(route('filament.main.auth.login'))->assertOk()->assertSee('epesi 3.0RC7');
+        $this->get(route('filament.main.auth.login'))->assertOk()->assertSee('epesi 3.0.1');
     }
 
     public function test_an_untagged_commit_builds_a_development_release(): void
@@ -68,6 +68,6 @@ class VersionTest extends TestCase
         $name = (new ReflectionMethod(PackageRelease::class, 'releaseName'))->invoke(app(PackageRelease::class));
 
         // The test suite runs on a checkout that is rarely the tagged release.
-        $this->assertMatchesRegularExpression('/^3\.0RC7(-dev(\.\d{8}\.[0-9a-f]+)?)?$/', $name);
+        $this->assertMatchesRegularExpression('/^3\.0\.1(-dev(\.\d{8}\.[0-9a-f]+)?)?$/', $name);
     }
 }

@@ -15,6 +15,7 @@ use Epesi\Modules\CRM\Tasks\Calendar\TaskCalendarProvider;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ListTasks;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Mail\Models\Mail;
+use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Reminders\Reminders;
 use Epesi\Modules\Watchdog\Watchdog;
@@ -166,7 +167,7 @@ class ConsultantRoleTest extends TestCase
         $this->assertFalse(Gate::allows('update', $linked), 'a public contact he did not create is not his to edit');
     }
 
-    public function test_notes_and_mails_follow_the_records_they_are_attached_to(): void
+    public function test_notes_follow_the_records_they_are_attached_to(): void
     {
         $his = $this->task('His');
         $his->employees()->attach($this->me);
@@ -176,15 +177,85 @@ class ConsultantRoleTest extends TestCase
         $privateOnHis = $this->noteOn($his, 'Private on his task', RecordPermission::Private);
         $this->noteOn($other, 'On another task');
 
+        $this->actingAs($this->consultant);
+        $mine = Attachment::create(['title' => 'Mine, on nothing', 'permission' => RecordPermission::Private]);
+
+        $this->assertEqualsCanonicalizing([$onHis->id, $mine->id], Attachment::query()->pluck('id')->all());
+        $this->assertNotContains($privateOnHis->id, Attachment::query()->pluck('id')->all());
+    }
+
+    public function test_a_mail_linked_to_his_record_is_not_his_unless_he_sent_or_received_it(): void
+    {
+        $his = $this->task('His');
+        $his->employees()->attach($this->me);
+        $this->me->syncCollection('emails', [['kind' => 'work', 'value' => 'con@ourcompany.test']]);
+
         $archiver = app(MailArchiver::class);
-        $archiver->archive(Eml::make(subject: 'About his task'), $this->manager, links: [$his]);
-        $archiver->archive(Eml::make(subject: 'About another task', messageId: 'other@test'), $this->manager, links: [$other]);
+        $archiver->archive(Eml::make(subject: 'Colleagues about his task', messageId: 'a@test'), $this->manager, links: [$his]);
+        $archiver->archive(Eml::make(subject: 'Received', to: 'Con <con@ourcompany.test>', messageId: 'b@test'), $this->manager);
+        $archiver->archive(Eml::make(subject: 'Sent', from: 'Con <con@ourcompany.test>', messageId: 'c@test'), $this->manager);
+        $archiver->archive(Eml::make(subject: 'Copied', cc: 'con@ourcompany.test', messageId: 'd@test'), $this->manager);
+        $archiver->archive(Eml::make(subject: 'A longer address', to: 'joe.con@ourcompany.test', messageId: 'e@test'), $this->manager);
 
         $this->actingAs($this->consultant);
+        $archiver->archive(Eml::make(subject: 'Filed by him', messageId: 'f@test'), $this->consultant);
 
-        $this->assertSame([$onHis->id], Attachment::query()->pluck('id')->all());
-        $this->assertNotContains($privateOnHis->id, Attachment::query()->pluck('id')->all());
-        $this->assertSame(['About his task'], Mail::query()->pluck('subject')->all());
+        $this->assertEqualsCanonicalizing(['Received', 'Sent', 'Copied', 'Filed by him'], Mail::query()->pluck('subject')->all());
+    }
+
+    public function test_a_shared_mailbox_counts_only_after_his_own_account_has_signed_in_to_it(): void
+    {
+        $mailbox = ['email' => 'help@ourcompany.test', 'imap_host' => 'imap.test', 'imap_login' => 'help', 'imap_password' => 'secret'];
+        $colleagues = MailAccount::create(['user_id' => $this->manager->id, 'name' => 'Help', ...$mailbox]);
+        $otherMailbox = MailAccount::create(['user_id' => $this->manager->id, 'name' => 'Boss', ...$mailbox, 'imap_login' => 'boss']);
+
+        $archiver = app(MailArchiver::class);
+        $archiver->archive(Eml::make(subject: 'To the help desk', messageId: 'a@test'), $this->manager, $colleagues);
+        $archiver->archive(Eml::make(subject: 'To the boss', messageId: 'b@test'), $this->manager, $otherMailbox);
+
+        $this->actingAs($this->consultant);
+        $his = MailAccount::create(['user_id' => $this->consultant->id, 'name' => 'Help', ...$mailbox]);
+
+        $this->assertSame([], Mail::query()->pluck('subject')->all(), 'typing in the login proves nothing');
+
+        $his->forceFill(['last_checked_at' => now(), 'last_error' => 'NO authentication failed'])->save();
+        $this->assertSame([], Mail::query()->pluck('subject')->all(), 'a refused sign-in proves nothing');
+
+        $his->forceFill(['last_error' => null])->save();
+        $this->assertSame(['To the help desk'], Mail::query()->pluck('subject')->all());
+
+        $his->update(['imap_login' => 'boss']);
+        $this->assertNull($his->fresh()->last_checked_at, 'a good check says nothing about another mailbox');
+        $this->assertSame([], Mail::query()->pluck('subject')->all());
+    }
+
+    public function test_he_deletes_only_mail_he_archived_and_an_employee_still_may(): void
+    {
+        $this->me->syncCollection('emails', [['kind' => 'work', 'value' => 'con@ourcompany.test']]);
+        $archiver = app(MailArchiver::class);
+        $received = $archiver->archive(Eml::make(subject: 'Received', to: 'con@ourcompany.test', messageId: 'a@test'), $this->manager);
+        $filed = $archiver->archive(Eml::make(subject: 'Filed', messageId: 'b@test'), $this->consultant);
+
+        $this->actingAs($this->consultant);
+        $this->assertFalse(Gate::allows('delete', $received));
+        $this->assertTrue(Gate::allows('delete', $filed));
+
+        $this->actingAs($this->userWithRole('employee'));
+        $this->assertTrue(Gate::allows('delete', $received));
+    }
+
+    public function test_archiving_a_message_someone_else_filed_keeps_one_copy_and_makes_it_his(): void
+    {
+        $archiver = app(MailArchiver::class);
+        $archiver->archive(Eml::make(subject: 'Shared', messageId: 'a@test'), $this->manager);
+
+        $this->actingAs($this->consultant);
+        $this->assertSame([], Mail::query()->pluck('subject')->all());
+
+        $archiver->archive(Eml::make(subject: 'Shared', messageId: 'a@test'), $this->consultant);
+
+        $this->assertSame(1, Mail::query()->withoutGlobalScope('ownership')->count());
+        $this->assertSame(['Shared'], Mail::query()->pluck('subject')->all());
     }
 
     public function test_calendar_watchdog_and_reminders_follow_the_same_rule(): void

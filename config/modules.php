@@ -42,6 +42,7 @@ return [
      * the registry like everyone else's — this is autoloading only.
      */
     'core_namespaces' => [
+        'Epesi\\Modules\\MigrationWizard\\' => 'Epesi/MigrationWizard',
         'Epesi\\Modules\\RecordBrowser\\' => 'Epesi/RecordBrowser',
 
         // The CRM recordsets. They are modules, but the core app still names
@@ -62,6 +63,11 @@ return [
         // installation whose code is updated before `epesi:update` registers
         // the module would otherwise fail to load Mail's classes at all.
         'Epesi\\Modules\\OAuth\\' => 'Epesi/OAuth',
+
+        // Accounting's and Inventory's models point at its TaxRate. It moved
+        // out of Accounting, so an installation whose code is updated before
+        // `epesi:update` registers it would otherwise lose the class.
+        'Epesi\\Modules\\TaxRates\\' => 'Epesi/TaxRates',
     ],
 
     /*

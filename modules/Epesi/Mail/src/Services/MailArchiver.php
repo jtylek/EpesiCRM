@@ -91,7 +91,9 @@ class MailArchiver
      */
     protected function existing(?string $messageId, array $from, array $to, string $subject, ?CarbonImmutable $date): ?Mail
     {
-        $query = Mail::withTrashed();
+        // Not through the ownership scope: the copy may be someone else's, and
+        // not finding it would store the message a second time.
+        $query = Mail::withTrashed()->withoutGlobalScope('ownership');
 
         if ($messageId !== null) {
             return $query->where('message_id', $messageId)->first();
@@ -187,13 +189,14 @@ class MailArchiver
             ...$this->messageIds((string) $mail->references),
         ]);
 
-        $threadId = $ancestors === [] ? null : Mail::query()
+        // Threads join across everyone's mail, whoever is archiving this one.
+        $threadId = $ancestors === [] ? null : Mail::query()->withoutGlobalScope('ownership')
             ->whereIn('message_id', $ancestors)
             ->whereNotNull('thread_id')
             ->value('thread_id');
 
         if ($threadId === null && filled($mail->message_id)) {
-            $threadId = Mail::query()
+            $threadId = Mail::query()->withoutGlobalScope('ownership')
                 ->whereKeyNot($mail->getKey())
                 ->whereNotNull('thread_id')
                 ->where(fn ($q) => $q->where('in_reply_to', $mail->message_id)
@@ -244,9 +247,7 @@ class MailArchiver
         }
 
         foreach ($mail->linkedRecords() as $record) {
-            foreach (Watchdog::subscribersOf($record) as $watcher) {
-                Watchdog::subscribe($watcher, $mail);
-            }
+            Watchdog::subscribeWatchersOf($mail, $record);
         }
     }
 

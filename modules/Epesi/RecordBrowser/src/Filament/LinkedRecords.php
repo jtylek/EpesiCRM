@@ -3,15 +3,16 @@
 namespace Epesi\Modules\RecordBrowser\Filament;
 
 use Closure;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
  * How a linked record reads wherever it is shown — a relation field, the
@@ -27,21 +28,32 @@ class LinkedRecords
      * A badge for each record $records returns for the row, named by $label
      * (by default the record's title) and linked to its View page.
      *
+     * $label may return an Htmlable (e.g. the recordset's icon before the
+     * title, LinkableRecordsets::iconLabel() wrapped in a HtmlString) instead
+     * of a plain string: Filament sanitizes a badge's text when it's given as
+     * a plain string under ->html() (Str::sanitizeHtml(), which drops an
+     * inline <svg>), but trusts — unsanitized — a state item that already
+     * arrives as an Htmlable, the same bypass FieldType::File/Collection's
+     * HtmlString state already relies on. Matched by value, not identity
+     * (Htmlable is cast to string), since $label builds a fresh instance each
+     * call.
+     *
      * @template T of TextColumn|TextEntry
      *
      * @param  T  $component
      * @param  Closure(Model): (iterable<Model>|Model|null)  $records
-     * @param  (Closure(Model): string)|null  $label
+     * @param  (Closure(Model): (string|Htmlable))|null  $label
      * @return T
      */
     public static function badges(TextColumn|TextEntry $component, Closure $records, ?Closure $label = null): TextColumn|TextEntry
     {
         $label ??= static::title(...);
         $all = fn (Model $record): Collection => collect(($related = $records($record)) instanceof Model ? [$related] : ($related ?? []))->filter();
+        $matches = fn (Model $related, mixed $state): bool => (string) $label($related) === (string) $state;
 
         return static::style(
-            $component->state(fn (Model $record): array => $all($record)->map(fn (Model $related): string => $label($related))->values()->all()),
-            fn (Model $record, mixed $state): ?string => ($related = $all($record)->first(fn (Model $related): bool => $label($related) === $state))
+            $component->state(fn (Model $record): array => $all($record)->map(fn (Model $related): string|Htmlable => $label($related))->values()->all()),
+            fn (Model $record, mixed $state): ?string => ($related = $all($record)->first(fn (Model $related): bool => $matches($related, $state)))
                 ? static::url($related)
                 : null,
         );
@@ -76,7 +88,7 @@ class LinkedRecords
         $resource = static::resource($record);
         $title = $resource ? $resource::getRecordTitle($record) : null;
 
-        return filled($title) ? strip_tags((string) $title) : Str::headline($record->getMorphClass()).' #'.$record->getKey();
+        return filled($title) ? strip_tags((string) $title) : LinkableRecordsets::label($record->getMorphClass()).' #'.$record->getKey();
     }
 
     public static function url(Model $record): ?string

@@ -1,0 +1,39 @@
+name: Migration Wizard PHP tests
+
+# Manual-only: GitHub Actions must not auto-run in this repo (limited minutes, private repo).
+# Tests run on YOGA instead - see AGENTS.md, "When to run tests". Don't add push/pull_request
+# triggers back without checking with the user first.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit:
+    name: PHPUnit PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, intl, zip, pdo_sqlite, sqlite3, pdo_mysql, phar
+          coverage: none
+          tools: composer:v2
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Syntax check Migration Wizard sources and tests
+        shell: bash
+        run: |
+          find modules/Epesi/MigrationWizard/src tests/Unit app/Support/Setup/LegacyBootDetector.php app/Http/Middleware/RedirectToSetup.php -type f -name '*.php' \
+            \( -path 'modules/Epesi/MigrationWizard/src/*' -o -name 'MigrationWizard*' -o -name 'LegacyMaintenanceModeTest.php' \) \
+            -print0 | xargs -0 -n1 php -l
+      - name: Run isolated Migration Wizard PHPUnit suite
+        run: vendor/bin/phpunit --testsuite Unit --filter 'MigrationWizard|LegacyMaintenanceMode' --colors=never

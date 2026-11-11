@@ -15,6 +15,9 @@
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
+// This file must stay parsable by PHP 7.3 (no arrow functions, no array spread, ...): cron's PHP is
+// often an old one, and bootstrap/preflight.php (below) can only explain that if this file parses.
+
 // A web server showing this folder instead of public/ must not run it.
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
@@ -32,4 +35,4 @@ require __DIR__.'/vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/bootstrap/app.php';
 
-exit($app->handleCommand(new ArgvInput([$argv[0], 'epesi:cron', ...array_slice($argv, 1)])));
+exit($app->handleCommand(new ArgvInput(array_merge([$argv[0], 'epesi:cron'], array_slice($argv, 1)))));

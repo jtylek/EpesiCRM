@@ -20,6 +20,8 @@ class Logo
 
     public const PORTAL = 'portal';
 
+    public const DEALER = 'dealer';
+
     /** @var Closure(string): array{light: ?string, dark: ?string}|null */
     protected static ?Closure $resolver = null;
 
@@ -42,12 +44,31 @@ class Logo
     }
 
     /**
+     * The logo for e-mails: the installation's own LOGIN logo (Administration →
+     * Themes) when one is uploaded, else the built-in one, on a white plate drawn
+     * into the picture (it survives a mail app's dark mode). Absolute URL, since a
+     * mail client cannot resolve a relative one.
+     *
+     * @return array{url: string, alt: string}
+     */
+    public static function mail(): array
+    {
+        $urls = static::$resolver ? (static::$resolver)(self::LOGIN) : ['light' => null, 'dark' => null];
+        $url = ($urls['mail'] ?? null) ?: ($urls['light'] ?: asset('images/logo-mail.png'));
+
+        return [
+            'url' => str_starts_with($url, 'http') ? $url : url($url),
+            'alt' => $urls['light'] ? AppName::of(self::LOGIN) : 'epesi',
+        ];
+    }
+
+    /**
      * The logo on the main application's login pages: the administrator's own
      * (Administration → Themes), else the built-in one.
      */
     public static function login(string $height = '5rem'): HtmlString
     {
-        return self::custom(self::LOGIN, $height) ?? self::html($height);
+        return self::of(self::LOGIN, $height);
     }
 
     /**
@@ -56,12 +77,30 @@ class Logo
      */
     public static function portal(string $height = '5rem'): HtmlString
     {
-        return self::custom(self::PORTAL, $height) ?? self::html($height);
+        return self::of(self::PORTAL, $height);
+    }
+
+    /**
+     * The logo on the dealer portal's login page: its own, separate from the
+     * main application's and the customer portal's.
+     */
+    public static function dealer(string $height = '5rem'): HtmlString
+    {
+        return self::of(self::DEALER, $height);
+    }
+
+    /**
+     * The logo of one kind (LOGIN, PORTAL or DEALER): the administrator's own,
+     * else the built-in one.
+     */
+    public static function of(string $kind, string $height = '5rem'): HtmlString
+    {
+        return self::custom($kind, $height) ?? self::html($height);
     }
 
     /**
      * What the Appearance module tells core code: the URLs of the logos an
-     * administrator uploaded for LOGIN or PORTAL, for light and dark mode (null
+     * administrator uploaded for LOGIN, PORTAL or DEALER, for light and dark mode (null
      * for none). Core never names the module directly, same hook pattern as
      * AppName.
      *
@@ -80,7 +119,8 @@ class Logo
             return null;
         }
 
-        $alt = e(AppName::login());
+        // The title that goes with the logo: the login title, the customer portal's or the dealer portal's.
+        $alt = e(AppName::of($target));
         $style = 'max-height:'.e($height).';max-width:100%;width:auto';
 
         if ($urls['light'] === $urls['dark']) {

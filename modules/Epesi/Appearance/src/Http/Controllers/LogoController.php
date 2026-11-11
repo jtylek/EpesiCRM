@@ -6,8 +6,8 @@ use Epesi\Modules\Appearance\Models\AppearanceSetting;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Streams the logo an administrator uploaded for the login page or the customer
- * portal. Public (the login page is), and an SVG can't run script from here: the
+ * Streams the logo an administrator uploaded for the login pages, the customer
+ * portal or the dealer portal. Public (the login page is), and an SVG can't run script from here: the
  * sandbox CSP and nosniff make it a picture only, even opened on its own.
  */
 class LogoController

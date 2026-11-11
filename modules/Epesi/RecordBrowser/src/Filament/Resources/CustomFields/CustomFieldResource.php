@@ -5,6 +5,7 @@ namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields;
 use App\Filament\Concerns\TranslatesResourceLabels;
 use App\Support\Demo;
 use BackedEnum;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\CreateCustomField;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\EditCustomField;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustomFields;
@@ -44,7 +45,9 @@ class CustomFieldResource extends Resource
 
     protected static ?string $navigationLabel = 'Recordsets';
 
-    protected static ?string $slug = 'recordsets';
+    protected static ?string $slug = 'recordset-fields';
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $modelLabel = 'field';
 
@@ -68,6 +71,17 @@ class CustomFieldResource extends Resource
     public static function table(Table $table): Table
     {
         return FieldCatalogue::configure($table);
+    }
+
+    /**
+     * The field list of one recordset, or of all of them for a type that has
+     * no page under Recordsets (a collection's item type).
+     */
+    public static function fieldsUrl(string $alias): string
+    {
+        return array_key_exists($alias, Recordsets::recordsets())
+            ? static::getUrl('index', ['recordset' => $alias])
+            : static::getUrl('index');
     }
 
     public static function getPages(): array

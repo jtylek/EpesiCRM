@@ -67,6 +67,10 @@ To try Epesi before installing it, use the [live demo](https://epesicrm.com/demo
 
 ## Design principles
 
+Epesi is designed for businesses that need consistent records, administrator customization,
+optional modules and affordable self-hosting. Its architecture puts common behavior in shared
+engines so that adding a business feature does not mean rebuilding the same infrastructure.
+
 1. **Modular architecture.** Almost everything is a module in `modules/<Vendor>/<Name>/`: a
    folder with a `module.json` manifest and PSR-4 code. That includes the CRM itself. Modules
    declare their dependencies and are installed, enabled and disabled at runtime. Modules
@@ -80,6 +84,61 @@ To try Epesi before installing it, use the [live demo](https://epesicrm.com/demo
    fields once and gets consistent list, view, create and edit screens, filters, search and
    change history. Administrator-added custom fields use the same path and appear alongside
    built-in fields.
+5. **Relational data, including customization.** Business records use ordinary SQL tables.
+   Administrator-added fields are real columns on the record's table, so filtering, sorting
+   and reporting can use normal database queries. The old rendering and EAV storage engines
+   are not carried forward.
+6. **Preserve business behavior while modernizing the implementation.** Existing Epesi
+   workflows guide the rewrite; framework defaults do not define the product. Inherited
+   behavior can still be reviewed and changed deliberately.
+
+### Why this architecture fits CRM and ERP
+
+Epesi is a **modular monolith**: business capabilities have explicit ownership while running
+in one application. A module owns its models, policies, resources and migrations. Shared
+features such as the calendar, dashboard and setup wizard accept contributions through
+registries and contracts, keeping module-specific decisions out of their shared pages.
+
+RecordBrowser addresses a recurring CRM/ERP problem: companies, contacts, tasks and invoices
+all need many of the same capabilities. Maintaining separate implementations of forms,
+lists, search, history and custom fields makes them drift apart. A shared field declaration
+keeps those surfaces aligned, and an engine correction reaches all recordsets. Custom fields
+are especially important here: administrators can extend a record without each screen needing
+a separate mechanism to display and edit the new field. Field and schema hooks accommodate
+exceptions; pages and workflows outside the record lifecycle can use Filament directly.
+
+Access is explicit at several levels: panel admission, record visibility, action permissions
+and business invariants. Permissions belong to roles rather than individual users. Hiding a
+field is not authorization, and a business rule such as preventing changes to a posted record
+must also apply to super administrators.
+
+Deployment choices follow the same practical priorities. Release packages include built
+assets and dependencies, modules install through the browser, and cron is the baseline for
+scheduled work. Customers can operate Epesi on supported PHP hosting without needing
+Composer or Node on the server.
+
+### Tradeoffs and responsibilities
+
+- **A shared engine adds a learning curve and increases the reach of mistakes.** Developers
+  must understand the field declarations and extension hooks. Changes to RecordBrowser need
+  broad regression testing, and its abstractions must remain focused enough that unusual
+  requirements stay understandable.
+- **Runtime modules require lifecycle discipline.** Dependency compatibility, upgrades,
+  installation and data removal are platform responsibilities. Module boundaries organize
+  code; they do not sandbox installed PHP. Install modules only from trusted sources.
+- **Custom-field columns introduce operational costs.** Schema changes can lock tables or
+  fail on production databases. MySQL/MariaDB behavior needs direct validation; SQLite tests
+  alone cannot establish migration safety or production performance.
+- **The framework stack remains an important dependency.** Filament and Livewire supply much
+  of the interface infrastructure, so their lifecycle and upgrade behavior affect Epesi's
+  shared engine and modules.
+- **Access rules must hold across every entry point.** Separate visibility and permission
+  layers help express the rules, but forms, actions, exports and background work must enforce
+  the applicable boundaries and business invariants consistently.
+
+The architecture earns its complexity when a new business record receives consistent
+capabilities with little bespoke code, a shared correction improves every consumer, and
+exceptions remain easy to understand. Those are the standards by which it should evolve.
 
 ## How to install (developers)
 

@@ -8,9 +8,9 @@
  * own shipped look, unconditionally, for a guest or anyone with no chosen or
  * default theme) and left off only by an admin-authored theme whose density
  * is "comfortable" (App\Support\Appearance\CurrentTheme::appearanceScript(),
- * see AI-shared/Epesi-custom-themes.md).
+ * see AI-shared/user-interface/themes.md).
  */
-html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal) {
+html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal, .fi-panel-dealer) {
     /*
      * Filament's 4rem topbar, down to 3rem: still room for its 2.25rem search
      * box and avatar. The topbar, the sticky sidebar's offset and the sidebar
@@ -190,8 +190,22 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
     }
 
     /*
-     * Each addon tab is two lines, icon and count badge above the name, so the
-     * strip stays short enough to fit without a horizontal scrollbar.
+     * Each addon tab is a badge sized to its own title (up to a max width, so
+     * a handful of long ones can't stretch the whole strip), icon and count
+     * on one line above the name, outlined in the accent colour so every
+     * addon reads as a slot of its own — not just the active one. Titles
+     * past ViewRecord's TAB_LABEL_MAX_LENGTH are cut short server-side
+     * (withTruncatedLabel()) rather than relying on CSS ellipsis, so the max
+     * width only has to fit that many characters.
+     *
+     * Grid, not flex: an inline-flex item with flex-basis: 100% (tried first,
+     * for wrapping the label onto its own line) sizes against the flex
+     * container's AVAILABLE width, not its own content — on a shrink-to-fit
+     * container that pulled every badge out to max-width regardless of how
+     * short its title was. Grid's auto tracks size to actual content instead
+     * (icon+badge in row 1, the label spanning both columns in row 2), so a
+     * short title like "Notes" stays narrow and only "Sales Opportuni." gets
+     * near the cap.
      */
     .epesi-addon-tabs .fi-tabs-item {
         display: inline-grid;
@@ -199,30 +213,62 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
         justify-content: center;
         justify-items: center;
         align-items: center;
-        column-gap: 0.375rem;
+        max-width: 7.5rem;
+        column-gap: 0.25rem;
         row-gap: 0.125rem;
         padding-block: 0.375rem;
+        padding-inline: 0.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid color-mix(in srgb, var(--primary-500) 35%, transparent);
     }
 
     .epesi-addon-tabs .fi-tabs-item.fi-active {
-        outline: 1px solid var(--primary-500);
-        outline-offset: -1px;
+        border-color: var(--primary-500);
+        background-color: color-mix(in srgb, var(--primary-500) 12%, transparent);
     }
 
+    /*
+     * Icon and badge sit in separate auto-sized columns, so a wide spanning
+     * label below (row 2) grows both columns to reach its own width — evenly,
+     * but that leaves equal slack on each column's OUTER edge. Pinning the
+     * icon to its column's trailing edge and the badge to its column's
+     * leading edge collapses that slack between them instead of around them,
+     * so the pair stays a tight, centered unit whatever the label's width.
+     */
     .epesi-addon-tabs .fi-tabs-item > svg {
         grid-row: 1;
         grid-column: 1;
+        justify-self: end;
+        width: 1.25rem !important;
+        height: 1.25rem !important;
     }
 
     .epesi-addon-tabs .fi-tabs-item > .fi-badge {
         grid-row: 1;
         grid-column: 2;
+        justify-self: start;
+    }
+
+    /*
+     * A zero-count addon has no .fi-badge at all (ViewRecord's withCountBadge()
+     * leaves it unbadged), so there's nothing in column 2 to pin the icon
+     * against — end-aligning it in column 1 alone would leave it off-centre.
+     * Span it across both columns and centre it instead.
+     */
+    .epesi-addon-tabs .fi-tabs-item:not(:has(.fi-badge)) > svg {
+        grid-column: 1 / -1;
+        justify-self: center;
     }
 
     .epesi-addon-tabs .fi-tabs-item > .fi-tabs-item-label {
         grid-row: 2;
         grid-column: 1 / -1;
+        max-width: 100%;
+        overflow: hidden;
         white-space: nowrap;
+        text-overflow: clip;
+        text-align: center;
+        font-size: 0.6875rem;
     }
 
     .epesi-addon-tabs > .fi-sc-tabs-tab.fi-active {
@@ -281,7 +327,7 @@ html.epesi-compact :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-adm
  * `dark` and `epesi-compact` are both on <html> at once, so they need to
  * compound on it instead, which a flat rule says directly.
  */
-html.epesi-compact.dark :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal)
+html.epesi-compact.dark :where(.fi-panel-main, .fi-panel-user-settings, .fi-panel-administration, .fi-panel-portal, .fi-panel-dealer)
     .fi-ta-header-ctn:has(> .fi-ta-header):not(:has(> .fi-ta-filters-above-content-ctn)) {
     border-bottom-color: #ffffff1a;
 }

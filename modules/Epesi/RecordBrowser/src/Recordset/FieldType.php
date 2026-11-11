@@ -19,7 +19,7 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * Related, shown as "Linked to" (Field::linkedTo()). Collection has no legacy counterpart: what a record has none or
  * many of (its addresses, phone numbers, online accounts), kept in a table of
  * its own per collection type.
- * See AI-shared/Epesi-custom-fields.md.
+ * See AI-shared/recordbrowser/fields.md.
  */
 enum FieldType: string
 {

@@ -1,6 +1,8 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "Après modification, saisissez à nouveau le mot de passe pour que cette note reste cryptée.",
     "All notes": "Toutes les notes",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "Une note chiffrée ne peut pas contenir d'images, car celles-ci seraient stockées en clair. Supprimez les images ou désactivez le chiffrement.",
+    "Choose only records you can see.": "Ne sélectionnez que les enregistrements que vous pouvez voir.",
     "Confirm Password": "Confirmer le mot de passe",
     "Decrypt": "Décrypter",
     "Decrypt note": "Note de décryptage",

@@ -7,6 +7,7 @@ use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleRegistry;
 use App\Support\Modules\VersionConstraint;
 use App\Support\Optimize\FrameworkCaches;
+use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ use Throwable;
  * Deliberately pure PHP — ZipArchive, file moves, Artisan::call() — with no
  * shell out and no package registry, so it works on hosting where neither is
  * available and can run inside the request instead of needing a queue worker
- * (epesi runs none; see AI-shared/cron.md).
+ * (epesi runs none; see AI-shared/operations/cron.md).
  */
 class ModuleInstaller
 {
@@ -382,6 +383,7 @@ class ModuleInstaller
     protected function afterChange(): void
     {
         ModuleRegistry::refresh();
+        CustomFieldRegistry::refresh();
 
         // Config, routes, events, Filament's components and Blade Icons. Cron
         // builds them again in a later process (FrameworkCaches): this one's

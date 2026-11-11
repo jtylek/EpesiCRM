@@ -2,8 +2,12 @@
 
 use App\Support\Setup\BasePath;
 use App\Support\Setup\FirstBoot;
+use App\Support\Setup\FirstLoad;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+
+// This file must stay parsable by PHP 7.3 (no arrow functions, no array spread, ...): it is
+// reached before bootstrap/preflight.php can say that the PHP is too old.
 
 define('LARAVEL_START', microtime(true));
 
@@ -20,7 +24,9 @@ function runsOnDevStack(): bool
  */
 function setupNeededPage(string $problem, string $details, array $steps): never
 {
-    $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    $escape = static function (string $value): string {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    };
     http_response_code(503);
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store');
@@ -69,18 +75,20 @@ if (! is_file(__DIR__.'/../vendor/autoload.php')) {
     setupNeededPage(
         'Composer dependencies are not installed',
         'This checkout does not contain the Composer autoloader, so Laravel cannot start yet.',
-        [
-            'Open a terminal and go to <code>'.htmlspecialchars(dirname(__DIR__), ENT_QUOTES, 'UTF-8').'</code>.',
-            ...(runsOnDevStack() ? [
+        array_merge(
+            ['Open a terminal and go to <code>'.htmlspecialchars(dirname(__DIR__), ENT_QUOTES, 'UTF-8').'</code>.'],
+            runsOnDevStack() ? [
                 '<pre>$env:Path = "C:\\PHPDevStack\\runtime\\php;$env:Path"'."\n".'$env:PHPRC = "C:\\PHPDevStack\\runtime\\config\\generated"'."\n".'composer install</pre>',
                 'The second line makes the command-line PHP use the same <code>php.ini</code> as Apache (it enables <code>openssl</code>, <code>curl</code>, <code>zip</code> and the other extensions Composer needs). Without it Composer stops with "The openssl extension is required".',
             ] : [
                 '<pre>composer install</pre>',
                 'If <code>composer</code> is not recognized, add it to your <code>PATH</code> or run <code>php composer.phar install</code>. On a Linux server run it as the user that owns these files, not as root, so the web server can still write to <code>storage</code> and <code>bootstrap/cache</code>.',
-            ]),
-            'If Composer reports that <code>openspout</code> supports only PHP 8.4, run <code>composer update openspout/openspout filament/actions --with-all-dependencies</code> once, then repeat <code>composer install</code>.',
-            '<span class="check">After Composer finishes, reload this page.</span>',
-        ],
+            ],
+            [
+                'If Composer reports that <code>openspout</code> supports only PHP 8.4, run <code>composer update openspout/openspout filament/actions --with-all-dependencies</code> once, then repeat <code>composer install</code>.',
+                '<span class="check">After Composer finishes, reload this page.</span>',
+            ]
+        )
     );
 }
 
@@ -105,6 +113,11 @@ require __DIR__.'/../vendor/autoload.php';
 // setup wizard can open in the browser (see App\Support\Setup\FirstBoot).
 FirstBoot::prepare(dirname(__DIR__));
 
+// The first page load of a release shows a notice at once instead of a long
+// silence (see App\Support\Setup\FirstLoad).
+$firstLoad = new FirstLoad(dirname(__DIR__), $_SERVER);
+$firstLoad->gate();
+
 // Served from the folder above public/ (unpacked into a web root, with the
 // top-level .htaccess rewriting into public/), or through LARAVEL_BASE_PATH:
 // line the script path up with the address so routing finds the base path.
@@ -113,5 +126,9 @@ $_SERVER = BasePath::fix($_SERVER);
 // Bootstrap Laravel and handle the request...
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
+
+if ($firstLoad->wantsCompile()) {
+    $firstLoad->compile($app);
+}
 
 $app->handleRequest(Request::capture());

@@ -7,10 +7,13 @@ use App\Models\StoredFile;
 use App\Services\FileStorage;
 use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\ImportSummary;
+use App\Services\LegacyImport\LegacyFileTransfer;
+use App\Services\LegacyImport\LegacyPendingLinks;
 use App\Services\LegacyImport\LegacyRecordRefs;
 use App\Services\LegacyImport\LegacyValue;
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\Attachments\Services\LegacyNoteCipher;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -84,6 +87,40 @@ class AttachmentsImporter extends Importer
     public function logName(): string
     {
         return 'attachment';
+    }
+
+    /**
+     * Every note is one Attachment. The file-storage tables only served the notes' files, which are in the new storage
+     * by now, and `utils_attachment_local` repeats `f_attached_to`: they go with the notes, and stay with them.
+     */
+    public function countedTables(): array
+    {
+        $tables = parent::countedTables();
+        $tables[0]['sides'] = ['utils_attachment_local', 'utils_filestorage', 'utils_filestorage_access', 'utils_filestorage_files', 'utils_filestorage_remote'];
+        $tables[0]['pending'] = fn (Connection $legacy): array => $this->pending($legacy);
+
+        return $tables;
+    }
+
+    /**
+     * A note's link to a recordset nothing imports survives only in `f_attached_to` (syncPivots()), and a file field of
+     * a recordset that stays can only be read through the file-storage tables.
+     *
+     * @return list<string>
+     */
+    private function pending(Connection $legacy): array
+    {
+        $links = [];
+        foreach ($legacy->table('utils_attachment_data_1')->whereNotNull('f_attached_to')->pluck('f_attached_to') as $raw) {
+            foreach (LegacyValue::typedRefMulti($raw) as $ref) {
+                $links[$ref['type']] = ($links[$ref['type']] ?? 0) + 1;
+            }
+        }
+
+        return [
+            ...LegacyPendingLinks::describe($legacy, $this->refs, $links),
+            ...LegacyPendingLinks::fileFields($legacy, ['utils_attachment']),
+        ];
     }
 
     public function run(bool $withHistory = true): ImportSummary
@@ -228,16 +265,31 @@ class AttachmentsImporter extends Importer
                 continue;
             }
 
-            [$hash, $filename] = $source;
-            $path = $this->dataDir.'/Utils_FileStorage/'.FileStorage::pathFor($hash);
+            [$hash, $filename, $createdOn] = $source;
 
-            if (! is_file($path)) {
+            if (preg_match('/^[0-9a-f]{16,128}$/D', (string) $hash) !== 1) {
                 $this->filesSkipped++;
 
                 continue;
             }
 
-            $stored = app(FileStorage::class)->putFile($path, $filename, $previous);
+            // Copied by import:legacy; moved (one file at a time) by the Migration Wizard.
+            $stored = app(LegacyFileTransfer::class)->store(
+                $this->dataDir,
+                ['Utils_FileStorage/'.FileStorage::pathFor($hash)],
+                $filename,
+                $previous,
+                'attachment',
+                (int) $row->id,
+                $createdOn,
+            );
+
+            if ($stored === null) {
+                $this->filesSkipped++;
+
+                continue;
+            }
+
             $ids[] = (string) $stored->getKey();
         }
 
@@ -245,15 +297,15 @@ class AttachmentsImporter extends Importer
     }
 
     /**
-     * @return array{0: string, 1: string}|null [hash, filename]
+     * @return array{0: string, 1: string, 2: string|null}|null [hash, filename, created_on]
      */
     protected function legacyFile(int $legacyFileId): ?array
     {
         $row = DB::connection('legacy')->table('utils_filestorage as s')
             ->join('utils_filestorage_files as f', 'f.id', '=', 's.file_id')
             ->where('s.id', $legacyFileId)
-            ->first(['s.filename', 'f.hash']);
+            ->first(['s.filename', 'f.hash', 's.created_on']);
 
-        return $row ? [$row->hash, $row->filename] : null;
+        return $row ? [$row->hash, $row->filename, $row->created_on ? (string) $row->created_on : null] : null;
     }
 }

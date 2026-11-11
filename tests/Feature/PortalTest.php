@@ -25,7 +25,7 @@ use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
 /**
- * The beginning of a customer portal (see AI-shared/Customer-portal.md): a
+ * The beginning of a customer portal (see AI-shared/features/access/customer-portal.md): a
  * 'customer'-role login opens Administration → Users, which is the main CRM
  * panel, to nobody but the signed-in customer's own contact.
  */

@@ -10,7 +10,14 @@ use Filament\Support\Icons\Heroicon;
 
 class ViewCustomField extends ViewRecord
 {
+    use LeadsBackToRecordset;
+
     protected static string $resource = CustomFieldResource::class;
+
+    protected function breadcrumbRecordset(): ?string
+    {
+        return $this->getRecord()->model_type;
+    }
 
     protected function getHeaderActions(): array
     {

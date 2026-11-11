@@ -1,0 +1,8 @@
+/*
+ * The Support modal (resources/views/filament/components/support-modal.blade.php)
+ * puts the epesi version at the right end of its heading row: Filament's
+ * heading wrapper only takes its text's width, so it is stretched here.
+ */
+#support .fi-modal-header > div:last-child {
+    flex: 1 1 0%;
+}

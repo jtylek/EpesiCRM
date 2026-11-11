@@ -38,12 +38,15 @@ class FieldOverridesTest extends TestCase
     public function test_catalogue_lists_shipped_and_custom_fields_and_filters_them(): void
     {
         CustomField::create(['model_type' => 'company', 'name' => 'gate_code', 'label' => 'Gate code', 'type' => FieldType::Text]);
+        CustomField::create(['model_type' => 'company', 'module_id' => 'custom/example', 'name' => 'module_code', 'label' => 'Module code', 'type' => FieldType::Text]);
         $page = Livewire::test(ListCustomFields::class)->filterTable('model_type', 'company')->assertSuccessful();
         $this->assertArrayHasKey('module:company:company_name', $page->instance()->getTableRecords()->getCollection()->all());
-        $page->filterTable('origin', 'Custom');
+        $page->filterTable('origin', 'admin');
         $rows = $page->instance()->getTableRecords();
         $this->assertCount(1, $rows);
         $this->assertSame('Gate code', $rows->first()['label']);
+        $page->filterTable('origin', 'custom');
+        $this->assertSame('Module code', $page->instance()->getTableRecords()->first()['label']);
     }
 
     public function test_editor_saves_only_explicit_overrides_and_reset_restores_defaults(): void
@@ -248,7 +251,7 @@ class FieldOverridesTest extends TestCase
         $this->assertTrue($page->instance()->canReorderFields());
         $page->searchTable('name');
         $this->assertFalse($page->instance()->canReorderFields());
-        $page->searchTable('')->filterTable('origin', 'Module');
+        $page->searchTable('')->filterTable('origin', 'module');
         $this->assertFalse($page->instance()->canReorderFields());
         config(['demo.enabled' => true]);
         $this->expectException(HttpException::class);

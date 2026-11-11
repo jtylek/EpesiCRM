@@ -43,7 +43,7 @@ class RemindersServiceProvider extends ServiceProvider
         $this->commands([SendRemindersCommand::class]);
 
         // Messenger's cron() asked for cron2() every minute; here that is
-        // Laravel's scheduler, which needs cron (cron.php; AI-shared/cron.md).
+        // Laravel's scheduler, which needs cron (cron.php; AI-shared/operations/cron.md).
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('reminders:send')
                 ->everyMinute()

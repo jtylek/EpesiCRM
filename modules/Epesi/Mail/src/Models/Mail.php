@@ -4,7 +4,7 @@ namespace Epesi\Modules\Mail\Models;
 
 use App\Models\User;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
+use Epesi\Modules\Mail\Support\PlainBody;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -63,20 +63,38 @@ class Mail extends Model
         // event, leaving their files in the file storage for good.
         static::forceDeleting(fn (Mail $mail) => $mail->attachments()->get()->each->delete());
 
-        // Staff see every archived mail. A consultant sees those he archived
-        // or is the employee of, and those linked to a record he sees.
+        // Staff see every archived mail. A consultant sees only his own.
+        // Being linked to a record he sees doesn't make someone else's
+        // correspondence his.
         static::addGlobalScope('ownership', function (Builder $builder): void {
             $user = Auth::user();
 
-            if (! $user instanceof User || ! $user->isConsultant()) {
-                return;
+            if ($user instanceof User && $user->isConsultant()) {
+                $builder->mine($user);
             }
-
-            $builder->where(fn (Builder $query) => $query
-                ->where($query->qualifyColumn('user_id'), $user->id)
-                ->orWhereHas('employee', fn (Builder $q) => $q->withoutGlobalScope('ownership')->where('user_id', $user->id))
-                ->orWhereHas('links', fn (Builder $links) => ConsultantLinks::whereVisibleRecord($links, 'linkable_type', 'linkable_id')));
         });
+    }
+
+    /**
+     * A user's own mail, for the consultant's limit and everyone's "My
+     * records": what he archived or is the employee of, what he sent or
+     * received, and what came through a mailbox he can sign in to.
+     *
+     * Sent or received is his contact's link: archiving links every contact
+     * whose address is, as a whole, in From, To or Cc, so this needs no
+     * matching on those text columns (ContactMatcher).
+     */
+    public function scopeMine(Builder $query, User $user): void
+    {
+        $contacts = Contact::query()->withoutGlobalScope('ownership')->where('user_id', $user->id)->select('id');
+
+        $query->where(fn (Builder $query) => $query
+            ->where($query->qualifyColumn('user_id'), $user->id)
+            ->orWhereIn($query->qualifyColumn('employee_id'), $contacts)
+            ->orWhereHas('links', fn (Builder $links) => $links
+                ->where('linkable_type', (new Contact)->getMorphClass())
+                ->whereIn('linkable_id', $contacts))
+            ->orWhereIn($query->qualifyColumn('account_id'), MailAccount::idsOpenTo($user)));
     }
 
     /**
@@ -158,24 +176,38 @@ class Mail extends Model
 
     /**
      * The HTML body ready for the sandboxed viewer: inline images (`cid:`)
-     * pointed at their stored attachment. Plain-text mail is wrapped so it
-     * keeps its line breaks.
+     * pointed at their stored attachment, then stripped down to plain
+     * formatting (PlainBody) so every message reads the same way regardless
+     * of what the sender's own CSS did — see PlainBody's own docblock.
+     * Plain-text mail is wrapped so it keeps its line breaks; it carries no
+     * sender styling to begin with, so it skips PlainBody.
      */
     public function displayHtml(): string
     {
         if (blank($this->body_html)) {
-            return '<pre style="white-space:pre-wrap;font:14px/1.5 system-ui,sans-serif">'.e((string) $this->body_text).'</pre>';
+            return $this->plainTextHtml();
         }
 
         $byCid = $this->attachments
             ->filter(fn (MailAttachment $a): bool => filled($a->content_id))
             ->mapWithKeys(fn (MailAttachment $a): array => [trim((string) $a->content_id, '<>') => $a->url(inline: true)]);
 
-        return (string) preg_replace_callback(
+        $html = (string) preg_replace_callback(
             '/cid:([^"\'\s>)]+)/i',
             fn (array $m): string => $byCid[$m[1]] ?? $m[0],
             (string) $this->body_html,
         );
+
+        $sanitized = PlainBody::sanitize($html);
+
+        return filled($sanitized) || blank($this->body_text)
+            ? $sanitized
+            : $this->plainTextHtml();
+    }
+
+    protected function plainTextHtml(): string
+    {
+        return '<pre style="white-space:pre-wrap;font:14px/1.5 system-ui,sans-serif">'.e((string) $this->body_text).'</pre>';
     }
 
     /**

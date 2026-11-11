@@ -5,18 +5,15 @@ namespace App\Filament\Portal\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
-use App\Filament\Concerns\UsesEpesiFormLayout;
+use App\Filament\Portal\Resources\PortalContactResource;
 use App\Support\Auth\PortalEmails;
 use BackedEnum;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\RecordBrowser\Models\Address;
-use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
-use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
+use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
@@ -26,14 +23,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * The customer portal's only page (see AI-shared/Customer-portal.md and
+ * The customer portal's only page (see AI-shared/features/access/customer-portal.md and
  * PortalPanelProvider): the signed-in customer's own contact, personal
  * details editable, nothing else. Never takes a record id — always
  * `Auth::user()->contact` — so there's no URL to change to reach anyone
  * else's.
  *
  * Opens in View mode, the same convention every other resource in this port
- * follows (AI-shared/conventions.md: "View before Edit, everywhere") —
+ * follows (AI-shared/user-interface/conventions.md: "View before Edit, everywhere") —
  * "Edit" switches to the form, "Save" (or "Cancel") switches back, rather
  * than staying on the form after saving.
  *
@@ -43,20 +40,25 @@ use Illuminate\Support\Facades\Gate;
  * post that would change them. Staff still manage those from the Contacts
  * resource in the main panel.
  *
- * Built like Administration → Mail Server (App\Filament\Administration\Pages\MailServer)
- * rather than on the RecordBrowser engine: one record, no list, no create, no
- * delete.
+ * Uses the RecordBrowser ViewRecord shell through the portal-only resource:
+ * one record, no list, no create, no delete, with the portal's e-mail section
+ * kept alongside the shared contact infolist and form.
  */
-class MyContact extends Page
+class MyContact extends ViewRecord
 {
     use HasPageIconBreadcrumb;
     use HidesPageHeading;
     use TranslatesPageLabels;
-    use UsesEpesiFormLayout;
+
+    protected static string $resource = PortalContactResource::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
     protected static ?string $navigationLabel = 'My Contact';
+
+    // Last in a portal's sidebar, after what modules add (the dealer portal's
+    // Machines): the first item is also where the panel opens after sign-in.
+    protected static ?int $navigationSort = 1000;
 
     protected static ?string $title = 'My Contact';
 
@@ -69,9 +71,11 @@ class MyContact extends Page
     /** View by default; Edit swaps this page's own content, not a separate route. */
     public bool $editing = false;
 
-    public function mount(): void
+    public function mount(int|string|null $record = null): void
     {
         $this->contact = Auth::user()?->contact ?? abort(404);
+        abort_unless(PortalContactResource::canView($this->contact), 403);
+        $this->record = $this->contact;
     }
 
     /**
@@ -94,19 +98,9 @@ class MyContact extends Page
                         : null)
                     ->columns(2)
                     ->schema([
-                        // A closure, not the value itself: Filament resolves a
-                        // page's schemas once early in the request and reuses
-                        // that build for the final render, so a plain value
-                        // captured here would still show what $this->contact
-                        // held before save()'s update() changed it, not after.
-                        // A collection reads its items off the record itself.
-                        ...array_map(
-                            fn (Field $field): mixed => ($field->hasColumn()
-                                ? $field->toInfolistEntry()->state(fn (): mixed => $this->contact->getAttribute($field->name))
-                                : $field->toInfolistEntry())
-                                ->visible(fn (): bool => ! $this->editing),
-                            $this->fields(),
-                        ),
+                        EmbeddedSchema::make('infolist')
+                            ->columnSpanFull()
+                            ->visible(fn (): bool => ! $this->editing),
                         EmbeddedSchema::make('form')
                             ->columnSpanFull()
                             ->visible(fn (): bool => $this->editing),
@@ -122,16 +116,26 @@ class MyContact extends Page
             ]);
     }
 
+    public function defaultForm(Schema $schema): Schema
+    {
+        return $schema->inlineLabel();
+    }
+
     public function form(Schema $schema): Schema
     {
         $field = fn (Field $field): mixed => $field->toFormComponent();
 
-        // The record, so the collections load from and save to it.
         return $schema
             ->model($this->contact)
-            ->statePath('data')
             ->columns(2)
-            ->components(array_map($field, $this->fields()));
+            ->components(array_map($field, $this->fields()))
+            ->statePath('data')
+            ->operation('edit');
+    }
+
+    public function getDefaultTestingSchemaName(): ?string
+    {
+        return $this->editing ? 'form' : parent::getDefaultTestingSchemaName();
     }
 
     /**
@@ -139,14 +143,7 @@ class MyContact extends Page
      */
     protected function fields(): array
     {
-        return [
-            Field::text('last_name')->required()->maxLength(64),
-            Field::text('first_name')->required()->maxLength(64),
-            Field::text('title')->maxLength(64),
-            Field::collection('phones', PhoneNumber::class)->label('Phone numbers'),
-            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
-            Field::collection('addresses', Address::class),
-        ];
+        return PortalContactResource::fields();
     }
 
     /**
@@ -196,7 +193,10 @@ class MyContact extends Page
             ->label('Cancel')
             ->color('gray')
             ->visible(fn (): bool => $this->editing)
-            ->action(fn () => $this->editing = false);
+            ->action(function (): void {
+                $this->form->fill([]);
+                $this->editing = false;
+            });
     }
 
     protected function saveAction(): Action
@@ -210,6 +210,8 @@ class MyContact extends Page
                 Gate::authorize('update', $this->contact);
 
                 $this->contact->update($this->form->getState());
+                $this->contact->refresh()->load(['phones', 'online_accounts', 'addresses']);
+                $this->record = $this->contact;
                 $this->editing = false;
 
                 Notification::make()->title(__('Saved'))->success()->send();

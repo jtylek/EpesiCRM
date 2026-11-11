@@ -1,0 +1,18 @@
+{
+    "id": "epesi/migration-wizard",
+    "name": "Migration Wizard",
+    "description": "Resumable, safety-first legacy Epesi migration infrastructure (not yet enabled).",
+    "version": "0.1.0",
+    "epesi_core": "^3.0",
+    "category": "Core",
+    "namespace": "Epesi\\Modules\\MigrationWizard\\",
+    "path": "Epesi/MigrationWizard",
+    "provider_class": "Epesi\\Modules\\MigrationWizard\\MigrationWizardServiceProvider",
+    "plugin_class": "Epesi\\Modules\\MigrationWizard\\MigrationWizardPlugin",
+    "panels": [
+        "administration"
+    ],
+    "core": true,
+    "requires": [],
+    "provides": []
+}

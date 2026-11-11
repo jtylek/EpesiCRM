@@ -3,7 +3,7 @@
 /*
  * PHPUnit bootstrap: autoload, then take a lock so only one test run goes at a
  * time in this checkout. Runs share the fake disks and compiled views under
- * storage/framework/testing/ (see AI-shared/concurrent-session-tests.md), and
+ * storage/framework/testing/ (see AI-shared/development/concurrent-tests.md), and
  * more than one person or tool may start a run at any moment.
  *
  * The lock is an OS file lock held for the life of the process, so it is

@@ -1,15 +1,16 @@
 {{--
     The link preview WhatsApp, Teams or Slack show for a pasted link. Their
     crawler isn't signed in, so it sees the login page: the login title from
-    Administration → Logo and title (the portal's own on the portal) and the
-    app icon, the same one the installed app and the home screen show.
+    Administration → Logo & Title (a portal's own on the customer portal and
+    the dealer portal, AppName::PORTAL_PANELS) and the app icon, the same one
+    the installed app and the home screen show.
     First thing in <head> (AppServiceProvider): a crawler reads only the start
     of the page, and further down, after Filament's styles, it didn't get them.
 --}}
 @php
-    $ogTitle = filament()->getCurrentPanel()?->getId() === 'portal'
-        ? \App\Support\Appearance\AppName::portal()
-        : \App\Support\Appearance\AppName::login();
+    $ogTitle = \App\Support\Appearance\AppName::of(
+        \App\Support\Appearance\AppName::loginKindFor(filament()->getCurrentPanel()?->getId())
+    );
 @endphp
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ $ogTitle }}">

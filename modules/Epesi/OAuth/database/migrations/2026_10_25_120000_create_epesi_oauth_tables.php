@@ -34,7 +34,7 @@ return new class extends Migration
             $table->text('access_token')->nullable();
             $table->text('refresh_token')->nullable();
             // Nullable, with no default: a first NOT NULL timestamp can get
-            // ON UPDATE CURRENT_TIMESTAMP on MariaDB (AI-shared/cron.md).
+            // ON UPDATE CURRENT_TIMESTAMP on MariaDB (AI-shared/operations/cron.md).
             $table->timestamp('expires_at')->nullable();
             $table->json('scopes')->nullable();
             $table->string('status', 32)->default('active');

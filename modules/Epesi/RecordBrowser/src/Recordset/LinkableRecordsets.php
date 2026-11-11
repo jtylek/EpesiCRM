@@ -66,7 +66,13 @@ class LinkableRecordsets
     {
         $resource = static::resource($alias);
 
-        return $resource ? Str::ucfirst($resource::getModelLabel()) : Str::headline($alias);
+        return $resource ? Str::ucfirst($resource::getModelLabel()) : static::fallbackLabel($alias);
+    }
+
+    /** An alias with no resource: "premium_projectstickets_ticket" reads "Ticket", "phone_call" "Phone Call". */
+    protected static function fallbackLabel(string $alias): string
+    {
+        return Str::headline(preg_replace('/^premium_[^_]+_/', '', $alias));
     }
 
     /**
@@ -79,7 +85,7 @@ class LinkableRecordsets
         $resource = static::resource($record->getMorphClass());
         $title = $resource ? $resource::getRecordTitle($record) : null;
 
-        return filled($title) ? strip_tags((string) $title) : Str::headline($record->getMorphClass()).' #'.$record->getKey();
+        return filled($title) ? strip_tags((string) $title) : static::label($record->getMorphClass()).' #'.$record->getKey();
     }
 
     /**
@@ -95,8 +101,9 @@ class LinkableRecordsets
     }
 
     /**
-     * $label (escaped) after the recordset's icon, as HTML for a select that
-     * allows it (allowHtml()).
+     * $label (escaped) after the recordset's icon, as HTML — for a select
+     * that allows it (allowHtml()), or a badge rendered with ->html() in
+     * place of the old "<Type>: <Title>" word prefix.
      */
     public static function iconLabel(string $alias, string $label): string
     {

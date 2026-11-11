@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 /**
  * A list page loads what its columns show for the whole page at once, not
- * once per row (AI-shared/Epesi-optimization.md): the owner behind an e-mail
+ * once per row (AI-shared/operations/performance.md): the owner behind an e-mail
  * link, the records of a Relation(s) column, a Customer.
  */
 class ListQueriesTest extends TestCase

@@ -19,11 +19,19 @@ use App\Models\StoredFile;
  */
 class FileChip
 {
-    public static function render(StoredFile $file, string $downloadUrl, ?string $viewUrl, string $extraActionsHtml = ''): string
+    /**
+     * $kind overrides previewKind()'s guess from the StoredFile's mime type,
+     * for a caller whose $viewUrl doesn't serve that file's raw bytes — a
+     * Markdown or HTML note's file is rendered into a safe HTML page first
+     * (AttachmentResource::isMarkdown()/isHtml()), which must stay a plain
+     * 'frame' iframe: 'text' would fetch that page and print its markup as
+     * literal text instead of showing the rendered page.
+     */
+    public static function render(StoredFile $file, string $downloadUrl, ?string $viewUrl, string $extraActionsHtml = '', ?string $kind = null): string
     {
         $preview = $viewUrl === null ? '' : sprintf(
             ' target="_blank" rel="noopener" data-file-preview data-kind="%s" data-name="%s" data-download="%s"',
-            static::previewKind($file),
+            $kind ?? static::previewKind($file),
             e($file->name),
             e($downloadUrl),
         );
@@ -74,8 +82,11 @@ class FileChip
 
     /**
      * How the pop-up shows it: an image or a video in an element of its own,
-     * scaled to fit (a frame shows them at full size, with scroll bars),
-     * anything else — a PDF, text, rendered markdown — in a frame.
+     * scaled to fit (a frame shows them at full size, with scroll bars), a
+     * PDF in a frame, and the previewable text types (isPreviewable()'s
+     * text/plain, text/csv, application/json — the only other kinds that
+     * reach here) fetched and written into a frame styled from the app's own
+     * theme, rather than left to the browser's native viewer.
      */
     protected static function previewKind(StoredFile $file): string
     {
@@ -84,8 +95,12 @@ class FileChip
         return match (true) {
             str_starts_with($mime, 'image/') => 'image',
             str_starts_with($mime, 'video/') => 'video',
+            // Audio is also isPreviewable(); left as a plain iframe (the
+            // browser draws its own player) rather than 'text', which would
+            // fetch() and print the raw bytes as garbled text.
+            str_starts_with($mime, 'audio/') => 'frame',
             $mime === 'application/pdf' => 'pdf',
-            default => 'frame',
+            default => 'text',
         };
     }
 

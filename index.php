@@ -6,6 +6,9 @@
 // leaving a bare "403 Forbidden" / directory listing. nginx never reads
 // .htaccess, so it always lands here until its document root is public/:
 // it gets its own page, with the settings to paste filled in for this server.
+//
+// This file must stay parsable by PHP 7.3 (no arrow functions, no array spread, ...): a server
+// with an old PHP should still get this page.
 
 http_response_code(503);
 
@@ -18,7 +21,9 @@ $php = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
 
 // The Roundcube download and cron need these; panels like aaPanel switch them off.
 $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
-$blocked = array_values(array_filter(['exec', 'proc_open', 'putenv', 'symlink'], fn ($f) => in_array($f, $disabled, true) || ! function_exists($f)));
+$blocked = array_values(array_filter(['exec', 'proc_open', 'putenv', 'symlink'], function ($f) use ($disabled) {
+    return in_array($f, $disabled, true) || ! function_exists($f);
+}));
 ?>
 <!DOCTYPE html>
 <html lang="en">

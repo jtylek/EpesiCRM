@@ -1,0 +1,14 @@
+{
+    "Checking failed": "Die Überprüfung ist fehlgeschlagen",
+    "checking…": "Wird geprüft…",
+    "Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.": "„Verbinden“ leitet Sie zum Anbieter weiter, damit Sie sich bei diesem Postfach anmelden und epesi die Nutzung dieses Postfachs gestatten können.",
+    "Connect the account again": "Verbinden Sie das Konto erneut",
+    "Connected as :account": "Verbunden als :account",
+    "Google (OAuth2)": "Google (OAuth2)",
+    "Last checked": "Zuletzt geprüft",
+    "Microsoft 365 (OAuth2)": "Microsoft 365 (OAuth2)",
+    "Not connected yet": "Noch nicht verbunden",
+    "Save the account, then connect it (:method).": "Speichern Sie das Konto und verbinden Sie es anschließend (:method).",
+    "Sign in with": "Anmelden mit",
+    "the mail account :name": "Das E-Mail-Konto :name"
+}

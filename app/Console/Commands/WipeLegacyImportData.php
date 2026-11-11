@@ -45,17 +45,19 @@ class WipeLegacyImportData extends Command
         'epesi_mails', 'epesi_mail_accounts', 'epesi_mail_threads', 'epesi_mail_addresses',
         'epesi_mail_attachments', 'epesi_mail_links', 'epesi_mail_account_folders', 'epesi_roundcube_tickets',
         // Projects, tickets, sales opportunities, timesheets
-        'epesi_projects', 'epesi_project_customer_companies', 'epesi_project_customer_contacts', 'epesi_project_employees',
-        'epesi_tickets', 'epesi_ticket_assignees', 'epesi_ticket_customer_companies', 'epesi_ticket_customer_contacts', 'epesi_ticket_required',
-        'epesi_sales_opportunities', 'epesi_sales_opportunity_employees',
-        'epesi_timesheets', 'epesi_timesheet_rates', 'epesi_timesheet_rate_employees',
+        'premium_projectstickets_projects', 'premium_projectstickets_project_employees',
+        'premium_projectstickets_tickets', 'premium_projectstickets_ticket_assignees', 'premium_projectstickets_ticket_required',
+        'premium_salesopportunity_opportunities', 'premium_salesopportunity_opportunity_employees',
+        'premium_timesheets_timesheets', 'premium_timesheets_rates', 'premium_timesheets_rate_employees',
         // Attachments
         'epesi_attachments', 'epesi_attachment_links',
         // Accounting documents, payments and the books opened from them (expense categories and
         // reusable lines are settings, not imported data)
-        'epesi_accounting_invoices', 'epesi_accounting_invoice_items', 'epesi_accounting_expenses', 'epesi_accounting_expense_items',
-        'epesi_accounting_payments', 'epesi_accounting_bank_accounts', 'epesi_accounting_numbering_series', 'epesi_accounting_tax_rates',
-        'epesi_accounting_opening_balances', 'epesi_accounting_ledger_links',
+        'premium_accounting_invoices', 'premium_accounting_invoice_items', 'premium_accounting_expenses', 'premium_accounting_expense_items',
+        'premium_accounting_payments', 'premium_accounting_bank_accounts', 'premium_accounting_numbering_series',
+        'premium_accounting_opening_balances', 'premium_accounting_ledger_links',
+        // Tax rates (core): the import brings them back with the legacy ids the lines above point at
+        'tax_rates',
         // The ledger (eloquent-ifrs): entries point at the documents above, so it goes with them
         'ifrs_applied_vats', 'ifrs_assignments', 'ifrs_balances', 'ifrs_closing_rates', 'ifrs_closing_transactions',
         'ifrs_exchange_rates', 'ifrs_ledgers', 'ifrs_line_items', 'ifrs_recycled_objects', 'ifrs_transactions',
@@ -73,10 +75,10 @@ class WipeLegacyImportData extends Command
      */
     public const HISTORY_SUBJECTS = [
         'company', 'contact', 'task', 'meeting', 'phone_call', 'mail', 'attachment',
-        'project', 'ticket', 'sales_opportunity', 'timesheet', 'timesheet_rate',
-        'accounting_invoice', 'accounting_invoice_item', 'accounting_expense', 'accounting_expense_item',
-        'accounting_payment', 'accounting_bank_account', 'accounting_numbering_series', 'accounting_tax_rate',
-        'accounting_opening_balance',
+        'premium_projectstickets_project', 'premium_projectstickets_ticket', 'premium_salesopportunity_opportunity', 'premium_timesheets_timesheet', 'premium_timesheets_timesheet_rate',
+        'premium_accounting_invoice', 'premium_accounting_invoice_item', 'premium_accounting_expense', 'premium_accounting_expense_item',
+        'premium_accounting_payment', 'premium_accounting_bank_account', 'premium_accounting_numbering_series',
+        'premium_accounting_opening_balance', 'tax_rate',
     ];
 
     public function handle(): int

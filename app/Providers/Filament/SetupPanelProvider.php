@@ -7,6 +7,11 @@ use App\Filament\Setup\Pages\InstallWizard;
 use App\Http\Middleware\ClearStaleSetupAuth;
 use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\SetLocale;
+use Epesi\Modules\MigrationWizard\Filament\Pages\MigrateLegacy;
+use Epesi\Modules\MigrationWizard\Filament\Pages\MigrationProgress;
+use Epesi\Modules\MigrationWizard\Http\AssessmentReportController;
+use Epesi\Modules\MigrationWizard\Http\MigrationProgressJsonController;
+use Epesi\Modules\MigrationWizard\Http\MigrationReportController;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -118,6 +123,12 @@ class SetupPanelProvider extends PanelProvider
             ->routes(function (): void {
                 Route::get('/install', InstallWizard::class)->name('install');
                 Route::get('/finish', FinishSetup::class)->name('finish');
+                Route::get('/migrate', MigrateLegacy::class)->name('migrate');
+                Route::get('/migrate/report/{format}', AssessmentReportController::class)->name('migrate.report');
+                Route::get('/migrate/summary', MigrationReportController::class)->name('migrate.summary');
+                Route::get('/migrate/summary/{format}', MigrationReportController::class)->whereIn('format', ['html', 'txt'])->name('migrate.summary.file');
+                Route::get('/migrate/progress', MigrationProgress::class)->name('migrate.progress');
+                Route::get('/migrate/progress.json', MigrationProgressJsonController::class)->name('migrate.progress.json');
             })
             ->middleware([
                 DisabledInDemo::class,

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Auth\InstallationSessionGuard;
 use App\Filament\Commands\FileGenerators\ResourceViewRecordPageClassGenerator;
 use App\Filament\Navigation\AlphabeticalNavigationManager;
 use App\Filament\Support\DemoAnalytics;
@@ -15,8 +16,12 @@ use App\Models\Module;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 use App\Services\Cron\CronLog;
+use App\Services\LegacyImport\CopyingLegacyFileTransfer;
 use App\Services\LegacyImport\ImporterRegistry;
+use App\Services\LegacyImport\LegacyFileTransfer;
+use App\Services\LegacyImport\TimeBudget;
 use App\Services\Modules\ModuleFootprint;
 use App\Support\Auth\PortalEmails;
 use App\Support\Demo;
@@ -24,6 +29,7 @@ use App\Support\Files\InlineImages;
 use App\Support\Mail\ServerMailTransport;
 use App\Support\NoIdentityAutofill;
 use App\Support\RequestMemo;
+use App\Support\RetryingBladeCompiler;
 use App\Support\RetryingFilesystem;
 use App\Support\Translations\CustomTranslationLoader;
 use App\Support\Version;
@@ -35,6 +41,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContract;
+use Filament\Auth\Notifications\ResetPassword;
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -64,10 +71,12 @@ use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Database\Events\MigrationStarted;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\View\DynamicComponent;
 
 use function Filament\Support\get_model_label;
 
@@ -78,10 +87,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // One password-reset e-mail for every panel (says "48 hours", not "2880 minutes").
+        $this->app->bind(ResetPassword::class, ResetPasswordNotification::class);
+
         // Compiled Blade views are written through `files`; on Windows the
         // plain version fails when parallel requests compile the same view
         // (see RetryingFilesystem). Nothing has resolved it yet at this point.
         $this->app->singleton('files', fn (): RetryingFilesystem => new RetryingFilesystem);
+        $this->app->singleton('blade.compiler', fn ($app): RetryingBladeCompiler => tap(new RetryingBladeCompiler(
+            $app['files'],
+            $app['config']['view.compiled'],
+            $app['config']->get('view.relative_hash', false) ? $app->basePath() : '',
+            $app['config']->get('view.cache', true),
+            $app['config']->get('view.compiled_extension', 'php'),
+            $app['config']->get('view.check_cache_timestamps', true),
+        ), fn (RetryingBladeCompiler $blade) => $blade->component('dynamic-component', DynamicComponent::class)));
 
         // Keeps what a module migration started with until it has ended.
         $this->app->singleton(ModuleFootprint::class);
@@ -94,6 +114,14 @@ class AppServiceProvider extends ServiceProvider
         // A singleton because modules push their import:legacy tabs into it
         // from their own boot() — a fresh instance per resolve would lose them.
         $this->app->singleton(ImporterRegistry::class);
+
+        // How import:legacy gets a legacy file into the file storage: a copy. The Migration
+        // Wizard rebinds it to a transfer that moves the file (an in-place migration must not
+        // need twice the disk space).
+        $this->app->bind(LegacyFileTransfer::class, CopyingLegacyFileTransfer::class);
+
+        // A soft time limit for one slice of an import (the Migration Wizard's browser steps); unset elsewhere.
+        $this->app->singleton(TimeBudget::class);
 
         // Makes `php artisan make:filament-resource` scaffold View pages
         // extending our shared ViewRecord (see the RecordBrowser module)
@@ -151,6 +179,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Same as Laravel's "session" guard, but with this installation's own
+        // "remember me" cookie name (see InstallationSessionGuard).
+        Auth::extend('session', function ($app, string $name, array $config): InstallationSessionGuard {
+            $guard = new InstallationSessionGuard(
+                $name,
+                Auth::createUserProvider($config['provider'] ?? null),
+                $app['session.store'],
+                rehashOnLogin: $app['config']->get('hashing.rehash_on_login', true),
+                timeboxDuration: $app['config']->get('auth.timebox_duration', 200000),
+                hashKey: $app['config']->get('app.key'),
+            );
+            $guard->setCookieJar($app['cookie']);
+            $guard->setDispatcher($app['events']);
+            $guard->setRequest($app->refresh('request', $guard, 'setRequest'));
+
+            if (isset($config['remember'])) {
+                $guard->setRememberDuration($config['remember']);
+            }
+
+            return $guard;
+        });
+
         // Not the browser's native date/time input — that follows the browser's
         // locale (AM/PM, mm/dd/yyyy) — but Filament's own, which shows the
         // user's Regional Settings formats. Filament renders its text box
@@ -510,9 +560,10 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * "epesi 3.0" under the sidebar and below the login and setup pages, and
-     * in `php artisan about`: what someone reporting a problem is asked for
-     * first. From the VERSION file (App\Support\Version).
+     * "epesi 3.0" below the login and setup pages, in the Support modal
+     * (next to its heading), and in `php artisan about`: what someone
+     * reporting a problem is asked for first. From the VERSION file
+     * (App\Support\Version).
      */
     private function showVersion(): void
     {
@@ -520,7 +571,6 @@ class AppServiceProvider extends ServiceProvider
             '<div style="'.$style.'font-size:.75rem;opacity:.55"><a href="https://epesicrm.com" target="_blank" rel="noopener" style="text-decoration:underline">'.e(Version::label()).'</a></div>'
         );
 
-        FilamentView::registerRenderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn (): HtmlString => $label('padding:.75rem 1.5rem;'));
         FilamentView::registerRenderHook(PanelsRenderHook::SIMPLE_LAYOUT_END, fn (): HtmlString => $label('text-align:center;padding:1rem 0;'));
 
         AboutCommand::add('epesi', fn (): array => ['Version' => Version::current()]);
@@ -528,7 +578,7 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Create/Edit modals style their buttons as the Create/Edit pages do
-     * (AI-shared/conventions.md): Save in green with a check (also on Create),
+     * (AI-shared/user-interface/conventions.md): Save in green with a check (also on Create),
      * Cancel with an X, no "Create & create another". Every modal keeps its
      * buttons at the bottom, under the form, where Filament puts them.
      */

@@ -73,12 +73,33 @@ class Address extends CollectionItem
     /** "Main St 1, 00-001 Warsaw, Poland", the zone's and country's names for their codes. */
     public function summary(): string
     {
-        $zone = (filled($this->country) ? CommonData::array('Countries/'.$this->country) : [])[$this->zone] ?? $this->zone;
-        $country = CommonData::array('Countries')[$this->country] ?? $this->country;
-
         return implode(', ', array_filter(
-            [$this->address_1, $this->address_2, trim($this->postal_code.' '.$this->city), $zone, $country],
+            [$this->address_1, $this->address_2, trim($this->postal_code.' '.$this->city), $this->zoneName(), $this->countryName()],
             fn (?string $part): bool => trim((string) $part) !== '',
         ));
+    }
+
+    /** Country and Zone are stored as codes in text fields: only here do they become names. */
+    public function displayValue(Field $field): ?string
+    {
+        $value = match ($field->name) {
+            'country' => $this->countryName(),
+            'zone' => $this->zoneName(),
+            default => parent::displayValue($field),
+        };
+
+        return blank($value) ? null : $value;
+    }
+
+    /** The country's name, or its code when the list no longer has it. */
+    public function countryName(): ?string
+    {
+        return CommonData::array('Countries')[$this->country] ?? $this->country;
+    }
+
+    /** The zone's name in this address's country, or the text as typed for a country with no zone list. */
+    public function zoneName(): ?string
+    {
+        return (filled($this->country) ? CommonData::array('Countries/'.$this->country) : [])[$this->zone] ?? $this->zone;
     }
 }

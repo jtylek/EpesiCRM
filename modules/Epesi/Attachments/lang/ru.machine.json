@@ -1,7 +1,9 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "После редактирования введите пароль ещё раз, чтобы эта заметка оставалась зашифрованной.",
     "All notes": "Все заметки",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "Зашифрованная заметка не может содержать изображения, так как они хранились бы без шифрования. Удалите изображения или отключите шифрование.",
     "Attach to a record": "Прикрепить к записи",
+    "Choose only records you can see.": "Выбирайте только записи, которые вам доступны.",
     "Confirm Password": "Подтвердить пароль",
     "Decrypt": "Расшифровать",
     "Decrypt note": "Примечание по расшифровке",

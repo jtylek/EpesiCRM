@@ -44,8 +44,8 @@ class PackageRelease extends Command
     protected const EXCLUDE = [
         // Notes for developers and their AI assistants.
         'AI-shared/', '.claude/', '.agents/', '.wip/', 'AGENTS.md', 'CLAUDE.md', 'PORTING.md', 'README.md',
-        // Git and editor settings.
-        '.editorconfig', '.gitattributes', '.gitignore', 'database/.gitignore',
+        // Git and editor settings, and CI workflows (an update refuses a .github folder).
+        '.editorconfig', '.gitattributes', '.gitignore', 'database/.gitignore', '.github/',
         'tests/', 'phpunit.xml',
         // The frontend's sources: the release has them built, in public/build/.
         'resources/css/', 'resources/js/', 'package.json', 'package-lock.json', 'vite.config.js',
@@ -80,7 +80,7 @@ class PackageRelease extends Command
         $clones = glob(base_path('vendor/*/*/.git'), GLOB_ONLYDIR) ?: [];
 
         if ($clones !== []) {
-            $this->components->warn(count($clones).' packages in vendor/ are git clones, with their tests and docs (a zip about three times bigger). See "Building the package" in AI-shared/Epesi-Laravel-distro.md to replace them with their release contents.');
+            $this->components->warn(count($clones).' packages in vendor/ are git clones, with their tests and docs (a zip about three times bigger). See "Building the package" in AI-shared/operations/releases/distribution.md to replace them with their release contents.');
         }
 
         if (($this->option('translate') || $this->option('test')) && ! is_dir(base_path('vendor/phpunit'))) {
@@ -207,7 +207,7 @@ class PackageRelease extends Command
      * epesi's community translations into the reviewed <code>.json (with
      * --legacy), then the DeepL pass into <code>.machine.json, then the
      * translation tests with TRANSLATIONS_STRICT=1. See
-     * AI-shared/Epesi-Laravel-Translations.md.
+     * AI-shared/user-interface/translations.md.
      */
     protected function translate(): bool
     {

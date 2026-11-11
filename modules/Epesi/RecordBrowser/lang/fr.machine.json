@@ -1,8 +1,27 @@
 {
+    ":count record(s) can't be deleted and were left as they are.": ":count Les enregistrements ne peuvent pas être supprimés et ont été conservés tels quels.",
     ":field currency": ":field devise",
     ":field from :value": ":field de :value",
     ":field in :value": ":field dans :value",
     ":field until :value": ":field jusqu'à :value",
+    "admin": "admin",
     "Amount with currency": "Montant avec devise",
-    "The address this person signs in with. It can not be changed or removed here.": "L'adresse avec laquelle cette personne se connecte. Elle ne peut être ni modifiée ni supprimée ici."
+    "Can link to": "Peut renvoyer vers",
+    "Can link to any recordset": "Peut être lié à n'importe quel ensemble d'enregistrements",
+    "Choose at least one recordset it can link to, or any recordset.": "Choisissez au moins un ensemble d'enregistrements auquel il peut être lié, ou n'importe quel ensemble d'enregistrements.",
+    "Choose which addon modules attach to this recordset. A change applies from the next page load.": "Choisissez les modules complémentaires à associer à cet ensemble d'enregistrements. La modification prendra effet dès le prochain chargement de la page.",
+    "custom": "personnalisé",
+    "Including recordsets installed later.": "Y compris les ensembles d'enregistrements installés ultérieurement.",
+    "Link": "Lien",
+    "Link & add another": "Lien et ajouter un autre",
+    "Link a record": "Lier un enregistrement",
+    "Linked from: :recordset": "Lien depuis : :recordset",
+    "Links already made stay in place when a module is turned off; they show again when it is turned back on.": "Les liens déjà créés restent en place lorsqu'un module est désactivé ; ils s'affichent à nouveau lorsqu'il est réactivé.",
+    "Related modules": "Modules associés",
+    "Related modules saved": "Modules associés enregistrés",
+    "Start typing to search": "Commencez à taper pour lancer la recherche",
+    "The address this person signs in with. It can not be changed or removed here.": "L'adresse avec laquelle cette personne se connecte. Elle ne peut être ni modifiée ni supprimée ici.",
+    "Which recordsets it can link to, its own included. Empty offers every recordset, including ones installed later.": "À quels ensembles d'enregistrements peut-il se lier, y compris le sien ? Si la valeur est vide, tous les ensembles d'enregistrements sont proposés, y compris ceux installés ultérieurement.",
+    "Your recent records are listed. Type to search.": "La liste de vos enregistrements récents s'affiche. Tapez pour effectuer une recherche.",
+    "{1} :count record|[2,*] :count records": ":count enregistrements|:count enregistrements"
 }

@@ -92,13 +92,18 @@ return [
             'driver' => 'mysql',
             'host' => env('LEGACY_DB_HOST', env('DB_HOST', '127.0.0.1')),
             'port' => env('LEGACY_DB_PORT', env('DB_PORT', '3306')),
-            'database' => env('LEGACY_DB_DATABASE', 'epesicrm.com-demo'),
+            // Importer S.R.O.'s legacy tables live alongside the Laravel data
+            // in the project database on YOGA. A separate legacy database can
+            // still be selected explicitly with LEGACY_DB_DATABASE.
+            'database' => env('LEGACY_DB_DATABASE', env('DB_DATABASE', 'importersro')),
             'username' => env('LEGACY_DB_USERNAME', env('DB_USERNAME', 'root')),
             'password' => env('LEGACY_DB_PASSWORD', env('DB_PASSWORD', '')),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
+            // 'legacy_' when the legacy tables sit in the same database as Epesi 3
+            // (the in-place Migration Wizard renames every legacy table to legacy_<name>).
+            'prefix' => env('LEGACY_DB_PREFIX', ''),
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,

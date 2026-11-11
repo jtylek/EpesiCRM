@@ -2,12 +2,13 @@
 
 namespace Epesi\Modules\Watchdog\Filament\Pages;
 
-use App\Support\RequestMemo;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use App\Models\User;
+use App\Support\RequestMemo;
 use BackedEnum;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Epesi\Modules\Watchdog\Filament\Concerns\DescribesLatestChange;
 use Epesi\Modules\Watchdog\Models\Subscription;
 use Epesi\Modules\Watchdog\Watchdog;
@@ -27,7 +28,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use UnitEnum;
 
@@ -95,7 +95,7 @@ class Watched extends Page implements HasTable
             ->columns([
                 TextColumn::make('subscribable_type')
                     ->label('Type')
-                    ->formatStateUsing(fn (string $state): string => Str::headline($state))
+                    ->formatStateUsing(fn (string $state): string => LinkableRecordsets::label($state))
                     ->badge()
                     ->sortable(),
                 // Just the title: Type says what kind of record it is.
@@ -203,7 +203,7 @@ class Watched extends Page implements HasTable
                     CheckboxList::make('categories')
                         ->label('Record types')
                         ->options(collect(Watchdog::$recordTypes)
-                            ->mapWithKeys(fn (string $type): array => [$type => Str::headline($type)])
+                            ->mapWithKeys(fn (string $type): array => [$type => LinkableRecordsets::label($type)])
                             ->all()),
                 ])
                 ->action(fn (array $data) => Watchdog::syncCategories(Auth::user(), $data['categories'] ?? [])),

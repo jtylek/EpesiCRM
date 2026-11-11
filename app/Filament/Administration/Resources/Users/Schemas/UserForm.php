@@ -92,7 +92,7 @@ class UserForm
      * themselves out of the Administration panel (which only a super_admin
      * opens) with a click — and since only a super_admin gets here, another
      * one always remains. A Policy can't say this: super_admin passes every
-     * Gate check (AI-shared/User-management.md).
+     * Gate check (AI-shared/features/access/user-management.md).
      *
      * @param  array<int, mixed>  $roleIds
      */

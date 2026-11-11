@@ -30,7 +30,7 @@ use Tests\TestCase;
 /**
  * Phone numbers, with the messengers that reach each, and online accounts:
  * the collections that replaced a contact's and a company's phone, fax and
- * web address columns — step 6 of the plan in AI-shared/Epesi-custom-fields.md.
+ * web address columns — step 6 of the plan in AI-shared/recordbrowser/design/fields-roadmap.md.
  */
 class PhoneNumbersAndOnlineAccountsTest extends TestCase
 {

@@ -118,4 +118,21 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | The epesi mail theme (resources/views/vendor/mail/html/themes/epesi.css)
+    | is shared by every notification mail.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'epesi',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
 ];

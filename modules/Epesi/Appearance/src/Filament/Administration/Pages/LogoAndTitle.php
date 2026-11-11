@@ -21,10 +21,11 @@ use UnitEnum;
 /**
  * Administration → Appearance → Logo & Title: the global settings that aren't
  * per-theme or per-user — the title of the main application, and, for the
- * login pages and for the customer portal separately, a title and a logo (one
- * picture for light mode, one for dark). Defaults: "epesi", "epesi",
- * "Customer Portal" and the built-in epesi logo. From here an administrator
- * previews the login pages in both colour modes (PanelLogin's `preview`).
+ * main login pages, the customer portal and the dealer portal separately, a
+ * title and a logo (one picture for light mode, one for dark). Defaults:
+ * "epesi", "epesi", "Customer Portal", "Dealer Portal" and the built-in epesi
+ * logo. From here an administrator previews the login pages in both colour
+ * modes (PanelLogin's `preview`).
  *
  * Plain Livewire state, not a Filament form: see logo-and-title.blade.php.
  */
@@ -49,6 +50,8 @@ class LogoAndTitle extends Page
 
     public string $portalTitle = '';
 
+    public string $dealerTitle = '';
+
     /**
      * Pictures picked and not saved yet, by kind (AppearanceSetting::LOGO_COLUMNS).
      *
@@ -66,6 +69,7 @@ class LogoAndTitle extends Page
         $this->appName = AppearanceSetting::appName();
         $this->loginTitle = AppearanceSetting::loginTitle();
         $this->portalTitle = AppearanceSetting::portalTitle();
+        $this->dealerTitle = AppearanceSetting::dealerTitle();
     }
 
     public function save(): void
@@ -74,6 +78,7 @@ class LogoAndTitle extends Page
             'appName' => ['required', 'string', 'max:64'],
             'loginTitle' => ['required', 'string', 'max:64'],
             'portalTitle' => ['required', 'string', 'max:64'],
+            'dealerTitle' => ['required', 'string', 'max:64'],
             'logos.*' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp,svg', 'max:2048'],
         ]);
 
@@ -81,6 +86,7 @@ class LogoAndTitle extends Page
             'app_name' => $this->appName,
             'login_title' => $this->loginTitle,
             'portal_title' => $this->portalTitle,
+            'dealer_title' => $this->dealerTitle,
         ]);
 
         foreach (array_filter($this->logos) as $kind => $upload) {
@@ -94,7 +100,7 @@ class LogoAndTitle extends Page
         Notification::make()->success()->title(__('Logo & Title saved'))->send();
     }
 
-    /** The shipped look: the three default titles and the built-in epesi logos. */
+    /** The shipped look: the default titles and the built-in epesi logos. */
     public function resetToDefaults(): void
     {
         $setting = AppearanceSetting::current();
@@ -110,6 +116,7 @@ class LogoAndTitle extends Page
             'app_name' => null,
             'login_title' => null,
             'portal_title' => null,
+            'dealer_title' => null,
             ...array_fill_keys(AppearanceSetting::LOGO_COLUMNS, null),
         ]);
 
@@ -129,9 +136,9 @@ class LogoAndTitle extends Page
     }
 
     /**
-     * Where the preview frames point: the login page of the main application and
-     * of the customer portal, in each colour mode. Only a signed-in administrator
-     * is let see them (PanelLogin).
+     * Where the preview frames point: the login page of the main application, of
+     * the customer portal and of the dealer portal, in each colour mode. Only a
+     * signed-in administrator is let see them (PanelLogin).
      *
      * @return array<string, array<string, string>>
      */
@@ -139,7 +146,13 @@ class LogoAndTitle extends Page
     {
         $urls = [];
 
-        foreach (['main' => __('Login page'), 'portal' => __('Customer portal login page')] as $panel => $label) {
+        $panels = [
+            'main' => __('Login page'),
+            'portal' => __('Customer portal login page'),
+            'dealer' => __('Dealer portal login page'),
+        ];
+
+        foreach ($panels as $panel => $label) {
             foreach (['light', 'dark'] as $mode) {
                 $urls[$label][$mode] = Filament::getPanel($panel)->getLoginUrl(['preview' => $mode]);
             }

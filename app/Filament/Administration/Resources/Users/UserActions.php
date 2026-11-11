@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Support\Auth\NewAccountMailer;
 use App\Support\Impersonation;
 use Filament\Actions\Action;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
@@ -32,8 +31,10 @@ class UserActions
             ->action(function (User $record, Action $action): void {
                 Impersonation::start($record);
 
-                // A full page load: the new user may not reach this panel.
-                $action->redirect(Filament::getPanel('main')->getUrl(), navigate: false);
+                // A full page load into the panel the new user works in
+                // (main, the dealer portal or the customer portal): they
+                // may not reach this one.
+                $action->redirect(Impersonation::landingUrl($record), navigate: false);
             });
     }
 

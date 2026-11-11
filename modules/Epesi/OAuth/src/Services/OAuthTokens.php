@@ -41,7 +41,7 @@ use Throwable;
  * of them storing a dead token. Whoever waited for the lock reads the row
  * again and uses what the other one stored. The lock lives in the cache store
  * every process shares (CACHE_STORE: memcached or files on an installation,
- * AI-shared/cron.md), or config('epesi-oauth.lock_store'); never in the
+ * AI-shared/operations/cron.md), or config('epesi-oauth.lock_store'); never in the
  * per-process `array` store outside tests.
  *
  * Nothing here logs a token, a code or a secret; errors carry only the

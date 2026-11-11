@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
  * position in its folder) as the Message-ID of some mail, and the import
  * carried it over. The Archive button then took any message at that position
  * for this one ("Message already archived"). Mail without a Message-ID is
- * matched by sender, recipients, subject and date (AI-shared/Mail-archiving.md).
+ * matched by sender, recipients, subject and date (AI-shared/features/mail/archiving.md).
  */
 return new class extends Migration
 {

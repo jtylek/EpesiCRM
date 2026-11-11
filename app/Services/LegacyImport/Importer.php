@@ -3,7 +3,10 @@
 namespace App\Services\LegacyImport;
 
 use App\Models\User;
+use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
+use Epesi\Modules\RecordBrowser\Models\CustomField;
 use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
@@ -29,9 +32,20 @@ use Illuminate\Support\Facades\DB;
  * still replay into History under their old column names
  * (historyOnlyColumns()).
  */
-abstract class Importer
+abstract class Importer implements CountedTables
 {
     protected RecordBrowserReader $reader;
+
+    /**
+     * Told how far an import has got: fn (string $tab, string $phase ('records'|'history'), int $done, int $total).
+     * Set by the migration wizard for the page's status line; null for every other caller.
+     *
+     * @var (\Closure(string, string, int, int): void)|null
+     */
+    public static ?\Closure $onProgress = null;
+
+    /** Rows between two reports. */
+    private const PROGRESS_EVERY = 25;
 
     /** @var array<int, object> raw legacy rows by legacy id, for history replay's "current value" fallback. */
     private array $liveRows = [];
@@ -51,6 +65,264 @@ abstract class Importer
 
     abstract public function legacyTab(): string;
 
+    /**
+     * Every row of `<tab>_data_1` becomes one record (inactive ones are imported as soft-deleted), so
+     * there is no skip rule. shouldImportRow() is the hook for skipping; an importer that overrides it
+     * must override this too and declare the exact rule, otherwise its count would not match.
+     */
+    public function countedTables(): array
+    {
+        return [
+            ['table' => $this->legacyTab().'_data_1', 'model' => $this->modelClass(), 'skip' => null, 'unmigrated_columns' => $this->unmigratedColumns()],
+            self::relatedSetting($this->legacyTab().'_related_data_1'),
+        ];
+    }
+
+    /**
+     * `<tab>_related` is a setting, not business data: the recordsets the admin offers in a "Related" field. Epesi 3
+     * builds that list from the importers and modules it has, so its rows are counted as skipped and it goes.
+     *
+     * @return array<string, mixed>
+     */
+    public static function relatedSetting(string $table): array
+    {
+        return [
+            'table' => $table,
+            'label' => $table,
+            'skip_label' => 'setting: the recordsets offered in Related',
+            'optional' => true,
+            'count' => static function (Connection $legacy) use ($table): array {
+                $rows = $legacy->table($table)->count();
+
+                return ['source' => $rows, 'imported' => 0, 'skipped' => $rows, 'missing_ids' => 0];
+            },
+        ];
+    }
+
+    /**
+     * Custom fields: a recordset listed in LegacyStockColumns::RECORDSET_TABLES, whose model uses
+     * HasCustomFields, carries every column stock Epesi 1.9.1 does not have over as a custom field
+     * (LegacyCustomFieldPlanner decides the type). The definitions are created before the rows are
+     * imported (idempotent by model and name; the column cf_<id> is stable across reruns), the values
+     * are filled with the row and replayed into History like any tracked field. A link to another record
+     * can only be filled once those records exist: linkCustomRelations().
+     */
+    protected function carriesCustomFields(): bool
+    {
+        return isset(LegacyStockColumns::RECORDSET_TABLES[$this->legacyTab().'_data_1'])
+            && in_array(HasCustomFields::class, class_uses_recursive($this->modelClass()), true);
+    }
+
+    /** @var list<array<string, mixed>>|null */
+    private ?array $customPlan = null;
+
+    /** @var array<string, array{entry: array<string, mixed>, column: string}>|null legacy field id => the entry and its cf_<id> column */
+    private ?array $customColumns = null;
+
+    /** @return list<array<string, mixed>> LegacyCustomFieldPlanner::plan() for this recordset, read from the legacy tables */
+    public function customFieldPlan(): array
+    {
+        if (! $this->carriesCustomFields()) {
+            return [];
+        }
+        if ($this->customPlan !== null) {
+            return $this->customPlan;
+        }
+        $legacy = DB::connection('legacy');
+        $schema = $legacy->getSchemaBuilder();
+        $table = $this->legacyTab().'_data_1';
+        if (! $schema->hasTable($table)) {
+            return $this->customPlan = [];
+        }
+        $columns = [];
+        $types = [];
+        foreach ($schema->getColumns($table) as $column) {
+            $columns[] = $column['name'];
+            $types[$column['name']] = ['type_name' => $column['type_name'], 'type' => $column['type']];
+        }
+        $rows = $schema->hasTable($this->legacyTab().'_field')
+            ? $legacy->table($this->legacyTab().'_field')->orderBy('position')->get()->map(fn ($row): array => (array) $row)->all()
+            : [];
+        $callbacks = [];
+        if ($schema->hasTable($this->legacyTab().'_callback')) {
+            foreach ($legacy->table($this->legacyTab().'_callback')->get() as $callback) {
+                $callbacks[(string) $callback->field][] = (string) $callback->callback;
+            }
+        }
+
+        return $this->customPlan = (new LegacyCustomFieldPlanner)->plan($this->legacyTab(), $columns, $types, $rows, $callbacks);
+    }
+
+    /** Create the definitions the plan names; an existing one (same model and name) is reused. */
+    private function ensureCustomFields(): void
+    {
+        $alias = Relation::getMorphAlias($this->modelClass());
+        foreach ($this->customFieldPlan() as $entry) {
+            CustomField::query()->firstOrCreate(['model_type' => $alias, 'name' => $entry['name']], [
+                'label' => $entry['label'],
+                'type' => $entry['type'],
+                'params' => $entry['params'] === [] ? null : $entry['params'],
+                'required' => false, // legacy "required" is not enforced on rows that were imported as they were
+                'position' => $entry['position'],
+                'show_in_table' => $entry['show_in_table'],
+                'show_in_view' => $entry['show_in_view'],
+                'show_in_form' => $entry['show_in_form'],
+                'filterable' => $entry['filterable'],
+                'exportable' => $entry['exportable'],
+                'help' => $entry['help'],
+                'active' => $entry['active'],
+            ]);
+        }
+        $this->customColumns = null;
+    }
+
+    /** @return array<string, array{entry: array<string, mixed>, column: string}> field name => its plan entry and cf_<id>, for the fields whose definition exists with the planned type */
+    private function customColumns(): array
+    {
+        if ($this->customColumns !== null) {
+            return $this->customColumns;
+        }
+        $this->customColumns = [];
+        $plan = $this->customFieldPlan();
+        if ($plan === []) {
+            return $this->customColumns;
+        }
+        $definitions = CustomField::query()->where('model_type', Relation::getMorphAlias($this->modelClass()))->get()->keyBy('name');
+        foreach ($plan as $entry) {
+            $definition = $definitions->get($entry['name']);
+            if ($definition !== null && $definition->type->value === $entry['type'] && filled($definition->column)) {
+                $this->customColumns[$entry['name']] = ['entry' => $entry, 'column' => (string) $definition->column];
+            }
+        }
+
+        return $this->customColumns;
+    }
+
+    /** @return array<string, array{entry: array<string, mixed>, column: string}> legacy field id => the custom fields filled with the row itself (not links, not pending) */
+    private function valueFields(): array
+    {
+        $fields = [];
+        foreach ($this->customColumns() as $custom) {
+            if ($custom['entry']['fill'] === 'value' && $custom['entry']['pending'] === null) {
+                $fields[substr($custom['entry']['column'], 2)] = $custom;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Legacy columns this importer did not carry: a custom field whose definition is missing or differs
+     * from the plan, or whose data is not copied yet (`pending`, e.g. files). The wizard keeps the legacy
+     * table while any is left.
+     *
+     * @return list<string>
+     */
+    public function unmigratedColumns(): array
+    {
+        $carried = $this->customColumns();
+        $left = [];
+        foreach ($this->customFieldPlan() as $entry) {
+            if (! isset($carried[$entry['name']]) || $entry['pending'] !== null) {
+                $left[$entry['column']] = true;
+            }
+        }
+
+        return array_keys($left);
+    }
+
+    /**
+     * Fill the link custom fields (a company's "Account Manager", Relations, "link to any record"): a
+     * record of another recordset exists only after its importer ran, so ContactsImporter calls this once
+     * companies and contacts are both in. Current state only (links are not replayed into History). A
+     * reference to a record that was not imported is left out and reported.
+     */
+    public function linkCustomRelations(ImportSummary $summary): void
+    {
+        $links = array_filter($this->customColumns(), fn (array $custom): bool => in_array($custom['entry']['fill'], ['relation', 'links'], true) && $custom['entry']['pending'] === null);
+        if ($links === []) {
+            return;
+        }
+        $refs = LegacyRecordRefs::fromImporters();
+        $modelClass = $this->modelClass();
+        $map = LegacyIdMap::for($modelClass);
+        $table = (new $modelClass)->getTable();
+        foreach ($this->reader->rows($this->legacyTab()) as $row) {
+            $id = $map->get((int) $row->id);
+            if ($id === null) {
+                continue;
+            }
+            $columns = [];
+            $model = null;
+            foreach ($links as $custom) {
+                $entry = $custom['entry'];
+                $raw = $row->{$entry['column']} ?? null;
+                // The [tab, legacy id] pairs the value names, narrowed to this field's own recordset.
+                $named = [];
+                if ($entry['typed']) {
+                    $typed = $entry['fill'] === 'relation' ? array_filter([LegacyValue::typedRef($raw)]) : LegacyValue::typedRefMulti($raw);
+                    foreach ($typed as $ref) {
+                        if ($entry['relation_tab'] === null || $ref['type'] === $entry['relation_tab']) {
+                            $named[] = [$ref['type'], $ref['id']];
+                        }
+                    }
+                } elseif ($entry['fill'] === 'relation') {
+                    if (is_numeric($raw) && (int) $raw > 0) {
+                        $named[] = [$entry['relation_tab'], (int) $raw];
+                    }
+                } else {
+                    foreach (LegacyValue::multi($raw) as $legacyId) {
+                        $named[] = [$entry['relation_tab'], (int) $legacyId];
+                    }
+                }
+                $tokens = [];
+                $targetIds = [];
+                foreach ($named as [$tab, $legacyId]) {
+                    $targetId = $refs->id((string) $tab, $legacyId);
+                    if ($targetId === null) {
+                        $summary->warn("{$this->legacyTab()}#{$row->id}: {$entry['legacy_name']} points at {$tab} #{$legacyId}, which was not imported, left out");
+
+                        continue;
+                    }
+                    $targetIds[] = $targetId;
+                    $tokens[] = $refs->token((string) $tab, $legacyId);
+                }
+                if ($entry['fill'] === 'relation') {
+                    if ($targetIds !== []) {
+                        $columns[$custom['column']] = $targetIds[0];
+                    }
+                } elseif ($tokens !== []) {
+                    $model ??= $modelClass::withTrashed()->find($id);
+                    $recordsets = $entry['type'] === 'relations' ? [LegacyCustomFieldPlanner::RECORD_TARGETS[$entry['relation_tab']]] : null;
+                    $model?->syncRecordLinks($custom['column'], array_filter($tokens), $recordsets);
+                }
+            }
+            if ($columns !== []) {
+                DB::table($table)->where('id', $id)->update($columns);
+            }
+        }
+    }
+
+    /** @return array<string, string> tracked legacy field id => column: the importer's own plus the custom fields filled with the row */
+    private function allTracked(): array
+    {
+        return $this->trackedFields() + array_map(fn (array $custom): string => $custom['column'], $this->valueFields());
+    }
+
+    private function decodeAny(string $legacyField, ?string $raw): array
+    {
+        $custom = $this->valueFields()[$legacyField] ?? null;
+        if ($custom === null) {
+            return $this->decodeTrackedValue($legacyField, $raw);
+        }
+        $value = LegacyCustomFieldPlanner::decode($custom['entry'], $raw);
+        if ($custom['entry']['type'] === 'currency') {
+            return [$custom['column'] => $value[0], $custom['column'].'_currency' => $value[1]];
+        }
+
+        return [$custom['column'] => $value];
+    }
+
     abstract public function modelClass(): string;
 
     abstract public function logName(): string;
@@ -65,6 +337,12 @@ abstract class Importer
     protected function extraAttributes(object $row): array
     {
         return [];
+    }
+
+    /** Allow an importer to skip malformed orphan rows without aborting the batch. */
+    protected function shouldImportRow(object $row): bool
+    {
+        return true;
     }
 
     /**
@@ -109,6 +387,14 @@ abstract class Importer
 
     /** Extra per-row side effects after save (ContactsImporter uses this for role assignment). */
     protected function afterSave(object $row, Model $model): void {}
+
+    private ?LegacyMultipleAddresses $multipleAddresses = null;
+
+    /** Legacy Premium_MultipleAddresses, read once per run: the Shipping items of contacts and companies. */
+    protected function multipleAddresses(): LegacyMultipleAddresses
+    {
+        return $this->multipleAddresses ??= new LegacyMultipleAddresses;
+    }
 
     /**
      * This row's extra e-mail addresses from legacy's rc_multiple_emails
@@ -164,7 +450,8 @@ abstract class Importer
         $kept = [];
 
         foreach (array_values(array_unique($values)) as $value) {
-            $conflict = EmailAddress::query()->where('value', $value)->first();
+            // A live holder first: deleted records may share an address with one.
+            $conflict = EmailAddress::query()->where('value', $value)->orderByRaw('live_value IS NULL')->orderBy('id')->first();
 
             if ($conflict !== null) {
                 // Without global scopes, so a soft-deleted owner is still
@@ -276,14 +563,24 @@ abstract class Importer
         $summary = $this->summary = new ImportSummary;
         $modelClass = $this->modelClass();
         $userMap = LegacyIdMap::for(User::class);
-        $tracked = $this->trackedFields();
+        $this->ensureCustomFields();
+        $tracked = $this->allTracked();
 
+        $total = self::$onProgress === null ? 0 : $this->reader->count($this->legacyTab());
+        $seen = 0;
         foreach ($this->reader->rows($this->legacyTab()) as $row) {
+            if (self::$onProgress !== null && $seen++ % self::PROGRESS_EVERY === 0) {
+                (self::$onProgress)($this->legacyTab(), 'records', $seen - 1, $total);
+            }
+            if (! $this->shouldImportRow($row)) {
+                continue;
+            }
+
             $this->liveRows[$row->id] = $row;
 
             $attributes = [];
             foreach ($tracked as $legacyField => $column) {
-                $attributes = array_merge($attributes, $this->decodeTrackedValue($legacyField, $row->{"f_{$legacyField}"} ?? null));
+                $attributes = array_merge($attributes, $this->decodeAny($legacyField, $row->{"f_{$legacyField}"} ?? null));
             }
             $attributes = array_merge($attributes, $this->extraAttributes($row));
             $attributes = ActivityTimes::rounded((new $modelClass)->getTable(), $attributes);
@@ -312,6 +609,12 @@ abstract class Importer
 
         if ($withHistory) {
             $this->replayHistory($summary);
+        }
+
+        // Tasks, meetings and phone calls run after companies and contacts, so their links to those exist now.
+        // Companies and contacts are linked by ContactsImporter once both are in.
+        if (! in_array($this->legacyTab(), ['company', 'contact'], true)) {
+            $this->linkCustomRelations($summary);
         }
 
         return $summary;
@@ -378,7 +681,7 @@ abstract class Importer
         $modelClass = $this->modelClass();
         $recordMap = LegacyIdMap::for($modelClass);
         $userMap = LegacyIdMap::for(User::class);
-        $tracked = $this->trackedFields();
+        $tracked = $this->allTracked();
         $historyByRecord = $this->reader->history($this->legacyTab());
 
         // Replayed from scratch on every run rather than appended to, so
@@ -403,7 +706,11 @@ abstract class Importer
             ->map(fn ($id) => (int) $id)
             ->unique();
 
+        $position = 0;
         foreach ($legacyIds as $legacyId) {
+            if (self::$onProgress !== null && $position++ % self::PROGRESS_EVERY === 0) {
+                (self::$onProgress)($this->legacyTab(), 'history', $position - 1, $legacyIds->count());
+            }
             $newId = $recordMap->get($legacyId);
             if ($newId === null) {
                 $summary->warn("history for {$this->legacyTab()}#{$legacyId}: record not imported, skipped");
@@ -433,19 +740,19 @@ abstract class Importer
 
             foreach ($tracked as $field => $column) {
                 if (empty($chain[$field])) {
-                    $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $liveRow?->{"f_{$field}"} ?? null));
+                    $createdAttrs = array_merge($createdAttrs, $this->decodeAny($field, $liveRow?->{"f_{$field}"} ?? null));
 
                     continue;
                 }
 
                 $entries = $chain[$field];
-                $createdAttrs = array_merge($createdAttrs, $this->decodeTrackedValue($field, $entries[0]['old_raw']));
+                $createdAttrs = array_merge($createdAttrs, $this->decodeAny($field, $entries[0]['old_raw']));
 
                 foreach ($entries as $k => $entry) {
                     $newRaw = $entries[$k + 1]['old_raw'] ?? $liveRow?->{"f_{$field}"} ?? null;
                     $key = spl_object_id($entry['env']);
-                    $envOld[$key] = array_merge($envOld[$key] ?? [], $this->decodeTrackedValue($field, $entry['old_raw']));
-                    $envNew[$key] = array_merge($envNew[$key] ?? [], $this->decodeTrackedValue($field, $newRaw));
+                    $envOld[$key] = array_merge($envOld[$key] ?? [], $this->decodeAny($field, $entry['old_raw']));
+                    $envNew[$key] = array_merge($envNew[$key] ?? [], $this->decodeAny($field, $newRaw));
                 }
             }
 

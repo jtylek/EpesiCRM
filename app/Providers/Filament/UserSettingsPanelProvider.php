@@ -5,8 +5,10 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\Login;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Filament\UserSettings\Pages\About;
 use App\Filament\UserSettings\Pages\CalendarSettings;
 use App\Filament\UserSettings\Pages\NoteSettings;
+use App\Filament\UserSettings\Pages\PasswordSettings;
 use App\Filament\UserSettings\Pages\QuickAccessSettings;
 use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\PersistUiState;
@@ -25,6 +27,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
@@ -61,11 +64,14 @@ class UserSettingsPanelProvider extends PanelProvider
             ])
             ->viteTheme('resources/css/filament/epesi/theme.css')
             ->sidebarWidth('16rem')
+            // Like the main and administration panels: content fills the page
+            // instead of Filament's centred 7xl column.
+            ->maxContentWidth(Width::Full)
             // A user's chosen theme's density and font size, applied before
             // first paint — see App\Support\Appearance\CurrentTheme.
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.history-navigation', ['buttons' => false]))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
-            ->pages([CalendarSettings::class, NoteSettings::class, QuickAccessSettings::class])
+            ->pages([About::class, CalendarSettings::class, NoteSettings::class, PasswordSettings::class, QuickAccessSettings::class])
             ->plugins(ModuleRegistry::pluginsFor('user-settings'))
             ->middleware([
                 EncryptCookies::class,

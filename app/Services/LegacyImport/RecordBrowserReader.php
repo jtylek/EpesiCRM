@@ -79,10 +79,13 @@ class RecordBrowserReader
             return collect();
         }
 
-        $data = DB::connection($this->connection)
-            ->table("{$tab}_edit_history_data")
-            ->whereIn('edit_id', $envelopes->pluck('id'))
-            ->get()
+        // In chunks: one IN list of a thousand or more ids came back empty
+        // from the legacy MariaDB, silently dropping every change of a large tab.
+        $data = $envelopes->pluck('id')->chunk(500)
+            ->flatMap(fn ($ids) => DB::connection($this->connection)
+                ->table("{$tab}_edit_history_data")
+                ->whereIn('edit_id', $ids->all())
+                ->get())
             ->groupBy('edit_id');
 
         $recordIdColumn = "{$tab}_id";

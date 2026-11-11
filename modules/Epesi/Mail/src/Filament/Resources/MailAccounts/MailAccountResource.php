@@ -26,6 +26,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -96,41 +97,46 @@ class MailAccountResource extends Resource
                     ->selectablePlaceholder(false)
                     ->required()
                     ->live()
-                    ->afterStateUpdated(fn (?string $state, Get $get, Set $set) => static::fillServers($state, $get, $set))
-                    ->helperText(__('Microsoft 365 and Gmail accept a sign-in at Microsoft or Google (OAuth2) instead of a password.')),
+                    ->afterStateUpdated(fn (?string $state, Get $get, Set $set) => static::fillServers($state, $get, $set)),
                 ...static::oauthComponents(),
             ]),
-            Section::make(__('Incoming mail (IMAP)'))->columns(3)->compact()->schema([
-                TextInput::make('imap_host')->label('Server')->maxLength(255)->columnSpan(2),
-                TextInput::make('imap_port')->label('Port')->integer()->placeholder('993 / 143'),
-                Select::make('imap_security')->label('Security')->options(self::securityOptions())->default('ssl')->selectablePlaceholder(false),
-                TextInput::make('imap_login')->label('Login')->maxLength(255)->placeholder(__('Same as e-mail')),
-                static::password('imap_password')->visible(fn (Get $get): bool => ! static::isOAuth($get)),
-            ]),
-            Section::make(__('Outgoing mail (SMTP)'))->columns(3)->compact()->schema([
-                TextInput::make('smtp_host')->label('Server')->maxLength(255)->columnSpan(2),
-                TextInput::make('smtp_port')->label('Port')->integer()->placeholder('465 / 587'),
-                Select::make('smtp_security')->label('Security')->options(self::securityOptions())->default('tls')->selectablePlaceholder(false),
-                // An OAuth account always signs in, with XOAUTH2.
-                Toggle::make('smtp_auth')->label('Authentication')->default(true)->inline(false)->live()
-                    ->visible(fn (Get $get): bool => ! static::isOAuth($get)),
-                TextInput::make('smtp_login')->label('Login')->maxLength(255)
-                    ->placeholder(__('Same as IMAP'))->visible(fn (Get $get): bool => static::isOAuth($get) || (bool) $get('smtp_auth')),
-                static::password('smtp_password')->placeholder(__('Same as IMAP'))
-                    ->visible(fn (Get $get): bool => ! static::isOAuth($get) && (bool) $get('smtp_auth')),
+            Section::make(__('Incoming mail (IMAP)'))->columns(3)->compact()
+                ->extraAttributes(['class' => 'epesi-compact-labels'])->schema([
+                    TextInput::make('imap_host')->label('Server')->maxLength(255),
+                    TextInput::make('imap_port')->label('Port')->integer()->placeholder('993 / 143'),
+                    Select::make('imap_security')->label('Security')->options(self::securityOptions())->default('ssl')->selectablePlaceholder(false),
+                    TextInput::make('imap_login')->label('Login')->maxLength(255)->placeholder(__('Same as e-mail')),
+                    static::password('imap_password')->columnSpan(2)
+                        ->visible(fn (Get $get): bool => ! static::isOAuth($get)),
+                ]),
+            Section::make(__('Outgoing mail (SMTP)'))->columns(3)->compact()
+                ->extraAttributes(['class' => 'epesi-compact-labels'])->schema([
+                    TextInput::make('smtp_host')->label('Server')->maxLength(255),
+                    TextInput::make('smtp_port')->label('Port')->integer()->placeholder('465 / 587'),
+                    Select::make('smtp_security')->label('Security')->options(self::securityOptions())->default('tls')->selectablePlaceholder(false),
+                    // An OAuth account always signs in, with XOAUTH2.
+                    Toggle::make('smtp_auth')->label('Authentication')->default(true)->inline(false)->live()
+                        ->columnSpanFull()
+                        ->visible(fn (Get $get): bool => ! static::isOAuth($get)),
+                    TextInput::make('smtp_login')->label('Login')->maxLength(255)
+                        ->placeholder(__('Same as IMAP'))->visible(fn (Get $get): bool => static::isOAuth($get) || (bool) $get('smtp_auth')),
+                    static::password('smtp_password')->placeholder(__('Same as IMAP'))->columnSpan(2)
+                        ->visible(fn (Get $get): bool => ! static::isOAuth($get) && (bool) $get('smtp_auth')),
+                ]),
+            Section::make(__('Archiving'))->columns(1)->compact()->schema([
+                Toggle::make('archive_on_sending')->label('Archive sent messages by default')->default(false)->inline(false),
+                TextInput::make('archive_folder')->label('Archive folder')->default('CRM Archive')->maxLength(255),
                 Toggle::make('save_to_sent')->label('Save sent messages on the server')->default(true)->inline(false)->live()
-                    ->helperText(__('Copies each message sent from the CRM into your IMAP Sent folder.')),
+                    ->afterContent(
+                        Text::make(__('Copies each message sent from the CRM into your IMAP Sent folder.'))->color('gray')
+                    ),
                 TextInput::make('sent_folder')->label('Sent folder')->default('Sent')->maxLength(255)
                     ->visible(fn (Get $get): bool => (bool) $get('save_to_sent'))
-                    ->required(fn (Get $get): bool => (bool) $get('save_to_sent'))
-                    ->columnSpan(2),
-                RichEditor::make('signature')->columnSpanFull()
-                    ->toolbarButtons(['bold', 'italic', 'underline', 'link', 'bulletList', 'attachFiles']),
+                    ->required(fn (Get $get): bool => (bool) $get('save_to_sent')),
             ]),
-            Section::make(__('Archiving'))->columns(2)->compact()->schema([
-                Toggle::make('archive_on_sending')->label('Archive sent messages by default')->default(false)->inline(false),
-                TextInput::make('archive_folder')->label('Archive folder')->default('CRM Archive')->maxLength(255)
-                    ->helperText(__('Every message you move into this IMAP folder, from any mail client, is archived.')),
+            Section::make(__('Signature'))->compact()->schema([
+                RichEditor::make('signature')->hiddenLabel()
+                    ->toolbarButtons(['bold', 'italic', 'underline', 'link', 'bulletList', 'attachFiles']),
             ]),
         ]);
     }

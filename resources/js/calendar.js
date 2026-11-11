@@ -3,6 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+import csLocale from '@fullcalendar/core/locales/cs';
 import deLocale from '@fullcalendar/core/locales/de';
 import esLocale from '@fullcalendar/core/locales/es';
 import frLocale from '@fullcalendar/core/locales/fr';
@@ -235,7 +236,7 @@ window.initEpesiCalendar = function (el, wire) {
         },
         // The page's language (config/app.php's available_locales); English
         // is FullCalendar's built-in default.
-        locales: [deLocale, esLocale, faLocale, frLocale, heLocale, plLocale],
+        locales: [csLocale, deLocale, esLocale, faLocale, frLocale, heLocale, plLocale],
         locale: el.dataset.locale || 'en',
         // Every date this calendar sends/receives is a floating wall-clock
         // value with no real timezone attached (see CalendarEvent::toArray()) —

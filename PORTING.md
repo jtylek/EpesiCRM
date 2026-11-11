@@ -27,6 +27,12 @@ The "Epesi module" column uses that repository's `modules/` paths.
 | Base/RegionalSettings | `modules/Epesi/RegionalSettings` | Per-user language, timezone, date/time format and location, under Settings in the main panel |
 | Base/Lang | `lang/`, each module's `lang/`, `App\Support\Locale\Locales` | English and Polish. Each user picks a language (system default from setup, browser language on the login page). Bell notifications and reminder e-mails go out in the recipient's language. `php artisan lang:import-epesi <code> <epesi path>` starts another language from Epesi's translation files. Base/Lang/Administrator's Translations tab is Administration → Translations: an administrator's own translations, kept apart from the shipped ones and loaded over them; Epesi's sending of translations to a central server became links to GitHub and the forum. |
 | setup.php, FirstRun | `php artisan epesi:install`, `/setup` | `epesi:install` checks the server, writes `.env` (database, app key) and creates the tables (setup.php). The `/setup` wizard asks whether to install Roundcube and load demo data, then the administrator and system mail, installs every `"core": true` module (Epesi's `distros.ini` profiles aren't ported — every module ships core except Roundcube) plus Roundcube if chosen, in dependency order, then shows each installed module's own page (FirstRun's `post_install`): **Your company** from CRM/Contacts, **Regional settings** defaults. Modules add pages with `SetupSteps::register()`. Optional demo data and `SETUP_TOKEN` are new |
+| CRM/Roundcube (webmail) | `modules/Epesi/Roundcube` | Roundcube as a full IMAP client on a **Mailbox** page: signed in to the user's mail account automatically, sending through the account's SMTP server, an **Archive** button that files mail into the CRM, and CRM contacts in its address book. Optional: chosen in the `/setup` wizard |
+| Utils/CurrencyField | `modules/Epesi/Currencies` | The currencies in use, the home currency and daily exchange rates (ECB or NBP); a currency field type in RecordBrowser |
+| Data/TaxRates | `modules/Epesi/TaxRates` | VAT and other tax rates with their codes |
+| Base/Theme | `modules/Epesi/Appearance` | Administrator-defined named themes (accent colour, density); each user picks one |
+| Applets/Note | `modules/Epesi/StickyNotes` | A dashboard tab of coloured notes with a title and a Markdown body, active or inactive |
+| — | `modules/Epesi/OAuth` | OAuth2 sign-in to services (Microsoft 365, Google): client credentials, stored tokens, the connect flow and renewal (`oauth:refresh`) |
 | Legacy data | `php artisan import:legacy` | Modules can add their own tabs through `ImporterRegistry`; CommonData adds `commondata`, Mail adds `mail`, Shoutbox adds `shoutbox` |
 
 Enable the new modules on an existing install with `php artisan module:register Epesi/<Name>`
@@ -40,10 +46,10 @@ Enable the new modules on an existing install with `php artisan module:register 
 | CRM/Filters | Saved per-user table filters (Filament persists filters in the session only) |
 | CRM/WhoIsOnline, Tools/WhoIsOnline | Session-table query shown as a dashboard widget |
 | Apps/ActivityReport | A report page over `activity_log` |
-| Applets/Clock, Applets/MonthView, Applets/RssFeed, Applets/Note | Dashboard widgets |
+| Applets/Clock, Applets/MonthView, Applets/RssFeed | Dashboard widgets |
 | Base/Search | Filament global search is on; decide which attributes each resource searches |
-| Utils/CurrencyField, Data/TaxRates | Money field type for RecordBrowser |
-| Utils/ExportXLS, Base/Print | Filament exporters, printable views |
+| Utils/ExportXLS, Base/Print | Filament exporters, printable views (RecordBrowser already exports CSV) |
+| Legacy migration in the browser | `modules/Epesi/MigrationWizard` is in progress and not enabled yet; `import:legacy` is the supported path |
 | CRM/Fax | Probably drop |
 
 ### Known gaps in the ported modules
@@ -55,8 +61,6 @@ Enable the new modules on an existing install with `php artisan module:register 
 - Watchdog: subscriptions lapse only if cron runs (`cron.php`, see Administration → Cron).
 - Watchdog: no dashboard applet. The bell shows each change, and the Watched page lists the
   changed records.
-- Mail: no embedded webmail (Epesi bundled Roundcube). Reading mail stays in the user's own
-  mail client, and the CRM archives it.
 - Mail: an account can sign in with Microsoft 365 or Google (OAuth2, XOAUTH2) for epesi's own
   IMAP and SMTP, but the Roundcube Mailbox page doesn't open such accounts yet. Their tokens
   are renewed by `oauth:refresh`, which needs cron.

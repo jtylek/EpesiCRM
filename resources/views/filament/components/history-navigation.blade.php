@@ -173,7 +173,7 @@
         >
             <div
                 class="fi-section"
-                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 2rem); max-width: 28rem; padding: 1.5rem; background: var(--color-white, #fff); border-radius: 0.75rem; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);"
+                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: calc(100% - 2rem); max-width: 28rem; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);"
             >
                 <div style="display: flex; gap: 1rem;">
                     <div style="flex: none; color: var(--warning-500, #f59e0b);">

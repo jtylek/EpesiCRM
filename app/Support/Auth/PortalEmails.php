@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\URL;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 /**
- * A customer's e-mail addresses in the portal (AI-shared/Customer-portal.md),
+ * A customer's e-mail addresses in the portal (AI-shared/features/access/customer-portal.md),
  * which a customer can't simply edit like the rest of their contact, because
  * one of them is the address they sign in with:
  *
@@ -90,7 +90,7 @@ class PortalEmails
     {
         $address = mb_strtolower(trim($address));
 
-        $taken = EmailAddress::query()->whereRaw('LOWER(value) = ?', [$address])->exists()
+        $taken = EmailAddress::query()->whereRaw('LOWER(live_value) = ?', [$address])->exists()
             || User::query()->whereRaw('LOWER(email) = ?', [$address])->whereKeyNot($user->getKey())->exists();
 
         return $taken ? __('This address is already used by another record.') : null;

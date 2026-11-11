@@ -1,7 +1,9 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "编辑完成后，请再次输入密码以保持此笔记的加密状态。",
     "All notes": "所有备注",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "加密备注不能包含图片，因为图片会以未加密的形式存储。请删除图片或关闭加密。",
     "Attach to a record": "附加到记录",
+    "Choose only records you can see.": "只能选择您可以查看的记录。",
     "Confirm Password": "确认密码",
     "Decrypt": "解密",
     "Decrypt note": "解密说明",

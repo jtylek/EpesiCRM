@@ -135,6 +135,7 @@ class ServerCheck extends Page
         return Section::make(__('Server'))
             ->compact()
             ->collapsible()
+            ->collapsed()
             ->schema([$this->facts([
                 __('Web server') => (string) ($_SERVER['SERVER_SOFTWARE'] ?? __('unknown')),
                 __('Server name') => (string) ($_SERVER['SERVER_NAME'] ?? request()->getHost()),
@@ -201,9 +202,12 @@ class ServerCheck extends Page
             .'<th style="padding:.15rem 1.5rem .15rem 0;text-align:start">'.e(__('This server')).'</th>'
             .'<th style="padding:.15rem 0;text-align:start">'.e(__('Recommended')).'</th></tr>';
 
+        $problems = count(array_filter($rows, fn (array $row): bool => $row[2] === false));
+
         return Section::make(__('PHP'))
             ->compact()
             ->collapsible()
+            ->collapsed($problems === 0)
             ->schema([$this->table($body, $head, '<colgroup><col style="width:13rem"><col><col></colgroup>')]);
     }
 

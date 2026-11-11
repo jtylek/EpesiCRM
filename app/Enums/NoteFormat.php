@@ -61,7 +61,11 @@ enum NoteFormat: string implements HasLabel
     /** The body as plain text, for labels, excerpts and search. */
     public function toPlainText(?string $body): string
     {
-        return trim(html_entity_decode(strip_tags($this->toHtml($body))));
+        // A space where a block ends or a line breaks, so "holidays.</p><p>Next"
+        // doesn't run together as "holidays.Next" once the tags are gone.
+        $html = preg_replace('~<br\s*/?>|</(?:p|div|h[1-6]|li|blockquote|pre|tr|td|th)>~i', '$0 ', $this->toHtml($body));
+
+        return trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($html))));
     }
 
     /**

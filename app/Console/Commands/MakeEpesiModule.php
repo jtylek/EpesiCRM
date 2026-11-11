@@ -37,11 +37,20 @@ class MakeEpesiModule extends Command
         $name = end($parts);
         $path = implode('/', $parts);
 
+        if (strcasecmp($vendor, 'Epesi') === 0 && strcasecmp($parts[1], 'Premium') === 0) {
+            $this->components->error('Premium modules go in modules/Premium/<Name>, never under modules/Epesi/. Use: make:epesi-module Premium/'.($parts[2] ?? 'Name'));
+
+            return self::FAILURE;
+        }
+
         // The namespace mirrors the path with "Modules" inserted after the
         // vendor, so Epesi/CRM/Contacts is Epesi\Modules\CRM\Contacts\. Composer
         // matches the longest registered PSR-4 prefix first, so a parent
-        // module's mapping can never shadow a nested child's.
-        $namespace = implode('\\', [$vendor, 'Modules', ...array_slice($parts, 1)]);
+        // module's mapping can never shadow a nested child's. Premium modules
+        // drop the "Modules" part (and have no Epesi in it): Premium\Trade\.
+        $namespace = $vendor === 'Premium'
+            ? implode('\\', $parts)
+            : implode('\\', [$vendor, 'Modules', ...array_slice($parts, 1)]);
         $directory = Module::directoryFor($path);
 
         if (is_dir($directory)) {

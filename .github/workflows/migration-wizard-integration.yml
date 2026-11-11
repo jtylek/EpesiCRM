@@ -1,0 +1,60 @@
+name: Migration Wizard MariaDB integration
+
+# Manual-only: GitHub Actions must not auto-run in this repo (limited minutes, private repo).
+# Tests run on YOGA instead - see AGENTS.md, "When to run tests". Don't add push/pull_request
+# triggers back without checking with the user first.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mariadb:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root-only
+          MARIADB_DATABASE: migration_fixture
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, intl, zip, pdo_mysql, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Seed disposable legacy fixture and grant SELECT-only access
+        env:
+          MYSQL_PWD: ci-root-only
+        run: |
+          mysql -h 127.0.0.1 -u root migration_fixture < tests/Fixtures/migration-wizard-mariadb.sql
+          mysql -h 127.0.0.1 -u root -e "CREATE USER 'fixture_reader'@'%' IDENTIFIED BY 'ci-fixture-only'; GRANT SELECT ON migration_fixture.* TO 'fixture_reader'@'%';"
+      - name: Install MariaDB client tools
+        run: sudo apt-get update && sudo apt-get install -y mariadb-client
+      - name: Run real MariaDB assessment
+        env:
+          EPESI_MIGRATION_INTEGRATION: '1'
+          MIGRATION_TEST_DB_HOST: '127.0.0.1'
+          MIGRATION_TEST_DB_PORT: '3306'
+          MIGRATION_TEST_DB_NAME: migration_fixture
+          MIGRATION_TEST_DB_USER: fixture_reader
+          MIGRATION_TEST_DB_PASSWORD: ci-fixture-only
+        run: vendor/bin/phpunit tests/Integration/MigrationWizardMariaDbTest.php --colors=never
+      - name: Rehearse backup and restore in disposable database
+        env:
+          EPESI_MIGRATION_INTEGRATION: '1'
+          MIGRATION_TEST_DB_HOST: '127.0.0.1'
+          MIGRATION_TEST_DB_PORT: '3306'
+          MIGRATION_TEST_DB_ADMIN: root
+          MIGRATION_TEST_DB_ADMIN_PASSWORD: ci-root-only
+        run: vendor/bin/phpunit tests/Integration/MigrationWizardDumpRestoreTest.php --colors=never

@@ -139,6 +139,21 @@ class Field
         return $this->listedOnTarget;
     }
 
+    protected ?string $targetLabel = null;
+
+    /** The title of the tab listing this field's records on the target's View page, instead of the recordset's name. */
+    public function listedOnTargetAs(string $label): static
+    {
+        $this->targetLabel = $label;
+
+        return $this;
+    }
+
+    public function getTargetLabel(): ?string
+    {
+        return $this->targetLabel;
+    }
+
     protected bool $inView = true;
 
     /** Shown as a table column without the user turning it on. */
@@ -385,6 +400,27 @@ class Field
     }
 
     /**
+     * Whoever watches the contact or company this field points at also
+     * watches the record — Epesi's `subscribed_employees()` carried this
+     * over for a task's Customer, not only its Employees. On by default for
+     * customer()/customers(); withoutLinkedWatchers() opts out.
+     */
+    public function linkedWatchers(bool $linkedWatchers = true): static
+    {
+        return $this->param('linked_watchers', $linkedWatchers);
+    }
+
+    public function withoutLinkedWatchers(): static
+    {
+        return $this->linkedWatchers(false);
+    }
+
+    public function hasLinkedWatchers(): bool
+    {
+        return (bool) $this->getParam('linked_watchers', false);
+    }
+
+    /**
      * A morphTo over several kinds of record at once — Epesi's Company-or-
      * Contact "Customer" field type, one typeahead rather than a Relation
      * per kind. $name is the relationship name: the table needs both
@@ -402,6 +438,7 @@ class Field
     {
         return static::make($name, FieldType::Customer)
             ->param('models', $models)
+            ->linkedWatchers()
             ->param('icons', collect($icons)->mapWithKeys(
                 fn (string|BackedEnum $icon, string $class): array => [Relation::getMorphAlias($class) => $icon],
             )->all())
@@ -450,6 +487,7 @@ class Field
     {
         return static::make($name, FieldType::Customers)
             ->param('models', $models)
+            ->linkedWatchers()
             ->param('icons', collect($icons)->mapWithKeys(
                 fn (string|BackedEnum $icon, string $class): array => [Relation::getMorphAlias($class) => $icon],
             )->all());
@@ -1283,10 +1321,10 @@ class Field
         return is_array($own) && $own !== [] ? array_values(array_intersect($own, $linkable)) : $linkable;
     }
 
-    /** "Company: Acme Ltd" — which recordset, then the record's own title. */
-    protected function relatedLabel(Model $record): string
+    /** The recordset's icon, then the record's own title — an Htmlable label, so LinkedRecords::badges() trusts it instead of sanitizing its icon away. */
+    protected function relatedLabel(Model $record): HtmlString
     {
-        return LinkableRecordsets::label($record->getMorphClass()).': '.LinkedRecords::title($record);
+        return new HtmlString(LinkableRecordsets::iconLabel($record->getMorphClass(), LinkedRecords::title($record)));
     }
 
     // -------------------------------------------------------------- Currency --
@@ -2585,7 +2623,12 @@ class Field
             : null);
     }
 
-    /** The View page of the related record titled $state, when it has one. */
+    /**
+     * The View page of the related record titled $state, when it has one in
+     * the current panel (LinkedRecords::url()). relatedResource() is the main
+     * panel's; a panel that shows the same fields — the dealer portal — may
+     * have its own resource for the related model, or none (no link then).
+     */
     protected function relatedUrl(Model $record, string $state): ?string
     {
         $resource = $this->relatedResource();
@@ -2596,7 +2639,7 @@ class Field
 
         $related = $this->relatedTitled($record, $state);
 
-        return $related ? $resource::getUrl('view', ['record' => $related]) : null;
+        return $related ? LinkedRecords::url($related) : null;
     }
 
     /** The related record shown as the badge $state, by the same title relatedTitles() gave it. */
@@ -2759,6 +2802,40 @@ class Field
                 : []);
     }
 
+    // ------------------------------------------------------------ Plain text --
+
+    /**
+     * This field's value on $record as plain display text, with no HTML and
+     * no link — Clipboard's one reader for every field type
+     * (Recordset\ClipboardPattern), reused for isInView() keywords in a
+     * pattern. Built on formatLoggedValue(), which already turns a relation's
+     * id or a commondata key into its title — except the handful of types it
+     * can't read off a plain column: Currency (the amount and its currency
+     * column read together), and Related/Customers/Relations/Customer (kept
+     * off the record as a relation or the shared link table, never a column).
+     * Null for nothing to show, never formatLoggedValue()'s "-" placeholder —
+     * blank() treats `0`/`false` as a value, as the rest of Clipboard does.
+     */
+    public function plainValue(Model $record): ?string
+    {
+        if (in_array($this->type, [FieldType::Currency, FieldType::Related, FieldType::Customers, FieldType::Relations, FieldType::Customer], true)) {
+            $value = match ($this->type) {
+                FieldType::Currency => $this->formatMoney($record->getAttribute($this->name), $record->getAttribute($this->currencyColumn())),
+                FieldType::Related, FieldType::Customers => implode(', ', $this->linkedRecordsOf($record)
+                    ->map(fn (Model $related): string => LinkedRecords::title($related))
+                    ->all()),
+                FieldType::Relations => implode(', ', $this->relatedTitles($record)),
+                FieldType::Customer => ($target = $this->customerTargetOf($record)) ? LinkedRecords::title($target) : '',
+            };
+
+            return blank($value) ? null : $value;
+        }
+
+        $raw = $record->getAttribute($this->getStateName());
+
+        return blank($raw) ? null : $this->formatLoggedValue($raw);
+    }
+
     // ------------------------------------------------------------- History --
 
     /**
@@ -2795,6 +2872,27 @@ class Field
             FieldType::Collection => implode('; ', (array) $value),
             FieldType::Related, FieldType::Customers => implode(', ', array_map($this->loggedLinkTitle(...), (array) $value)),
             default => is_array($value) ? implode(', ', $value) : (string) $value,
+        };
+    }
+
+    /** Plain value for a CSV cell, using the recordset's own field semantics. */
+    public function exportValue(Model $record): string
+    {
+        $value = $this->isCalculated()
+            ? $this->calculatedState($record, fn (string $name): mixed => $record->getAttribute($name))
+            : $record->getAttribute($this->name);
+
+        return match ($this->type) {
+            FieldType::Relation, FieldType::Relations => implode('; ', $this->relatedTitles($record)),
+            FieldType::Customer => ($target = $this->customerTargetOf($record)) ? LinkableRecordsets::title($target) : '',
+            FieldType::Related, FieldType::Customers => $this->linkedRecordsOf($record)
+                ->map(fn (Model $linked): string => LinkableRecordsets::title($linked))->implode('; '),
+            FieldType::Collection => $this->collectionItemsOf($record)
+                ->map(fn (CollectionItem $item): string => $item->summary())->implode('; '),
+            FieldType::File => method_exists($record, 'storedFiles')
+                ? $record->storedFiles($this->name)->pluck('name')->implode('; ') : '',
+            FieldType::Currency => $this->formatMoney($value, $record->getAttribute($this->currencyColumn())) ?? '',
+            default => blank($value) ? '' : $this->formatLoggedValue($value instanceof BackedEnum ? $value->value : $value),
         };
     }
 

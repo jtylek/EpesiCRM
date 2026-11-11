@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Schema;
 class RecordsetFeatures
 {
     /**
-     * @var array<string, array{label: string, defaults: array<int, string>}>
+     * @var array<string, array{label: string, defaults: array<int, string>, default_all: bool}>
      */
     protected static array $features = [];
 
@@ -31,12 +31,12 @@ class RecordsetFeatures
     /**
      * @param  array<int, string>  $defaults  morph aliases it is on for until an administrator decides
      */
-    public static function define(string $feature, string $label, array $defaults = []): void
+    public static function define(string $feature, string $label, array $defaults = [], bool $defaultAll = false): void
     {
         static::$features[$feature] = ['label' => $label, 'defaults' => array_values(array_unique([
             ...(static::$features[$feature]['defaults'] ?? []),
             ...$defaults,
-        ]))];
+        ])), 'default_all' => $defaultAll || (static::$features[$feature]['default_all'] ?? false)];
     }
 
     /** Another module's recordset coming with the feature on, as Attachments::enableFor() does. */
@@ -61,6 +61,10 @@ class RecordsetFeatures
         $choices = static::choices();
         $aliases = static::$features[$feature]['defaults'] ?? [];
 
+        if (static::$features[$feature]['default_all'] ?? false) {
+            $aliases = [...$aliases, ...array_keys(app(FieldOverrides::class)->recordsets())];
+        }
+
         foreach ($choices as $key => $enabled) {
             [$alias, $name] = explode('|', $key, 2);
 
@@ -77,7 +81,9 @@ class RecordsetFeatures
 
     public static function enabled(string $feature, string $alias): bool
     {
-        return in_array($alias, static::aliasesFor($feature), true);
+        return static::choices()["{$alias}|{$feature}"]
+            ?? ((static::$features[$feature]['default_all'] ?? false)
+                || in_array($alias, static::$features[$feature]['defaults'] ?? [], true));
     }
 
     public static function set(string $feature, string $alias, bool $enabled): void

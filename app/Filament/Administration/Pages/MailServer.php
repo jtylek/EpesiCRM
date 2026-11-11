@@ -21,6 +21,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Mail\Markdown;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -178,7 +179,8 @@ class MailServer extends Page
                 try {
                     Mail::send(
                         [
-                            'html' => 'mail.test',
+                            // The shared epesi mail theme (resources/views/vendor/mail).
+                            'html' => app(Markdown::class)->render('mail.test', ['url' => url('/')]),
                             'raw' => __('If you are reading this, it means that your e-mail server configuration at :url is working properly.', ['url' => url('/')]),
                         ],
                         ['url' => url('/')],

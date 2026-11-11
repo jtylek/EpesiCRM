@@ -168,7 +168,7 @@ class FollowupTest extends TestCase
         $task = Task::create(['title' => 'Plan', 'permission' => RecordPermission::Public]);
 
         $page = Livewire::test(ViewTask::class, ['record' => $task->getKey()]);
-        $this->assertSame('0', $this->notesBadgeCount($page->html()));
+        $this->assertNull($this->notesBadgeCount($page->html()));
 
         $page->callInfolistAction('status', 'followup', [
             'status' => RecordStatus::Closed->value,

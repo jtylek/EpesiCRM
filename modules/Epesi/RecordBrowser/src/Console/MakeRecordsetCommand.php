@@ -53,7 +53,7 @@ class MakeRecordsetCommand extends Command
             if (! str_contains($source, '// epesi:recordsets-json')
                 || ! str_contains($source, "Relation::morphMap([\$recordset['alias'] => \$recordset['model']])")
                 || ! str_contains($source, "Gate::policy(\$recordset['model'], \$recordset['policy'])")) {
-                throw new \RuntimeException('Provider has no generated recordsets.json hooks. Add the register()/boot() loops and recordsets() reader shown in AI-shared/AI-agent-module-development.md first. No files changed.');
+                throw new \RuntimeException('Provider has no generated recordsets.json hooks. Add the register()/boot() loops and recordsets() reader shown in AI-shared/development/module-development.md first. No files changed.');
             }
             $registrations = is_file($directory.'/recordsets.json')
                 ? json_decode(File::get($directory.'/recordsets.json'), true, 512, JSON_THROW_ON_ERROR) : [];

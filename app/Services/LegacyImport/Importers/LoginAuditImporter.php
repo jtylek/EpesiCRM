@@ -44,7 +44,8 @@ class LoginAuditImporter
                 'ended_at' => $row->end_time ?? $row->start_time,
                 'ip_address' => $row->ip_address ?? '',
                 'host_name' => $row->host_name,
-                'device' => $row->device,
+                // Older Epesi versions had no device column.
+                'device' => $row->device ?? null,
             ])->save();
         }
 

@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 /**
  * One item of a collection: an address, or anything else a record can have
  * none or many of that belongs to it alone (see "Collections" in
- * AI-shared/Epesi-custom-fields.md). A collection type is a subclass with a
+ * AI-shared/recordbrowser/collections.md). A collection type is a subclass with a
  * table of its own and a morph alias; a recordset takes one with
  * Field::collection().
  *
@@ -64,6 +64,12 @@ abstract class CollectionItem extends Model
 
     /** The item on one line, without its kind: "Main St 1, 00-001 Warsaw, Poland". */
     abstract public function summary(): string;
+
+    /** One of the item's fields as text, for a type whose stored value isn't what a person reads. */
+    public function displayValue(Field $field): ?string
+    {
+        return $field->plainValue($this);
+    }
 
     /**
      * Only the item's values are fillable: the owner, the field and the
@@ -294,6 +300,20 @@ abstract class CollectionItem extends Model
     public function isLocked(): bool
     {
         return false;
+    }
+
+    /** $owner was soft-deleted: for a type whose items are held against other records. */
+    public static function ownerTrashed(Model $owner): void {}
+
+    /**
+     * $owner was restored; the items it could not get back, removed, for its
+     * History.
+     *
+     * @return list<static>
+     */
+    public static function ownerRestored(Model $owner): array
+    {
+        return [];
     }
 
     /**

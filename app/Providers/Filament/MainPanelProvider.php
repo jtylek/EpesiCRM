@@ -18,7 +18,6 @@ use App\Support\Appearance\AppName;
 use App\Support\Appearance\CurrentTheme;
 use App\Support\Demo;
 use App\Support\Modules\ModuleRegistry;
-use Epesi\Modules\Appearance\Filament\Pages\Appearance;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -92,6 +91,7 @@ class MainPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.link-copied-modal'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.file-preview-modal'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.keyboard-help-modal'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.support-modal'))
             // A user's chosen theme's density and font size, applied before
             // first paint — see App\Support\Appearance\CurrentTheme.
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
@@ -135,7 +135,7 @@ class MainPanelProvider extends PanelProvider
                 Action::make('settings')
                     ->label('Settings')
                     ->icon(Heroicon::OutlinedCog6Tooth)
-                    ->url(fn (): string => Appearance::getUrl(panel: 'user-settings')),
+                    ->url(fn (): string => \App\Filament\UserSettings\Pages\About::getUrl(panel: 'user-settings')),
                 Action::make('administration')
                     ->label('Administration')
                     ->icon(Heroicon::OutlinedShieldCheck)
@@ -145,6 +145,10 @@ class MainPanelProvider extends PanelProvider
                     ->label('Keyboard help')
                     ->icon(Heroicon::OutlinedCommandLine)
                     ->alpineClickHandler("\$dispatch('open-modal', { id: 'keyboard-help' })"),
+                Action::make('support')
+                    ->label('Support')
+                    ->icon(Heroicon::OutlinedLifebuoy)
+                    ->alpineClickHandler("\$dispatch('open-modal', { id: 'support' })"),
             ]);
     }
 }

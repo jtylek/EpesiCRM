@@ -15,7 +15,7 @@ use Throwable;
  * to file storage, which de-duplicates them).
  *
  * Nothing else is ever read, and nothing is archived on a schedule or without
- * that click (AI-shared/Mail-archiving.md).
+ * that click (AI-shared/features/mail/archiving.md).
  */
 class MailFetcher
 {

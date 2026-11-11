@@ -33,6 +33,12 @@ class AttachmentsPlugin implements Plugin
                 PanelsRenderHook::STYLES_AFTER,
                 fn (): HtmlString => new HtmlString('<style>'
                     .'.epesi-note-editor .tiptap{min-height:40vh}'
+                    // Preview as tall as the HTML editor: its 40vh text area
+                    // plus the toolbar row and the text area's padding (64px,
+                    // measured in the browser; px because the panel's root
+                    // font size isn't 16px).
+                    .'.epesi-note-preview-pane{box-sizing:border-box;min-height:calc(40vh + 64px);display:flex;flex-direction:column}'
+                    .'.epesi-note-preview-pane>*{flex:1 1 auto}'
                     // "Attached to" carries its own warning in its label line
                     // (AttachmentResource::attachedToLabel()), so the field's
                     // message under the table would say it twice.
@@ -48,11 +54,11 @@ class AttachmentsPlugin implements Plugin
                     .'.epesi-attach-to-error{margin-inline-start:.5rem;font-weight:400;color:var(--danger-600)}'
                     .'.dark .epesi-attach-to-error{color:var(--danger-400)}'
                     .'.epesi-note-toggle{cursor:pointer}'
+                    .'.epesi-note-preview-body{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}'
                     .'.epesi-note-full-title{font-weight:600;margin-bottom:.25rem}'
                     .'.epesi-note-meta{margin-top:.5rem;display:flex;flex-direction:column;gap:.25rem;font-size:.75rem;color:var(--gray-500)}'
                     .'.dark .epesi-note-meta{color:var(--gray-400)}'
                     .'.epesi-note-meta-label{font-weight:600;margin-inline-end:.375rem}'
-                    .'.epesi-note-meta-by{color:var(--gray-400)}'
                     .'.epesi-note-meta-chip{display:inline-flex;align-items:center;gap:.25rem;margin-inline-end:.25rem;padding:.0625rem .5rem;border-radius:9999px;background:var(--gray-50);box-shadow:inset 0 0 0 1px var(--gray-300);color:inherit;text-decoration:none;vertical-align:middle}'
                     .'.dark .epesi-note-meta-chip{background:color-mix(in oklab,var(--gray-500) 15%,transparent);box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--gray-400) 35%,transparent)}'
                     .'.epesi-note-meta-chip:hover{color:var(--primary-600)}'

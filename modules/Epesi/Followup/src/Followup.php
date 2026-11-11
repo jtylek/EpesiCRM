@@ -12,10 +12,10 @@ use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * Closing an activity and scheduling the next — the port of
@@ -94,7 +94,7 @@ class Followup
 
     protected static function describe(Model $record): string
     {
-        return __(Str::headline($record->getMorphClass())).' "'.e(static::titleOf($record)).'"';
+        return LinkableRecordsets::label($record->getMorphClass()).' "'.e(static::titleOf($record)).'"';
     }
 
     protected static function createFollowup(Model $source, string $type, string $title, CarbonInterface $when): Model

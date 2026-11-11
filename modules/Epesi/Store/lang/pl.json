@@ -1,5 +1,6 @@
 {
     "Check that this server can reach the internet, then click Refresh.": "Sprawdź, czy ten serwer ma połączenie z internetem, a potem kliknij Odśwież.",
+    "Epesi License": "Licencja Epesi",
     "Epesi Store": "Sklep Epesi",
     "epesi updated to :version": "Zaktualizowano epesi do :version",
     "Not installed": "Niezainstalowany",
@@ -8,8 +9,6 @@
     "Refresh": "Odśwież",
     "Set MODULES_INSTALL_ENABLED=true in .env to allow updates from the browser.": "Ustaw MODULES_INSTALL_ENABLED=true w .env, aby pozwolić na aktualizacje z przeglądarki.",
     "Store": "Sklep",
-    "Store settings": "Ustawienia sklepu",
-    "Store settings saved": "Zapisano ustawienia sklepu",
     "The files are in place. Now update the database.": "Pliki są na miejscu. Teraz zaktualizuj bazę danych.",
     "The store has no modules published yet.": "Sklep nie ma jeszcze opublikowanych modułów.",
     "Update": "Aktualizuj",

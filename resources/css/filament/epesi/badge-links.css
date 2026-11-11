@@ -1,0 +1,50 @@
+/*
+ * A badge that links somewhere (a related record, an e-mail, a web address,
+ * a collection item — anywhere Field.php/LinkedRecords style a badge with
+ * ->url()) should read as one clickable thing: icon(s) and text together.
+ *
+ * Filament's own <x-filament::badge> (badge.blade.php) renders the whole
+ * badge as the <a> when given a URL, so it's already fully clickable there.
+ * But TextColumn/TextEntry's ->badge()->url() combination (what every linked-
+ * record badge in this app actually uses) only wraps the label TEXT in an
+ * <a>, as a child of the outer `.fi-badge` span — the icon(s) beside it sit
+ * outside that anchor. That's why only the text seemed to react on hover:
+ * `.fi-badge` itself had no hover styling at all, and the icon was never
+ * part of the link.
+ *
+ * Fixed two ways, scoped to badges that are actually links so a plain badge
+ * (no url, e.g. a Select/Multiselect field) keeps no pointer/hover affordance:
+ *  - the nested <a>'s ::before is stretched to cover the whole `.fi-badge`
+ *    box (a standard "expanded hit area" trick: the pseudo-element is part of
+ *    the <a>'s own hit-testing, so a click anywhere in the badge — icon
+ *    included — now activates the link).
+ *  - the whole badge tints on hover/focus, one step darker than its own resting
+ *    color (badge.css's bg-color-50 / dark:bg-color-400/10 family), in both
+ *    light and dark mode, falling back to the plain gray badge's tokens when
+ *    the badge carries no color (Filament skips the `fi-color` class for the
+ *    default gray badge).
+ */
+a.fi-badge:hover,
+a.fi-badge:focus-visible,
+.fi-badge:has(> a):hover,
+.fi-badge:has(> a:focus-visible) {
+    cursor: pointer;
+    background-color: var(--color-100, var(--gray-100));
+}
+
+.dark a.fi-badge:hover,
+.dark a.fi-badge:focus-visible,
+.dark .fi-badge:has(> a):hover,
+.dark .fi-badge:has(> a:focus-visible) {
+    background-color: color-mix(in oklab, var(--color-400, var(--gray-400)) 20%, transparent);
+}
+
+.fi-badge:has(> a) {
+    position: relative;
+}
+
+.fi-badge:has(> a) > a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+}

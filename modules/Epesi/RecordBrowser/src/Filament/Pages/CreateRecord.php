@@ -26,7 +26,7 @@ abstract class CreateRecord extends BaseCreateRecord
     use HasResourceIconBreadcrumb;
     use HidesPageHeading;
 
-    /** No "Create & create another" button (AI-shared/conventions.md). */
+    /** No "Create & create another" button (AI-shared/user-interface/conventions.md). */
     protected static bool $canCreateAnother = false;
 
     /** Id of the record this form was cloned from, kept for the History entry on save. */

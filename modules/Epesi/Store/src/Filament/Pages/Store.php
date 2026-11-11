@@ -325,9 +325,9 @@ class Store extends Page implements HasTable
     {
         return ActionGroup::make([
             Action::make('settings')
-                ->label('Store settings')
+                ->label(__('Epesi License'))
                 ->icon(Heroicon::OutlinedCog6Tooth)
-                ->modalHeading(__('Store settings'))
+                ->modalHeading(__('Epesi License'))
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel(__('Close'))
                 ->schema([
@@ -376,7 +376,7 @@ class Store extends Page implements HasTable
                     $this->redirect(static::getUrl());
                 }),
         ])
-            ->label('Store settings')
+            ->label(__('Epesi License'))
             ->icon(Heroicon::OutlinedCog6Tooth)
             ->button()
             ->color('gray')

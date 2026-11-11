@@ -22,7 +22,7 @@ use Tests\TestCase;
 /**
  * Admin-authored, named themes (Administration → Themes) a user picks from
  * on Appearance (user-settings) — not a free per-user preference. See
- * AI-shared/Epesi-custom-themes.md.
+ * AI-shared/user-interface/themes.md.
  */
 class AppearanceTest extends TestCase
 {
@@ -220,6 +220,162 @@ class AppearanceTest extends TestCase
 
         // Without the parameter a signed-in user is sent on, as ever.
         $this->get('/login')->assertRedirect();
+    }
+
+    public function test_the_dealer_portal_title_defaults_and_is_set_on_the_logo_and_title_page(): void
+    {
+        $this->assertSame('Dealer Portal', AppName::dealer());
+
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(LogoAndTitle::class)
+            ->assertSet('dealerTitle', 'Dealer Portal')
+            ->set('dealerTitle', '')
+            ->call('save')
+            ->assertHasErrors(['dealerTitle'])
+            ->set('dealerTitle', 'Acme dealers')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('Acme dealers', AppName::dealer());
+        $this->assertSame('Acme dealers', AppearanceSetting::dealerTitle());
+        // The other titles are left as they were.
+        $this->assertSame('Customer Portal', AppName::portal());
+        $this->assertSame('epesi', AppName::login());
+    }
+
+    public function test_the_dealer_login_page_has_the_dealer_title_and_the_customer_portal_keeps_its_own(): void
+    {
+        AppearanceSetting::current()->update([
+            'login_title' => 'Acme sign in',
+            'portal_title' => 'Acme clients',
+            'dealer_title' => 'Acme dealers',
+        ]);
+        User::factory()->create();
+
+        $this->get('/dealer/login')->assertOk()->assertSee('Acme dealers')
+            ->assertDontSee('Acme sign in')->assertDontSee('Acme clients')
+            ->assertSee('<meta property="og:title" content="Acme dealers">', false);
+        $this->get('/portal/login')->assertSee('Acme clients')->assertDontSee('Acme dealers')
+            ->assertSee('<meta property="og:title" content="Acme clients">', false);
+        $this->get('/login')->assertSee('Acme sign in')->assertDontSee('Acme dealers');
+    }
+
+    public function test_the_dealer_logo_is_uploaded_served_and_shown_only_on_the_dealer_login_page(): void
+    {
+        Storage::fake('local');
+        $admin = $this->userWithRole('super_admin');
+
+        $this->get('/branding/dealer')->assertNotFound();
+
+        $this->actingAs($admin);
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(LogoAndTitle::class)
+            ->set('logos.dealer', UploadedFile::fake()->image('dealer.png', 300, 100))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // Light only: dark mode falls back to it.
+        $urls = AppearanceSetting::logoUrls('dealer');
+        $this->assertNotNull($urls['light']);
+        $this->assertSame($urls['light'], $urls['dark']);
+        $this->assertNull(AppearanceSetting::logoUrl('login'));
+        $this->assertNull(AppearanceSetting::logoUrl('portal'));
+
+        auth()->logout();
+        $this->get('/dealer/login')->assertSee('branding/dealer?')->assertDontSee('branding/login')->assertDontSee('branding/portal');
+        $this->get('/login')->assertDontSee('branding/dealer');
+        $this->get('/administration/login')->assertDontSee('branding/dealer');
+        $this->get('/portal/login')->assertDontSee('branding/dealer');
+        $this->get('/branding/dealer')->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->get('/branding/dealer-dark')->assertNotFound();
+
+        $this->actingAs($admin);
+        Filament::setCurrentPanel('administration');
+
+        // Dark only (the light one removed): light mode falls back to it.
+        Livewire::test(LogoAndTitle::class)
+            ->set('logos.dealer-dark', UploadedFile::fake()->image('dealer-dark.png', 300, 100))
+            ->call('save')
+            ->call('removeLogo', 'dealer');
+
+        $urls = AppearanceSetting::logoUrls('dealer');
+        $this->assertStringContainsString('branding/dealer-dark', $urls['light']);
+        $this->assertSame($urls['light'], $urls['dark']);
+
+        // Both: one picture per colour mode.
+        Livewire::test(LogoAndTitle::class)
+            ->set('logos.dealer', UploadedFile::fake()->image('dealer.png', 300, 100))
+            ->call('save');
+
+        $urls = AppearanceSetting::logoUrls('dealer');
+        $this->assertNotSame($urls['light'], $urls['dark']);
+
+        auth()->logout();
+        $this->get('/branding/dealer-dark')->assertOk();
+        $this->get('/dealer/login')->assertSee('branding/dealer-dark')->assertSee('branding/dealer?');
+    }
+
+    public function test_the_customer_portal_login_is_unchanged_by_a_dealer_logo(): void
+    {
+        Storage::fake('local');
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(LogoAndTitle::class)
+            ->set('logos.portal', UploadedFile::fake()->image('portal.png', 300, 100))
+            ->set('logos.dealer', UploadedFile::fake()->image('dealer.png', 300, 100))
+            ->call('save');
+
+        auth()->logout();
+        $this->get('/portal/login')->assertSee('branding/portal?')->assertDontSee('branding/dealer');
+        $this->get('/dealer/login')->assertSee('branding/dealer?')->assertDontSee('branding/portal');
+    }
+
+    public function test_reset_to_default_clears_the_dealer_title_and_logos(): void
+    {
+        Storage::fake('local');
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(LogoAndTitle::class)
+            ->set('dealerTitle', 'Acme dealers')
+            ->set('logos.dealer', UploadedFile::fake()->image('a.png', 300, 100))
+            ->set('logos.dealer-dark', UploadedFile::fake()->image('b.png', 300, 100))
+            ->call('save');
+
+        $paths = [AppearanceSetting::logoPath('dealer'), AppearanceSetting::logoPath('dealer-dark')];
+        $this->assertCount(2, array_filter($paths));
+
+        Livewire::test(LogoAndTitle::class)
+            ->call('resetToDefaults')
+            ->assertSet('dealerTitle', 'Dealer Portal');
+
+        $setting = AppearanceSetting::current()->refresh();
+        $this->assertNull($setting->dealer_title);
+        $this->assertNull($setting->dealer_logo);
+        $this->assertNull($setting->dealer_logo_dark);
+        $this->assertSame('Dealer Portal', AppName::dealer());
+
+        foreach ($paths as $path) {
+            Storage::disk('local')->assertMissing($path);
+        }
+    }
+
+    public function test_the_dealer_portal_login_page_is_previewed_too(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        $urls = Livewire::test(LogoAndTitle::class)->instance()->previewUrls();
+
+        $this->assertArrayHasKey('Dealer portal login page', $urls);
+        $this->assertStringContainsString('/dealer/login?preview=dark', $urls['Dealer portal login page']['dark']);
+
+        $this->get('/dealer/login?preview=dark')->assertOk()->assertSee('Storage.prototype', false)->assertSee('"dark"', false);
+        $this->get('/administration/logo-and-title')->assertOk()->assertSee('Dealer portal title')->assertSee('Dealer portal login page');
     }
 
     public function test_the_logo_and_title_page_sits_with_themes_under_appearance(): void

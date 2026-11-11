@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Setup\SetupState;
+use App\Support\Setup\LegacyBootDetector;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,9 @@ class RedirectToSetup
     public function handle(Request $request, Closure $next): Response
     {
         if (! SetupState::isInstalled()) {
+            if (LegacyBootDetector::detect(base_path()) === 'legacy') {
+                return redirect()->route('filament.setup.migrate');
+            }
             return redirect()->route('filament.setup.install');
         }
 

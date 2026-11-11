@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "262faedc528109271464d22c19118417",
+    "content-hash": "08d98e248029c1ea048aeaf842f4f2bd",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -1539,16 +1539,16 @@
         },
         {
             "name": "ekmungai/eloquent-ifrs",
-            "version": "v6.0.0",
+            "version": "v7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ekmungai/eloquent-ifrs.git",
-                "reference": "f391c50d87e18dd713da2342aa683f748403b28a"
+                "reference": "d8a5559c1373ced8c6a7969fe62993a04da1e651"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ekmungai/eloquent-ifrs/zipball/f391c50d87e18dd713da2342aa683f748403b28a",
-                "reference": "f391c50d87e18dd713da2342aa683f748403b28a",
+                "url": "https://api.github.com/repos/ekmungai/eloquent-ifrs/zipball/d8a5559c1373ced8c6a7969fe62993a04da1e651",
+                "reference": "d8a5559c1373ced8c6a7969fe62993a04da1e651",
                 "shasum": ""
             },
             "require": {
@@ -1609,7 +1609,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-01T11:59:36+00:00"
+            "time": "2026-10-30T13:13:24+00:00"
         },
         {
             "name": "filament/actions",

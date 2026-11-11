@@ -13,7 +13,7 @@ require_once __DIR__.'/epesi_archive_matcher.php';
  * from that folder (MailFetcher::archiveFrom(), MailArchiver: links,
  * threads, attachments into file storage, de-duplication), moves the
  * archived ones into the account's archive folder, and tells this frame to
- * refresh. Nothing is archived without that click (AI-shared/Mail-archiving.md).
+ * refresh. Nothing is archived without that click (AI-shared/features/mail/archiving.md).
  *
  * A compose toggle saves the sent copy into the archive folder, and the page
  * archives it from there by Message-ID.

@@ -30,7 +30,8 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
      * The roles that open epesi's main panel. Other roles have their own,
      * narrower panel instead — 'customer' opens the customer portal
      * (Administration → Users still creates their login; see
-     * AI-shared/Customer-portal.md) — or none yet, until one is built.
+     * AI-shared/features/access/customer-portal.md), 'dealer' the dealer portal
+     * (AI-shared/features/access/dealer-portal.md) — or none yet, until one is built.
      * 'consultant' opens it too, but sees only the records tied to him
      * (HasOwnershipVisibility).
      */
@@ -145,6 +146,11 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
         // The customer portal: its own panel, its own role, nothing else.
         if ($panel->getId() === 'portal') {
             return ! Demo::enabled() && $this->hasRole('customer');
+        }
+
+        // The dealer portal (AI-shared/features/access/dealer-portal.md), likewise.
+        if ($panel->getId() === 'dealer') {
+            return ! Demo::enabled() && $this->hasRole('dealer');
         }
 
         return $this->hasAnyRole(self::MAIN_PANEL_ROLES);

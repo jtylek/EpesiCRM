@@ -19,7 +19,7 @@ use SensitiveParameter;
  * customer's link opened by an administrator still signed in from
  * Administration, say, would send the administrator to the customer
  * portal — which they can't open — for a 403 with nothing to explain it
- * (see AI-shared/Customer-portal.md).
+ * (see AI-shared/features/access/customer-portal.md).
  *
  * Signing out first — a real logout, the same one Impersonation::stop() does
  * (Auth::logout(), then the session is invalidated and its token

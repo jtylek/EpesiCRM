@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * The shared OAuth2 layer (README.md, AI-shared/OAuth2-plan.md). A core
+ * The shared OAuth2 layer (README.md, AI-shared/features/integrations/oauth.md). A core
  * module: Mail's XOAUTH2 accounts are built on it, and Premium integrations
  * (Allegro) add their own providers to it.
  */

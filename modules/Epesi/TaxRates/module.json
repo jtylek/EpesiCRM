@@ -1,0 +1,18 @@
+{
+    "id": "epesi/taxrates",
+    "name": "Tax Rates",
+    "description": "VAT and other tax rates with their codes, for invoices, expenses, items and price lists.",
+    "version": "1.0.0",
+    "epesi_core": "^3.0",
+    "category": "Administration",
+    "icon": "heroicon-o-scale",
+    "namespace": "Epesi\\Modules\\TaxRates\\",
+    "path": "Epesi/TaxRates",
+    "provider_class": "Epesi\\Modules\\TaxRates\\TaxRatesServiceProvider",
+    "plugin_class": "Epesi\\Modules\\TaxRates\\TaxRatesPlugin",
+    "panels": ["main", "administration"],
+    "core": true,
+    "requires": ["epesi/recordbrowser"],
+    "provides": [],
+    "legacy_importers": [{"tab": "invoice_tax_rates", "class": "Epesi\\Modules\\TaxRates\\LegacyImport\\TaxRatesImporter", "first": true}]
+}

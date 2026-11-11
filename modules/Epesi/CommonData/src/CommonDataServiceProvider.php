@@ -2,8 +2,6 @@
 
 namespace Epesi\Modules\CommonData;
 
-use App\Services\LegacyImport\ImporterRegistry;
-use Epesi\Modules\CommonData\LegacyImport\CommonDataImporter;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -30,6 +28,5 @@ class CommonDataServiceProvider extends ServiceProvider
 
         // `first: true` — reference data is what the record tabs are read
         // against, and it depends on nothing itself.
-        $this->app->make(ImporterRegistry::class)->register('commondata', CommonDataImporter::class, first: true);
     }
 }

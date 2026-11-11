@@ -133,7 +133,9 @@ class TranslationsTest extends TestCase
             app()->forgetInstance(NavigationManager::class);
 
             foreach ($panel->getPages() as $page) {
-                if ($page::canAccess()) {
+                // Detail pages require a record-specific route parameter and
+                // cannot be opened from the page registry alone.
+                if ($page::canAccess() && ! str_contains($page::getSlug(), '{')) {
                     $this->get($page::getUrl(panel: $panelId))->assertOk();
                 }
             }

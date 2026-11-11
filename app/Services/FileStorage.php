@@ -81,6 +81,18 @@ class FileStorage
         });
     }
 
+    /**
+     * Content the caller already hashed (sha512) and places itself: $write is
+     * called with the storage path only when the content is not on disk yet, and
+     * may MOVE the file in. Returns a new use of the content under $name.
+     *
+     * @param  Closure(string): bool  $write
+     */
+    public function storeWith(string $hash, string $name, Closure $write): StoredFile
+    {
+        return $this->store($hash, $name, $write);
+    }
+
     /** An upload — a form's, or a Livewire temporary one — under the name it was sent with. */
     public function putUpload(UploadedFile $file): StoredFile
     {

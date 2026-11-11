@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
  * A personal-preferences page, not a resource, next to Regional Settings:
  * every user picks one of the admin-authored Themes (Administration →
  * Themes) for themselves, or nothing (falls back to whichever one the admin
- * marked default). See AI-shared/Epesi-custom-themes.md.
+ * marked default). See AI-shared/user-interface/themes.md.
  */
 class Appearance extends Page
 {

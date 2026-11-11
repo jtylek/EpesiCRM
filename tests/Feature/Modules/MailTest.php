@@ -144,7 +144,10 @@ class MailTest extends TestCase
         $logo = $mail->attachments->firstWhere('name', 'logo.png');
         $this->assertTrue($logo->inline);
         $this->assertFalse($mail->attachments->firstWhere('name', 'offer.pdf')->inline);
-        $this->assertStringContainsString($logo->url(inline: true), $mail->displayHtml());
+        // html_entity_decode(): PlainBody's sanitizer re-serializes attribute
+        // values with numeric/named references for '=' and '&' (valid HTML,
+        // the same URL once parsed), so compare the decoded form.
+        $this->assertStringContainsString($logo->url(inline: true), html_entity_decode($mail->displayHtml()));
 
         $this->assertSame(1, $mail->thread->message_count);
     }
@@ -463,7 +466,7 @@ class MailTest extends TestCase
     {
         // Archiving a sent mail is off by default: on, it lands on the contact.
         $this->account(['archive_on_sending' => true]);
-        app(MailArchiver::class)->archive(Eml::make(), $this->user);
+        app(MailArchiver::class)->archive(Eml::make(from: 'me@ourcompany.test', to: 'ann@customer.test'), $this->user);
 
         $this->get(ViewContact::getUrl(['record' => $this->ann]))
             ->assertOk()
@@ -588,6 +591,8 @@ class MailTest extends TestCase
         $this->get(MailResource::getUrl('view', ['record' => $mail]))
             ->assertOk()
             ->assertSee('sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"', false)
+            ->assertSee('srcdoc="', false)
+            ->assertSee('Hi', false)
             ->assertDontSee('allow-scripts', false)
             ->assertSee('offer.pdf')
             ->assertDontSee('<script>alert(1)</script>', false);
@@ -610,6 +615,24 @@ class MailTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_a_fully_discarded_html_body_falls_back_to_the_plain_text_part(): void
+    {
+        $mail = Mail::create([
+            'user_id' => $this->user->id,
+            'employee_id' => $this->user->contact->id,
+            'subject' => 'Unsupported HTML wrapper',
+            'body_html' => '<object><p>This subtree is discarded</p></object>',
+            'body_text' => "Readable fallback\nSecond line",
+            'direction' => Mail::INCOMING,
+            'date' => now(),
+        ]);
+
+        $this->assertSame(
+            '<pre style="white-space:pre-wrap;font:14px/1.5 system-ui,sans-serif">Readable fallback'."\n".'Second line</pre>',
+            $mail->displayHtml(),
+        );
+    }
+
     public function test_a_mailto_link_in_the_body_opens_compose_instead_of_the_system_mail_client(): void
     {
         $this->account();
@@ -620,8 +643,12 @@ class MailTest extends TestCase
 
         $this->get(MailResource::getUrl('view', ['record' => $mail]))
             ->assertOk()
-            // e()-escaped: the tag lands in the iframe's srcdoc attribute,
-            // which Blade's `{{ $html }}` escapes once (see body.blade.php).
+            // e()-escaped: the tag lands in the iframe's data-body attribute,
+            // which Blade's `{{ $getState() }}` escapes once (see
+            // body.blade.php) — but composeLinkTag() builds this href fresh
+            // from ComposeAction::url(), not from PlainBody's sanitized text,
+            // so it isn't affected by the sanitizer's own entity-encoding
+            // (see the next test).
             ->assertSee(e('<a target="_top" href="'.ComposeAction::url(to: 'ann@customer.test').'">'), false)
             ->assertDontSee('mailto:', false);
     }
@@ -633,9 +660,17 @@ class MailTest extends TestCase
             $this->user,
         );
 
-        $this->get(MailResource::getUrl('view', ['record' => $mail]))
-            ->assertOk()
-            ->assertSee('mailto:ann@customer.test', false);
+        $response = $this->get(MailResource::getUrl('view', ['record' => $mail]))->assertOk();
+
+        // Two decode passes, for two independent escape layers: PlainBody's
+        // sanitizer re-serializes the mailto: address with numeric
+        // references for '@' ("ann&#64;…", valid HTML), and the page's own
+        // Blade escape of the data-body attribute then escapes that '&'
+        // literally too ("ann&amp;#64;…", since e() doesn't know it's
+        // already part of an entity). One decode only undoes the Blade
+        // layer, leaving "&#64;" — html_entity_decode() doesn't recurse.
+        $decoded = html_entity_decode(html_entity_decode($response->getContent()));
+        $this->assertStringContainsString('mailto:ann@customer.test', $decoded);
     }
 
     public function test_the_from_and_to_headers_link_each_address_to_compose(): void
@@ -796,9 +831,11 @@ class MailTest extends TestCase
 
         Livewire::test(ListMails::class)
             ->assertCanSeeTableRecords([$fromAnn, $fromBob])
+            ->assertSee('2 records')
             ->filterTable('sender', ['from' => 'ann@customer'])
             ->assertCanSeeTableRecords([$fromAnn])
             ->assertCanNotSeeTableRecords([$fromBob])
+            ->assertSee('1 record')
             ->filterTable('sender', ['from' => 'bob seller'])
             ->assertCanSeeTableRecords([$fromBob])
             ->assertCanNotSeeTableRecords([$fromAnn]);

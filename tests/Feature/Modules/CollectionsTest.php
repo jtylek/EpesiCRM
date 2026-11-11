@@ -29,7 +29,7 @@ use Tests\TestCase;
 /**
  * Collections (FieldType::Collection): what a record has none or many of and
  * owns alone, starting with addresses — see "Collections" in
- * AI-shared/Epesi-custom-fields.md.
+ * AI-shared/recordbrowser/collections.md.
  */
 class CollectionsTest extends TestCase
 {

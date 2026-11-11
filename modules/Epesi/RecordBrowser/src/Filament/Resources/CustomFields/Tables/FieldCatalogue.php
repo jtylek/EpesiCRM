@@ -36,7 +36,7 @@ class FieldCatalogue
                 $records["module:{$alias}:{$field->name}"] = [
                     'model_type' => $alias, 'recordset' => __($recordset['label']),
                     'name' => $field->name, 'label' => __($effective->getLabel()),
-                    'type' => $field->type->label(), 'origin' => 'Module', 'custom_id' => null,
+                    'type' => $field->type->label(), 'origin' => 'module', 'custom_id' => null,
                     'required' => $effective->isRequired(), 'active' => true,
                     'customized' => $properties !== [], 'position' => $properties['position'] ?? ($position * 10),
                 ];
@@ -49,7 +49,7 @@ class FieldCatalogue
             $records["custom:{$field->id}"] = [
                 'model_type' => $field->model_type, 'recordset' => __($recordsets[$field->model_type]['label'] ?? $labels[$field->model_type] ?? $field->model_type),
                 'name' => $field->name, 'label' => __($field->label), 'type' => $field->type->label(),
-                'origin' => 'Custom', 'custom_id' => $field->id, 'required' => $field->required,
+                'origin' => filled($field->module_id) ? 'custom' : 'admin', 'custom_id' => $field->id, 'required' => $field->required,
                 'active' => $field->active, 'customized' => false,
                 'position' => $registry->properties($field->model_type, $field->column)['position'] ?? ($position * 10),
             ];
@@ -68,9 +68,10 @@ class FieldCatalogue
                 ->iconButton(false)->button())
             ->records(function (?string $search, ?array $filters, ?string $sortColumn, ?string $sortDirection, int $page, int|string $recordsPerPage, $livewire): LengthAwarePaginator {
                 $reordering = $livewire->isTableReordering();
+                $recordset = $livewire->recordset ?? ($filters['model_type']['value'] ?? null);
                 $records = static::records()
                     ->filter(fn (array $record): bool => (! filled($search) || str_contains(mb_strtolower(implode(' ', [$record['label'], $record['name'], $record['recordset']])), mb_strtolower($search)))
-                        && (! filled($filters['model_type']['value'] ?? null) || $record['model_type'] === $filters['model_type']['value'])
+                        && (! filled($recordset) || $record['model_type'] === $recordset)
                         && (! filled($filters['origin']['value'] ?? null) || $record['origin'] === $filters['origin']['value']))
                     ->sortBy($reordering ? 'position' : ($sortColumn ?: 'position'), SORT_NATURAL | SORT_FLAG_CASE, ! $reordering && $sortDirection === 'desc')
                     ->sortBy('recordset', SORT_NATURAL | SORT_FLAG_CASE);
@@ -81,7 +82,8 @@ class FieldCatalogue
             })
             ->defaultSort('position')
             ->columns([
-                TextColumn::make('recordset')->label('Recordset')->sortable(),
+                TextColumn::make('recordset')->label('Recordset')->sortable()
+                    ->hidden(fn ($livewire): bool => filled($livewire->recordset)),
                 TextColumn::make('label')->label('Label')->searchable()->sortable(),
                 TextColumn::make('name')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')->badge(),
@@ -94,10 +96,15 @@ class FieldCatalogue
             ->filtersFormColumns(['default' => 1, 'sm' => 2])
             ->filters([
                 SelectFilter::make('model_type')->label('Recordset')
+                    ->hidden(fn ($livewire): bool => filled($livewire->recordset))
                     ->options(fn (): array => collect(collect(app(FieldOverrides::class)->recordsets())->map(fn (array $recordset): string => __($recordset['label']))->all() + CustomFieldRegistry::participatingModels())
                         ->sort(fn (string $a, string $b): int => strnatcasecmp($a, $b))
                         ->all()),
-                SelectFilter::make('origin')->label('Origin')->options(['Module' => __('Module'), 'Custom' => __('Custom')]),
+                SelectFilter::make('origin')->label('Origin')->options([
+                    'module' => __('module'),
+                    'custom' => __('custom'),
+                    'admin' => __('admin'),
+                ]),
             ])
             ->recordUrl(fn (array $record): ?string => $record['custom_id'] ? CustomFieldResource::getUrl('view', ['record' => $record['custom_id']]) : null)
             ->recordAction('view')
@@ -120,7 +127,7 @@ class FieldCatalogue
                     })),
                 Demo::guard(Action::make('reset')->label('Reset to module defaults')->icon(Heroicon::OutlinedArrowUturnLeft)
                     ->iconButton()->tooltip(__('Reset to module defaults'))
-                    ->visible(fn (array $record): bool => $record['origin'] === 'Module' && $record['customized'])
+                    ->visible(fn (array $record): bool => $record['origin'] === 'module' && $record['customized'])
                     ->requiresConfirmation()
                     ->action(function (array $record): void {
                         app(FieldOverrides::class)->save($record['model_type'], $record['name'], []);

@@ -17,6 +17,7 @@
     "reminders": "التذكيرات",
     "Set by": "تم تعيينه بواسطة",
     "Set one from the Reminders tab of a task, meeting or phone call.": "يمكنك تعيينه من علامة التبويب «التذكيرات» الخاصة بمهمة أو اجتماع أو مكالمة هاتفية.",
+    "Show reminders up to": "إظهار التذكيرات حتى",
     "Starts :date (:relative)": "يبدأ بـ  (:date:relative)",
     "This record has no time to remind you before.": "لم يتبقَ لهذه السجلات وقت كافٍ لتذكيرك مسبقًا.",
     "Turn off": "إيقاف التشغيل",

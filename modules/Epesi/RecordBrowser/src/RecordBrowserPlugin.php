@@ -2,7 +2,8 @@
 
 namespace Epesi\Modules\RecordBrowser;
 
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RelatedModules;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -29,7 +30,7 @@ class RecordBrowserPlugin implements Plugin
         $panel->discoverResources(
             in: __DIR__.'/Filament/Resources',
             for: 'Epesi\\Modules\\RecordBrowser\\Filament\\Resources',
-        )->pages([RelatedModules::class]);
+        )->pages([Recordsets::class, ViewRecordset::class]);
     }
 
     public function boot(Panel $panel): void {}

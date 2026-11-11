@@ -2,8 +2,6 @@
 
 namespace Epesi\Modules\Currencies;
 
-use App\Services\LegacyImport\ImporterRegistry;
-use Epesi\Modules\Currencies\LegacyImport\CurrenciesImporter;
 use Epesi\Modules\Currencies\Models\CurrencySetting;
 use Epesi\Modules\Currencies\Services\CurrencyRepository;
 use Epesi\Modules\Currencies\Services\RateFetcher;
@@ -34,7 +32,6 @@ class CurrenciesServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-currencies');
 
         // Before the core tabs: amounts they import name these currencies.
-        $this->app->make(ImporterRegistry::class)->register('currencies', CurrenciesImporter::class, first: true);
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             // The ECB publishes around 16:00 CET, the NBP around 12:15, so by

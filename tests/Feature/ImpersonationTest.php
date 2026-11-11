@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Filament\Administration\Resources\Users\Pages\ListUsers;
 use App\Filament\Administration\Resources\Users\Pages\ViewUser;
 use App\Filament\Administration\Resources\Users\UserResource;
+use App\Filament\Portal\Pages\MyContact;
 use App\Models\LoginAudit;
 use App\Models\User;
 use App\Support\Impersonation;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -96,6 +98,95 @@ class ImpersonationTest extends TestCase
         Impersonation::start($this->employee);
     }
 
+    public function test_a_super_admin_logs_in_as_a_dealer_and_lands_in_the_dealer_portal(): void
+    {
+        $dealer = $this->portalUser('dealer', 'Simona');
+
+        Livewire::test(ViewUser::class, ['record' => $dealer->getKey()])
+            ->assertActionVisible('logInAs')
+            ->callAction('logInAs')
+            ->assertRedirect(Filament::getPanel('dealer')->getUrl());
+
+        $this->assertSame($dealer->id, Auth::id());
+
+        $this->get(MyContact::getUrl(panel: 'dealer'))
+            ->assertOk()
+            ->assertSee('You are logged in as Simona Alfa.')
+            ->assertSee('Back to Admin');
+
+        $this->assertSame($this->admin->id, LoginAudit::query()->where('user_id', $dealer->id)->sole()->impersonated_by);
+    }
+
+    public function test_and_as_a_customer_in_the_customer_portal(): void
+    {
+        $customer = $this->portalUser('customer', 'Carl');
+
+        Livewire::test(ListUsers::class)
+            ->callAction(TestAction::make('logInAs')->table($customer))
+            ->assertRedirect(Filament::getPanel('portal')->getUrl());
+
+        $this->assertSame($customer->id, Auth::id());
+
+        $this->get(MyContact::getUrl(panel: 'portal'))
+            ->assertOk()
+            ->assertSee('You are logged in as Carl Alfa.')
+            ->assertSee('Back to Admin');
+
+        $this->assertSame($this->admin->id, LoginAudit::query()->where('user_id', $customer->id)->sole()->impersonated_by);
+    }
+
+    public function test_a_dealer_who_is_also_staff_lands_in_the_main_panel(): void
+    {
+        $dealer = $this->portalUser('dealer', 'Petr');
+        $dealer->assignRole('employee');
+
+        Livewire::test(ViewUser::class, ['record' => $dealer->getKey()])
+            ->callAction('logInAs')
+            ->assertRedirect(Filament::getPanel('main')->getUrl());
+    }
+
+    public function test_the_bar_takes_them_back_from_the_dealer_portal_and_the_customer_portal(): void
+    {
+        foreach (['dealer' => 'dealer', 'customer' => 'portal'] as $role => $panel) {
+            $user = $this->portalUser($role, ucfirst($role));
+            Impersonation::start($user);
+
+            $this->get(MyContact::getUrl(panel: $panel))->assertOk()->assertSee('You are logged in as');
+
+            $this->post(route('impersonation.leave'))
+                ->assertRedirect(UserResource::getUrl('view', ['record' => $user], panel: 'administration'));
+
+            $this->assertSame($this->admin->id, Auth::id(), $role);
+            $this->assertNull(Impersonation::impersonatorId(), $role);
+            $this->get(UserResource::getUrl('view', ['record' => $user], panel: 'administration'))
+                ->assertOk()
+                ->assertDontSee('You are logged in as');
+        }
+    }
+
+    public function test_not_as_a_deactivated_dealer(): void
+    {
+        $dealer = $this->portalUser('dealer', 'Simona');
+        $dealer->update(['active' => false]);
+
+        Livewire::test(ViewUser::class, ['record' => $dealer->getKey()])->assertActionHidden('logInAs');
+        $this->assertFalse(Impersonation::allowed($dealer));
+        $this->expectException(AuthorizationException::class);
+        Impersonation::start($dealer);
+    }
+
+    public function test_only_a_super_admin_can_log_in_as_a_dealer_or_a_customer(): void
+    {
+        $dealer = $this->portalUser('dealer', 'Simona');
+        $customer = $this->portalUser('customer', 'Carl');
+        $this->actingAs($this->userWithRole('manager'));
+
+        $this->assertFalse(Impersonation::allowed($dealer));
+        $this->assertFalse(Impersonation::allowed($customer));
+        $this->expectException(AuthorizationException::class);
+        Impersonation::start($dealer);
+    }
+
     public function test_the_bar_takes_them_back(): void
     {
         Impersonation::start($this->employee);
@@ -143,5 +234,17 @@ class ImpersonationTest extends TestCase
         $this->post(route('impersonation.leave'))->assertRedirect(Filament::getPanel('main')->getUrl());
 
         $this->assertSame($this->admin->id, Auth::id());
+    }
+
+    /**
+     * A dealer or customer login with its own contact (My Contact, where a
+     * portal opens, needs one) and a password of its own, as Ann has.
+     */
+    protected function portalUser(string $role, string $firstName): User
+    {
+        $user = $this->userWithRole($role, ['password' => 'their own password']);
+        Contact::create(['first_name' => $firstName, 'last_name' => 'Alfa', 'user_id' => $user->id]);
+
+        return $user;
     }
 }

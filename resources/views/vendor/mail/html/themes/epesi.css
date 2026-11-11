@@ -1,0 +1,78 @@
+/* epesi mail theme: white header, light grey page, green button (as epesicrm.com). */
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #f6f6f6;
+    color: #333333;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+p, ul, ol, blockquote { font-size: 16px; line-height: 1.55; text-align: start; }
+a { color: #1b7a2a; }
+a img { border: none; }
+
+h1 { color: #1a1a1a; font-size: 18px; font-weight: bold; margin: 0 0 16px; text-align: start; }
+h2 { color: #1a1a1a; font-size: 18px; font-weight: bold; margin-top: 0; text-align: start; }
+h3 { color: #1a1a1a; font-size: 16px; font-weight: bold; margin-top: 0; text-align: start; }
+
+/* Layout */
+.wrapper { background-color: #f6f6f6; margin: 0; padding: 0; width: 100%; }
+.content { margin: 0; padding: 0; width: 100%; }
+.header { background-color: #f6f6f6; padding: 0 16px; text-align: center; }
+.logo { height: auto; width: 100%; max-width: 570px; border: 0; }
+.body { background-color: #f6f6f6; border: hidden !important; margin: 0; padding: 0 16px; width: 100%; }
+.inner-body {
+    background-color: #ffffff;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    margin: 12px auto 0;
+    padding: 0;
+    
+    max-width: 570px;
+}
+.content-cell { padding: 32px 36px; }
+
+/* Subcopy */
+.subcopy { border-top: 1px solid #e1e6eb; margin-top: 28px; padding-top: 20px; }
+.subcopy p { color: #6b7683; font-size: 13px; line-height: 1.5; }
+
+/* Footer */
+.footer { margin: 0 auto; padding: 0 16px; text-align: center;  max-width: 570px; }
+.footer p { color: #6b7683; font-size: 12px; text-align: center; }
+.footer a { color: #6b7683; text-decoration: underline; }
+
+/* Tables */
+.table table { margin: 30px auto; width: 100%; }
+.table th { border-bottom: 1px solid #e1e6eb; margin: 0; padding-bottom: 8px; }
+.table td { color: #3f4a56; font-size: 15px; line-height: 18px; margin: 0; padding: 10px 0; }
+
+/* Buttons */
+.action { margin: 30px auto; padding: 0; text-align: center; width: 100%; }
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #1a1a1a !important;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 13px 30px;
+    text-decoration: none;
+}
+.button-primary { background-color: #6cc56f; border: 1px solid #6cc56f; }
+.button-success { background-color: #6cc56f; border: 1px solid #6cc56f; }
+.button-error { background-color: #c0392b; border: 1px solid #c0392b; color: #ffffff !important; }
+
+/* Panels */
+.panel { border-left: 4px solid #6cc56f; margin: 21px 0; }
+.panel-content { background-color: #f5f8fa; color: #3f4a56; padding: 16px; }
+.panel-content p { color: #3f4a56; }
+.panel-item { padding: 0; }
+.panel-item p:last-of-type { margin-bottom: 0; padding-bottom: 0; }
+
+.break-all { word-break: break-all; }

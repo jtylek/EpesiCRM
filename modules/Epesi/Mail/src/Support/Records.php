@@ -4,9 +4,10 @@ namespace Epesi\Modules\Mail\Support;
 
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Support\HtmlString;
 
 /**
  * Naming and linking any CRM record from mail screens, through the record's
@@ -19,12 +20,19 @@ class Records
         $resource = static::resource($record);
         $title = $resource ? $resource::getRecordTitle($record) : null;
 
-        return filled($title) ? strip_tags((string) $title) : Str::headline($record->getMorphClass()).' #'.$record->getKey();
+        return filled($title) ? strip_tags((string) $title) : LinkableRecordsets::label($record->getMorphClass()).' #'.$record->getKey();
     }
 
+    /** "Company: Acme Ltd" — plain text, for a notification title or any other non-badge use. */
     public static function label(Model $record): string
     {
-        return Str::headline($record->getMorphClass()).': '.static::title($record);
+        return LinkableRecordsets::label($record->getMorphClass()).': '.static::title($record);
+    }
+
+    /** The recordset's icon, then the record's own title — an Htmlable label, so LinkedRecords::badges() trusts it instead of sanitizing its icon away. */
+    public static function badgeLabel(Model $record): HtmlString
+    {
+        return new HtmlString(LinkableRecordsets::iconLabel($record->getMorphClass(), static::title($record)));
     }
 
     public static function url(Model $record): ?string

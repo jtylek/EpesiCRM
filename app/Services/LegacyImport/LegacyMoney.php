@@ -45,7 +45,12 @@ final class LegacyMoney
     {
         self::load();
 
-        return self::$codes[$legacyId] ?? self::$default;
+        $code = self::$codes[$legacyId] ?? self::$default;
+
+        // Some legacy installs contain a sentinel currency row such as
+        // "NONE". Accounting columns require an ISO-4217 code, so fall back
+        // to the configured default instead of writing an invalid value.
+        return preg_match('/^[A-Z]{3}$/', $code) === 1 ? $code : self::$default;
     }
 
     private static function load(): void

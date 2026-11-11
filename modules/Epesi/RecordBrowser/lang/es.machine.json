@@ -1,8 +1,27 @@
 {
+    ":count record(s) can't be deleted and were left as they are.": ":count Los registros no se pueden eliminar y se han dejado tal y como están.",
     ":field currency": ":field moneda",
     ":field from :value": ":field de :value",
     ":field in :value": ":field en :value",
     ":field until :value": ":field hasta :value",
+    "admin": "admin",
     "Amount with currency": "Importe con moneda",
-    "The address this person signs in with. It can not be changed or removed here.": "La dirección con la que esta persona inicia sesión. No se puede modificar ni eliminar desde aquí."
+    "Can link to": "Se puede enlazar a",
+    "Can link to any recordset": "Puede enlazar con cualquier registro",
+    "Choose at least one recordset it can link to, or any recordset.": "Elige al menos un registro al que pueda vincularse, o cualquier registro.",
+    "Choose which addon modules attach to this recordset. A change applies from the next page load.": "Elige qué módulos complementarios se asocian a este registro. El cambio se aplicará la próxima vez que se cargue la página.",
+    "custom": "personalizado",
+    "Including recordsets installed later.": "Incluidos los registros instalados posteriormente.",
+    "Link": "Enlace",
+    "Link & add another": "Enlazar y añadir otro",
+    "Link a record": "Vincular un registro",
+    "Linked from: :recordset": "Enlazado desde: :recordset",
+    "Links already made stay in place when a module is turned off; they show again when it is turned back on.": "Los enlaces ya creados permanecen en su sitio cuando se desactiva un módulo; vuelven a mostrarse cuando se vuelve a activar.",
+    "Related modules": "Módulos relacionados",
+    "Related modules saved": "Módulos relacionados guardados",
+    "Start typing to search": "Empieza a escribir para buscar",
+    "The address this person signs in with. It can not be changed or removed here.": "La dirección con la que esta persona inicia sesión. No se puede modificar ni eliminar desde aquí.",
+    "Which recordsets it can link to, its own included. Empty offers every recordset, including ones installed later.": "A qué registros puede vincularse, incluido el propio. Si se deja en blanco, se ofrecen todos los registros, incluidos los que se instalen posteriormente.",
+    "Your recent records are listed. Type to search.": "Se muestran tus registros recientes. Escribe para buscar.",
+    "{1} :count record|[2,*] :count records": ":count registro|:count registros"
 }

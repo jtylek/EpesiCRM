@@ -56,6 +56,7 @@ class AppearanceServiceProvider extends ServiceProvider
         AppName::resolveUsing(fn (string $kind): string => once(fn (): string => match ($kind) {
             AppName::LOGIN => AppearanceSetting::loginTitle(),
             AppName::PORTAL => AppearanceSetting::portalTitle(),
+            AppName::DEALER => AppearanceSetting::dealerTitle(),
             default => AppearanceSetting::appName(),
         }));
 

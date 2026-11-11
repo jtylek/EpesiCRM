@@ -22,7 +22,9 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => 'employee']);
         // The main panel, but only the records tied to him (HasOwnershipVisibility).
         Role::firstOrCreate(['name' => 'consultant']);
-        // Opens the customer portal, not the main panel (AI-shared/Customer-portal.md).
+        // Opens the customer portal, not the main panel (AI-shared/features/access/customer-portal.md).
         Role::firstOrCreate(['name' => 'customer']);
+        // Opens the dealer portal, likewise (AI-shared/features/access/dealer-portal.md).
+        Role::firstOrCreate(['name' => 'dealer']);
     }
 }

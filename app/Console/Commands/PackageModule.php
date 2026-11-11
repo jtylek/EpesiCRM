@@ -61,19 +61,38 @@ class PackageModule extends Command
             return self::FAILURE;
         }
 
+        $files = File::allFiles($directory, hidden: false);
+
+        // A module nested inside this one (Premium/Equipment/Service) is its own
+        // product with its own zip; packing it here would hand it to everyone
+        // who installs the parent.
+        $nested = collect($files)
+            ->map(fn (SplFileInfo $item): string => str_replace('\\', '/', $item->getRelativePathname()))
+            ->filter(fn (string $relative): bool => str_ends_with($relative, '/module.json'))
+            ->map(fn (string $relative): string => substr($relative, 0, -strlen('module.json')))
+            ->all();
+
         $count = 0;
 
-        foreach (File::allFiles($directory, hidden: false) as $item) {
+        foreach ($files as $item) {
             /** @var SplFileInfo $item */
+            $relative = str_replace('\\', '/', $item->getRelativePathname());
+
             // distro/ is where a module's own release zips are written (see the
             // pack-module-epesi-store skill); never pack them into the next one.
-            if (str_starts_with(str_replace('\\', '/', $item->getRelativePathname()), 'distro/')) {
+            if (str_starts_with($relative, 'distro/')) {
                 continue;
+            }
+
+            foreach ($nested as $child) {
+                if (str_starts_with($relative, $child)) {
+                    continue 2;
+                }
             }
 
             $zip->addFile(
                 $item->getPathname(),
-                $manifest->path.'/'.str_replace('\\', '/', $item->getRelativePathname()),
+                $manifest->path.'/'.$relative,
             );
             $count++;
         }

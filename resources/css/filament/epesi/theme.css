@@ -3,7 +3,7 @@
  * provider) in place of Filament's precompiled stylesheet: Filament's own CSS,
  * compiled with Tailwind against epesi's sources so the utility classes in
  * epesi's and the modules' views exist, followed by epesi's overrides. See
- * AI-shared/Epesi-custom-themes.md.
+ * AI-shared/user-interface/themes.md.
  *
  * The overrides sit outside any cascade layer, so they win over Filament's
  * layered rules whatever the selector. Each file names the panels it applies
@@ -22,6 +22,8 @@
 @import './recordset-catalogue.css';
 @import './line-view-tables.css';
 @import './select-options.css';
+@import './badge-links.css';
+@import './support-modal.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/**/*';

@@ -26,11 +26,14 @@ use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -59,12 +62,15 @@ use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -124,8 +130,12 @@ class AttachmentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([
+            // One line: a short label, then the input. Then the editor, files,
+            // Linked to, permission and sticky, and Encryption last.
             TextInput::make('title')
                 ->maxLength(255)
+                ->inlineLabel()
+                ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to epesi-inline-centered'])
                 ->columnSpanFull(),
             // HTML (rich text) or Markdown, chosen here per note: the format is
             // stored with the note so it renders the way it was written. The
@@ -176,38 +186,9 @@ class AttachmentResource extends Resource
                 ->dehydrated(false)
                 ->rule(static::noImagesWhenEncrypted(...))
                 ->columnSpanFull(),
-            Section::make(__('Encryption'))
-                ->compact()
-                ->columns(2)
-                ->columnSpanFull()
-                ->components([
-                    Toggle::make('encrypt_note')
-                        ->label('Encrypt this note with a password')
-                        ->default(fn (?Attachment $record): bool => (bool) $record?->legacy_encrypted)
-                        ->live()
-                        ->dehydrated(false)
-                        ->columnSpanFull(),
-                    TextInput::make('encryption_password')
-                        ->label('Password')
-                        ->password()
-                        ->revealable(false)
-                        ->autocomplete('new-password')
-                        ->helperText('The password is not stored in Epesi. Enter it again when saving an encrypted note.')
-                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
-                    TextInput::make('encryption_password_confirmation')
-                        ->label('Confirm Password')
-                        ->password()
-                        ->revealable(false)
-                        ->autocomplete('new-password')
-                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
-                    TextInput::make('legacy_password_hint')
-                        ->label('Password Hint')
-                        ->maxLength(255)
-                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note'))
-                        ->columnSpanFull(),
-                ]),
             Section::make(__('Preview'))
                 ->compact()
+                ->extraAttributes(['class' => 'epesi-note-preview-pane'])
                 ->visible(fn (Get $get): bool => $get('editor') === 'preview')
                 ->columnSpanFull()
                 ->components([
@@ -285,6 +266,36 @@ class AttachmentResource extends Resource
             Toggle::make('sticky')
                 ->inlineLabel()
                 ->extraFieldWrapperAttributes(['class' => 'epesi-inline-centered']),
+            Section::make(__('Encryption'))
+                ->compact()
+                ->columns(2)
+                ->columnSpanFull()
+                ->components([
+                    Toggle::make('encrypt_note')
+                        ->label('Encrypt this note with a password')
+                        ->default(fn (?Attachment $record): bool => (bool) $record?->legacy_encrypted)
+                        ->live()
+                        ->dehydrated(false)
+                        ->columnSpanFull(),
+                    TextInput::make('encryption_password')
+                        ->label('Password')
+                        ->password()
+                        ->revealable(false)
+                        ->autocomplete('new-password')
+                        ->helperText('The password is not stored in Epesi. Enter it again when saving an encrypted note.')
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
+                    TextInput::make('encryption_password_confirmation')
+                        ->label('Confirm Password')
+                        ->password()
+                        ->revealable(false)
+                        ->autocomplete('new-password')
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note')),
+                    TextInput::make('legacy_password_hint')
+                        ->label('Password Hint')
+                        ->maxLength(255)
+                        ->visible(fn (Get $get): bool => (bool) $get('encrypt_note'))
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 
@@ -379,6 +390,49 @@ class AttachmentResource extends Resource
                 ->placeholder('-')
                 ->weight(FontWeight::Bold)
                 ->columnSpanFull(),
+            // Right under the title, in a card of its own: the body is what
+            // the page is for, the rows below only describe it. Then files,
+            // Linked to, permission and sticky, and Encryption last, as in
+            // the form.
+            Section::make(__('Note'))
+                ->compact()
+                ->columnSpanFull()
+                ->components([
+                    TextEntry::make('note')
+                        ->hiddenLabel()
+                        ->inlineLabel(false)
+                        ->visible(fn (Attachment $record): bool => ! $record->legacy_encrypted)
+                        ->state(fn (Attachment $record): string => $record->bodyHtml())
+                        ->html()
+                        ->prose()
+                        ->extraAttributes(['style' => 'overflow-wrap: anywhere'])
+                        ->placeholder('-'),
+                    ViewEntry::make('legacy_note_body')
+                        ->hiddenLabel()
+                        ->visible(fn (Attachment $record): bool => $record->legacy_encrypted)
+                        ->view('epesi-attachments::encrypted-note-body')
+                        ->state(fn (Attachment $record): string => filled($record->legacy_password_hint)
+                            ? __('This note is password protected. Hint: :hint', ['hint' => $record->legacy_password_hint])
+                            : __('This note is password protected. Enter its password using Decrypt note.')),
+                ]),
+            TextEntry::make('files')
+                ->state(fn (Attachment $record): HtmlString => static::fileLinks($record))
+                ->columnSpanFull(),
+            // Each record a badge linking to it, as the engine renders a
+            // relation field — its recordset's icon, then its title.
+            LinkedRecords::badges(
+                TextEntry::make('attached_to'),
+                fn (Attachment $record): Collection => static::attachedModels($record),
+                fn (Model $related): HtmlString => new HtmlString(
+                    LinkableRecordsets::iconLabel($related->getMorphClass(), static::attachedTitle($related)),
+                ),
+            )
+                ->label('Linked to')
+                ->placeholder('-')
+                ->columnSpanFull(),
+            TextEntry::make('permission')
+                ->badge(),
+            SwitchEntry::make('sticky'),
             // The Decrypt note button sits on this row's label; once the
             // password worked, the row confirms it in green.
             TextEntry::make('legacy_encrypted')
@@ -407,45 +461,6 @@ class AttachmentResource extends Resource
                         }),
                 )
                 ->columnSpanFull(),
-            // Right under the title, in a card of its own: the body is what
-            // the page is for, the rows below only describe it.
-            Section::make(__('Note'))
-                ->compact()
-                ->columnSpanFull()
-                ->components([
-                    TextEntry::make('note')
-                        ->hiddenLabel()
-                        ->inlineLabel(false)
-                        ->visible(fn (Attachment $record): bool => ! $record->legacy_encrypted)
-                        ->state(fn (Attachment $record): string => $record->bodyHtml())
-                        ->html()
-                        ->prose()
-                        ->extraAttributes(['style' => 'overflow-wrap: anywhere'])
-                        ->placeholder('-'),
-                    ViewEntry::make('legacy_note_body')
-                        ->hiddenLabel()
-                        ->visible(fn (Attachment $record): bool => $record->legacy_encrypted)
-                        ->view('epesi-attachments::encrypted-note-body')
-                        ->state(fn (Attachment $record): string => filled($record->legacy_password_hint)
-                            ? __('This note is password protected. Hint: :hint', ['hint' => $record->legacy_password_hint])
-                            : __('This note is password protected. Enter its password using Decrypt note.')),
-                ]),
-            // Each record a badge linking to it, as the engine renders a
-            // relation field.
-            LinkedRecords::style(
-                TextEntry::make('attached_to')
-                    ->state(fn (Attachment $record): array => array_keys(static::attachedTo($record))),
-                fn (Attachment $record, string $state): ?string => static::attachedTo($record)[$state] ?? null,
-            )
-                ->label('Linked to')
-                ->placeholder('-')
-                ->columnSpanFull(),
-            TextEntry::make('files')
-                ->state(fn (Attachment $record): HtmlString => static::fileLinks($record))
-                ->columnSpanFull(),
-            TextEntry::make('permission')
-                ->badge(),
-            SwitchEntry::make('sticky'),
         ]);
     }
 
@@ -476,13 +491,28 @@ class AttachmentResource extends Resource
             // opts out, since clicking the preview expands it in place
             // instead (see preview()) — the eye icon is the only way in.
             ->recordUrl(null)
+            // As in RecordsetResource lists: View and Edit as icons in the
+            // first column, deleting through the row checkboxes' bulk action.
             ->recordActions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
+                ViewAction::make()->iconButton()->tooltip(__('View')),
+                EditAction::make()->iconButton()->tooltip(__('Edit')),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * A deleted note has to stay reachable by URL or Restore has nothing to
+     * open, as on the other soft-deleting resources.
+     */
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
     /**
@@ -577,6 +607,8 @@ class AttachmentResource extends Resource
 
                         return $indicators;
                     }),
+                // Deleted notes, for super admins only (as on the other lists).
+                ...(Auth::user()?->hasRole('super_admin') ? [TrashedFilter::make()] : []),
             ] : [
                 static::editedByFilter(),
                 Filter::make('sticky')
@@ -600,7 +632,9 @@ class AttachmentResource extends Resource
                             ->where('causer_type', (new User)->getMorphClass())
                             ->where('causer_id', $userId))
                         ->orWhere(fn (Builder $query): Builder => $query
-                            ->whereDoesntHave('latestEdit')
+                            // No latest edit, or one logged without a user:
+                            // the creator, as the list's "Edited by" line shows.
+                            ->whereDoesntHave('latestEdit', fn (Builder $query): Builder => $query->whereNotNull('causer_id'))
                             ->where('epesi_attachments.created_by', $userId)))));
     }
 
@@ -824,8 +858,13 @@ class AttachmentResource extends Resource
     protected static function preview(Attachment $record, bool $attachedTo): HtmlString
     {
         $title = filled($record->title) ? e($record->title) : '';
-        $body = Str::limit($record->plainText(), 200);
-        $collapsed = implode('<br>', array_filter([$title !== '' ? "<strong>{$title}</strong>" : '', e($body)]));
+        // CSS clamps the body to two lines (epesi-note-preview-body); the
+        // character limit only keeps a long note's row light.
+        $body = Str::limit($record->plainText(), 600);
+        $collapsed = implode('', array_filter([
+            $title !== '' ? "<strong>{$title}</strong>" : '',
+            $body !== '' ? '<div class="epesi-note-preview-body">'.e($body).'</div>' : '',
+        ]));
 
         $full = implode('', array_filter([
             $title !== '' ? "<div class=\"epesi-note-full-title\">{$title}</div>" : '',
@@ -863,8 +902,12 @@ class AttachmentResource extends Resource
         }
 
         if ($attachedTo) {
-            $chips = collect(static::attachedTo($record))
-                ->map(fn (?string $url, string $label): string => static::metaChip($label, $url))
+            $chips = static::attachedModels($record)
+                ->map(fn (Model $related): string => static::metaChip(
+                    LinkableRecordsets::iconLabel($related->getMorphClass(), static::attachedTitle($related)),
+                    static::attachedUrl($related),
+                    isHtml: true,
+                ))
                 ->implode('');
 
             if ($chips !== '') {
@@ -872,10 +915,14 @@ class AttachmentResource extends Resource
             }
         }
 
-        $editedOn = e($record->updated_at ? RegionalSetting::toUser($record->updated_at)->translatedFormat(RegionalSetting::dateTimeFormat(true)) : '');
-        $editedBy = $record->latestEdit ? $record->latestEdit->causer : $record->creator;
-        $editor = $editedBy instanceof User ? ' <span class="epesi-note-meta-by">'.e($editedBy->name).'</span>' : '';
-        $lines[] = static::metaLine(__('Edited on'), $editedOn.$editor);
+        // "Edited by: <name> on <date time>", minutes only; an edit logged
+        // without a user (seeded or imported) falls back to the creator, and
+        // with nobody at all the line is just "Edited on: <date time>".
+        $editedOn = $record->updated_at ? RegionalSetting::toUser($record->updated_at)->translatedFormat(RegionalSetting::dateTimeFormat()) : '';
+        $editedBy = $record->latestEdit?->causer ?? $record->creator;
+        $lines[] = $editedBy instanceof User
+            ? static::metaLine(__('Edited by').':', e(__(':name on :date', ['name' => $editedBy->name, 'date' => $editedOn])))
+            : static::metaLine(__('Edited on').':', e($editedOn));
 
         return '<div class="epesi-note-meta">'.implode('', $lines).'</div>';
     }
@@ -890,16 +937,19 @@ class AttachmentResource extends Resource
         return '<span class="epesi-note-meta-group"><span class="epesi-note-meta-label">'.e($label).'</span>'.$value.'</span>';
     }
 
-    protected static function metaChip(string $label, ?string $url): string
+    /** $isHtml for a label already built as HTML (a recordset-icon label, LinkableRecordsets::iconLabel()) — never for user-facing plain text. */
+    protected static function metaChip(string $label, ?string $url, bool $isHtml = false): string
     {
+        $label = $isHtml ? $label : e($label);
+
         if ($url === null) {
-            return '<span class="epesi-note-meta-chip">'.e($label).'</span>';
+            return '<span class="epesi-note-meta-chip">'.$label.'</span>';
         }
 
         return sprintf(
             '<a href="%s" class="epesi-note-meta-chip">%s %s</a>',
             e($url),
-            e($label),
+            $label,
             static::icon('heroicon-o-link'),
         );
     }
@@ -922,6 +972,7 @@ class AttachmentResource extends Resource
     protected static function fileChip(Attachment $record, StoredFile $file): string
     {
         $downloadUrl = route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey()]);
+        $isRenderedPage = static::isMarkdown($file) || static::isHtml($file);
         $viewUrl = match (true) {
             static::isMarkdown($file) => route('epesi.attachments.markdown', ['attachment' => $record->getKey(), 'file' => $file->getKey()]),
             static::isHtml($file) => route('epesi.attachments.html', ['attachment' => $record->getKey(), 'file' => $file->getKey()]),
@@ -929,7 +980,10 @@ class AttachmentResource extends Resource
             default => null,
         };
 
-        return FileChip::render($file, $downloadUrl, $viewUrl, static::shareLinkButton($record, $file));
+        // A Markdown/HTML file's view URL is a rendered page, not its own raw
+        // bytes, so the preview must stay a plain iframe ('frame'), not the
+        // fetch-as-text 'text' kind FileChip would otherwise guess from its mime type.
+        return FileChip::render($file, $downloadUrl, $viewUrl, static::shareLinkButton($record, $file), $isRenderedPage ? 'frame' : null);
     }
 
     /**
@@ -985,26 +1039,33 @@ class AttachmentResource extends Resource
     }
 
     /**
-     * "Phone Call: Postponed: CCN Sliver Bullet" for each record the note is
-     * on that you can see, keyed to that record's View page — the morphTo load
-     * applies each model's ownership scope, so a hidden one comes back null
-     * and is left out.
+     * The records the note is on that you can see — the morphTo load applies
+     * each model's ownership scope, so a hidden one comes back null and is
+     * left out.
      *
-     * @return array<string, string|null>
+     * @return Collection<int, Model>
      */
-    protected static function attachedTo(Attachment $record): array
+    protected static function attachedModels(Attachment $record): Collection
     {
         return $record->links
             ->filter(fn (AttachmentLink $link): bool => $link->attachable !== null)
-            ->mapWithKeys(function (AttachmentLink $link): array {
-                $related = $link->attachable;
-                $resource = Filament::getModelResource($related::class);
-                $label = Str::headline($link->attachable_type).': '.($resource
-                    ? strip_tags((string) $resource::getRecordTitle($related))
-                    : '#'.$related->getKey());
+            ->map(fn (AttachmentLink $link): Model => $link->attachable)
+            ->values();
+    }
 
-                return [$label => $resource && $resource::hasPage('view') ? $resource::getUrl('view', ['record' => $related]) : null];
-            })
-            ->all();
+    /** "Postponed: CCN Sliver Bullet", or "#12" for a record with no resource. */
+    protected static function attachedTitle(Model $related): string
+    {
+        $resource = Filament::getModelResource($related::class);
+
+        return $resource ? strip_tags((string) $resource::getRecordTitle($related)) : '#'.$related->getKey();
+    }
+
+    /** Where $related's own View page is, or null if it has none. */
+    protected static function attachedUrl(Model $related): ?string
+    {
+        $resource = Filament::getModelResource($related::class);
+
+        return $resource && $resource::hasPage('view') ? $resource::getUrl('view', ['record' => $related]) : null;
     }
 }

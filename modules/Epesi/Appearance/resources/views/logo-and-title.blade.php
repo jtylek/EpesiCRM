@@ -1,8 +1,9 @@
 {{--
     Administration → Appearance → Logo & Title (Pages\LogoAndTitle): the title of
-    the main application; and, for the login pages and for the customer portal
-    separately, a title and a logo for light mode and one for dark mode.
-    Defaults: "epesi", "epesi", "Customer Portal", and the built-in epesi logo.
+    the main application; and, for the main login pages, the customer portal
+    and the dealer portal separately, a title and a logo for light mode and one
+    for dark mode. Defaults: "epesi", "epesi", "Customer Portal",
+    "Dealer Portal", and the built-in epesi logo.
 --}}
 @php
     use Epesi\Modules\Appearance\Models\AppearanceSetting;
@@ -15,11 +16,13 @@
         'appName' => __('Main application title'),
         'loginTitle' => __('Login title'),
         'portalTitle' => __('Customer portal title'),
+        'dealerTitle' => __('Dealer portal title'),
     ];
 
     $areas = [
         __('Login pages') => ['title' => 'loginTitle', 'target' => 'login'],
         __('Customer portal') => ['title' => 'portalTitle', 'target' => 'portal'],
+        __('Dealer portal') => ['title' => 'dealerTitle', 'target' => 'dealer'],
     ];
 
     $modes = [

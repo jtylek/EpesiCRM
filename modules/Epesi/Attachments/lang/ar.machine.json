@@ -1,7 +1,9 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "بعد التعديل، أدخل كلمة المرور مرة أخرى للحفاظ على تشفير هذه الملاحظة.",
     "All notes": "جميع الملاحظات",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "لا يمكن للملاحظة المشفرة أن تحتوي على صور، لأنها ستُخزَّن غير مشفرة. أزل الصور أو عطّل التشفير.",
     "Attach to a record": "إرفاق بسجل",
+    "Choose only records you can see.": "اختر فقط السجلات التي يمكنك رؤيتها.",
     "Confirm Password": "تأكيد كلمة المرور",
     "Decrypt": "فك التشفير",
     "Decrypt note": "ملاحظة بشأن فك التشفير",
@@ -31,5 +33,6 @@
     "The note was not saved": "لم يتم حفظ الملاحظة",
     "This note is password protected. Enter its password using Decrypt note.": "هذه الملاحظة محمية بكلمة مرور. أدخل كلمة المرور الخاصة بها باستخدام «فك تشفير الملاحظة».",
     "This note is password protected. Enter its password with the Decrypt note action.": "هذه الملاحظة محمية بكلمة مرور. أدخل كلمة المرور الخاصة بها باستخدام إجراء «فك تشفير الملاحظة».",
-    "This note is password protected. Hint: :hint": "هذه الملاحظة محمية بكلمة مرور. تلميح: :hint"
+    "This note is password protected. Hint: :hint": "هذه الملاحظة محمية بكلمة مرور. تلميح: :hint",
+    "{1} :count file|[2,*] :count files": ":count ملف|:count ملفات"
 }

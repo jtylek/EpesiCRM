@@ -1,7 +1,9 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "پس از ویرایش، برای حفظ رمزگذاری این یادداشت، رمز عبور را دوباره وارد کنید.",
     "All notes": "تمام یادداشت‌ها",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "یادداشت رمزگذاری‌شده نمی‌تواند تصویر داشته باشد، چون تصویر به‌صورت رمزگذاری‌نشده ذخیره می‌شود. تصاویر را حذف کنید یا رمزگذاری را خاموش کنید.",
     "Attach to a record": "پیوست به یک رکورد",
+    "Choose only records you can see.": "فقط رکوردهایی را انتخاب کنید که می‌توانید ببینید.",
     "Confirm Password": "تأیید رمز عبور",
     "Decrypt": "رمزگشایی",
     "Decrypt note": "رمزگشایی یادداشت",

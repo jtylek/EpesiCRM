@@ -10,8 +10,11 @@ use Carbon\Carbon;
 use Epesi\Modules\RecordBrowser\Browsing\BrowseMode;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
+use Epesi\Modules\RecordBrowser\Recordset\ExportGrants;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetCsvExport;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords as BaseListRecords;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -23,6 +26,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Shared base for every resource's List page — extend this instead of
@@ -129,6 +133,20 @@ abstract class ListRecords extends BaseListRecords
 
     public function table(Table $table): Table
     {
+        $table->heading(fn () => view('epesi-recordbrowser::table-record-count', [
+            'count' => $this->getFilteredRecordCount(),
+        ]));
+
+        if (is_subclass_of(static::getResource(), RecordsetResource::class)) {
+            $table->pushToolbarActions([
+                Action::make('exportRecordset')
+                    ->label(__('Export CSV'))
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (): bool => $this->canExportRecordset())
+                    ->action(fn (): StreamedResponse => $this->exportRecordset()),
+            ]);
+        }
+
         $modes = $this->getBrowseModes();
 
         if (in_array(BrowseMode::Favorites, $modes, true)) {
@@ -154,6 +172,10 @@ abstract class ListRecords extends BaseListRecords
                     ->visible(fn (): bool => $this->getBrowseMode() === BrowseMode::Recent)
                     ->toggleable(isToggledHiddenByDefault: true),
             ]);
+        }
+
+        if (! $this->hasMyRecords()) {
+            return $table;
         }
 
         // A list with no Employees filter (Contacts, Companies) still gets a
@@ -182,6 +204,40 @@ abstract class ListRecords extends BaseListRecords
         return $table;
     }
 
+    protected function canExportRecordset(): bool
+    {
+        $user = Auth::user();
+
+        return $user instanceof User && static::getResource()::canViewAny()
+            && ExportGrants::allowed($user, $this->getRecordType());
+    }
+
+    public function exportRecordset(): StreamedResponse
+    {
+        abort_unless($this->canExportRecordset(), 403);
+
+        $resource = static::getResource();
+        $query = $this->getTableQueryForExport();
+        $exporter = new RecordsetCsvExport($resource);
+        $filename = $this->getRecordType().'_'.now()->format('Y-m-d_His').'.csv';
+
+        return response()->streamDownload(function () use ($exporter, $query): void {
+            $out = fopen('php://output', 'w');
+            try {
+                $exporter->write($out, $query);
+            } finally {
+                fclose($out);
+            }
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    protected function getFilteredRecordCount(): int
+    {
+        $this->getTableRecords();
+
+        return $this->getAllTableRecordsCount();
+    }
+
     /** @var array<string, bool> table => has a created_by column, for this process */
     protected static array $createdByColumns = [];
 
@@ -197,6 +253,14 @@ abstract class ListRecords extends BaseListRecords
 
     /** The "My records" toggle filter of a list that has no Employees filter. */
     public const MY_RECORDS_FILTER = 'my_records';
+
+    /** False when the resource opts out of "My records" (RecordsetResource::$recordsetMyRecords). */
+    protected function hasMyRecords(): bool
+    {
+        $resource = static::getResource();
+
+        return ! is_subclass_of($resource, RecordsetResource::class) || $resource::hasMyRecords();
+    }
 
     /**
      * @return array<int, BrowseMode>
@@ -227,7 +291,7 @@ abstract class ListRecords extends BaseListRecords
     }
 
     /**
-     * The "My records" quick filter (AI-shared/conventions.md):
+     * The "My records" quick filter (AI-shared/user-interface/conventions.md):
      * null when the list has no Employees filter to set. A list that also has a
      * Not closed status filter (StatusField) gets the active variant.
      *
@@ -235,6 +299,10 @@ abstract class ListRecords extends BaseListRecords
      */
     public function getMyRecordsButton(): ?array
     {
+        if (! $this->hasMyRecords()) {
+            return null;
+        }
+
         $employees = $this->myRecordsEmployeesFilter();
 
         if ($employees === null && $this->getTable()->getFilter(self::MY_RECORDS_FILTER)) {
@@ -253,6 +321,10 @@ abstract class ListRecords extends BaseListRecords
 
     public function toggleMyRecords(): void
     {
+        if (! $this->hasMyRecords()) {
+            return;
+        }
+
         $employees = $this->myRecordsEmployeesFilter();
         $contactId = $employees ? $this->myId($employees) : null;
 

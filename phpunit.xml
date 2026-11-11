@@ -15,7 +15,7 @@
     <!--
         Our own code: a deprecation it triggers is reported. One that third-party code triggers
         on its own (ignoreIndirectDeprecations) is not, e.g. ekmungai/eloquent-ifrs 6.0.0's
-        implicitly nullable parameters (see AI-shared/PHP-8.5-compatibility.md).
+        implicitly nullable parameters (see AI-shared/development/php-compatibility.md).
     -->
     <source ignoreIndirectDeprecations="true">
         <include>

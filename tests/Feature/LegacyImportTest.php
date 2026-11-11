@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\LoginAudit;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
@@ -9,11 +10,18 @@ use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\ImporterRegistry;
 use App\Services\LegacyImport\Importers\CompaniesImporter;
 use App\Services\LegacyImport\Importers\ContactsImporter;
+use App\Services\LegacyImport\LegacyFileTransfer;
+use App\Services\LegacyImport\TimeBudget;
+use App\Services\LegacyImport\TimeBudgetReached;
+use Database\Seeders\RoleSeeder;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\Mail\LegacyImport\MailImporter;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
+use Epesi\Modules\MigrationWizard\Files\FileLedger;
+use Epesi\Modules\MigrationWizard\Files\MovingLegacyFileTransfer;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -305,6 +313,70 @@ class LegacyImportTest extends TestCase
         $this->assertTrue($reply->linkedRecords()->contains(fn ($record) => $record->is($task)));
     }
 
+    public function test_the_mail_tables_are_compared_row_by_row_and_a_row_nothing_explains_shows(): void
+    {
+        $this->coreRecords();
+        $this->buildLegacyMail();
+        $this->artisan('import:legacy', ['tab' => 'mail'])->assertSuccessful();
+
+        $legacy = DB::connection('legacy');
+        $tables = collect(app(MailImporter::class)->countedTables())->keyBy('table');
+        $count = fn (string $table, array $absent = []): array => $tables[$table]['count']($legacy, $absent);
+
+        $attachments = $legacy->table('rc_mails_attachments')->count();
+        $this->assertSame(['source' => $attachments, 'imported' => $attachments, 'skipped' => 0, 'missing_ids' => 0], $count('rc_mails_attachments'));
+        $legacy->table('rc_mails_attachments')->insert(['mail_id' => 11, 'name' => 'gone.pdf', 'mime_id' => 'gone']);
+        $this->assertSame(1, $count('rc_mails_attachments')['missing_ids'], 'no attachment and the ledger does not say it was never there');
+        $known = $count('rc_mails_attachments', ['CRM_Mail/attachments/11/gone' => true]);
+        $this->assertSame([1, 0], [$known['skipped'], $known['missing_ids']]);
+
+        $this->assertSame(['source' => 1, 'imported' => 1, 'skipped' => 0, 'missing_ids' => 0], $count('rc_accounts_data_1'));
+        $legacy->table('rc_accounts_data_1')->insert([
+            ['id' => 2, 'active' => 0, 'f_epesi_user' => '7', 'f_email' => 'old@ours.test'],
+            ['id' => 3, 'active' => 1, 'f_epesi_user' => '99', 'f_email' => 'lost@ours.test'],
+        ]);
+        $this->assertSame(['source' => 3, 'imported' => 1, 'skipped' => 1, 'missing_ids' => 1], $count('rc_accounts_data_1'));
+
+        $this->legacy()->create('rc_mail_threads_data_1', fn (Blueprint $t) => $t->integer('id'));
+        $legacy->table('rc_mail_threads_data_1')->insert([['id' => 4], ['id' => 5]]);
+        $this->assertSame(['source' => 2, 'imported' => 1, 'skipped' => 1, 'missing_ids' => 0], $count('rc_mail_threads_data_1'));
+        Mail::query()->where('legacy_id', 12)->update(['thread_id' => null]);
+        $this->assertSame(1, $count('rc_mail_threads_data_1')['missing_ids'], 'a live message without a thread');
+
+        $this->legacy()->create('rc_multiple_emails_data_1', function (Blueprint $t) {
+            $t->integer('id');
+            $t->integer('active')->default(1);
+            foreach (['record_type', 'record_id', 'email'] as $f) {
+                $t->text("f_{$f}")->nullable();
+            }
+        });
+        $legacy->table('rc_multiple_emails_data_1')->insert([
+            ['id' => 1, 'active' => 0, 'f_record_type' => 'contact', 'f_record_id' => '5', 'f_email' => 'old@acme.test'],
+            ['id' => 2, 'active' => 1, 'f_record_type' => null, 'f_record_id' => null, 'f_email' => 'nobody@acme.test'],
+            ['id' => 3, 'active' => 1, 'f_record_type' => 'contact', 'f_record_id' => '5', 'f_email' => 'lost@acme.test'],
+        ]);
+        $this->assertSame(['source' => 3, 'imported' => 0, 'skipped' => 2, 'missing_ids' => 1], $count('rc_multiple_emails_data_1'));
+
+        $this->assertTrue($tables['rc_related_data_1']['optional'], 'an installation may not have it');
+    }
+
+    public function test_a_link_to_an_unported_recordset_keeps_the_mail_table_only_while_that_recordset_is_there(): void
+    {
+        $this->coreRecords();
+        $this->buildLegacyMail();
+        $this->artisan('import:legacy', ['tab' => 'mail'])->assertSuccessful();
+
+        $legacy = DB::connection('legacy');
+        $legacy->table('rc_mails_data_1')->where('id', 12)->update(['f_related' => '__premium_widgets/9__']);
+        $pending = fn (): array => collect(app(MailImporter::class)->countedTables())->firstWhere('table', 'rc_mails_data_1')['pending']($legacy);
+
+        $this->assertSame([], $pending(), 'the recordset is gone: the link can never be restored from here');
+
+        $this->legacy()->create('premium_widgets_data_1', fn (Blueprint $t) => $t->integer('id'));
+        $this->assertCount(1, $pending());
+        $this->assertStringContainsString('premium_widgets', $pending()[0]);
+    }
+
     public function test_mail_accounts_addresses_messages_threads_links_and_attachments_are_imported(): void
     {
         [$user, $ann, $acme, $task] = $this->coreRecords();
@@ -352,6 +424,76 @@ class LegacyImportTest extends TestCase
         $this->assertSame(2, StoredFile::count());
         $this->assertSame(2, StoredFileContent::count());
         $this->assertSame(1, MailAccount::count());
+    }
+
+    public function test_mail_attachments_are_moved_with_a_ledger_when_the_wizard_binds_the_moving_transfer(): void
+    {
+        $this->coreRecords();
+        $this->buildLegacyMail();
+        $state = $this->dataDir.'-state';
+        $ledger = new FileLedger($state, $this->dataDir);
+        app()->instance(LegacyFileTransfer::class, new MovingLegacyFileTransfer($ledger));
+
+        try {
+            $this->artisan('import:legacy', ['tab' => 'mail'])->assertSuccessful();
+
+            $offer = Mail::query()->where('legacy_id', 11)->sole();
+            $this->assertSame(['logo.png', 'offer.pdf'], $offer->attachments->pluck('name')->sort()->values()->all());
+            $this->assertSame('%PDF offer', $offer->attachments->firstWhere('name', 'offer.pdf')->storedFile->read());
+            $this->assertSame("\x89PNG fake", $offer->attachments->firstWhere('name', 'logo.png')->storedFile->read());
+            $this->assertSame('2025-03-01 08:55:00', $offer->attachments->first()->storedFile->created_at->format('Y-m-d H:i:s'));
+
+            // Both layouts were moved, not copied: the sources are gone, and the ledger accounts for each.
+            $mime = str_repeat('a', 32);
+            $this->assertFileDoesNotExist($this->dataDir.'/CRM_Mail/attachments/11/'.$mime);
+            $sha = hash('sha512', '%PDF offer');
+            $this->assertFileDoesNotExist($this->dataDir.'/Utils_FileStorage/'.implode('/', str_split(substr($sha, 0, 5))).'/'.substr($sha, 5));
+            $this->assertCount(2, array_filter($ledger->entries(), fn (array $e): bool => $e['status'] === 'moved'));
+            $this->assertSame([], $ledger->verify(fn (string $d) => Storage::disk($d), $this->dataDir)['problems']);
+
+            // A resume re-walks the mails: the files resolve from the ledger, nothing is lost or doubled.
+            $this->artisan('import:legacy', ['tab' => 'mail'])->assertSuccessful();
+            $this->assertSame(2, $offer->fresh()->attachments()->count());
+            $this->assertSame(2, StoredFile::count());
+            $this->assertSame('%PDF offer', $offer->fresh()->attachments->firstWhere('name', 'offer.pdf')->storedFile->read());
+        } finally {
+            app()->forgetInstance(LegacyFileTransfer::class);
+            File::deleteDirectory($state);
+        }
+    }
+
+    public function test_a_mail_import_cut_into_slices_by_a_time_budget_ends_exactly_like_one_run(): void
+    {
+        $this->coreRecords();
+        $this->buildLegacyMail();
+        $checkpoint = $this->dataDir.'-checkpoint.json';
+        config(['epesi-mail.legacy_checkpoint' => $checkpoint]);
+        $budget = app(TimeBudget::class);
+
+        $slices = 0;
+        do {
+            $budget->start(0.0); // used up after the first record of every slice
+            try {
+                app(MailImporter::class)->run(true);
+                $finished = true;
+            } catch (TimeBudgetReached) {
+                $finished = false;
+                $this->assertFileExists($checkpoint, 'a stopped slice saved its place');
+            } finally {
+                $budget->clear();
+            }
+            $slices++;
+        } while (! $finished && $slices < 20);
+
+        $this->assertGreaterThanOrEqual(3, $slices, 'two mails and the threads take more than one slice');
+        $this->assertFileDoesNotExist($checkpoint, 'a finished import leaves no checkpoint');
+        $offer = Mail::query()->where('legacy_id', 11)->sole();
+        $reply = Mail::query()->where('legacy_id', 12)->sole();
+        $this->assertSame(2, Mail::count());
+        $this->assertSame($offer->thread_id, $reply->thread_id);
+        $this->assertSame(2, $offer->thread->message_count);
+        $this->assertSame(['logo.png', 'offer.pdf'], $offer->attachments->pluck('name')->sort()->values()->all());
+        $this->assertSame(2, StoredFile::count());
     }
 
     public function test_wipe_is_a_dry_run_by_default_and_needs_confirmation_and_a_fresh_backup(): void
@@ -414,6 +556,138 @@ class LegacyImportTest extends TestCase
         $this->assertSame('j@epe.si', $email(1), 'own address offered back by legacy is not "taken"');
         $this->assertSame('ghost@real.test', $email(2), 'blank legacy mail keeps the local address');
         $this->assertSame('clash@imported.invalid', $email(3), 'another user\'s address still falls back');
+    }
+
+    public function test_login_audit_imports_sessions_from_a_legacy_without_a_device_column_and_is_rerunnable(): void
+    {
+        $this->legacy()->create('user_login', function (Blueprint $t) {
+            $t->integer('id');
+            $t->string('login');
+            $t->integer('active')->default(1);
+        });
+        $this->legacy()->create('user_password', function (Blueprint $t) {
+            $t->integer('user_login_id');
+            $t->string('mail')->nullable();
+        });
+        // An older Epesi: no `device` column.
+        $this->legacy()->create('base_login_audit', function (Blueprint $t) {
+            $t->integer('id');
+            $t->integer('user_login_id');
+            $t->dateTime('start_time');
+            $t->dateTime('end_time')->nullable();
+            $t->string('ip_address', 32)->nullable();
+            $t->string('host_name')->nullable();
+        });
+        $l = DB::connection('legacy');
+        $l->table('user_login')->insert([['id' => 1, 'login' => 'jirkaalfa']]);
+        $l->table('user_password')->insert([['user_login_id' => 1, 'mail' => 'jirka@alfa.test']]);
+        $l->table('base_login_audit')->insert([
+            ['id' => 1, 'user_login_id' => 1, 'start_time' => '2017-02-06 10:04:16', 'end_time' => '2017-02-06 10:41:18', 'ip_address' => '109.105.49.20', 'host_name' => 'pc-1'],
+            ['id' => 2, 'user_login_id' => 1, 'start_time' => '2017-02-07 08:00:00', 'end_time' => null, 'ip_address' => '::1', 'host_name' => null],
+        ]);
+        $mine = LoginAudit::query()->forceCreate([
+            'login' => 'local', 'started_at' => '2026-01-01 10:00:00', 'ended_at' => '2026-01-01 10:05:00', 'ip_address' => '127.0.0.1',
+        ]);
+
+        $this->artisan('import:legacy', ['tab' => 'users'])->assertSuccessful();
+        $this->artisan('import:legacy', ['tab' => 'loginaudit'])->assertSuccessful();
+        $this->artisan('import:legacy', ['tab' => 'loginaudit'])->assertSuccessful();
+
+        $this->assertSame(3, LoginAudit::count(), 'two sessions imported once, the local one kept');
+        $first = LoginAudit::where('legacy_id', 1)->sole();
+        $this->assertSame(User::where('legacy_id', 1)->value('id'), $first->user_id);
+        $this->assertSame('jirkaalfa', $first->login);
+        $this->assertSame('109.105.49.20', $first->ip_address);
+        $this->assertNull($first->device);
+        $this->assertEquals($first->started_at->copy()->setTime(10, 4, 16), $first->started_at);
+        $this->assertSame('2017-02-07 08:00:00', LoginAudit::where('legacy_id', 2)->sole()->ended_at->format('Y-m-d H:i:s'), 'an open session ends where it started');
+        $this->assertNull($mine->fresh()->legacy_id);
+    }
+
+    public function test_a_dealer_login_gets_the_dealer_role_and_a_deactivated_login_stays_deactivated(): void
+    {
+        $this->seed(RoleSeeder::class);
+        $this->legacy()->create('user_login', function (Blueprint $t) {
+            $t->integer('id');
+            $t->string('login');
+            $t->integer('active')->default(1);
+            $t->integer('admin')->default(0);
+        });
+        $this->legacy()->create('user_password', function (Blueprint $t) {
+            $t->integer('user_login_id');
+            $t->string('mail')->nullable();
+        });
+        $this->legacyRecordTable('contact_data_1');
+        $this->legacy()->table('contact_data_1', function (Blueprint $t) {
+            $t->integer('f_login')->nullable();
+            $t->text('f_access')->nullable();
+        });
+        $l = DB::connection('legacy');
+        $l->table('user_login')->insert([
+            ['id' => 1, 'login' => 'jirkaalfa', 'active' => 1],
+            ['id' => 2, 'login' => 'alfa_renata', 'active' => 0],
+            ['id' => 3, 'login' => 'janh', 'active' => 1],
+        ]);
+        $l->table('user_password')->insert([
+            ['user_login_id' => 1, 'mail' => 'jirka@alfa.test'],
+            ['user_login_id' => 2, 'mail' => 'renata@alfa.test'],
+            ['user_login_id' => 3, 'mail' => 'jan@importer.test'],
+        ]);
+        $l->table('contact_data_1')->insert([
+            ['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_last_name' => 'Alfa', 'f_first_name' => 'Jirka', 'f_login' => 1, 'f_access' => '__dealer__'],
+            ['id' => 2, 'created_on' => '2020-01-01 10:00:00', 'f_last_name' => 'Alfa', 'f_first_name' => 'Renata', 'f_login' => 2, 'f_access' => '__dealer__'],
+            ['id' => 3, 'created_on' => '2020-01-01 10:00:00', 'f_last_name' => 'H', 'f_first_name' => 'Jan', 'f_login' => 3, 'f_access' => '__accountmanager__employee__manager__'],
+        ]);
+
+        $this->artisan('import:legacy', ['tab' => 'users'])->assertSuccessful();
+        activity()->disableLogging();
+        (new ContactsImporter)->run(withHistory: false);
+        activity()->enableLogging();
+
+        $user = fn (int $legacyId): User => User::where('legacy_id', $legacyId)->sole();
+        $this->assertSame(['dealer'], $user(1)->getRoleNames()->all(), 'a dealer gets no staff role');
+        $this->assertTrue($user(1)->active);
+        $this->assertSame(['dealer'], $user(2)->getRoleNames()->all());
+        $this->assertFalse($user(2)->active, 'deactivated in legacy, deactivated here');
+        $this->assertEqualsCanonicalizing(['employee', 'manager'], $user(3)->getRoleNames()->all());
+    }
+
+    public function test_two_contacts_naming_the_same_login_import_with_the_link_on_the_active_one_only(): void
+    {
+        $this->seed(RoleSeeder::class);
+        $this->legacy()->create('user_login', function (Blueprint $t) {
+            $t->integer('id');
+            $t->string('login');
+            $t->integer('active')->default(1);
+            $t->integer('admin')->default(0);
+        });
+        $this->legacy()->create('user_password', function (Blueprint $t) {
+            $t->integer('user_login_id');
+            $t->string('mail')->nullable();
+        });
+        $this->legacyRecordTable('contact_data_1');
+        $this->legacy()->table('contact_data_1', function (Blueprint $t) {
+            $t->integer('f_login')->nullable();
+            $t->text('f_access')->nullable();
+        });
+        $l = DB::connection('legacy');
+        $l->table('user_login')->insert([['id' => 6, 'login' => 'sue', 'active' => 1]]);
+        $l->table('user_password')->insert([['user_login_id' => 6, 'mail' => 'sue@acme.test']]);
+        // The older contact was deleted in legacy; the newer one is the live one. Both name login 6.
+        $l->table('contact_data_1')->insert([
+            ['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'active' => 0, 'f_last_name' => 'Jovanov', 'f_first_name' => 'Sue', 'f_login' => 6],
+            ['id' => 2, 'created_on' => '2020-02-01 10:00:00', 'active' => 1, 'f_last_name' => 'Jovanov', 'f_first_name' => 'Susan', 'f_login' => 6],
+        ]);
+
+        $this->artisan('import:legacy', ['tab' => 'users'])->assertSuccessful();
+        activity()->disableLogging();
+        $summary = (new ContactsImporter)->run(withHistory: false);
+        activity()->enableLogging();
+
+        $user = User::where('legacy_id', 6)->sole();
+        $this->assertSame($user->id, Contact::where('legacy_id', 2)->sole()->user_id);
+        $this->assertNull(Contact::withTrashed()->where('legacy_id', 1)->sole()->user_id);
+        $this->assertCount(1, array_filter($summary->warnings, fn (string $w): bool => str_contains($w, 'contact#1: the login is already used by contact#2')));
     }
 
     /**

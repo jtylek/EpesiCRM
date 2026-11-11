@@ -2,11 +2,9 @@
 
 namespace Epesi\Modules\Mail;
 
-use App\Services\LegacyImport\ImporterRegistry;
 use Epesi\Modules\Mail\Console\CheckMailCommand;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
 use Epesi\Modules\Mail\Filament\RelationManagers\MailsRelationManager;
-use Epesi\Modules\Mail\LegacyImport\MailImporter;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Models\MailAccountFolder;
@@ -83,11 +81,6 @@ class MailServiceProvider extends ServiceProvider
         // Not scheduled: the Mail widget asks for its own counts while it is on
         // screen. The command stays for checking an account by hand.
         $this->commands([CheckMailCommand::class]);
-
-        if ($this->app->runningInConsole()) {
-            // `import:legacy mail` (and part of `import:legacy all`).
-            $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class, last: true);
-        }
 
         $this->relinkWhenAnAddressChanges();
 

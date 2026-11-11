@@ -17,6 +17,7 @@ use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
+use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Filament\Actions\Action;
 use Filament\Actions\Events\ActionCalled;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -56,6 +57,13 @@ class RecordBrowserServiceProvider extends ServiceProvider
 
         $this->app->scoped(SaveActivity::class);
         $this->app->scoped(FieldOverrides::class);
+
+        // The engine's own feature, not an addon module's: no defaults here —
+        // a recordset gets it from Clipboard::enableFor() (Companies,
+        // Contacts) or an administrator ticking it under Administration →
+        // Recordset features.
+        RecordsetFeatures::define('clipboard', 'Copy to clipboard');
+        RecordsetFeatures::define('export', 'Export', defaultAll: true);
     }
 
     public function boot(): void

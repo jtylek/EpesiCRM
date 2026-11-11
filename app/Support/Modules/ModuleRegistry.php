@@ -2,6 +2,7 @@
 
 namespace App\Support\Modules;
 
+use App\Models\Module;
 use Filament\Contracts\Plugin;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Finder\Finder;
@@ -183,18 +184,57 @@ class ModuleRegistry
                 ->where('enabled', true)
                 ->orderBy('module_id')
                 ->get(['module_id', 'path', 'namespace', 'provider_class', 'plugin_class', 'panels'])
-                ->map(fn (object $row): array => [
+                ->map(fn (object $row): array => static::preferManifest([
                     'id' => $row->module_id,
                     'path' => $row->path,
                     'namespace' => $row->namespace,
                     'provider' => $row->provider_class,
                     'plugin' => $row->plugin_class,
                     'panels' => json_decode((string) $row->panels, true) ?: [],
-                ])
+                ]))
                 ->all();
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * A module renamed in place (new namespace and id, same directory) leaves
+     * its old `modules` row until the update migration rewrites it. Booting
+     * from that row would map both namespaces onto one `src/` and die with
+     * "Cannot redeclare class", so `epesi:update` could never run. The
+     * manifest on disk is what the code actually is, so it wins whenever its
+     * namespace differs from the stored one.
+     *
+     * @param  array<string, mixed>  $module
+     * @return array<string, mixed>
+     */
+    protected static function preferManifest(array $module): array
+    {
+        $file = Module::directoryFor((string) $module['path']).DIRECTORY_SEPARATOR.'module.json';
+
+        if (! is_file($file)) {
+            return $module;
+        }
+
+        try {
+            $manifest = ModuleManifest::fromJson((string) file_get_contents($file));
+        } catch (Throwable) {
+            return $module;
+        }
+
+        if ($manifest->namespace === $module['namespace']) {
+            return $module;
+        }
+
+        return [
+            'id' => $manifest->id,
+            'path' => $manifest->path,
+            'namespace' => $manifest->namespace,
+            'provider' => $manifest->providerClass,
+            'plugin' => $manifest->pluginClass,
+            'panels' => $manifest->panels,
+        ];
     }
 
     /**

@@ -1,7 +1,9 @@
 {
     "After editing, enter the password again to keep this note encrypted.": "編集後は、このメモを暗号化したままにするために、パスワードを再入力してください。",
     "All notes": "すべてのメモ",
+    "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "暗号化されたメモには画像を保存できません。画像は暗号化されずに保存されます。画像を削除するか、暗号化をオフにしてください。",
     "Attach to a record": "レコードに添付する",
+    "Choose only records you can see.": "表示可能なレコードのみを選択してください。",
     "Confirm Password": "パスワードの確認",
     "Decrypt": "復号",
     "Decrypt note": "注釈の解説",

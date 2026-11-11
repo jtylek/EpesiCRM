@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Listeners\FinalizeLoginAudit;
 use App\Models\User;
+use App\Support\Auth\HomePanel;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
@@ -22,9 +23,10 @@ class Impersonation
 
     /**
      * Only a super_admin, as in Epesi; not as yourself, and not as an account
-     * that couldn't sign in to the CRM on its own (deactivated, or with no
-     * role). Not a UserPolicy ability: filament-shield's Gate::before lets a
-     * super_admin through every one of those.
+     * that couldn't sign in on its own to a panel people work in (HomePanel:
+     * main, the dealer portal or the customer portal), so not a deactivated
+     * one or one with no role. Not a UserPolicy ability: filament-shield's
+     * Gate::before lets a super_admin through every one of those.
      */
     public static function allowed(User $target): bool
     {
@@ -33,7 +35,16 @@ class Impersonation
         return $user instanceof User
             && $user->hasRole('super_admin')
             && ! $target->is($user)
-            && $target->canAccessPanel(Filament::getPanel('main'));
+            && HomePanel::for($target) !== null;
+    }
+
+    /**
+     * Where the session goes once it is the target's: the panel they work in
+     * (staff → main, a dealer → /dealer, a customer → /portal).
+     */
+    public static function landingUrl(User $target): string
+    {
+        return (HomePanel::for($target) ?? Filament::getPanel('main'))->getUrl();
     }
 
     public static function start(User $target): void

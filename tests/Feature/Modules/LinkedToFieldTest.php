@@ -39,7 +39,7 @@ use Tests\TestCase;
  * FieldType::Related, shown as "Linked to" (Field::linkedTo()) — legacy's
  * `__RECORDSETS__` field: the Linked to field on tasks, meetings and phone
  * calls, and one an administrator adds. See step 12 in
- * AI-shared/Epesi-custom-fields.md.
+ * AI-shared/recordbrowser/fields.md.
  */
 class LinkedToFieldTest extends TestCase
 {
@@ -112,14 +112,19 @@ class LinkedToFieldTest extends TestCase
             return $task;
         });
 
+        // "Acme Ltd" badged with the Company recordset's icon, not the word
+        // "Company:" (LinkableRecordsets::iconLabel(), dropped the type word
+        // for the icon it already uses in the picker).
         $this->get(TaskResource::getUrl('view', ['record' => $tasks->first()]))
             ->assertOk()
-            ->assertSee('Company: Acme Ltd');
+            ->assertSee('Acme Ltd')
+            ->assertDontSee('Company: Acme Ltd');
 
         $list = Livewire::test(ListTasks::class)
             ->toggleAllTableColumns()
             ->assertCanSeeTableRecords($tasks)
-            ->assertSee('Company: Acme Ltd');
+            ->assertSee('Acme Ltd')
+            ->assertDontSee('Company: Acme Ltd');
 
         // One render loads the page's links in one query, not one per row —
         // matched by table position rather than mere substring, since Task's
@@ -133,7 +138,7 @@ class LinkedToFieldTest extends TestCase
             }
         });
 
-        $list->call('$refresh')->assertSee('Company: Acme Ltd');
+        $list->call('$refresh')->assertSee('Acme Ltd');
 
         $this->assertSame(1, $linkQueries);
     }

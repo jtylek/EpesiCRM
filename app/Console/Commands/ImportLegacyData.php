@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Services\LegacyImport\ImporterRegistry;
 use App\Services\LegacyImport\Importers\CompaniesImporter;
 use App\Services\LegacyImport\Importers\ContactsImporter;
 use App\Services\LegacyImport\Importers\LoginAuditImporter;
@@ -10,6 +9,7 @@ use App\Services\LegacyImport\Importers\MeetingsImporter;
 use App\Services\LegacyImport\Importers\PhoneCallsImporter;
 use App\Services\LegacyImport\Importers\TasksImporter;
 use App\Services\LegacyImport\Importers\UsersImporter;
+use App\Services\LegacyImport\LegacyImportSet;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -67,12 +67,10 @@ class ImportLegacyData extends Command
         'meetings' => MeetingsImporter::class,
     ];
 
-    /** @var list<string> every table add_legacy_id_to_migrated_tables added legacy_id to */
-    private const MIGRATED_TABLES = ['users', 'companies', 'contacts', 'phone_calls', 'tasks', 'meetings'];
-
     public function handle(): int
     {
         $tab = $this->argument('tab');
+        config(['legacy-import.keep_existing' => (bool) $this->option('keep-existing')]);
 
         $importers = $this->importers();
 
@@ -153,25 +151,18 @@ class ImportLegacyData extends Command
     }
 
     /**
-     * Core tabs plus whatever the installed modules registered — see
-     * ImporterRegistry for why a module's importer cannot simply be named in
-     * the list above.
+     * Core tabs plus whatever the installed modules registered (see LegacyImportSet).
      *
      * @return array<string, class-string> tab => importer, in run order
      */
     private function importers(): array
     {
-        $registry = $this->laravel->make(ImporterRegistry::class);
-
-        return [...$registry->before(), ...self::IMPORTERS, ...$registry->after(), ...$registry->last()];
+        return $this->laravel->make(LegacyImportSet::class)->importers();
     }
 
     /** @return list<string> migrated tables that already have a non-legacy (legacy_id IS NULL) row */
     private function dirtyTables(): array
     {
-        return collect(self::MIGRATED_TABLES)
-            ->filter(fn (string $table) => DB::table($table)->whereNull('legacy_id')->exists())
-            ->values()
-            ->all();
+        return $this->laravel->make(LegacyImportSet::class)->dirtyTables();
     }
 }

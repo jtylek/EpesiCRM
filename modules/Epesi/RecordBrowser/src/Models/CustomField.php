@@ -26,6 +26,7 @@ class CustomField extends Model
 
     protected $fillable = [
         'model_type',
+        'module_id',
         'name',
         'label',
         'type',

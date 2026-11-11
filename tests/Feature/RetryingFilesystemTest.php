@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Support\RetryingFilesystem;
 use ErrorException;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\View\Compilers\Compiler;
@@ -65,6 +66,16 @@ class RetryingFilesystemTest extends TestCase
 
         $compilerFiles = (new ReflectionProperty(Compiler::class, 'files'))->getValue(app('blade.compiler'));
         $this->assertInstanceOf(RetryingFilesystem::class, $compilerFiles);
+    }
+
+    public function test_blade_render_stores_its_string_through_it(): void
+    {
+        $files = $this->lockedFilesystem(failures: 2);
+        $this->app->instance('files', $files);
+        $marker = 'first-load-'.uniqid();
+
+        $this->assertSame($marker, Blade::render($marker, deleteCachedView: true));
+        $this->assertGreaterThanOrEqual(3, $files->calls, 'The locked rename was retried, not sent past it.');
     }
 
     public function test_a_briefly_locked_file_is_written_once_the_lock_goes(): void

@@ -5,11 +5,14 @@ namespace Tests\Feature\Modules;
 use Epesi\Modules\Attachments\Attachments;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
 use Epesi\Modules\Mail\MailServiceProvider;
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RelatedModules;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
+use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustomFields;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
@@ -20,7 +23,10 @@ class RecordsetFeaturesTest extends TestCase
 
     protected function tearDown(): void
     {
-        RecordsetFeatures::flush();
+        // flush() only forgets the cached per-record choices; reset() also
+        // forgets demo_feature itself, or it leaks "Demo" into later tests
+        // (TranslationsTest's crawl picked it up as real UI text to translate).
+        RecordsetFeatures::reset();
 
         parent::tearDown();
     }
@@ -63,6 +69,19 @@ class RecordsetFeaturesTest extends TestCase
         $this->assertNotContains('task', MailServiceProvider::recordTypes());
     }
 
+    public function test_clipboard_starts_on_company_and_contact_and_follows_the_choice(): void
+    {
+        // Companies/CompaniesServiceProvider and Contacts/ContactsServiceProvider
+        // each call Clipboard::enableFor(), which both declares the default and
+        // sets the module's pattern text (Clipboard::defaultPattern()).
+        $this->assertContains('company', RecordsetFeatures::aliasesFor('clipboard'));
+        $this->assertContains('contact', RecordsetFeatures::aliasesFor('clipboard'));
+
+        RecordsetFeatures::set('clipboard', 'company', false);
+
+        $this->assertNotContains('company', RecordsetFeatures::aliasesFor('clipboard'));
+    }
+
     public function test_the_recordsets_list_has_no_related_modules_button(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
@@ -72,15 +91,84 @@ class RecordsetFeaturesTest extends TestCase
             ->assertActionDoesNotExist('features');
     }
 
-    public function test_the_related_modules_page_lists_recordsets_and_saves_the_choice(): void
+    public function test_manage_fields_opens_the_field_list_on_that_recordset_only(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');
 
-        Livewire::test(RelatedModules::class)
+        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+            ->assertActionHasUrl('fields', CustomFieldResource::getUrl('index', ['recordset' => 'company']))
+            ->assertActionHasUrl('addField', CustomFieldResource::getUrl('create', ['recordset' => 'company']));
+
+        $list = Livewire::withQueryParams(['recordset' => 'company'])
+            ->test(ListCustomFields::class)
+            ->assertSee('Company Name')
+            ->assertDontSee('Postal Code')
+            ->assertTableFilterHidden('model_type')
+            ->assertTableColumnHidden('recordset')
+            ->assertActionHasUrl('create', CustomFieldResource::getUrl('create', ['recordset' => 'company']));
+
+        $this->assertTrue($list->instance()->canReorderFields(), 'reordering needs no filter choice');
+
+        $breadcrumbs = array_keys($list->instance()->getBreadcrumbs());
+        $this->assertSame(Recordsets::getUrl(), $breadcrumbs[0]);
+        $this->assertSame(ViewRecordset::getUrl(['alias' => 'company']), $breadcrumbs[1]);
+    }
+
+    public function test_a_field_list_opened_from_a_recordset_can_not_be_moved_to_another(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        // Neither a filter in the URL nor one set afterwards leaves the recordset.
+        Livewire::withQueryParams(['recordset' => 'company', 'filters' => ['model_type' => ['value' => 'contact']]])
+            ->test(ListCustomFields::class)
+            ->assertSee('Company Name')
+            ->assertDontSee('Postal Code')
+            ->set('tableFilters.model_type.value', 'contact')
+            ->assertSee('Company Name');
+
+        $this->expectException(CannotUpdateLockedPropertyException::class);
+        Livewire::withQueryParams(['recordset' => 'company'])
+            ->test(ListCustomFields::class)
+            ->set('recordset', 'contact');
+    }
+
+    public function test_a_field_list_for_an_unknown_recordset_is_not_found(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::withQueryParams(['recordset' => 'no_such_recordset'])
+            ->test(ListCustomFields::class)
+            ->assertNotFound();
+    }
+
+    public function test_the_list_only_opens_a_recordset(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(Recordsets::class)
             ->assertSuccessful()
-            ->callTableAction('edit', 'company', data: ['features' => ['notes']])
-            ->assertHasNoTableActionErrors();
+            ->assertSee('company')
+            ->assertTableActionExists('view')
+            ->assertTableActionDoesNotExist('edit')
+            ->assertTableActionHasUrl('view', ViewRecordset::getUrl(['alias' => 'company']), 'company');
+    }
+
+    public function test_the_recordset_page_lists_recordsets_and_saves_the_choice(): void
+    {
+        $this->actingAs($this->userWithRole('super_admin'));
+        Filament::setCurrentPanel('administration');
+
+        Livewire::test(Recordsets::class)
+            ->assertSuccessful();
+
+        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+            ->fillForm(['features' => ['notes']])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $this->assertFalse(RecordsetFeatures::enabled(MailServiceProvider::FEATURE, 'company'));
         $this->assertTrue(RecordsetFeatures::enabled(AttachmentsServiceProvider::FEATURE, 'company'));
@@ -104,9 +192,11 @@ class RecordsetFeaturesTest extends TestCase
         // Optional modules (e.g. Premium ones) may add their own pages to these groups.
         $shipped = fn (array $expected, array $actual): array => array_values(array_intersect($actual, $expected));
         $serverSetup = ['Background worker', 'Cron', 'Mail Server', 'Regional Settings', 'Server Check', 'Translations'];
-        $data = ['Common Data', 'Currencies', 'Exchange Rates', 'Priority list', 'Recordsets', 'Related modules'];
+        $data = ['Common Data', 'Currencies', 'Exchange Rates', 'Priority list', 'Recordsets'];
         $this->assertSame($serverSetup, $shipped($serverSetup, $labels('Server Setup')));
         $this->assertSame($data, $shipped($data, $labels('Data')));
         $this->assertSame(['Server Setup', 'Data'], $navigation->map(fn ($g) => $g->getLabel())->filter()->take(2)->values()->all());
+        $this->assertFalse(CustomFieldResource::shouldRegisterNavigation());
+        $this->assertSame('Recordsets', Recordsets::getNavigationLabel());
     }
 }

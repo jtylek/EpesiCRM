@@ -15,16 +15,16 @@ use Epesi\Modules\PriorityList\Filament\Widgets\PriorityListWidget;
 use Epesi\Modules\PriorityList\Models\Entry;
 use Epesi\Modules\PriorityList\Models\PriorityListPreference;
 use Epesi\Modules\PriorityList\PriorityList;
-use Epesi\Modules\ProjectsTickets\Models\Project;
-use Epesi\Modules\ProjectsTickets\Models\Ticket;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
-use Epesi\Modules\SalesOpportunity\Models\SalesOpportunity;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Js;
 use Livewire\Livewire;
+use Premium\ProjectsTickets\Models\Project;
+use Premium\ProjectsTickets\Models\Ticket;
+use Premium\SalesOpportunity\Models\SalesOpportunity;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
@@ -82,15 +82,15 @@ class PriorityListTest extends TestCase
         $types = ['task', 'meeting', 'phone_call'];
 
         if (class_exists(Project::class)) {
-            $types[] = 'project';
+            $types[] = Project::MORPH;
         }
 
         if (class_exists(Ticket::class)) {
-            $types[] = 'ticket';
+            $types[] = Ticket::MORPH;
         }
 
         if (class_exists(SalesOpportunity::class)) {
-            $types[] = 'sales_opportunity';
+            $types[] = SalesOpportunity::MORPH;
         }
 
         $this->assertEqualsCanonicalizing($types, PriorityList::recordTypes());

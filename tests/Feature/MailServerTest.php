@@ -185,10 +185,10 @@ class MailServerTest extends TestCase
         $this->assertSame('admin@example.test', $message->getFrom()[0]->getAddress());
         $this->assertSame('E-mail configuration test', $message->getSubject());
 
-        // Formatted like the other epesi mail, with the logo inline, and a plain-text part.
+        // Formatted like the other epesi mail (the shared theme: heading, logo picture, signature), and a plain-text part.
         $this->assertStringContainsString('<h1', $message->getHtmlBody());
-        $this->assertStringContainsString('cid:', $message->getHtmlBody());
-        $this->assertCount(1, $message->getAttachments());
+        $this->assertStringContainsString('images/logo-mail.png', $message->getHtmlBody());
+        $this->assertStringContainsString('Your Epesi team', $message->getHtmlBody());
         $this->assertStringContainsString('is working properly', $message->getTextBody());
     }
 
