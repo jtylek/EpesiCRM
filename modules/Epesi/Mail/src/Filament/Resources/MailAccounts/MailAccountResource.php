@@ -57,6 +57,9 @@ class MailAccountResource extends Resource
 
     protected static ?int $navigationSort = 61;
 
+    /** Cancel with a grey fill: Filament's grey button is only an outline, which reads as disabled next to Save. */
+    public const FILLED_GRAY = ['style' => 'background-color: light-dark(var(--gray-200), var(--gray-700))'];
+
     public const SECURITY = ['ssl' => 'SSL/TLS', 'tls' => 'STARTTLS', 'none' => 'None'];
 
     /**
@@ -133,6 +136,10 @@ class MailAccountResource extends Resource
                 TextInput::make('sent_folder')->label('Sent folder')->default('Sent')->maxLength(255)
                     ->visible(fn (Get $get): bool => (bool) $get('save_to_sent'))
                     ->required(fn (Get $get): bool => (bool) $get('save_to_sent')),
+                TextInput::make('junk_folder')->label('Spam folder')->maxLength(255)
+                    ->placeholder(__('Found automatically'))
+                    ->helperText(__('Where "Junk" in the Mailbox moves messages. Leave it empty to find it automatically, or type the folder name if it isn\'t found.'))
+                    ->suffixAction(static::detectJunkFolderAction()),
             ]),
             Section::make(__('Signature'))->compact()->schema([
                 RichEditor::make('signature')->hiddenLabel()
@@ -301,6 +308,98 @@ class MailAccountResource extends Resource
                     ->status($ok ? 'success' : 'danger')
                     ->send();
             });
+    }
+
+    /**
+     * The "Autodetect Spam folder" button at the end of the Spam folder field:
+     * asks the saved account's IMAP server (a new account is checked when it
+     * is first saved, see fillJunkFolder()). It fills the field; Save keeps
+     * it. button() keeps the text: Filament renders a field's own actions as
+     * bare icons otherwise.
+     */
+    public static function detectJunkFolderAction(): Action
+    {
+        return Action::make('detectJunkFolder')
+            ->label(__('Autodetect Spam folder'))
+            ->icon(Heroicon::OutlinedMagnifyingGlass)
+            ->button()
+            ->color('primary')
+            ->visible(fn (?MailAccount $record): bool => $record?->exists === true)
+            ->action(function (?MailAccount $record, Set $set): void {
+                try {
+                    $folder = static::detectJunkFolder($record);
+                } catch (Throwable $e) {
+                    Notification::make()->danger()->title(__('Connection problem'))->body($e->getMessage())->send();
+
+                    return;
+                }
+
+                if ($folder === null) {
+                    Notification::make()->warning()
+                        ->title(__('No spam folder found'))
+                        ->body(__('Type the name of the folder your mail server keeps spam in.'))
+                        ->send();
+
+                    return;
+                }
+
+                $set('junk_folder', $folder);
+
+                Notification::make()->success()
+                    ->title(__('Spam folder found: :folder', ['folder' => $folder]))
+                    ->body(__('Save the account to keep it.'))
+                    ->send();
+            });
+    }
+
+    /**
+     * The account's spam folder on its IMAP server; null when it has none.
+     *
+     * @throws Throwable the server couldn't be reached or refused the login
+     */
+    public static function detectJunkFolder(MailAccount $account): ?string
+    {
+        if (! $account->canReceive()) {
+            return null;
+        }
+
+        $mailbox = app(MailboxFactory::class)->make($account);
+
+        try {
+            return $mailbox->junkFolder();
+        } finally {
+            $mailbox->close();
+        }
+    }
+
+    /**
+     * After a save with the Spam folder left empty: find it on the server and
+     * keep it, or say it has to be typed in. A server that can't be reached
+     * says nothing here ("Test connection" does); Roundcube then still
+     * searches at login.
+     */
+    public static function fillJunkFolder(MailAccount $account): void
+    {
+        if (filled($account->junk_folder) || ! $account->canReceive()) {
+            return;
+        }
+
+        try {
+            $folder = static::detectJunkFolder($account);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($folder === null) {
+            Notification::make()->warning()
+                ->title(__('No spam folder found'))
+                ->body(__('Type the name of the folder your mail server keeps spam in, under Spam folder.'))
+                ->send();
+
+            return;
+        }
+
+        $account->forceFill(['junk_folder' => $folder])->saveQuietly();
     }
 
     /** The INBOX's unread count, now rather than at the Mail widget's next poll. Archives nothing. */

@@ -51,9 +51,12 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Navigation\NavigationManager;
+use Filament\Notifications\Livewire\Notifications;
 use Filament\Pages\BasePage;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\VerticalAlignment;
 use Filament\Support\Facades\FilamentView;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Column;
@@ -179,6 +182,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Toast notifications (saved, archived, alerts) appear in the centre of the screen,
+        // away from the user menu and the mailbox controls in the top right.
+        Notifications::alignment(Alignment::Center);
+        Notifications::verticalAlignment(VerticalAlignment::Center);
+
         // Same as Laravel's "session" guard, but with this installation's own
         // "remember me" cookie name (see InstallationSessionGuard).
         Auth::extend('session', function ($app, string $name, array $config): InstallationSessionGuard {
@@ -251,7 +259,7 @@ class AppServiceProvider extends ServiceProvider
         Event::subscribe(CronLog::class);
 
         // On every panel: a user logged in as can be sent to any of them.
-        FilamentView::registerRenderHook(PanelsRenderHook::CONTENT_START, fn () => ImpersonationNotice::render());
+        FilamentView::registerRenderHook(PanelsRenderHook::BODY_END, fn () => ImpersonationNotice::render());
 
         // The link preview's og: tags, first in <head> so a crawler sees them.
         // Not on /setup: its title comes from a table a new install doesn't

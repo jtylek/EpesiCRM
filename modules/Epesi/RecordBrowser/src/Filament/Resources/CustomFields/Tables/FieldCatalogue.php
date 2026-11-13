@@ -65,7 +65,7 @@ class FieldCatalogue
             ->reorderable('position', fn ($livewire): bool => $livewire->canReorderFields())
             ->reorderRecordsTriggerAction(fn (Action $action, bool $isReordering): Action => $action
                 ->label($isReordering ? __('Done reordering') : __('Reorder fields'))
-                ->iconButton(false)->button())
+                ->iconButton(false)->button()->color('primary'))
             ->records(function (?string $search, ?array $filters, ?string $sortColumn, ?string $sortDirection, int $page, int|string $recordsPerPage, $livewire): LengthAwarePaginator {
                 $reordering = $livewire->isTableReordering();
                 $recordset = $livewire->recordset ?? ($filters['model_type']['value'] ?? null);
@@ -93,6 +93,7 @@ class FieldCatalogue
                 IconColumn::make('active')->boolean(),
             ])
             ->filtersLayout(FiltersLayout::AboveContent)
+            ->deferFilters(false)
             ->filtersFormColumns(['default' => 1, 'sm' => 2])
             ->filters([
                 SelectFilter::make('model_type')->label('Recordset')

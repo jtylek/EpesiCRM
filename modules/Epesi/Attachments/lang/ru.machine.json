@@ -1,4 +1,5 @@
 {
+    ":name on :date": ":name, :date",
     "After editing, enter the password again to keep this note encrypted.": "После редактирования введите пароль ещё раз, чтобы эта заметка оставалась зашифрованной.",
     "All notes": "Все заметки",
     "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "Зашифрованная заметка не может содержать изображения, так как они хранились бы без шифрования. Удалите изображения или отключите шифрование.",

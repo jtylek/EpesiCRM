@@ -1,14 +1,25 @@
 {
+    "Autodetect Spam folder": "Wykryj folder spamu automatycznie",
     "Checking failed": "Sprawdzanie nie powiodło się",
     "checking…": "sprawdzam…",
     "Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.": "Funkcja „Połącz” przekierowuje użytkownika do serwisu dostawcy, aby zalogować się do tej skrzynki pocztowej i zezwolić aplikacji epesi na korzystanie z niej.",
     "Connect the account again": "Połącz konto ponownie",
     "Connected as :account": "Połączony jako :account",
+    "Delete account": "Usuń konto",
+    "Found automatically": "Znaleziono automatycznie",
     "Google (OAuth2)": "Google (OAuth2)",
     "Last checked": "Ostatnia weryfikacja",
     "Microsoft 365 (OAuth2)": "Microsoft 365 (OAuth2)",
+    "No spam folder found": "Nie znaleziono folderu spamu",
     "Not connected yet": "Jeszcze nie połączono",
+    "Save changes": "Zapisz zmiany",
+    "Save the account to keep it.": "Zapisz konto, aby je zachować.",
     "Save the account, then connect it (:method).": "Zapisz konto, a następnie połącz je (:method).",
     "Sign in with": "Zaloguj się za pomocą",
-    "the mail account :name": "konto pocztowe :name"
+    "Spam folder": "Folder spamu",
+    "Spam folder found: :folder": "Znaleziono folder spamu: :folder",
+    "the mail account :name": "konto pocztowe :name",
+    "Type the name of the folder your mail server keeps spam in, under Spam folder.": "Wpisz nazwę folderu, w którym serwer poczty przechowuje spam, w polu Folder spamu.",
+    "Type the name of the folder your mail server keeps spam in.": "Wpisz nazwę folderu, w którym serwer poczty przechowuje spam.",
+    "Where \"Junk\" in the Mailbox moves messages. Leave it empty to find it automatically, or type the folder name if it isn't found.": "Dokąd w skrzynce pocztowej przenoszone są wiadomości z „Junk”. Zostaw puste, aby znaleźć folder automatycznie, lub wpisz nazwę folderu, jeśli nie zostanie znaleziony."
 }

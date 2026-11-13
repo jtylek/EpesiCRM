@@ -30,6 +30,12 @@ class WebklexMailbox implements Mailbox
             ->all();
     }
 
+    public function junkFolder(): ?string
+    {
+        // A plain LIST: a server with SPECIAL-USE puts \Junk among the flags.
+        return JunkFolder::pick((array) $this->protocol()->folders('', '*')->validatedData());
+    }
+
     public function open(string $folder): int
     {
         $status = $this->protocol()->examineFolder($this->wireName($folder))->validatedData();

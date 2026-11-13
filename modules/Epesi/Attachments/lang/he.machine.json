@@ -1,4 +1,5 @@
 {
+    ":name on :date": ":name ב-:date",
     "After editing, enter the password again to keep this note encrypted.": "לאחר העריכה, הזן את הסיסמה שוב כדי לשמור על הצפנת הערה זו.",
     "All notes": "כל ההערות",
     "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "הערה מוצפנת לא יכולה להכיל תמונות, שהיו נשמרות ללא הצפנה. הסר את התמונות או כבה את ההצפנה.",

@@ -13,6 +13,9 @@ interface Mailbox
      */
     public function folders(): array;
 
+    /** The spam folder's full path (JunkFolder::pick()), or null when the mailbox has none. */
+    public function junkFolder(): ?string;
+
     /**
      * Open $folder read-only (so fetching never marks mail as read) and
      * return its UIDVALIDITY.

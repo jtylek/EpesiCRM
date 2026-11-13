@@ -8,7 +8,7 @@
     <x-filament::input.wrapper>
         <x-filament::input.select wire:change="setMyRecordsMode($event.target.value)" aria-label="{{ __('Records') }}">
             @foreach ($options as $optionValue => $label)
-                <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $label }}</option>
+                <option value="{{ $optionValue }}" @selected((string) $value === (string) $optionValue)>{{ $label }}</option>
             @endforeach
         </x-filament::input.select>
     </x-filament::input.wrapper>

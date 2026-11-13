@@ -1,4 +1,5 @@
 {
+    ":name on :date": ":name, :date",
     "After editing, enter the password again to keep this note encrypted.": "Po edycji wprowadź ponownie hasło, aby ta notatka pozostała zaszyfrowana.",
     "All notes": "Wszystkie notatki",
     "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "Zaszyfrowana notatka nie może zawierać obrazów, które byłyby przechowywane w postaci niezaszyfrowanej. Usuń obrazy lub wyłącz szyfrowanie.",

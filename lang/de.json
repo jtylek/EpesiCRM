@@ -146,7 +146,7 @@
     "Download custom translations": "Benutzerdefinierte Übersetzungen herunterladen",
     "Duration": "Dauer",
     "E-mail": "E-Mail",
-    "E-mail configuration test": "eMail Konfigurations Test",
+    "E-mail configuration test": "Test der E-Mail-Konfiguration",
     "E-mail is set to be written to the application log only. Choose an SMTP server or this server's mail system to send it.": "E-Mails werden standardmäßig nur in das Anwendungsprotokoll geschrieben. Wählen Sie zum Versenden einen SMTP-Server oder das E-Mail-System dieses Servers aus.",
     "E-mail threads": "E-Mail-Konversationen",
     "E-mail was sent successfully": "eMail wurde erfolgreichversendet",
@@ -213,7 +213,7 @@
     "Id": "ID",
     "If :email belongs to an account, we have sent it a link to reset the password.": "Falls:email zu einem Konto gehört, haben wir diesem einen Link zum Zurücksetzen des Passworts zugesandt.",
     "If the host can only call a web address: the cron URL": "Falls der Host nur eine Webadresse aufrufen kann: die Cron-URL",
-    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "Wenn Sie dies lesen, bedeutet das, dass die Konfiguration Ihres E-Mail-Servers unter:url ordnungsgemäß funktioniert.",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "Wenn Sie dies lesen, funktioniert die Konfiguration Ihres E-Mail-Servers unter :url ordnungsgemäß.",
     "If you did not request a password reset, no further action is required.": "Falls Sie keine Passwortzurücksetzung beantragt haben, sind keine weiteren Maßnahmen erforderlich.",
     "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Falls Sie Probleme beim Klicken auf die Schaltfläche „:actionText“ haben, kopieren Sie die folgende URL und fügen Sie sie\nin Ihren Webbrowser ein:",
     "In Progress": "In Bearbeitung",
@@ -488,7 +488,7 @@
     "This is a demo. The data is reset every day. E-mail is not sent and files can't be uploaded.": "Dies ist eine Demo. Die Daten werden täglich zurückgesetzt. Es werden keine E-Mails versendet und es können keine Dateien hochgeladen werden.",
     "This makes the database changes of the installed version. It can't be undone from here, so back up the database first. It can take a minute; keep this page open.": "Dadurch werden Änderungen an der Datenbank der installierten Version vorgenommen. Diese können von hier aus nicht rückgängig gemacht werden. Erstellen Sie daher zunächst eine Sicherungskopie der Datenbank. Der Vorgang kann eine Minute dauern; lassen Sie diese Seite geöffnet.",
     "This page can only run from a web request, which can't see which command-line PHP the server has. If the host's own Cron Jobs page names a PHP version or path, use that instead of copying \"php\" as it stands.": "Diese Seite kann nur über eine Webanfrage aufgerufen werden, bei der nicht erkennbar ist, welche PHP-Version der Server über die Befehlszeile zur Verfügung stellt. Falls auf der Cron-Jobs-Seite des Hosts eine PHP-Version oder ein Pfad angegeben ist, verwenden Sie diese bzw. diesen anstelle der unveränderten Angabe „php“.",
-    "This password reset link will expire in :count minutes.": "Dieser Link zum Zurücksetzen des Passworts läuft in:count Minuten ab.",
+    "This password reset link will expire in :count minutes.": "Dieser Link zum Zurücksetzen des Passworts läuft in :count Minuten ab.",
     "This server is missing something epesi needs": "Auf diesem Server fehlt etwas, das „epesi“ benötigt.",
     "This server's mail system": "Das E-Mail-System dieses Servers",
     "This system contains demo data": "Dieses System enthält Beispieldaten.",
@@ -556,5 +556,9 @@
     "Your own user account, your contact and your company, and everything you added yourself, are kept.": "Ihr eigenes Benutzerkonto, Ihre Kontaktdaten und Ihr Unternehmen sowie alle von Ihnen selbst hinzugefügten Inhalte bleiben erhalten.",
     "Zone / State": "Zone / Bundesland",
     "{1} :count database change is waiting|[2,*] :count database changes are waiting": "{1}:count Datenbankänderung steht noch aus |[2,*]:count Datenbankänderungen stehen noch aus",
-    "{1} A new version of epesi is installed, and :count database change is waiting.|[2,*] A new version of epesi is installed, and :count database changes are waiting.": "{1} Eine neue Version von epesi wurde installiert, und es stehen Datenbankänderungen unter:count an.|[2,*] Eine neue Version von epesi wurde installiert, und es stehen Datenbankänderungen unter:count an."
+    "{1} A new version of epesi is installed, and :count database change is waiting.|[2,*] A new version of epesi is installed, and :count database changes are waiting.": "{1} Eine neue Version von epesi wurde installiert, und es stehen Datenbankänderungen unter:count an.|[2,*] Eine neue Version von epesi wurde installiert, und es stehen Datenbankänderungen unter:count an.",
+    "Dear Epesi User,": "Sehr geehrter Epesi-Nutzer,",
+    "Your Epesi team": "Ihr Epesi-Team",
+    "Sent from Administration → Mail server settings.": "Gesendet aus: Administration → Mail-Server-Einstellungen.",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "Dieser Link zum Zurücksetzen des Passworts läuft in :count Stunde ab.|Dieser Link zum Zurücksetzen des Passworts läuft in :count Stunden ab."
 }

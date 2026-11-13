@@ -56,4 +56,39 @@ final class epesi_sso_ticket
 
         return is_array($login) ? $login : null;
     }
+
+    /**
+     * Whether an open session ($_SESSION['epesi']) is this ticket's login:
+     * the same Epesi user, the same account, and the same servers and
+     * credentials (an account edited since then logs in again). epesi_sso
+     * then joins the session instead of logging in again.
+     *
+     * @param  array<string, mixed>  $login
+     */
+    public static function same_login(mixed $session, array $login): bool
+    {
+        return is_array($session)
+            && (string) ($session['user_id'] ?? '') === (string) ($login['user_id'] ?? '')
+            && (string) ($session['account_id'] ?? '') === (string) ($login['account_id'] ?? '')
+            && hash_equals((string) ($session['login_key'] ?? ''), self::login_key($login));
+    }
+
+    /**
+     * A fingerprint of what the login connects with. An OAuth access token
+     * changes on every ticket and is renewed inside the session anyway, so
+     * it is left out; a mail password is in.
+     *
+     * @param  array<string, mixed>  $login
+     */
+    public static function login_key(array $login): string
+    {
+        $imap = (array) ($login['imap'] ?? []);
+
+        return hash('sha256', (string) json_encode([
+            $imap['host'] ?? null,
+            $imap['user'] ?? null,
+            empty($login['oauth']) ? ($imap['pass'] ?? null) : 'oauth',
+            $login['smtp'] ?? null,
+        ]));
+    }
 }

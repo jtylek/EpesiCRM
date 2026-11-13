@@ -5,7 +5,7 @@ namespace Tests\Feature\Modules;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetClipboard;
 use Epesi\Modules\RecordBrowser\Recordset\ClipboardPattern;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
 use Filament\Facades\Filament;
@@ -52,9 +52,8 @@ class ClipboardViewActionTest extends TestCase
 
         $default = ClipboardPattern::patternFor('company');
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetClipboard::class, ['alias' => 'company'])
             ->fillForm([
-                'features' => ['clipboard'],
                 'clipboard_pattern' => '{company_name} override',
             ])
             ->call('save')
@@ -62,9 +61,8 @@ class ClipboardViewActionTest extends TestCase
 
         $this->assertSame('{company_name} override', ClipboardPattern::storedPatternFor('company'));
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetClipboard::class, ['alias' => 'company'])
             ->fillForm([
-                'features' => ['clipboard'],
                 'clipboard_pattern' => '',
             ])
             ->call('save')
@@ -79,9 +77,8 @@ class ClipboardViewActionTest extends TestCase
         Filament::setCurrentPanel(Filament::getPanel('administration'));
         $this->actingAs($this->userWithRole('super_admin'));
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetClipboard::class, ['alias' => 'company'])
             ->fillForm([
-                'features' => ['clipboard'],
                 'clipboard_pattern' => '%{a %{b} c}',
             ])
             ->call('save')

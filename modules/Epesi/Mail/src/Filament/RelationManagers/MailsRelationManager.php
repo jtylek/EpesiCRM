@@ -74,7 +74,7 @@ class MailsRelationManager extends RelationManager
     }
 
     /**
-     * The ids of the owner's linked messages addressed to it, or null for no
+     * The ids of the owner's linked messages sent by or addressed to it (From, To or Cc), or null for no
      * restriction (anything but a contact). An address counts only as a
      * whole one, so "ann@x.com" never matches "joann@x.com".
      *
@@ -96,12 +96,12 @@ class MailsRelationManager extends RelationManager
         return $owner->mails()
             ->where(function (Builder $query) use ($own): void {
                 foreach ($own as $address) {
-                    $query->orWhere('to', 'like', "%{$address}%")->orWhere('cc', 'like', "%{$address}%");
+                    $query->orWhere('from', 'like', "%{$address}%")->orWhere('to', 'like', "%{$address}%")->orWhere('cc', 'like', "%{$address}%");
                 }
             })
-            ->get(['epesi_mails.id', 'epesi_mails.to', 'epesi_mails.cc'])
+            ->get(['epesi_mails.id', 'epesi_mails.from', 'epesi_mails.to', 'epesi_mails.cc'])
             ->filter(function (Mail $mail) use ($own): bool {
-                preg_match_all('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', implode(',', [$mail->to, $mail->cc]), $m);
+                preg_match_all('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', implode(',', [$mail->from, $mail->to, $mail->cc]), $m);
 
                 return array_intersect($own, array_map('mb_strtolower', $m[0])) !== [];
             })

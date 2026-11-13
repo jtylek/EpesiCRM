@@ -181,6 +181,7 @@ abstract class ListRecords extends BaseListRecords
         // A list with no Employees filter (Contacts, Companies) still gets a
         // "My records": the ones its user created or has changed.
         if ($table->getFilter('employees') === null
+            && $table->getFilter('assignees') === null
             && $table->getFilter('employee') === null
             && $table->getFilter('employee_id') === null
             && $table->getFilter('edited_by') === null
@@ -426,6 +427,19 @@ abstract class ListRecords extends BaseListRecords
         });
     }
 
+    /**
+     * Selects a list adds to its table toolbar, after the browse-mode select:
+     * each is label, options (value => label), value, method (the Livewire
+     * method that takes the chosen value) and optionally dates (from/until
+     * state paths, shown beside the select).
+     *
+     * @return list<array{label: string, options: array<string|int, string>, value: string|int|null, method: string, dates?: array{from: string, until: string}|null}>
+     */
+    public function getToolbarSelects(): array
+    {
+        return [];
+    }
+
     /** The My records / All records select. */
     public function setMyRecordsMode(string $mode): void
     {
@@ -474,7 +488,7 @@ abstract class ListRecords extends BaseListRecords
 
     protected function myRecordsEmployeesFilter(?Table $table = null): ?SelectFilter
     {
-        foreach (['employees', 'employee', 'employee_id', 'edited_by'] as $name) {
+        foreach (['employees', 'assignees', 'employee', 'employee_id', 'edited_by'] as $name) {
             $filter = ($table ?? $this->getTable())->getFilter($name);
 
             if ($filter instanceof SelectFilter) {

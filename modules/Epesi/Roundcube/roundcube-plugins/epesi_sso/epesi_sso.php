@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/epesi_sso_ticket.php';
 require_once __DIR__.'/epesi_sso_oauth.php';
+require_once __DIR__.'/epesi_sso_folders.php';
 
 /**
  * Logs in to Roundcube with a ticket from Epesi's Mailbox page — the port of
@@ -58,11 +59,22 @@ class epesi_sso extends rcube_plugin
         }
 
         $this->ticketRequest = true;
+        $rcmail = rcmail::get_instance();
+        $token = (string) rcube_utils::get_input_string('_epesi_ticket', rcube_utils::INPUT_GET);
+        $this->login = $token === '' ? null : $this->redeem($token);
 
-        // Every ticket is a fresh login, as Epesi logged in again each time
-        // the mail screen opened: it may be another account, or another user.
         if (! empty($_SESSION['user_id'])) {
-            $rcmail = rcmail::get_instance();
+            // A second Mailbox tab (or a reload) for the same person and the
+            // same, unchanged account joins the session that is already open.
+            // Logging in again would give the session a new ID and request
+            // token, and every other open Mailbox tab would fail its next
+            // request ("Request security check failed").
+            if ($this->login && epesi_sso_ticket::same_login($_SESSION['epesi'] ?? null, $this->login) && $rcmail->session->check_auth()) {
+                $this->refreshSession($rcmail);
+                $rcmail->output->redirect(['_task' => 'mail'], 0, true);
+            }
+
+            // Another account or another user: a fresh login.
             $rcmail->logout_actions();
             $rcmail->kill_session();
         }
@@ -73,11 +85,31 @@ class epesi_sso extends rcube_plugin
         return $args;
     }
 
+    /**
+     * A joined session takes the ticket's settings (labels, signature, archive
+     * folder, language) and keeps its own credentials.
+     */
+    private function refreshSession($rcmail): void
+    {
+        $_SESSION['epesi'] = ['smtp' => $_SESSION['epesi']['smtp'] ?? null, 'oauth' => $_SESSION['epesi']['oauth'] ?? null, 'login_key' => $_SESSION['epesi']['login_key'] ?? null]
+            + array_diff_key($this->login, ['imap' => true, 'smtp' => true, 'oauth' => true]);
+
+        try {
+            $this->syncSignature($rcmail);
+        } catch (Throwable $e) {
+            // Only the identity's name and signature: the next fresh login sets them.
+        }
+
+        // A Spam folder changed in Epesi since this session logged in.
+        $this->ensureJunkFolder($rcmail);
+
+        if (! empty($this->login['language'])) {
+            $rcmail->load_language((string) $this->login['language']);
+        }
+    }
+
     public function authenticate($args)
     {
-        $token = (string) rcube_utils::get_input_string('_epesi_ticket', rcube_utils::INPUT_GET);
-        $this->login = $token === '' ? null : $this->redeem($token);
-
         if (! $this->login) {
             $args['abort'] = true;
 
@@ -113,8 +145,12 @@ class epesi_sso extends rcube_plugin
             $oauth['grant'] = $rcmail->encrypt((string) $oauth['grant']);
         }
 
-        $_SESSION['epesi'] = ['smtp' => $smtp, 'oauth' => $oauth]
+        $_SESSION['epesi'] = ['smtp' => $smtp, 'oauth' => $oauth, 'login_key' => epesi_sso_ticket::login_key($this->login)]
             + array_diff_key($this->login, ['imap' => true, 'smtp' => true, 'oauth' => true]);
+
+        $this->syncSignature($rcmail);
+        $this->ensureJunkFolder($rcmail);
+        $this->seedUnseenCounts($rcmail);
 
         // The user's Epesi language, whatever Roundcube last remembered.
         if (! empty($this->login['language'])) {
@@ -132,6 +168,124 @@ class epesi_sso extends rcube_plugin
         }
 
         return $args;
+    }
+
+    /**
+     * Every Mailbox open is a fresh login, and a fresh session has no unread
+     * counts, so Roundcube's first getunread counted every subscribed folder
+     * on the IMAP server: Gmail has one folder per label (92 for one user,
+     * 0.15s each). Seed a zero for every folder but INBOX; Roundcube then
+     * counts only INBOX and the folder being viewed, and a label's badge
+     * appears once it is opened.
+     */
+    protected function seedUnseenCounts($rcmail): void
+    {
+        try {
+            $folders = $rcmail->get_storage()->list_folders_subscribed('', '*', 'mail');
+
+            foreach ((array) $folders as $folder) {
+                if ($folder !== 'INBOX' && ! isset($_SESSION['unseen_count'][$folder])) {
+                    $_SESSION['unseen_count'][$folder] = 0;
+                }
+            }
+        } catch (Throwable $e) {
+            // Only an optimisation: without it Roundcube counts every folder.
+        }
+    }
+
+    /**
+     * Mark as junk (markasjunk) moves mail to the junk_mbox folder. Roundcube
+     * has already set it at login from the server's SPECIAL-USE \Junk flag
+     * (Gmail, Microsoft 365, most Dovecot servers); on a server without that
+     * flag it stays "Junk", which may not exist. The account's Spam folder
+     * in Epesi wins when it exists; otherwise the folder Roundcube set, then
+     * the spam folder the mailbox has by name ("Spam", "INBOX.spam", ...),
+     * or a new "Junk" when it has none. Remembered for this Roundcube user.
+     */
+    protected function ensureJunkFolder($rcmail): void
+    {
+        try {
+            $storage = $rcmail->get_storage();
+            $junk = (string) $rcmail->config->get('junk_mbox', '');
+            $chosen = (string) ($_SESSION['epesi']['junk_folder'] ?? '');
+
+            // Typed in UTF-8 in Epesi, or detected there as the server spells it (ASCII).
+            if ($chosen !== '' && ! mb_check_encoding($chosen, 'ASCII')) {
+                $chosen = rcube_charset::convert($chosen, 'UTF-8', 'UTF7-IMAP');
+            }
+
+            if ($chosen !== '' && $chosen !== $junk && $storage->folder_exists($chosen)) {
+                $rcmail->user->save_prefs(['junk_mbox' => $chosen]);
+                $rcmail->config->set('junk_mbox', $chosen);
+
+                return;
+            }
+
+            if ($junk !== '' && $storage->folder_exists($junk)) {
+                return;
+            }
+
+            $folder = epesi_sso_folders::junk_folder(
+                (array) $storage->list_folders('', '*', 'mail', null, true),
+                (string) $storage->get_hierarchy_delimiter(),
+            );
+
+            if ($folder === null) {
+                // In the personal namespace ("INBOX." on Courier).
+                $folder = (string) $storage->get_namespace('prefix_in').'Junk';
+
+                if (! $storage->create_folder($folder, true)) {
+                    return;
+                }
+            } else {
+                $storage->subscribe([$folder]);
+            }
+
+            $rcmail->user->save_prefs(['junk_mbox' => $folder]);
+            $rcmail->config->set('junk_mbox', $folder);
+        } catch (Throwable $e) {
+            // Mark as junk then reports that the folder is missing; the mailbox still opens.
+        }
+    }
+
+    /**
+     * identity_create only runs for a brand-new Roundcube user, so a signature
+     * edited later in Epesi never reached an existing identity. On every
+     * ticket login, push the account's signature into the default identity.
+     */
+    protected function syncSignature($rcmail): void
+    {
+        $signature = (string) ($this->login['signature'] ?? '');
+        $name = (string) ($this->login['name'] ?? '');
+        $user = $rcmail->user;
+
+        if (! $user) {
+            return;
+        }
+
+        $identity = $user->get_identity();
+
+        if (! $identity) {
+            return;
+        }
+
+        $changes = [];
+
+        if ($signature !== '' && (string) $identity['signature'] !== $signature) {
+            $changes += ['signature' => $signature, 'html_signature' => 1];
+        }
+
+        // The Roundcube user is shared by everyone who opens the same mailbox,
+        // and its identity was named after whoever opened it first. The
+        // account's "Sender name" (or else the current user) wins on every
+        // login, so each person's mail goes out under the right name.
+        if ($name !== '' && (string) $identity['name'] !== $name) {
+            $changes['name'] = $name;
+        }
+
+        if ($changes) {
+            $user->update_identity($identity['identity_id'], $changes);
+        }
     }
 
     /** The first identity carries the account's signature from Epesi. */

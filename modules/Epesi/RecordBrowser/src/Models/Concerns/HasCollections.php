@@ -184,8 +184,14 @@ trait HasCollections
 
                 $id = is_numeric($data['id'] ?? null) ? (int) $data['id'] : null;
 
+                $repeated = $id !== null && $existing->has($id) && ! isset($kept[$id])
+                    ? null
+                    : $existing->first(fn (CollectionItem $saved): bool => ! isset($kept[(int) $saved->getKey()]) && $saved->isRepeatedBy($values));
+
                 if ($id !== null && $existing->has($id) && ! isset($kept[$id])) {
                     $item = $existing->get($id);
+                } elseif ($repeated !== null) {
+                    $item = $repeated;
                 } else {
                     $item->forceFill([
                         'owner_type' => $this->getMorphClass(),

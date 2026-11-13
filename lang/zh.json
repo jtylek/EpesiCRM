@@ -57,7 +57,7 @@
     "Done": "完成",
     "Duration": "持续时间",
     "E-mail": "邮件",
-    "E-mail configuration test": "邮件配置测试",
+    "E-mail configuration test": "电子邮件配置测试",
     "E-mail was sent successfully": "邮件成功发送",
     "Edit": "编辑",
     "Email": "邮件",
@@ -176,5 +176,15 @@
     "Web Address": "网站网址",
     "Web address": "网站网址",
     "Work Phone": "工作号码",
-    "Work phone": "工作号码"
+    "Work phone": "工作号码",
+    "Dear Epesi User,": "尊敬的 Epesi 用户：",
+    "Your Epesi team": "您的 Epesi 团队",
+    "Sent from Administration → Mail server settings.": "此邮件由“管理”→“邮件服务器设置”发送。",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "此密码重置链接将在 :count 小时后失效。",
+    "This password reset link will expire in :count minutes.": "此密码重置链接将在 :count 分钟后失效。",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "如果您收到了这封邮件，说明 :url 的邮件服务器配置运行正常。",
+    "Reset Password Notification": "密码重置通知",
+    "You are receiving this email because we received a password reset request for your account.": "您收到此邮件是因为我们收到了针对您账户的密码重置请求。",
+    "Reset Password": "重置密码",
+    "If you did not request a password reset, no further action is required.": "如果您未申请重置密码，则无需采取任何进一步操作。"
 }

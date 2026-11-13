@@ -57,7 +57,7 @@
     "Done": "Готово",
     "Duration": "Продолжительность",
     "E-mail": "Эл.почта",
-    "E-mail configuration test": "Проверка конфигурации электронной почты",
+    "E-mail configuration test": "Проверка настроек электронной почты",
     "E-mail was sent successfully": "Письмо успешно отправлено",
     "Edit": "Редактировать",
     "Email": "Эл.почта",
@@ -176,5 +176,15 @@
     "Web Address": "Паспортные данные",
     "Web address": "Паспортные данные",
     "Work Phone": "Рабочий телефон",
-    "Work phone": "Рабочий телефон"
+    "Work phone": "Рабочий телефон",
+    "Dear Epesi User,": "Уважаемый пользователь Epesi,",
+    "Your Epesi team": "Команда Epesi",
+    "Sent from Administration → Mail server settings.": "Отправлено из раздела «Администрирование» → «Настройки почтового сервера».",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "Срок действия этой ссылки для сброса пароля истечет через :count час.|Срок действия этой ссылки для сброса пароля истечет через :count часа.|Срок действия этой ссылки для сброса пароля истечет через :count часов.",
+    "This password reset link will expire in :count minutes.": "Срок действия этой ссылки для сброса пароля истечет через :count минут.",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "Если вы читаете это сообщение, значит, настройки вашего почтового сервера по адресу :url работают правильно.",
+    "Reset Password Notification": "Уведомление о сбросе пароля",
+    "You are receiving this email because we received a password reset request for your account.": "Вы получили это письмо, поскольку мы получили запрос на сброс пароля для вашей учетной записи.",
+    "Reset Password": "Сбросить пароль",
+    "If you did not request a password reset, no further action is required.": "Если вы не запрашивали сброс пароля, никаких дальнейших действий не требуется."
 }

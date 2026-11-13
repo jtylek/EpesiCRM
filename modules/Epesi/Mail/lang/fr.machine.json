@@ -1,14 +1,25 @@
 {
+    "Autodetect Spam folder": "Détecter automatiquement le dossier Spam",
     "Checking failed": "Échec de la vérification",
     "checking…": "Vérification en cours…",
     "Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.": "« Se connecter » vous redirige vers le fournisseur d'accès pour que vous puissiez vous connecter à cette boîte mail et autoriser epesi à l'utiliser.",
     "Connect the account again": "Reconnectez le compte",
     "Connected as :account": "Connecté en tant que :account",
+    "Delete account": "Supprimer le compte",
+    "Found automatically": "Trouvé automatiquement",
     "Google (OAuth2)": "Google (OAuth2)",
     "Last checked": "Dernière vérification",
     "Microsoft 365 (OAuth2)": "Microsoft 365 (OAuth2)",
+    "No spam folder found": "Aucun dossier spam trouvé",
     "Not connected yet": "Pas encore connecté",
+    "Save changes": "Enregistrer les modifications",
+    "Save the account to keep it.": "Enregistrez le compte pour le conserver.",
     "Save the account, then connect it (:method).": "Enregistrez le compte, puis connectez-le (:method).",
     "Sign in with": "Se connecter avec",
-    "the mail account :name": "le compte de messagerie :name"
+    "Spam folder": "Dossier spam",
+    "Spam folder found: :folder": "Dossier spam trouvé : :folder",
+    "the mail account :name": "le compte de messagerie :name",
+    "Type the name of the folder your mail server keeps spam in, under Spam folder.": "Saisissez le nom du dossier dans lequel votre serveur de messagerie place le spam, sous Dossier spam.",
+    "Type the name of the folder your mail server keeps spam in.": "Saisissez le nom du dossier dans lequel votre serveur de messagerie place le spam.",
+    "Where \"Junk\" in the Mailbox moves messages. Leave it empty to find it automatically, or type the folder name if it isn't found.": "Destination des messages déplacés vers « Junk » dans la boîte aux lettres. Laissez vide pour le détecter automatiquement, ou saisissez le nom du dossier s'il n'est pas trouvé."
 }

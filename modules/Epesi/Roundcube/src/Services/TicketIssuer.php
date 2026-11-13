@@ -89,6 +89,8 @@ class TicketIssuer
             'signature' => (string) $account->signature,
             'global_signature' => (string) config('epesi-mail.global_signature'),
             'archive_folder' => (string) $account->archive_folder,
+            // Mark as junk's folder; empty: epesi_sso finds it at login.
+            'junk_folder' => (string) $account->junk_folder,
             'archive_on_sending' => (bool) $account->archive_on_sending,
             // For the CRM address book's visibility rule.
             'sees_all' => $user->hasAnyRole(['super_admin', 'manager']),
@@ -101,7 +103,6 @@ class TicketIssuer
                 'archive' => __('Archive'),
                 'archive_title' => __('Archive to the CRM'),
                 'archive_sent_title' => __('Archive this message after sending'),
-                'contact_not_found' => __('Matching contact or company not found. Click again to force archive without contact association.'),
                 'too_many' => __('Select at most :count messages to archive at once'),
                 'invalid_folder' => __('Cannot move to archive from this folder'),
                 'login_refused' => __('Your mail server refused the login. Check this account under Settings > Mail accounts.'),

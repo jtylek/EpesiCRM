@@ -28,7 +28,7 @@ use UnitEnum;
 
 /**
  * The one Administration → Data → Recordsets entry. It only opens a recordset:
- * everything about one is managed on its ViewRecordset page.
+ * everything about one is managed on its recordset tabs (RecordsetPage).
  */
 class Recordsets extends Page implements HasTable
 {
@@ -72,7 +72,7 @@ class Recordsets extends Page implements HasTable
                 TextColumn::make('module')->label(__('Module')),
                 TextColumn::make('modules')->label(__('Enabled features'))->placeholder('-'),
             ])
-            ->recordUrl(fn (array $record): string => ViewRecordset::getUrl(['alias' => $record['__key']]))
+            ->recordUrl(fn (array $record): string => RecordsetFields::getUrl(['alias' => $record['__key']]))
             ->recordActions([$this->viewAction()], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([])
             ->paginated(false);
@@ -83,8 +83,10 @@ class Recordsets extends Page implements HasTable
         return Action::make('view')
             ->label('View')
             ->icon(Heroicon::OutlinedEye)
-            ->color('gray')
-            ->url(fn (array $record): string => ViewRecordset::getUrl(['alias' => $record['__key']]));
+            ->iconButton()
+            ->tooltip(__('View'))
+            ->color('primary')
+            ->url(fn (array $record): string => RecordsetFields::getUrl(['alias' => $record['__key']]));
     }
 
     /**
@@ -104,7 +106,7 @@ class Recordsets extends Page implements HasTable
                     'size' => IconSize::Medium,
                 ])->render()
             ),
-            ViewRecordset::getUrl(['alias' => $alias]) => static::recordsets()[$alias] ?? $alias,
+            RecordsetFields::getUrl(['alias' => $alias]) => static::recordsets()[$alias] ?? $alias,
         ];
     }
 

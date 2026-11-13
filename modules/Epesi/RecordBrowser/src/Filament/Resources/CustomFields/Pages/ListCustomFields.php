@@ -2,13 +2,11 @@
 
 namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages;
 
-use App\Support\Demo;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldSchema;
 use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource;
-use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
@@ -19,6 +17,7 @@ use Livewire\Attributes\Locked;
 class ListCustomFields extends ListRecords
 {
     use LeadsBackToRecordset;
+    use ReordersFields;
 
     protected static string $resource = CustomFieldResource::class;
 
@@ -51,30 +50,6 @@ class ListCustomFields extends ListRecords
     protected function breadcrumbRecordset(): ?string
     {
         return $this->recordset;
-    }
-
-    /** The recordset the list is on: the one it was opened from, or the filter's choice. */
-    public function selectedRecordset(): ?string
-    {
-        return $this->recordset ?? ($this->tableFilters['model_type']['value'] ?? null);
-    }
-
-    public function canReorderFields(): bool
-    {
-        $alias = $this->selectedRecordset();
-
-        return ! Demo::enabled() && filled($alias)
-            && blank($this->tableFilters['origin']['value'] ?? null)
-            && blank($this->getTableSearch())
-            && app(FieldOverrides::class)->canReorder($alias);
-    }
-
-    public function reorderTable(array $order, int|string|null $draggedRecordKey = null): void
-    {
-        app(FieldOverrides::class)->authorize();
-        abort_unless($this->canReorderFields() && $this->isTableReordering(), 403);
-        app(FieldOverrides::class)->reorder($this->selectedRecordset(), $order);
-        $this->flushCachedTableRecords();
     }
 
     protected function getHeaderActions(): array

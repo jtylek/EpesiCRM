@@ -37,7 +37,7 @@ class PlainBody
 {
     public static function sanitize(string $html): string
     {
-        $html = static::sanitizer()->sanitize($html);
+        $html = static::sanitizer()->sanitize(static::stripDocumentWrapper($html));
 
         // Blocking a layout table/div (see below) still serializes its
         // original indentation as whitespace text nodes — harmless in
@@ -48,6 +48,36 @@ class PlainBody
         // (an "Invalid or unexpected token" error, and an empty body).
         // Collapsing it to single spaces keeps the same visible text.
         return trim((string) preg_replace('/\s+/', ' ', $html));
+    }
+
+    /**
+     * Strips a literal `<!DOCTYPE>`, `<html>`/`</html>` and `<body>`/`</body>`
+     * (keeping what is between them) and `<head>…</head>` (tag and content,
+     * since a stray `<title>`/`<style>`/`<meta>` has no business in the
+     * visible body): the body.blade.php iframe already supplies its own
+     * document, so a sender's own ones are redundant at best.
+     *
+     * On PHP < 8.4, symfony/html-sanitizer falls back to the deprecated
+     * `MastermindsParser` (masterminds/html5), whose fragment parser — at
+     * least under the libxml bundled with PHP 8.3 on crm.vikingimporting.com's
+     * host — silently drops everything inside a literal `<body>` (or even a
+     * bare `<html>`) element instead of unwrapping it, which emptied the
+     * message body entirely for any HTML e-mail built as a full document
+     * (plain `<body>…</body>` content from a legacy import, or Outlook's
+     * `<html xmlns:o="...">`). `NativeParser` (PHP 8.4+, not used here) and
+     * every e-mail composed as a bare fragment were unaffected, which is why
+     * this went unnoticed: found via crm.vikingimporting.com's mail #549 and
+     * #82048, reproduced locally only by forcing MastermindsParser. Stripping
+     * the wrapper tags before the sanitizer sees them sidesteps the parser
+     * bug outright, on every PHP version, so the fix doesn't depend on
+     * chasing it upstream or on this host's PHP/libxml versions.
+     */
+    protected static function stripDocumentWrapper(string $html): string
+    {
+        $html = preg_replace('/<!DOCTYPE[^>]*>/i', '', $html) ?? $html;
+        $html = preg_replace('#<head\b[^>]*>.*?</head>#is', '', $html) ?? $html;
+
+        return preg_replace('#</?(?:html|body)\b[^>]*>#i', '', $html) ?? $html;
     }
 
     protected static function sanitizer(): HtmlSanitizer

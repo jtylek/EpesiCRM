@@ -13,8 +13,8 @@ use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
@@ -182,8 +182,29 @@ class EmailAddressesTest extends TestCase
         $this->assertSame('ann@work.test', EmailAddress::query()->where('value', 'ann@work.test')->sole()->live_value);
 
         $bob = Contact::create(['last_name' => 'Brown', 'first_name' => 'Bob']);
-        $this->expectException(QueryException::class);
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Anders');
         $bob->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@work.test']]);
+    }
+
+    public function test_a_save_sent_twice_keeps_one_row_for_the_new_address(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $maria = Contact::create(['last_name' => 'Dahl', 'first_name' => 'Maria']);
+        $maria->syncCollection('emails', [['kind' => 'work', 'value' => 'maria.dahl@x.test']]);
+        $firstId = $maria->emails()->sole()->id;
+
+        // The form's state as it was posted: the saved address, plus a new one with no id.
+        $posted = [
+            ['id' => $firstId, 'kind' => 'work', 'value' => 'maria.dahl@x.test'],
+            ['kind' => 'work', 'value' => 'Maria@x.test'],
+        ];
+
+        $maria->syncCollection('emails', $posted);
+        $maria->syncCollection('emails', $posted);
+
+        $this->assertSame(['maria.dahl@x.test', 'maria@x.test'], $maria->emails()->orderBy('position')->pluck('value')->all());
     }
 
     public function test_restore_leaves_an_address_taken_meanwhile_and_history_shows_it_gone(): void

@@ -57,7 +57,7 @@
     "Done": "完了",
     "Duration": "期間",
     "E-mail": "Eメール",
-    "E-mail configuration test": "Eメール設定テスト",
+    "E-mail configuration test": "メール設定のテスト",
     "E-mail was sent successfully": "Eメールは送信は成功しました",
     "Edit": "編集",
     "Email": "Eメール",
@@ -176,5 +176,15 @@
     "Web Address": "Webアドレス",
     "Web address": "Webアドレス",
     "Work Phone": "仕事電話",
-    "Work phone": "仕事電話"
+    "Work phone": "仕事電話",
+    "Dear Epesi User,": "Epesiをご利用の皆様へ",
+    "Your Epesi team": "Epesi チーム",
+    "Sent from Administration → Mail server settings.": "「管理」→「メールサーバー設定」から送信されました。",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "このパスワード再設定リンクの有効期限は、あと :count 時間です。",
+    "This password reset link will expire in :count minutes.": "このパスワード再設定リンクの有効期限は、あと :count 分です。",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "このメッセージが表示されている場合、:url のメールサーバー設定は正常に機能しています。",
+    "Reset Password Notification": "パスワード再設定のお知らせ",
+    "You are receiving this email because we received a password reset request for your account.": "このメールは、お客様のアカウントに対してパスワード再設定のリクエストが送信されたため、お送りしたものです。",
+    "Reset Password": "パスワードを再設定する",
+    "If you did not request a password reset, no further action is required.": "パスワードの再設定をリクエストしていない場合は、特に何もする必要はありません。"
 }

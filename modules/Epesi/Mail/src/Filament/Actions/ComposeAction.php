@@ -51,7 +51,7 @@ class ComposeAction
             'about' => $record ? $record->getMorphClass().':'.$record->getKey() : null,
             'source' => $source?->getKey(),
             'to' => $to,
-        ]));
+        ]), panel: 'main'); // composing lives on the main panel, also for lists shown in another (Administration)
     }
 
     /**

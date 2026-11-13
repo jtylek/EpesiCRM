@@ -6,6 +6,7 @@ use App\Console\Commands\CheckModule;
 use Epesi\Modules\RecordBrowser\Console\CustomFieldsSyncCommand;
 use Epesi\Modules\RecordBrowser\Console\MakeRecordsetCommand;
 use Epesi\Modules\RecordBrowser\Console\RecordsetCheckCommand;
+use Epesi\Modules\RecordBrowser\Filament\Administration\RecordInAdministration;
 use Epesi\Modules\RecordBrowser\Filament\Pages\CreateRecord;
 use Epesi\Modules\RecordBrowser\Filament\Pages\EditRecord;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
@@ -79,6 +80,10 @@ class RecordBrowserServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-recordbrowser');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
+        // A record's View page under Administration → Recordsets: its Livewire
+        // requests are checked and run as the main panel the same way as its page.
+        Livewire::addPersistentMiddleware([RecordInAdministration::class]);
+
         // Whatever an addon's action or a View-page action changes, the View
         // page recounts the badges on its tabs (ViewRecord::withCountBadge()).
         Event::listen(ActionCalled::class, function (Action $action): void {
@@ -115,6 +120,16 @@ class RecordBrowserServiceProvider extends ServiceProvider
             TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE,
             fn (): ?View => ($page = Livewire::current()) instanceof ListRecords && $page->getCachedTabs() !== []
                 ? view('epesi-recordbrowser::browse-tabs', ['tabs' => $page->getCachedTabs(), 'activeTab' => $page->activeTab])
+                : null,
+        );
+
+        // Selects a list page adds of its own (ListRecords::getToolbarSelects()).
+        FilamentView::registerRenderHook(
+            TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE,
+            fn (): ?HtmlString => ($page = Livewire::current()) instanceof ListRecords && ($selects = $page->getToolbarSelects()) !== []
+                ? new HtmlString(collect($selects)
+                    ->map(fn (array $select): string => view('epesi-recordbrowser::toolbar-select', ['select' => $select])->render())
+                    ->implode(''))
                 : null,
         );
 

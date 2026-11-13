@@ -2,6 +2,7 @@
 
 namespace Tests\Fakes;
 
+use Epesi\Modules\Mail\Services\Imap\JunkFolder;
 use Epesi\Modules\Mail\Services\Imap\Mailbox;
 
 /** An in-memory IMAP server: folder => [uid => raw message]. */
@@ -18,6 +19,24 @@ class FakeMailbox implements Mailbox
     public function folders(): array
     {
         return array_keys($this->messages);
+    }
+
+    /** @var array<string, array<int, string>> folder => its LIST flags, for junkFolder() */
+    public array $flags = [];
+
+    public function junkFolder(): ?string
+    {
+        if ($this->failing) {
+            throw new \RuntimeException('connection refused');
+        }
+
+        $list = [];
+
+        foreach ($this->folders() as $folder) {
+            $list[$folder] = ['delimiter' => '/', 'flags' => $this->flags[$folder] ?? []];
+        }
+
+        return JunkFolder::pick($list);
     }
 
     public function open(string $folder): int

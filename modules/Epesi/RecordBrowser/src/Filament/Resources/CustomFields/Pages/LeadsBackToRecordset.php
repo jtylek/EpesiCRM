@@ -21,9 +21,14 @@ trait LeadsBackToRecordset
             return parent::getResourceBreadcrumbs();
         }
 
-        return [
-            ...Recordsets::breadcrumbsFor($alias),
-            CustomFieldResource::fieldsUrl($alias) => __('Fields'),
-        ];
+        $breadcrumbs = Recordsets::breadcrumbsFor($alias);
+        $fields = CustomFieldResource::fieldsUrl($alias);
+
+        // Fields is the recordset page's default tab, so it may share the recordset's crumb.
+        if (! array_key_exists($fields, $breadcrumbs)) {
+            $breadcrumbs[$fields] = __('Fields');
+        }
+
+        return $breadcrumbs;
     }
 }

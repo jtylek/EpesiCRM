@@ -1,0 +1,17 @@
+{
+    "id": "epesi/activity-report",
+    "name": "Activity Report",
+    "description": "Who created, changed, deleted or attached what, and when. Port of Epesi's Apps/ActivityReport.",
+    "version": "1.0.0",
+    "epesi_core": "^3.0",
+    "category": "Core",
+    "icon": "heroicon-o-clipboard-document-list",
+    "namespace": "Epesi\\Modules\\ActivityReport\\",
+    "path": "Epesi/ActivityReport",
+    "provider_class": "Epesi\\Modules\\ActivityReport\\ActivityReportServiceProvider",
+    "plugin_class": "Epesi\\Modules\\ActivityReport\\ActivityReportPlugin",
+    "panels": ["main"],
+    "core": true,
+    "requires": ["epesi/recordbrowser", "epesi/attachments", "epesi/crm-contacts"],
+    "provides": []
+}

@@ -5,6 +5,7 @@ namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields;
 use App\Filament\Concerns\TranslatesResourceLabels;
 use App\Support\Demo;
 use BackedEnum;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetFields;
 use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\CreateCustomField;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\EditCustomField;
@@ -74,13 +75,13 @@ class CustomFieldResource extends Resource
     }
 
     /**
-     * The field list of one recordset, or of all of them for a type that has
-     * no page under Recordsets (a collection's item type).
+     * The field list of one recordset (the Fields tab of its page), or of all of
+     * them for a type that has no page under Recordsets (a collection's item type).
      */
     public static function fieldsUrl(string $alias): string
     {
         return array_key_exists($alias, Recordsets::recordsets())
-            ? static::getUrl('index', ['recordset' => $alias])
+            ? RecordsetFields::getUrl(['alias' => $alias])
             : static::getUrl('index');
     }
 

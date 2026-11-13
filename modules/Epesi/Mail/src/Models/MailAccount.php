@@ -61,6 +61,7 @@ class MailAccount extends Model implements OAuthOwner, OAuthRecipients
         'archive_on_sending',
         'save_to_sent',
         'sent_folder',
+        'junk_folder',
         'archive_folder',
         'signature',
         'last_checked_at',

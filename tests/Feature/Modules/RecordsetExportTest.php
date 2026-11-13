@@ -6,7 +6,7 @@ use App\Enums\RecordPermission;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\CompanyResource;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\ListCompanies;
 use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetSettings;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
 use Epesi\Modules\RecordBrowser\Recordset\ExportGrants;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
@@ -70,12 +70,12 @@ class RecordsetExportTest extends TestCase
         $this->assertSame([$role->id], ExportGrants::rolesFor('contact'), 'role grants stay');
     }
 
-    public function test_the_recordset_page_offers_export_to_roles_only(): void
+    public function test_the_settings_tab_offers_export_to_roles_only(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetSettings::class, ['alias' => 'company'])
             ->assertFormFieldExists('export_roles')
             ->assertFormFieldDoesNotExist('export_users');
     }
@@ -88,7 +88,7 @@ class RecordsetExportTest extends TestCase
         Livewire::test(ListCompanies::class)->call('exportRecordset')->assertForbidden();
     }
 
-    public function test_administrator_can_grant_export_on_one_recordset_from_its_detail_page(): void
+    public function test_administrator_can_grant_export_on_one_recordset_from_its_settings_tab(): void
     {
         $admin = $this->userWithRole('super_admin');
         $employee = $this->userWithRole('employee');
@@ -96,7 +96,7 @@ class RecordsetExportTest extends TestCase
         $this->actingAs($admin);
         Filament::setCurrentPanel('administration');
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetSettings::class, ['alias' => 'company'])
             ->fillForm(['features' => ['export'], 'export_roles' => [$role->id]])
             ->call('save')
             ->assertHasNoFormErrors();

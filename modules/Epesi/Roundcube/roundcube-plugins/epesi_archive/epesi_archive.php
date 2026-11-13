@@ -6,10 +6,10 @@ require_once __DIR__.'/epesi_archive_matcher.php';
  * Files mail into Epesi's archive — the port of Epesi's epesi_archive plugin.
  *
  * The Archive button first asks this plugin (plugin.epesi_archive) whether
- * each selected message is already archived, and whether its From, To or Cc
- * belongs to a contact or company. If one doesn't, it warns once, as Epesi
- * did: clicking Archive again archives it anyway. Then it hands the folder
- * and UIDs to the Mailbox page around this frame, which archives each message
+ * each selected message is already archived, and reads the others' From and
+ * To. Then it hands the folder, UIDs and those addresses to the Mailbox page
+ * around this frame, which asks about senders not in the CRM ("Sender not in
+ * Contacts", in place of Epesi's click-again warning), archives each message
  * from that folder (MailFetcher::archiveFrom(), MailArchiver: links,
  * threads, attachments into file storage, de-duplication), moves the
  * archived ones into the account's archive folder, and tells this frame to
@@ -118,10 +118,11 @@ class epesi_archive extends rcube_plugin
      *    check: it goes on as it is. The archive keeps one copy; the Mailbox
      *    page links it to whoever archives it, moves it and says "Message
      *    already archived".
-     * 2. A message that would be linked to no contact or company is held back
-     *    once with a warning; the next click archives it anyway.
-     * 3. The rest go to the Mailbox page, which archives them and then
-     *    moves them to the archive folder.
+     * 2. For the rest, each message's From and To go along: the Mailbox page
+     *    asks about a sender (or the recipients of your own message) that no
+     *    contact or company has, before archiving ("Sender not in Contacts").
+     * 3. The Mailbox page archives them and then moves them to the archive
+     *    folder.
      */
     public function check_and_move()
     {
@@ -151,47 +152,26 @@ class epesi_archive extends rcube_plugin
         }
 
         $move = [];
-        $unmatched = [];
+        $parties = [];
 
         foreach ($storage->fetch_headers($mbox, $list, false) as $header) {
-            if (epesi_archive_matcher::archived([(string) $header->messageID], $selectOne) !== []) {
-                $move[] = $header->uid;
+            $move[] = $header->uid;
 
+            if (epesi_archive_matcher::archived([(string) $header->messageID], $selectOne) !== []) {
                 continue;
             }
 
-            $emails = [];
-
-            foreach ([$header->from, $header->to, $header->cc] as $field) {
-                foreach (rcube_mime::decode_address_list((string) $field, null, true, $header->charset) as $address) {
-                    $emails[] = (string) ($address['mailto'] ?? '');
-                }
-            }
-
-            if (! epesi_archive_matcher::found($emails, $selectOne)) {
-                $unmatched[] = $mbox.'/'.$header->uid;
-            }
-
-            $move[] = $header->uid;
+            $parties[] = [
+                'from' => epesi_archive_matcher::addresses((string) $header->from, $header->charset),
+                'to' => epesi_archive_matcher::addresses((string) $header->to, $header->charset),
+            ];
         }
-
-        // Epesi's force_archive: a message warned about once is archived on
-        // the next click. All of a selection's strays share one warning.
-        $warned = (array) ($_SESSION['epesi_archive_warned'] ?? []);
-
-        if (array_diff($unmatched, $warned) !== []) {
-            $_SESSION['epesi_archive_warned'] = array_values(array_unique([...$warned, ...$unmatched]));
-            $rcmail->output->show_message($this->label('contact_not_found',
-                'Matching contact or company not found. Click again to force archive without contact association.'), 'warning', null, true, 10);
-            $rcmail->output->send();
-        }
-
-        $_SESSION['epesi_archive_warned'] = array_values(array_diff($warned, $unmatched));
 
         if ($move !== []) {
-            // Epesi archives them from this folder, then moves them to the
-            // archive folder, and tells this page to refresh.
-            $rcmail->output->command('plugin.epesi_archive_go', ['folder' => $mbox, 'uids' => array_map('intval', $move)]);
+            // Epesi asks about any sender (or recipient) not in the CRM,
+            // archives them from this folder, then moves them to the archive
+            // folder, and tells this page to refresh.
+            $rcmail->output->command('plugin.epesi_archive_go', ['folder' => $mbox, 'uids' => array_map('intval', $move), 'parties' => $parties]);
         }
 
         $rcmail->output->send();

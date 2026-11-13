@@ -633,6 +633,36 @@ class MailTest extends TestCase
         );
     }
 
+    /**
+     * A full HTML document (DOCTYPE, <html>, <head>, <body>) — an Outlook
+     * message, or an old legacy-imported one that literally kept its <body>
+     * tag — must display the same as a bare fragment. On PHP < 8.4 (this
+     * repo's production host), symfony/html-sanitizer's deprecated
+     * MastermindsParser silently drops everything inside a literal <body>
+     * element under some libxml versions, which emptied the body entirely;
+     * PlainBody strips the wrapper tags first so the parser never sees them.
+     */
+    public function test_a_full_html_document_body_displays_like_a_bare_fragment(): void
+    {
+        $wrapped = Mail::create([
+            'subject' => 'Full document',
+            'body_html' => "<!DOCTYPE html>\n<html xmlns:o=\"urn:schemas-microsoft-com:office:office\"><head><title>X</title>"
+                .'<style>body{color:red}</style></head><body><p>Hello</p><p>World</p></body></html>',
+            'direction' => Mail::INCOMING,
+            'date' => now(),
+        ]);
+        $bare = Mail::create([
+            'subject' => 'Bare fragment',
+            'body_html' => '<p>Hello</p><p>World</p>',
+            'direction' => Mail::INCOMING,
+            'date' => now(),
+        ]);
+
+        $this->assertSame($bare->displayHtml(), $wrapped->displayHtml());
+        $this->assertStringContainsString('Hello', $wrapped->displayHtml());
+        $this->assertStringNotContainsString('color:red', $wrapped->displayHtml());
+    }
+
     public function test_a_mailto_link_in_the_body_opens_compose_instead_of_the_system_mail_client(): void
     {
         $this->account();

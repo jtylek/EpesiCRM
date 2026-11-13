@@ -19,3 +19,106 @@
         row-gap: 1rem;
     }
 }
+/* Origin filter, Reorder fields and Add custom field share one line; filters apply on change. */
+.epesi-recordset-catalogue .fi-ta-header-ctn {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1rem;
+}
+
+.epesi-recordset-catalogue .fi-ta-filters-above-content-ctn {
+    order: 1;
+    flex: 0 0 auto;
+    min-width: 12rem;
+}
+
+.epesi-recordset-catalogue .fi-ta-filters {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.epesi-recordset-catalogue .fi-ta-header {
+    order: 2;
+    padding: 0;
+    margin: 0;
+}
+
+.epesi-recordset-catalogue .fi-ta-header-toolbar {
+    order: 3;
+    flex: 1 1 0;
+    margin: 0;
+}
+
+/* The filter's label sits beside its select, not above it. */
+.epesi-recordset-catalogue .fi-ta-filters .fi-fo-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.epesi-recordset-catalogue .fi-ta-filters .fi-fo-field-label-col,
+.epesi-recordset-catalogue .fi-ta-filters .fi-fo-field-content-col {
+    width: auto;
+}
+
+/* One divider under the whole row instead of one per part. */
+.epesi-recordset-catalogue .fi-ta-header-ctn {
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.dark .epesi-recordset-catalogue .fi-ta-header-ctn {
+    border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-filters-above-content-ctn,
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header,
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header-toolbar {
+    border-bottom-width: 0 !important;
+    padding-block: 0.75rem;
+}
+
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header-toolbar {
+    flex-wrap: nowrap;
+}
+
+/* Close the gaps between the filter and the buttons: only the row's gap separates them. */
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-filters-above-content-ctn {
+    min-width: 0;
+    padding-inline-end: 0;
+}
+
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-filters-above-content-ctn .fi-ta-filters {
+    padding: 0;
+    grid-template-columns: auto;
+}
+
+.epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header-toolbar {
+    padding-inline-start: 0;
+}
+
+.epesi-recordset-catalogue .fi-ta-header-ctn {
+    column-gap: 0.75rem;
+}
+
+/* compact-tables.css pads these parts with !important, so the gaps need !important too. */
+html .epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-filters-above-content-ctn {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    padding-inline-end: 0 !important;
+}
+
+html .epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-filters-above-content-ctn .fi-ta-filters {
+    flex-wrap: nowrap !important;
+    width: max-content;
+}
+
+html .epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header {
+    flex: 0 0 auto !important;
+    padding-inline: 0 !important;
+}
+
+html .epesi-recordset-catalogue .fi-ta-header-ctn > .fi-ta-header-toolbar {
+    padding-inline-start: 0 !important;
+}

@@ -124,7 +124,7 @@
         lock = rcmail.set_busy(true, 'loading');
         // Never stay busy if the page doesn't answer.
         timer = setTimeout(done, 120000);
-        tellEpesi({ epesiRoundcube: 'archive', folder: String(data.folder), uids: data.uids || [] });
+        tellEpesi({ epesiRoundcube: 'archive', folder: String(data.folder), uids: data.uids || [], parties: data.parties || [] });
     });
 
     window.addEventListener('message', function (event) {

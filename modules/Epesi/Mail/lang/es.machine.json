@@ -1,14 +1,25 @@
 {
+    "Autodetect Spam folder": "Detectar automáticamente la carpeta de spam",
     "Checking failed": "Error al comprobar",
     "checking…": "Comprobando…",
     "Connect sends you to the provider to sign in to this mailbox and allow epesi to use it.": "«Conectar» te redirige al proveedor para que inicies sesión en este buzón de correo y permitas que epesi lo utilice.",
     "Connect the account again": "Vuelve a conectar la cuenta",
     "Connected as :account": "Conectado como :account",
+    "Delete account": "Eliminar cuenta",
+    "Found automatically": "Encontrada automáticamente",
     "Google (OAuth2)": "Google (OAuth2)",
     "Last checked": "Última revisión",
     "Microsoft 365 (OAuth2)": "Microsoft 365 (OAuth2)",
+    "No spam folder found": "No se encontró ninguna carpeta de spam",
     "Not connected yet": "Aún no estás conectado",
+    "Save changes": "Guardar cambios",
+    "Save the account to keep it.": "Guarde la cuenta para conservarla.",
     "Save the account, then connect it (:method).": "Guarda la cuenta y, a continuación, conéctala (:method).",
     "Sign in with": "Inicia sesión con",
-    "the mail account :name": "la cuenta de correo :name"
+    "Spam folder": "Carpeta de spam",
+    "Spam folder found: :folder": "Carpeta de spam encontrada: :folder",
+    "the mail account :name": "la cuenta de correo :name",
+    "Type the name of the folder your mail server keeps spam in, under Spam folder.": "Escriba en Carpeta de spam el nombre de la carpeta en la que su servidor de correo guarda el spam.",
+    "Type the name of the folder your mail server keeps spam in.": "Escriba el nombre de la carpeta en la que su servidor de correo guarda el spam.",
+    "Where \"Junk\" in the Mailbox moves messages. Leave it empty to find it automatically, or type the folder name if it isn't found.": "Donde \"Junk\" en el buzón mueve los mensajes. Déjelo vacío para encontrarla automáticamente, o escriba el nombre de la carpeta si no se encuentra."
 }

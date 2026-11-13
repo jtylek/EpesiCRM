@@ -8,11 +8,15 @@ use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 /**
  * An e-mail address, as a collection item: a contact's or a company's own
@@ -56,6 +60,32 @@ class EmailAddress extends CollectionItem
                 $address->verified_at = null;
             }
         });
+    }
+
+    /**
+     * The form's rule (uniqueRule()) runs before the save, so two saves racing
+     * (a double click) can both pass it; the unique index then refuses the
+     * second. That is the same "already used" answer, not a server error.
+     */
+    protected function performInsert(Builder $query)
+    {
+        try {
+            return parent::performInsert($query);
+        } catch (UniqueConstraintViolationException) {
+            // The owner is not saved yet when this runs, so the holder is the other record.
+            $message = static::conflictMessage((string) $this->live_value, null)
+                ?? __('This address is already used by another record.');
+
+            Notification::make()->title($message)->danger()->send();
+
+            throw ValidationException::withMessages(['data.emails' => $message]);
+        }
+    }
+
+    /** An address is held once: the same one posted again is the item already saved. */
+    public function isRepeatedBy(array $values): bool
+    {
+        return mb_strtolower(trim((string) ($values['value'] ?? ''))) === mb_strtolower(trim((string) $this->value));
     }
 
     protected function casts(): array
@@ -225,21 +255,31 @@ class EmailAddress extends CollectionItem
                 return;
             }
 
-            $conflict = static::query()
-                ->when($get('id'), fn ($query, $id) => $query->whereKeyNot($id))
-                ->whereRaw('LOWER(live_value) = ?', [$value])
-                ->with('owner')
-                ->first();
+            $message = static::conflictMessage($value, $get('id') ?: null);
 
-            if ($conflict === null) {
-                return;
+            if ($message !== null) {
+                $fail($message);
             }
-
-            $owner = $conflict->owner;
-
-            $fail($owner instanceof Model
-                ? __('This address is already used by :record.', ['record' => LinkedRecords::title($owner)])
-                : __('This address is already used by another record.'));
         };
+    }
+
+    /** Names the record that holds the address, or null when nobody does. */
+    protected static function conflictMessage(string $value, int|string|null $exceptId): ?string
+    {
+        $conflict = static::query()
+            ->when($exceptId, fn ($query, $id) => $query->whereKeyNot($id))
+            ->whereRaw('LOWER(live_value) = ?', [$value])
+            ->with('owner')
+            ->first();
+
+        if ($conflict === null) {
+            return null;
+        }
+
+        $owner = $conflict->owner;
+
+        return $owner instanceof Model
+            ? __('This address is already used by :record.', ['record' => LinkedRecords::title($owner)])
+            : __('This address is already used by another record.');
     }
 }

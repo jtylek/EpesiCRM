@@ -47,6 +47,22 @@ class RoundcubeConfigWriter
             'imap_conn_options' => $tls,
             'smtp_conn_options' => $tls,
 
+            // Roundcube caches nothing by default: every folder list and
+            // message list went back to the IMAP server (Gmail: 92 labels).
+            // Cache in the database, and give up on a dead server instead of
+            // hanging the page.
+            'imap_cache' => 'db',
+            'messages_cache' => true,
+            // Roundcube opens a new IMAP connection for every request, and each
+            // command is a round trip. ID (client identification) and QUOTA
+            // (a gauge Gmail fills with a meaningless number) are two of them.
+            'imap_disabled_caps' => ['ID', 'QUOTA'],
+            'check_all_folders' => false,
+            // The default polls every minute; each poll is an IMAP login.
+            'refresh_interval' => 300,
+            'imap_timeout' => 30,
+            'smtp_timeout' => 30,
+
             'des_key' => bin2hex(substr(Roundcube::key('des'), 0, 16)),
             'cipher_method' => 'AES-256-CBC',
             'epesi_sso_key' => bin2hex(Roundcube::key('sso')),

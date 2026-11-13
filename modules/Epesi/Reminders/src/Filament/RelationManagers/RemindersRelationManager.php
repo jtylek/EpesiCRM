@@ -23,6 +23,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -134,6 +135,7 @@ class RemindersRelationManager extends RelationManager
                 ->columnSpanFull(),
             Toggle::make('send_email')
                 ->label('Also send by e-mail')
+                ->extraFieldWrapperAttributes(['style' => 'padding-top: 0.75rem'])
                 ->columnSpanFull(),
         ]);
     }
@@ -179,6 +181,8 @@ class RemindersRelationManager extends RelationManager
                     ->label('New reminder')
                     ->icon(Heroicon::OutlinedPlus)
                     ->modalHeading(__('New reminder'))
+                    ->modalFooterActionsAlignment(Alignment::End)
+                    ->modalCancelAction(fn (Action $action): Action => $this->filledCancel($action))
                     ->mutateDataUsing(fn (array $data, Action $action): array => $this->toAttributes($data, $action)),
             ])
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
@@ -186,6 +190,13 @@ class RemindersRelationManager extends RelationManager
                 EditAction::make()
                     ->iconButton()
                     ->tooltip(__('Edit'))
+                    ->modalFooterActionsAlignment(Alignment::End)
+                    ->modalCancelAction(fn (Action $action): Action => $this->filledCancel($action))
+                    ->extraModalFooterActions(fn (EditAction $action): array => [
+                        DeleteAction::make('deleteFromModal')
+                            ->record($action->getRecord())
+                            ->cancelParentActions(),
+                    ])
                     ->mutateRecordDataUsing(fn (array $data, Reminder $record): array => $this->toFormData($data, $record))
                     ->mutateDataUsing(fn (array $data, Action $action): array => $this->toAttributes($data, $action)),
                 DeleteAction::make()->iconButton()->tooltip(__('Delete')),
@@ -193,6 +204,14 @@ class RemindersRelationManager extends RelationManager
             ->toolbarActions([])
             ->emptyStateHeading(__('No reminders'))
             ->emptyStateDescription(__('Add one to be reminded of this record at a chosen time.'));
+    }
+
+    /** The modal's Cancel button with a grey fill instead of Filament's outline. */
+    protected function filledCancel(Action $action): Action
+    {
+        return $action->color('gray')->extraAttributes([
+            'style' => 'background-color: light-dark(var(--gray-200), var(--gray-700))',
+        ]);
     }
 
     /**

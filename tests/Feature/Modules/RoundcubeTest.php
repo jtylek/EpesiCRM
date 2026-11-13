@@ -12,10 +12,10 @@ use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Mail\Filament\Actions\LinkRecordAction;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
-use Epesi\Modules\Mail\Services\ContactMatcher;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
+use Epesi\Modules\Roundcube\Filament\UnknownSenderRow;
 use Epesi\Modules\Roundcube\Roundcube;
 use Epesi\Modules\Roundcube\Services\RoundcubeConfigWriter;
 use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
@@ -185,7 +185,7 @@ class RoundcubeTest extends TestCase
 
     public function test_a_ticket_carries_the_account_encrypted_and_logs_in_once(): void
     {
-        $account = $this->account(['smtp_security' => 'tls', 'archive_folder' => 'CRM Archive']);
+        $account = $this->account(['smtp_security' => 'tls', 'archive_folder' => 'CRM Archive', 'junk_folder' => 'INBOX.spam']);
 
         $token = app(TicketIssuer::class)->issue($account, $this->user);
 
@@ -200,6 +200,7 @@ class RoundcubeTest extends TestCase
         $this->assertSame(['host' => 'tls://smtp.test:587', 'user' => 'me@ourcompany.test', 'pass' => 'secret'], $login['smtp'],
             'empty SMTP credentials mean the IMAP ones');
         $this->assertSame('CRM Archive', $login['archive_folder']);
+        $this->assertSame('INBOX.spam', $login['junk_folder']);
         $this->assertSame('Eli', $login['name']);
         $this->assertFalse($login['sees_all']);
 
@@ -321,6 +322,38 @@ class RoundcubeTest extends TestCase
             ->assertDontSee('isn\'t installed yet');
     }
 
+    /**
+     * A second Mailbox tab joins the open Roundcube session when its ticket is
+     * the same person's login to the same, unchanged account; logging in again
+     * would break the first tab's request token.
+     */
+    public function test_a_ticket_for_the_same_unchanged_login_joins_the_open_session(): void
+    {
+        $account = $this->account();
+        $issuer = app(TicketIssuer::class);
+        $first = $this->redeem($issuer->issue($account, $this->user));
+        $second = $this->redeem($issuer->issue($account, $this->user));
+        $session = ['user_id' => $first['user_id'], 'account_id' => $first['account_id'], 'login_key' => epesi_sso_ticket::login_key($first)];
+
+        $this->assertTrue(epesi_sso_ticket::same_login($session, $second), 'another tab, same account: joins');
+        $this->assertFalse(epesi_sso_ticket::same_login(['user_id' => $first['user_id'], 'account_id' => $first['account_id']], $second),
+            'a session from before the fingerprint: a fresh login');
+        $this->assertFalse(epesi_sso_ticket::same_login(null, $second));
+
+        $other = $this->account(['name' => 'Orders', 'email' => 'orders@ourcompany.test']);
+        $this->assertFalse(epesi_sso_ticket::same_login($session, $this->redeem($issuer->issue($other, $this->user))), 'another account');
+
+        $colleague = $this->userWithRole('employee');
+        $this->assertFalse(epesi_sso_ticket::same_login($session, $this->redeem($issuer->issue($account, $colleague))), 'another user');
+
+        $account->update(['imap_password' => 'changed']);
+        $this->assertFalse(epesi_sso_ticket::same_login($session, $this->redeem($issuer->issue($account->fresh(), $this->user))), 'an edited password logs in again');
+
+        $oauth = ['imap' => ['host' => 'ssl://imap.test:993', 'user' => 'me', 'pass' => 'token-1'], 'oauth' => ['grant' => 'g'], 'smtp' => null];
+        $this->assertSame(epesi_sso_ticket::login_key($oauth), epesi_sso_ticket::login_key(['imap' => ['pass' => 'token-2'] + $oauth['imap']] + $oauth),
+            "an OAuth access token changes every ticket and doesn't count");
+    }
+
     public function test_an_expired_ticket_is_refused_and_later_purged(): void
     {
         $account = $this->account();
@@ -434,6 +467,17 @@ SQL);
 
         $this->assertStringContainsString('/epesi-webmail/index.php?_task=login&_epesi_ticket=', $page->get('frameUrl'));
         $this->assertSame(1, DB::table('epesi_roundcube_tickets')->where('account_id', $account->id)->count());
+    }
+
+    public function test_a_spinner_shows_while_roundcube_loads(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+
+        Livewire::test(Mailbox::class)
+            ->assertSeeHtml('x-show="loading || switching"')
+            ->assertSee('Roundcube loading...')
+            ->assertSee('Switching account — please wait…');
     }
 
     public function test_switching_accounts_logs_the_frame_in_again_but_only_to_your_own(): void
@@ -660,53 +704,145 @@ SQL);
     }
 
     /**
-     * The Archive button warns when epesi_archive_matcher finds nothing; the
-     * linking afterwards is ContactMatcher + MailArchiver's. They must agree.
+     * "Sender not in Contacts": the sender is asked about before anything is
+     * archived; a new contact (with a new company) gets the address, then the
+     * message is archived, linked to it and moved, and the frame refreshed.
      */
-    public function test_the_archive_check_agrees_with_what_archiving_links(): void
+    public function test_an_unknown_sender_is_added_as_a_new_contact_before_archiving(): void
     {
-        $own = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee']);
-        $own->forceFill(['user_id' => $this->user->id])->save();
-        $own->syncCollection('emails', [['kind' => 'work', 'value' => 'me@ourcompany.test'], ['kind' => 'other', 'value' => 'eli@home.test']]);
-        $this->user->refresh();
+        $this->pretendInstalled();
+        $this->account();
+        $server = $this->fakeServer(['INBOX' => [1 => Eml::make(from: 'Dahl, Maria <maria@siluett.se>', messageId: 'cups@x')], 'CRM Archive' => []]);
+        $parties = [['from' => [['email' => 'maria@siluett.se', 'name' => 'Dahl, Maria']], 'to' => [['email' => 'me@ourcompany.test', 'name' => '']]]];
 
+        $page = Livewire::test(Mailbox::class)->call('archive', 'INBOX', [1], $parties);
+
+        $this->assertFalse($page->effects['returns'][0] ?? null, 'the frame stops waiting while the dialog is open');
+        $this->assertSame(0, Mail::count(), 'nothing is archived before the dialog is confirmed');
+        $page->assertActionMounted('unknownSenders')
+            ->assertMountedActionModalSee(['Sender not in Contacts', 'Dahl, Maria <maria@siluett.se>', 'Also link to'])
+            ->assertSchemaStateSet(function (array $state): array {
+                $row = array_values($state['senders'])[0];
+                $this->assertSame(['maria@siluett.se', 'new', 'Maria', 'Dahl', 'Siluett'], [$row['email'], $row['choice'], $row['first_name'], $row['last_name'], $row['new_company_name']]);
+
+                return [];
+            })
+            ->fillForm(['senders' => [[
+                'email' => 'maria@siluett.se', 'name' => 'Dahl, Maria', 'choice' => 'new',
+                'first_name' => 'Maria', 'last_name' => 'Dahl', 'company_id' => 'new', 'new_company_name' => 'Siluett',
+            ]]])
+            ->callMountedAction()
+            ->assertHasNoFormErrors()
+            ->assertDispatched('epesi-roundcube-refresh');
+
+        $maria = Contact::where('last_name', 'Dahl')->sole();
+        $this->assertSame('Maria', $maria->first_name);
+        $this->assertSame('Siluett', $maria->company?->company_name);
+        $this->assertSame(['maria@siluett.se'], $maria->collection('emails')->pluck('value')->all());
+        $mail = Mail::where('message_id', 'cups@x')->sole();
+        $this->assertTrue($mail->linkedRecords()->contains(fn ($record): bool => $record->is($maria)), 'archived after the contact got the address');
+        $this->assertCount(1, $server->messages['CRM Archive']);
+    }
+
+    public function test_an_unknown_sender_can_be_added_as_a_new_contact_of_an_existing_company(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+        $this->fakeServer(['INBOX' => [1 => Eml::make(from: 'Chloe Rossnagel <chloe@bakemark.test>', messageId: 'bk@x')], 'CRM Archive' => []]);
+        $company = Company::create(['company_name' => 'Bakemark - Canada']);
+        $parties = [['from' => [['email' => 'chloe@bakemark.test', 'name' => 'Chloe Rossnagel']], 'to' => [['email' => 'me@ourcompany.test', 'name' => '']]]];
+
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [1], $parties)
+            ->fillForm(['senders' => [[
+                'email' => 'chloe@bakemark.test', 'name' => 'Chloe Rossnagel', 'choice' => 'new',
+                'first_name' => 'Chloe', 'last_name' => 'Rossnagel', 'company_id' => $company->id,
+            ]]])
+            ->callMountedAction()
+            ->assertHasNoFormErrors();
+
+        $this->assertSame($company->id, Contact::where('last_name', 'Rossnagel')->sole()->company_id);
+    }
+
+    /** The company picker must offer each company under its id (a spread renumbered the keys to 0, 1, …). */
+    public function test_the_unknown_sender_company_search_keys_results_by_company_id(): void
+    {
+        $company = Company::create(['company_name' => 'Bakemark - Canada']);
+
+        $results = UnknownSenderRow::companySearch('Bakemark');
+
+        $this->assertSame('Bakemark - Canada', $results[$company->id] ?? null);
+    }
+
+    public function test_an_unknown_sender_can_be_added_to_an_existing_contact_or_skipped(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+        $this->fakeServer(['INBOX' => [
+            1 => Eml::make(from: 'Maria Dahl <maria@siluett.se>', messageId: 'a@x'),
+            2 => Eml::make(from: 'News <news@letters.test>', messageId: 'b@x'),
+        ], 'CRM Archive' => []]);
+        $maria = Contact::create(['first_name' => 'Maria', 'last_name' => 'Dahl']);
+        $maria->syncCollection('emails', [['kind' => 'work', 'value' => 'maria.dahl@siluett.se']]);
+        $parties = [
+            ['from' => [['email' => 'maria@siluett.se', 'name' => 'Maria Dahl']], 'to' => [['email' => 'me@ourcompany.test', 'name' => '']]],
+            ['from' => [['email' => 'news@letters.test', 'name' => 'News']], 'to' => [['email' => 'me@ourcompany.test', 'name' => '']]],
+        ];
+
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [1, 2], $parties)
+            ->assertMountedActionModalSee(['Senders not in Contacts'])
+            ->assertSchemaStateSet(function (array $state) use ($maria): array {
+                $row = array_values($state['senders'])[0];
+                $this->assertSame(['existing', (string) $maria->id], [$row['choice'], (string) $row['contact_id']], 'the same name is suggested first');
+
+                return [];
+            })
+            ->fillForm(['senders' => [
+                ['email' => 'maria@siluett.se', 'name' => 'Maria Dahl', 'choice' => 'existing', 'contact_id' => $maria->id],
+                ['email' => 'news@letters.test', 'name' => 'News', 'choice' => 'skip'],
+            ]])
+            ->callMountedAction()
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(['maria.dahl@siluett.se', 'maria@siluett.se'], $maria->collection('emails')->pluck('value')->all());
+        $this->assertTrue(Mail::where('message_id', 'a@x')->sole()->linkedRecords()->contains(fn ($record): bool => $record->is($maria)));
+        $this->assertTrue(Mail::where('message_id', 'b@x')->exists(), "Don't add still archives");
+        $this->assertSame(1, Contact::count(), 'no contact for the newsletter');
+    }
+
+    public function test_known_senders_archive_at_once_as_before(): void
+    {
+        $this->pretendInstalled();
+        $this->account();
+        $this->fakeServer(['INBOX' => [1 => Eml::make(messageId: 'known@x')], 'CRM Archive' => []]);
         $ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer']);
-        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@customer.test'], ['kind' => 'other', 'value' => 'ann.private@customer.test']]);
-        $customer = Company::create(['company_name' => 'Customer Ltd']);
-        $customer->syncCollection('emails', [['kind' => 'work', 'value' => 'sales@customer.test']]);
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@customer.test']]);
 
-        $secret = Contact::create(['first_name' => 'Sam', 'last_name' => 'Secret', 'permission' => 2]);
-        $secret->forceFill(['created_by' => $this->userWithRole('employee')->id])->save();
-        $secret->syncCollection('emails', [['kind' => 'other', 'value' => 'sam@elsewhere.test']]);
+        Livewire::test(Mailbox::class)
+            ->call('archive', 'INBOX', [1], [['from' => [['email' => 'Ann@Customer.test', 'name' => 'Ann Buyer']], 'to' => [['email' => 'me@ourcompany.test', 'name' => '']]]])
+            ->assertActionMounted('archivedDialog');
 
-        $gone = Contact::create(['first_name' => 'Gone', 'last_name' => 'Away']);
-        $gone->syncCollection('emails', [['kind' => 'work', 'value' => 'gone@customer.test'], ['kind' => 'other', 'value' => 'gone.too@customer.test']]);
-        $gone->delete();
+        $this->assertTrue(Mail::where('message_id', 'known@x')->exists());
+    }
 
-        $pdo = DB::connection()->getPdo();
-        $selectOne = function (string $sql, array $params) use ($pdo): ?array {
-            $statement = $pdo->prepare($sql);
-            $statement->execute($params);
+    /**
+     * @param  array<string, array<int, string>>  $folders
+     */
+    protected function fakeServer(array $folders): FakeMailbox
+    {
+        $server = new FakeMailbox($folders);
+        $this->app->instance(MailboxFactory::class, new class($server) extends MailboxFactory
+        {
+            public function __construct(private FakeMailbox $server) {}
 
-            return $statement->fetch(PDO::FETCH_ASSOC) ?: null;
-        };
+            public function make(MailAccount $account): FakeMailbox
+            {
+                return $this->server;
+            }
+        });
 
-        foreach ([
-            'a contact, whatever the case' => [['Ann@Customer.test'], true],
-            'a company' => [['sales@customer.test'], true],
-            "a contact's extra address" => [['ann.private@customer.test'], true],
-            "someone else's private contact, by its extra address" => [['sam@elsewhere.test'], true],
-            'a deleted contact' => [['gone@customer.test'], false],
-            "a deleted contact's extra address" => [['gone.too@customer.test'], false],
-            'your own contact, as in Epesi' => [['me@ourcompany.test'], true],
-            'your own extra address and a stranger' => [['eli@home.test', 'stranger@nowhere.test'], true],
-            'a stranger and a Cc to a contact' => [['stranger@nowhere.test', 'ann@customer.test'], true],
-            'only strangers' => [['stranger@nowhere.test', 'someone@else.test'], false],
-            'no addresses' => [[], false],
-        ] as $case => [$emails, $expected]) {
-            $this->assertSame($expected, app(ContactMatcher::class)->match($emails)->isNotEmpty(), "archiving links: {$case}");
-            $this->assertSame($expected, epesi_archive_matcher::found($emails, $selectOne), "the Archive check: {$case}");
-        }
+        return $server;
     }
 
     /** Epesi's "Message already archived", by anyone; a deleted copy doesn't count. */

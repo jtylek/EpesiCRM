@@ -1,44 +1,34 @@
 <?php
 
 /**
- * What the Archive button checks before it moves anything, against Epesi's
- * database: whether a message would be linked to anything, and whether it is
- * archived already.
- *
- * It must agree with Epesi\Modules\Mail\Services\ContactMatcher and
- * MailArchiver, which do the archiving afterwards. The test suite runs both
- * over the same records. Plain PHP, like epesi_sso_ticket, for that test.
+ * What the Archive button checks before it moves anything: whether a message
+ * is archived already (against Epesi's database, agreeing with MailArchiver),
+ * and each message's From and To for the Mailbox page, which asks about
+ * senders not in the CRM (UnknownSenders). Plain PHP, like epesi_sso_ticket,
+ * so the test suite can run it.
  */
 final class epesi_archive_matcher
 {
     /**
-     * Whether any of a message's From, To and Cc addresses belongs to a
-     * contact or company, by its own e-mail or an extra address — Epesi's
-     * look_contact(). Like ContactMatcher: no visibility rule, deleted
-     * records left out, and your own contact counts.
+     * A From or To header as the Mailbox page takes it: each address with its
+     * display name, decoded. Which of them the CRM doesn't know is Epesi's
+     * to say (UnknownSenders), not this plugin's.
      *
-     * @param  array<int, string>  $emails
-     * @param  callable(string, array<int, mixed>): ?array<string, mixed>  $selectOne  first row or null
+     * @return list<array{email: string, name: string}>
      */
-    public static function found(array $emails, callable $selectOne): bool
+    public static function addresses(string $header, ?string $charset = null): array
     {
-        $emails = array_values(array_unique(array_filter(array_map(
-            fn ($email): string => mb_strtolower(trim((string) $email)),
-            $emails,
-        ))));
+        $out = [];
 
-        if ($emails === []) {
-            return false;
+        foreach (rcube_mime::decode_address_list($header, null, true, $charset) as $address) {
+            $email = trim((string) ($address['mailto'] ?? ''));
+
+            if ($email !== '') {
+                $out[] = ['email' => $email, 'name' => trim((string) ($address['name'] ?? ''))];
+            }
         }
 
-        $in = implode(', ', array_fill(0, count($emails), '?'));
-
-        $sql = 'SELECT e.id FROM epesi_recordbrowser_email_addresses e'
-            ." LEFT JOIN contacts c ON e.owner_type = 'contact' AND c.id = e.owner_id AND c.deleted_at IS NULL"
-            ." LEFT JOIN companies k ON e.owner_type = 'company' AND k.id = e.owner_id AND k.deleted_at IS NULL"
-            ." WHERE lower(e.value) IN ({$in}) AND (c.id IS NOT NULL OR k.id IS NOT NULL) LIMIT 1";
-
-        return $selectOne($sql, $emails) !== null;
+        return $out;
     }
 
     /**

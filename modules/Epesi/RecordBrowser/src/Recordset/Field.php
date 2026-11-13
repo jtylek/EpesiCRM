@@ -2696,15 +2696,13 @@ class Field
 
         $filter = match (true) {
             $this->type === FieldType::Boolean => TernaryFilter::make($this->name),
+            $this->type === FieldType::Customer => $this->customerFilter(),
             $this->type === FieldType::Select => SelectFilter::make($this->name)->options($this->componentOptions()),
             $this->type === FieldType::Multiselect => SelectFilter::make($this->name)->options($this->componentOptions())->multiple(),
             $this->type === FieldType::CommonData => SelectFilter::make($this->name)
                 ->options($this->commonDataOptions())
                 ->multiple($this->isMultipleValued()),
-            $this->type->isRelational() => SelectFilter::make($this->name)
-                ->relationship((string) $this->getParam('relationship'), $this->relatedTitleAttribute())
-                ->searchable()
-                ->preload(),
+            $this->type->isRelational() => $this->relationFilter(),
             in_array($this->type, [FieldType::Date, FieldType::DateTime], true) => $this->rangeFilter(
                 fn (string $name, string $label): mixed => RegionalSetting::calendarSystem() === 'gregorian'
                     ? DatePicker::make($name)->label($label)->translateLabel(false)
@@ -2775,6 +2773,39 @@ class Field
                 }
 
                 return $indicators;
+            });
+    }
+
+    /**
+     * One company or contact (the same typeahead as the form), matched on the
+     * `{name}_type`/`{name}_id` pair the Customer field stores.
+     */
+    protected function customerFilter(): Filter
+    {
+        $typeColumn = "{$this->name}_type";
+        $keyColumn = "{$this->name}_id";
+
+        return Filter::make($this->name)
+            ->schema([
+                Select::make('value')
+                    ->label($this->getLabel())
+                    ->translateLabel(false)
+                    ->searchable()
+                    ->allowHtml()
+                    ->getSearchResultsUsing(fn (string $search): array => $this->customerSearch($search))
+                    ->getOptionLabelUsing(fn (?string $state): ?string => $this->customerOptionLabel($state)),
+            ])
+            ->query(function (Builder $query, array $data) use ($typeColumn, $keyColumn): Builder {
+                [$alias, $id] = RecordLink::parseToken($data['value'] ?? null) ?? [null, null];
+
+                return $alias === null
+                    ? $query
+                    : $query->where($typeColumn, $alias)->where($keyColumn, $id);
+            })
+            ->indicateUsing(function (array $data): array {
+                $title = filled($data['value'] ?? null) ? $this->customerLabel($data['value']) : null;
+
+                return $title === null ? [] : [Indicator::make($this->getLabel().': '.$title)->removeField('value')];
             });
     }
 
@@ -3189,6 +3220,42 @@ class Field
         }
 
         return $this->commonDataOptions()[$state] ?? (string) $state;
+    }
+
+    /**
+     * The table filter of a relation field. Its options and the chip in the
+     * active filters read as the resource names a record ("Janusz Tylek"), not
+     * by the title column alone ("Tylek"), which two contacts can share.
+     */
+    protected function relationFilter(): SelectFilter
+    {
+        $filter = SelectFilter::make($this->name)
+            ->relationship((string) $this->getParam('relationship'), $this->relatedTitleAttribute())
+            ->searchable()
+            ->preload();
+
+        $resource = $this->relatedResource();
+
+        if (! $resource) {
+            return $filter;
+        }
+
+        $title = fn (Model $record): string => (string) $resource::getRecordTitle($record);
+
+        return $filter
+            ->getOptionLabelFromRecordUsing($title)
+            ->indicateUsing(function (array $data) use ($filter, $title): array {
+                $multiple = $filter->isMultiple();
+                $keys = array_filter((array) ($multiple ? ($data['values'] ?? []) : ($data['value'] ?? [])), filled(...));
+
+                if ($keys === []) {
+                    return [];
+                }
+
+                $names = $filter->getRelationshipQuery()->whereKey($keys)->get()->map($title)->join(', ', ' & ');
+
+                return [Indicator::make($filter->getLabel().': '.$names)->removeField($multiple ? 'values' : 'value')];
+            });
     }
 
     /**

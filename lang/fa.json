@@ -57,7 +57,7 @@
     "Done": "انجام شده",
     "Duration": "مدت",
     "E-mail": "ایمیل",
-    "E-mail configuration test": "تنظیمات آزمایش رایانامه",
+    "E-mail configuration test": "آزمایش پیکربندی ایمیل",
     "E-mail was sent successfully": "رایانامه با موفقیت ارسال شد",
     "Edit": "ویرایش",
     "Email": "رایانامه",
@@ -176,5 +176,13 @@
     "Web Address": "نشانی وب",
     "Web address": "نشانی وب",
     "Work Phone": "تلفن دفتر کار",
-    "Work phone": "تلفن دفتر کار"
+    "Work phone": "تلفن دفتر کار",
+    "Dear Epesi User,": "کاربر گرامی Epesi،",
+    "Your Epesi team": "تیم Epesi شما",
+    "Sent from Administration → Mail server settings.": "ارسال شده از مدیریت کل ← تنظیمات سرور ایمیل.",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "این لینک بازنشانی رمز عبور در :count ساعت منقضی می‌شود.",
+    "This password reset link will expire in :count minutes.": "این لینک بازنشانی رمز عبور در :count دقیقه منقضی می‌شود.",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "اگر این پیام را می‌خوانید، پیکربندی سرور ایمیل شما در :url به‌درستی کار می‌کند.",
+    "Reset Password Notification": "اطلاعیه بازنشانی رمز عبور",
+    "If you did not request a password reset, no further action is required.": "اگر شما درخواست بازنشانی رمز عبور را نداده‌اید، نیازی به اقدام بیشتر نیست."
 }

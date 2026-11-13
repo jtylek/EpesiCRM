@@ -176,5 +176,15 @@
     "Web Address": "כתובת אינטרנט",
     "Web address": "כתובת אינטרנט",
     "Work Phone": "טלפון בעבודה",
-    "Work phone": "טלפון בעבודה"
+    "Work phone": "טלפון בעבודה",
+    "Dear Epesi User,": "שלום,",
+    "Your Epesi team": "צוות Epesi",
+    "Sent from Administration → Mail server settings.": "נשלח מ\"ניהול\" ← \"הגדרות שרת הדואר\".",
+    "This password reset link will expire in :count hour.|This password reset link will expire in :count hours.": "קישור איפוס הסיסמה הזה יפוג בעוד שעה אחת.|קישור איפוס הסיסמה הזה יפוג בעוד :count שעות.",
+    "This password reset link will expire in :count minutes.": "קישור איפוס הסיסמה הזה יפוג בעוד :count דקות.",
+    "If you are reading this, it means that your e-mail server configuration at :url is working properly.": "אם אתם קוראים הודעה זו, הגדרות שרת הדואר שלכם ב-:url פועלות כראוי.",
+    "Reset Password Notification": "הודעה על איפוס סיסמה",
+    "You are receiving this email because we received a password reset request for your account.": "אתם מקבלים דוא\"ל זה משום שקיבלנו בקשה לאיפוס הסיסמה של חשבונכם.",
+    "Reset Password": "איפוס סיסמה",
+    "If you did not request a password reset, no further action is required.": "אם לא ביקשתם לאפס את הסיסמה, אין צורך בפעולה נוספת."
 }

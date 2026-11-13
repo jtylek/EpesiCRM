@@ -1,4 +1,5 @@
 {
+    ":name on :date": ":name el :date",
     "After editing, enter the password again to keep this note encrypted.": "Tras editarlo, vuelve a introducir la contraseña para mantener esta nota cifrada.",
     "All notes": "Todas las notas",
     "An encrypted note cannot hold images, which would be stored unencrypted. Remove the images or turn encryption off.": "Una nota cifrada no puede contener imágenes, ya que estas se almacenarían sin cifrar. Elimina las imágenes o desactiva el cifrado.",

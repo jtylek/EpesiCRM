@@ -7,6 +7,7 @@ use App\Filament\Concerns\HidesPageHeading;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RecordBrowser\Filament\Administration\RecordInAdministration;
 use Epesi\Modules\RecordBrowser\Filament\Schemas\RecordInfoEntries;
 use Epesi\Modules\RecordBrowser\Recordset\ClipboardPattern;
 use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
@@ -70,10 +71,16 @@ use Livewire\Attributes\On;
  * first addon (Alpine's own default of index 1) — Record Info and History
  * are never part of the tab array, so there's no longer a case where that
  * default needs to skip past them.
+ *
+ * A recordset's View page also opens under Administration → Recordsets →
+ * Records (RecordInAdministration): the same page, with breadcrumbs back to
+ * that list, Restore for a deleted record, and no Recent entry.
  */
 abstract class ViewRecord extends BaseViewRecord
 {
-    use HasResourceIconBreadcrumb;
+    use HasResourceIconBreadcrumb {
+        HasResourceIconBreadcrumb::getBreadcrumbs as getResourceIconBreadcrumbs;
+    }
     use HidesPageHeading;
 
     /**
@@ -86,7 +93,34 @@ abstract class ViewRecord extends BaseViewRecord
     {
         parent::mount($record);
 
-        RecentRecords::opened(static::getResource(), $this->getRecord());
+        // An administrator looking a record up under Administration → Recordsets
+        // isn't browsing it: it stays out of their Recent list.
+        if (! RecordInAdministration::shows($this)) {
+            RecentRecords::opened(static::getResource(), $this->getRecord());
+        }
+    }
+
+    /**
+     * Opened under Administration → Recordsets → Records (RecordInAdministration),
+     * the way back is that list: Recordsets > Company > Records > the record.
+     */
+    public function getBreadcrumbs(): array
+    {
+        if (RecordInAdministration::shows($this)) {
+            return RecordInAdministration::breadcrumbs(RecordInAdministration::alias(), $this->getRecordTitle());
+        }
+
+        return $this->getResourceIconBreadcrumbs();
+    }
+
+    /** Deleting it there leads back to the Records tab, not to the main panel's list. */
+    public function getDefaultActionSuccessRedirectUrl(Action $action): ?string
+    {
+        if ($action instanceof DeleteAction && RecordInAdministration::shows($this)) {
+            return RecordInAdministration::recordsUrl(RecordInAdministration::alias());
+        }
+
+        return parent::getDefaultActionSuccessRedirectUrl($action);
     }
 
     /**
@@ -126,8 +160,11 @@ abstract class ViewRecord extends BaseViewRecord
             ? [Favorites::toggleAction()]
             : [];
         $clipboard = ($clipboardAction = $this->clipboardAction()) !== null ? [$clipboardAction] : [];
+        // Restore for a deleted record, only where the administrator opened it
+        // (RecordInAdministration); the action itself shows only while it is deleted.
+        $restore = RecordInAdministration::shows($this) ? [RecordInAdministration::restoreAction()] : [];
 
-        foreach ([...$favorites, ...$clipboard, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
+        foreach ([...$restore, ...$favorites, ...$clipboard, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
             if ($action instanceof ActionGroup) {
                 $action->livewire($this);
                 $this->mergeCachedActions($action->getFlatActions());

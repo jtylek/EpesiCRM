@@ -5,8 +5,9 @@ namespace Tests\Feature\Modules;
 use Epesi\Modules\Attachments\Attachments;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
 use Epesi\Modules\Mail\MailServiceProvider;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetAddons;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetFields;
 use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustomFields;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetFeatures;
@@ -96,9 +97,9 @@ class RecordsetFeaturesTest extends TestCase
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
-            ->assertActionHasUrl('fields', CustomFieldResource::getUrl('index', ['recordset' => 'company']))
-            ->assertActionHasUrl('addField', CustomFieldResource::getUrl('create', ['recordset' => 'company']));
+        Livewire::test(RecordsetFields::class, ['alias' => 'company'])
+            ->assertActionDoesNotExist('fields')
+            ->assertSeeHtml('href="'.CustomFieldResource::getUrl('create', ['recordset' => 'company']).'"');
 
         $list = Livewire::withQueryParams(['recordset' => 'company'])
             ->test(ListCustomFields::class)
@@ -112,7 +113,7 @@ class RecordsetFeaturesTest extends TestCase
 
         $breadcrumbs = array_keys($list->instance()->getBreadcrumbs());
         $this->assertSame(Recordsets::getUrl(), $breadcrumbs[0]);
-        $this->assertSame(ViewRecordset::getUrl(['alias' => 'company']), $breadcrumbs[1]);
+        $this->assertSame(RecordsetFields::getUrl(['alias' => 'company']), $breadcrumbs[1]);
     }
 
     public function test_a_field_list_opened_from_a_recordset_can_not_be_moved_to_another(): void
@@ -154,10 +155,10 @@ class RecordsetFeaturesTest extends TestCase
             ->assertSee('company')
             ->assertTableActionExists('view')
             ->assertTableActionDoesNotExist('edit')
-            ->assertTableActionHasUrl('view', ViewRecordset::getUrl(['alias' => 'company']), 'company');
+            ->assertTableActionHasUrl('view', RecordsetFields::getUrl(['alias' => 'company']), 'company');
     }
 
-    public function test_the_recordset_page_lists_recordsets_and_saves_the_choice(): void
+    public function test_the_addons_tab_saves_the_choice(): void
     {
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');
@@ -165,7 +166,7 @@ class RecordsetFeaturesTest extends TestCase
         Livewire::test(Recordsets::class)
             ->assertSuccessful();
 
-        Livewire::test(ViewRecordset::class, ['alias' => 'company'])
+        Livewire::test(RecordsetAddons::class, ['alias' => 'company'])
             ->fillForm(['features' => ['notes']])
             ->call('save')
             ->assertHasNoFormErrors();

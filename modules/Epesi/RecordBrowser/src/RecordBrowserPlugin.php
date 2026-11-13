@@ -2,8 +2,13 @@
 
 namespace Epesi\Modules\RecordBrowser;
 
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetAddons;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetClipboard;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetFields;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetRecords;
 use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\Recordsets;
-use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\ViewRecordset;
+use Epesi\Modules\RecordBrowser\Filament\Administration\Pages\RecordsetSettings;
+use Epesi\Modules\RecordBrowser\Filament\Administration\RecordInAdministration;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -30,7 +35,14 @@ class RecordBrowserPlugin implements Plugin
         $panel->discoverResources(
             in: __DIR__.'/Filament/Resources',
             for: 'Epesi\\Modules\\RecordBrowser\\Filament\\Resources',
-        )->pages([Recordsets::class, ViewRecordset::class]);
+        )->pages([
+            Recordsets::class,
+            RecordsetFields::class,
+            RecordsetRecords::class,
+            RecordsetAddons::class,
+            RecordsetSettings::class,
+            RecordsetClipboard::class,
+        ])->authenticatedRoutes(fn () => RecordInAdministration::routes());
     }
 
     public function boot(Panel $panel): void {}

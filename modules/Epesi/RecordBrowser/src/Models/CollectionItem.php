@@ -302,6 +302,18 @@ abstract class CollectionItem extends Model
         return false;
     }
 
+    /**
+     * Whether a new item with these $values is this saved item sent again,
+     * so a save repeated (a resubmitted request, a retry) reuses it instead
+     * of adding a second one. Items that may legitimately repeat say no.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function isRepeatedBy(array $values): bool
+    {
+        return false;
+    }
+
     /** $owner was soft-deleted: for a type whose items are held against other records. */
     public static function ownerTrashed(Model $owner): void {}
 

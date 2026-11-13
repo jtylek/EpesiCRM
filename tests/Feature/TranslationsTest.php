@@ -272,6 +272,7 @@ class TranslationsTest extends TestCase
             '/(?:__|trans_choice)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
             '/->(?:label|modalHeading|modalSubmitActionLabel)\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'\s*\)/',
             '/(?:Step|Tab|Fieldset)::make\(\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
+            '/\$(?:title|navigationLabel|navigationGroup|modelLabel|pluralModelLabel|heading|subheading)\s*=\s*\'((?:[^\'\\\\]|\\\\.)+)\'/',
         ];
     }
 

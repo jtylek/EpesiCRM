@@ -62,8 +62,8 @@
             --}}
             html.epesi-compact .fi-page-header-main-ctn.fi-page-header-main-ctn{padding-block-end:0!important}
             {{-- The panel's own accent color, not a fixed blue (RecordBrowserServiceProvider tints its keyboard-nav row highlight the same way). --}}
-            .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 12%, transparent);color:var(--primary-700)}
-            .dark .epesi-mailbox-switching{background:color-mix(in oklab, var(--primary-500) 20%, transparent);color:var(--primary-400)}
+            .epesi-mailbox-overlay{background:rgb(255 255 255 / 0.85);color:var(--gray-500)}
+            .dark .epesi-mailbox-overlay{background:rgb(9 9 11 / 0.85);color:var(--gray-400)}
         </style>
         {{--
             wire:ignore keeps Livewire from re-rendering (and so reloading) the
@@ -85,6 +85,8 @@
                 lastLogin: 0,
                 broken: false,
                 switching: false,
+                {{-- The first open of the frame (an account switch has its own bar instead). --}}
+                loading: false,
                 {{-- The folder to open the mail list on once logged in, and whether that has been done. --}}
                 folder: null,
                 folderApplied: false,
@@ -96,6 +98,7 @@
                 --}}
                 check() {
                     this.switching = false;
+                    this.loading = false;
                     this.$nextTick(() => this.fit());
 
                     const frame = this.$refs.frame;
@@ -175,6 +178,7 @@
                     this.folder = folder;
                     this.folderApplied = false;
                     this.switching = isSwitch;
+                    this.loading = !isSwitch && !!url;
                     this.$nextTick(() => this.fit());
                     this.colorMode(this.$store.theme);
                     this.$refs.frame.src = url;
@@ -205,7 +209,10 @@
                         const reply = (moved) => frame?.postMessage({ epesiRoundcube: moved ? 'refresh' : 'archive-done' }, window.location.origin);
                         const uids = Array.isArray(event.data.uids) ? event.data.uids.map(Number).filter(Number.isInteger).slice(0, 500) : [];
 
-                        this.$wire.archive(String(event.data.folder ?? ''), uids).then(reply, () => reply(false));
+                        {{-- Each message's From and To: the page asks about addresses no contact or company has. --}}
+                        const parties = Array.isArray(event.data.parties) ? event.data.parties.slice(0, 500) : [];
+
+                        this.$wire.archive(String(event.data.folder ?? ''), uids, parties).then(reply, () => reply(false));
                     }
 
                     if (type === 'archived') {
@@ -223,15 +230,26 @@
             x-effect="colorMode($store.theme)"
             x-on:resize.window="fit()"
             x-on:message.window="receive($event)"
+            x-on:epesi-roundcube-refresh.window="$refs.frame.contentWindow?.postMessage({ epesiRoundcube: 'refresh' }, window.location.origin)"
             x-on:epesi-roundcube-load.window="load($event.detail.url, true, $event.detail.folder ?? null)"
-            style="border: 1px solid rgb(128 128 128 / 0.25); overflow: hidden;"
+            style="position: relative; border: 1px solid rgb(128 128 128 / 0.25); overflow: hidden;"
         >
-            <div x-cloak x-show="switching" class="epesi-mailbox-switching" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-                <x-filament::loading-indicator class="h-4 w-4" />
-                {{ __('Switching account — please wait…') }}
+            {{--
+                Over the frame until Roundcube's page has loaded (the ticket login and IMAP connect): the
+                first open of an empty frame, or an account switch over the previous mailbox, which the
+                translucent background covers and keeps from being clicked meanwhile. x-show sits on the
+                outer box: showing an element, Alpine removes its inline display, which would drop the
+                inner box's flex centring.
+            --}}
+            <div x-cloak x-show="loading || switching" class="epesi-mailbox-overlay" style="position: absolute; inset: 0; z-index: 1;">
+                <div role="status" aria-live="polite" style="display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; font-size: 1.125rem;">
+                    <x-filament::loading-indicator style="width: 3.5rem; height: 3.5rem; color: var(--primary-500);" />
+                    <span x-show="!switching">{{ __('Roundcube loading...') }}</span>
+                    <span x-show="switching">{{ __('Switching account — please wait…') }}</span>
+                </div>
             </div>
             <div x-cloak x-show="broken" style="padding: 0.75rem 1rem; font-size: 0.875rem; color: rgb(220 38 38);">
-                {{ __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. Ask your administrator to adjust the web server configuration.', ['dir' => 'public/epesi-webmail']) }}
+                {{ __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. The web server must serve the :dir directory as plain files, including its directory URLs (?_task=mail) and its static.php/... URLs. If it does, Roundcube itself may have failed (for example its database login): check storage/roundcube/logs/errors.log, and run "php artisan roundcube:install --configure-only" after moving or restoring an installation. Otherwise ask your administrator to adjust the web server configuration.', ['dir' => 'public/epesi-webmail']) }}
             </div>
             <iframe
                 x-ref="frame"

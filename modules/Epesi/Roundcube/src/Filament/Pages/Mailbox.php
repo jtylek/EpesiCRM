@@ -14,8 +14,10 @@ use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailFetcher;
+use Epesi\Modules\Mail\Services\UnknownSenders;
 use Epesi\Modules\Mail\Support\Records;
 use Epesi\Modules\OAuth\Exceptions\OAuthException;
+use Epesi\Modules\Roundcube\Filament\UnknownSenderRow;
 use Epesi\Modules\Roundcube\Roundcube;
 use Epesi\Modules\Roundcube\Services\RoundcubeInstaller;
 use Epesi\Modules\Roundcube\Services\TicketIssuer;
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Throwable;
 use UnitEnum;
@@ -209,13 +212,52 @@ class Mailbox extends Page
      * from the folder the user is in, then move them to the archive folder.
      * Returns whether any left the folder, so the frame refreshes its list.
      *
+     * When the other party of a message is in no contact or company
+     * ($parties: each message's From and To, from the plugin), the "Sender not
+     * in Contacts" dialog opens first and archives once confirmed; this
+     * returns false so the frame stops waiting, and the dialog refreshes it.
+     *
      * @param  array<int, int>  $uids
+     * @param  array<int, array{from?: mixed, to?: mixed}>  $parties
      */
-    public function archive(string $folder, array $uids): bool
+    public function archive(string $folder, array $uids, array $parties = []): bool
     {
         $account = $this->account();
 
         if (! $account || $folder === '' || mb_strlen($folder) > 255) {
+            return false;
+        }
+
+        $unknown = app(UnknownSenders::class)->find($parties, Auth::user(), $account);
+
+        if ($unknown !== []) {
+            $this->mountAction('unknownSenders', [
+                'folder' => $folder,
+                'uids' => array_values(array_slice(array_map('intval', $uids), 0, MailFetcher::MAX_PER_CLICK)),
+                'unknown' => $unknown,
+                'outgoing' => $this->allOutgoing($parties, $account),
+            ]);
+
+            return false;
+        }
+
+        return $this->archiveNow($folder, $uids);
+    }
+
+    /**
+     * Archive, then move: the Archive button's work once nothing needs asking.
+     * With $links (from the unknown-sender dialog) the messages are linked to
+     * those records too, and the result is a notification rather than the
+     * dialog after archiving, which that dialog already was.
+     *
+     * @param  array<int, int>  $uids
+     * @param  Collection<int, Model>|null  $links
+     */
+    protected function archiveNow(string $folder, array $uids, ?Collection $links = null): bool
+    {
+        $account = $this->account();
+
+        if (! $account) {
             return false;
         }
 
@@ -233,7 +275,12 @@ class Mailbox extends Page
             return false;
         }
 
-        $this->afterArchiving($result['mails'], $account, $result['moveError']);
+        if ($links === null) {
+            $this->afterArchiving($result['mails'], $account, $result['moveError']);
+        } else {
+            $this->linkMails($result['mails'], $links);
+            $this->archivedNotification($result['mails'], $account, $result['moveError']);
+        }
 
         return $result['moveError'] === null;
     }
@@ -260,8 +307,61 @@ class Mailbox extends Page
             return;
         }
 
+        if ($mails->isEmpty()) {
+            $this->notArchived();
+
+            return;
+        }
+
+        // Already archived, so the unknown recipients are asked about after:
+        // an address added then still links the message (relinkExisting()).
+        $unknown = app(UnknownSenders::class)->find($this->partiesOf($mails), Auth::user(), $account, outgoing: true);
+
+        if ($unknown !== []) {
+            $this->mountAction('unknownSenders', [
+                'mails' => $mails->modelKeys(),
+                'unknown' => $unknown,
+                'outgoing' => true,
+                'sent' => true,
+            ]);
+
+            return;
+        }
+
         // The same dialog as the Archive button's, to link the sent message to records.
-        $mails->isEmpty() ? $this->notArchived() : $this->afterArchiving($mails, $account, sent: true);
+        $this->afterArchiving($mails, $account, sent: true);
+    }
+
+    /**
+     * Archived messages' From and To in the shape the plugin sends.
+     *
+     * @param  Collection<int, Mail>  $mails
+     * @return list<array{from: list<array{email: string, name: string}>, to: list<array{email: string, name: string}>}>
+     */
+    protected function partiesOf(Collection $mails): array
+    {
+        $parse = function (?string $header): array {
+            preg_match_all('/(?:"?([^",<]*?)"?\s*<)?([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})>?/i', (string) $header, $m, PREG_SET_ORDER);
+
+            return array_map(fn (array $match): array => ['email' => $match[2], 'name' => trim($match[1] ?? '')], $m);
+        };
+
+        return $mails->map(fn (Mail $mail): array => ['from' => $parse($mail->from), 'to' => $parse($mail->to)])->values()->all();
+    }
+
+    /**
+     * Whether every message of the click was sent from your own address: the
+     * dialog then says "Recipients" rather than "Sender".
+     *
+     * @param  array<int, array{from?: mixed, to?: mixed}>  $parties
+     */
+    protected function allOutgoing(array $parties, MailAccount $account): bool
+    {
+        $own = array_filter(array_map('mb_strtolower', [(string) $account->email, (string) Auth::user()?->email,
+            ...(Auth::user()?->contact?->collection('emails')->pluck('value')->all() ?? [])]));
+
+        return $parties !== [] && collect($parties)->every(fn ($message): bool => collect(is_array($message['from'] ?? null) ? $message['from'] : [])
+            ->contains(fn ($entry): bool => in_array(mb_strtolower(trim((string) (is_array($entry) ? ($entry['email'] ?? '') : $entry))), $own, true)));
     }
 
     /** Never a success that hides a failure. */
@@ -349,45 +449,154 @@ class Mailbox extends Page
             ->modalSubmitActionLabel(__('OK'))
             ->modalCancelAction(false)
             ->modalFooterActionsAlignment(Alignment::End)
-            ->schema([
-                // One line per record: Recordset, then Record; as many as wanted.
-                Repeater::make('links')
-                    ->label(__('Also link to'))
-                    ->helperText(__('Optional: a task, meeting, phone call or any other record.'))
-                    ->table([
-                        TableColumn::make(__('Recordset')),
-                        TableColumn::make(__('Record')),
-                    ])
-                    ->schema([
-                        LinkRecordAction::typeField(null),
-                        LinkRecordAction::recordField()->requiredWith('type'),
-                    ])
-                    ->defaultItems(1)
-                    ->reorderable(false)
-                    ->addActionLabel(__('Add another record')),
-            ])
+            ->schema([static::linksRepeater()])
             ->action(function (array $data, array $arguments): void {
-                $records = collect($data['links'] ?? [])
-                    ->map(fn (array $link): ?Model => filled($link['type'] ?? null) && filled($link['record'] ?? null)
-                        ? LinkRecordAction::find($link['type'], $link['record'])
-                        : null)
-                    ->filter()
-                    ->unique(fn (Model $record): string => $record->getMorphClass().':'.$record->getKey());
+                $records = static::pickedRecords($data['links'] ?? []);
 
                 if ($records->isEmpty()) {
                     return;
                 }
 
-                foreach (Mail::query()->whereKey($arguments['mails'] ?? [])->get() as $mail) {
-                    if (Auth::user()?->can('update', $mail)) {
-                        $records->each(fn (Model $record) => $mail->linkTo($record));
-                    }
-                }
+                $this->linkMails(Mail::query()->whereKey($arguments['mails'] ?? [])->get(), $records);
 
                 Notification::make()
                     ->title(__('Linked to :record', ['record' => $records->map(fn (Model $record): string => Records::label($record))->implode(', ')]))
                     ->success()
                     ->send();
+            });
+    }
+
+    /** "Also link to": one line per record, Recordset then Record, as many as wanted. */
+    protected static function linksRepeater(): Repeater
+    {
+        return Repeater::make('links')
+            ->label(__('Also link to'))
+            ->helperText(__('Optional: a task, meeting, phone call or any other record.'))
+            ->table([
+                TableColumn::make(__('Recordset')),
+                TableColumn::make(__('Record')),
+            ])
+            ->schema([
+                LinkRecordAction::typeField(null),
+                LinkRecordAction::recordField()->requiredWith('type'),
+            ])
+            ->defaultItems(1)
+            ->reorderable(false)
+            ->addActionLabel(__('Add another record'));
+    }
+
+    /**
+     * The records picked in "Also link to", each once; empty lines ignored.
+     *
+     * @return Collection<int, Model>
+     */
+    protected static function pickedRecords(array $links): Collection
+    {
+        return collect($links)
+            ->map(fn (mixed $link): ?Model => is_array($link) && filled($link['type'] ?? null) && filled($link['record'] ?? null)
+                ? LinkRecordAction::find($link['type'], $link['record'])
+                : null)
+            ->filter()
+            ->unique(fn (Model $record): string => $record->getMorphClass().':'.$record->getKey())
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, Mail>  $mails
+     * @param  Collection<int, Model>  $records
+     */
+    protected function linkMails(Collection $mails, Collection $records): void
+    {
+        foreach ($mails as $mail) {
+            if (Auth::user()?->can('update', $mail)) {
+                $records->each(fn (Model $record) => $mail->linkTo($record));
+            }
+        }
+    }
+
+    /**
+     * What the dialog after archiving would say, as a notification: after the
+     * unknown-sender dialog, one dialog per click is enough.
+     *
+     * @param  Collection<int, Mail>  $mails
+     */
+    protected function archivedNotification(Collection $mails, MailAccount $account, ?string $moveError = null, bool $sent = false): void
+    {
+        $arguments = [
+            'mails' => $mails->modelKeys(),
+            'sent' => $sent,
+            'already' => $mails->reject->wasRecentlyCreated->count(),
+            'folder' => $account->archive_folder,
+            'moveError' => $moveError,
+        ];
+
+        Notification::make()
+            ->title(static::archivedHeading($arguments))
+            ->body(static::archivedDescription($arguments))
+            ->when(filled($moveError), fn (Notification $n) => $n->warning()->persistent(), fn (Notification $n) => $n->success())
+            ->send();
+    }
+
+    /**
+     * "Sender not in Contacts": before archiving (or, for a sent copy, just
+     * after), one row per unknown address — add it to an existing contact,
+     * create the contact (and its company), add it to a company, or not at
+     * all — then "Also link to", then Archive. Cancel archives nothing.
+     */
+    public function unknownSendersAction(): Action
+    {
+        return Action::make('unknownSenders')
+            ->modalHeading(fn (array $arguments): string => ($arguments['outgoing'] ?? false)
+                ? trans_choice('{1} Recipient not in Contacts|[2,*] Recipients not in Contacts', count($arguments['unknown'] ?? []))
+                : trans_choice('{1} Sender not in Contacts|[2,*] Senders not in Contacts', count($arguments['unknown'] ?? [])))
+            ->modalDescription(fn (array $arguments): string => ($arguments['sent'] ?? false)
+                ? __('The message is archived. Add these addresses to the CRM, and the message is linked to them.')
+                : __('Add these addresses to the CRM before archiving, or archive without them.'))
+            ->modalIcon(Heroicon::OutlinedUserPlus)
+            ->modalIconColor('warning')
+            ->modalWidth('4xl')
+            ->modalSubmitActionLabel(fn (array $arguments): string => ($arguments['sent'] ?? false) ? __('OK') : __('Archive'))
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->fillForm(fn (array $arguments): array => ['senders' => collect($arguments['unknown'] ?? [])
+                ->map(fn (mixed $entry): array => UnknownSenderRow::defaults((array) $entry))->values()->all()])
+            ->schema([
+                Repeater::make('senders')
+                    ->hiddenLabel()
+                    ->schema(UnknownSenderRow::schema())
+                    ->itemLabel(fn (array $state): string => UnknownSenderRow::label($state))
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false),
+                static::linksRepeater(),
+            ])
+            ->action(function (array $data, array $arguments): void {
+                $allowed = collect($arguments['unknown'] ?? [])->pluck('email')->map(fn ($e): string => mb_strtolower((string) $e))->all();
+
+                DB::transaction(function () use ($data, $allowed): void {
+                    foreach ((array) ($data['senders'] ?? []) as $row) {
+                        // Only the addresses this dialog was opened for.
+                        if (is_array($row) && in_array(mb_strtolower((string) ($row['email'] ?? '')), $allowed, true)) {
+                            UnknownSenderRow::apply($row);
+                        }
+                    }
+                });
+
+                $links = static::pickedRecords($data['links'] ?? []);
+
+                if ($arguments['sent'] ?? false) {
+                    $mails = Mail::query()->whereKey($arguments['mails'] ?? [])->get();
+                    $this->linkMails($mails, $links);
+
+                    if ($account = $this->account()) {
+                        $this->archivedNotification($mails, $account, sent: true);
+                    }
+
+                    return;
+                }
+
+                if ($this->archiveNow((string) ($arguments['folder'] ?? ''), (array) ($arguments['uids'] ?? []), $links)) {
+                    $this->dispatch('epesi-roundcube-refresh');
+                }
             });
     }
 

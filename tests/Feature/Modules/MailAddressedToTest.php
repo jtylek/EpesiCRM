@@ -18,7 +18,7 @@ class MailAddressedToTest extends TestCase
 {
     use RefreshDatabase, SignsInUsers;
 
-    public function test_a_contacts_e_mails_tab_lists_only_mail_addressed_to_it(): void
+    public function test_a_contacts_e_mails_tab_lists_only_mail_sent_by_or_addressed_to_it(): void
     {
         Storage::fake('local');
         $user = $this->userWithRole('employee');
@@ -39,12 +39,12 @@ class MailAddressedToTest extends TestCase
         $this->assertTrue($ann->mails()->whereKey($from->id)->exists(), 'archived against her, so linked');
 
         $ids = MailsRelationManager::addressedMailIds($ann);
-        $this->assertEqualsCanonicalizing([$to->id, $cc->id], $ids);
-        $this->assertSame('2', MailsRelationManager::getBadge($ann, ViewContact::class));
+        $this->assertEqualsCanonicalizing([$from->id, $to->id, $cc->id], $ids);
+        $this->assertSame('3', MailsRelationManager::getBadge($ann, ViewContact::class));
 
         Livewire::test(MailsRelationManager::class, ['ownerRecord' => $ann, 'pageClass' => ViewContact::class])
-            ->assertCanSeeTableRecords([$to, $cc])
-            ->assertCanNotSeeTableRecords([$from, $other]);
+            ->assertCanSeeTableRecords([$from, $to, $cc])
+            ->assertCanNotSeeTableRecords([$other]);
 
         // A company keeps every linked message.
         $this->assertNull(MailsRelationManager::addressedMailIds($company));
