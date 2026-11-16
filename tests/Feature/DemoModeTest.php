@@ -11,6 +11,7 @@ use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\CreateAttachm
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\Pages\ListCompanies;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
@@ -192,7 +193,7 @@ class DemoModeTest extends TestCase
 
         // They are changed in Administration → Users (a user's View page),
         // which doesn't exist in demo mode; a contact no longer offers them.
-        Livewire::test(ViewContact::class, ['record' => $this->employee->contact->getKey()])
+        Livewire::test(ViewContact::class, ['record' => Contact::query()->withoutGlobalScopes()->where('user_id', $this->employee->id)->value('id')])
             ->assertDontSee('Reset Password')
             ->assertDontSee('Change Username');
 

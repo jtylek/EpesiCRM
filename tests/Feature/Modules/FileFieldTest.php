@@ -119,9 +119,9 @@ class FileFieldTest extends TestCase
         // ...and nor is anything through a column that holds no files.
         $this->get($this->fileUrl($company, 'company_name', $file))->assertNotFound();
 
-        // Someone else's private record doesn't exist for them.
+        // Someone else's private record is off limits to them: a 403, not a 404.
         $this->actingAs($other);
-        $this->get($url)->assertNotFound();
+        $this->get($url)->assertForbidden();
 
         auth()->logout();
         $this->get($url)->assertForbidden();

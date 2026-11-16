@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Meetings\Policies;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from CRM_MeetingInstall::install()'s ACL rules — see
@@ -20,7 +21,7 @@ class MeetingPolicy
 
     public function view(User $user, Meeting $meeting): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && PrivateRecords::reachableBy($user, $meeting);
     }
 
     public function create(User $user): bool
@@ -31,7 +32,7 @@ class MeetingPolicy
     public function update(User $user, Meeting $meeting): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $meeting);
         }
 
         // Not because it's Public: only what he created or works on.
@@ -55,7 +56,7 @@ class MeetingPolicy
     public function delete(User $user, Meeting $meeting): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $meeting);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $meeting->created_by === $user->id;

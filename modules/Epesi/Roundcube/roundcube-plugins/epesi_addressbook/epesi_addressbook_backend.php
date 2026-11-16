@@ -8,8 +8,8 @@
  *
  * Visibility repeats HasOwnershipVisibility (modules/Epesi/RecordBrowser/src/
  * Models/Concerns/HasOwnershipVisibility.php) and the Contact/Company hooks
- * in SQL, since Roundcube can't run Eloquent: super_admin and manager see
- * everything; anyone else sees what isn't private (permission 2), what they
+ * in SQL, since Roundcube can't run Eloquent: everyone, super_admin and
+ * manager included, sees what isn't private (permission 2), what they
  * created, their own contact and their own company. A change to that rule has
  * to be made here as well.
  */
@@ -171,13 +171,12 @@ class epesi_addressbook_backend extends rcube_addressbook
         ]);
     }
 
-    /** HasOwnershipVisibility's rule; $own is the model's extra "yours" condition. */
+    /**
+     * HasOwnershipVisibility's rule, for every role (managers and super admins
+     * included); $own is the model's extra "yours" condition.
+     */
     private function visible(string $alias, string $own): string
     {
-        if (! empty($this->epesi['sees_all'])) {
-            return '1 = 1';
-        }
-
         return "({$alias}.permission <> 2 OR {$alias}.created_by = ".(int) $this->epesi['user_id']." OR {$own})";
     }
 }

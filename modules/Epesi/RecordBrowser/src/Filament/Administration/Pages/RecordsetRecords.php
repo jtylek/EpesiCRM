@@ -40,9 +40,10 @@ use Illuminate\Support\Enumerable;
  * record's View page here in the administration panel
  * (RecordInAdministration); Edit leads to the main panel's Edit page.
  *
- * All records: the ownership scope (HasOwnershipVisibility) already lets a
- * super admin see everything, and this page is a super admin's only, so
- * only the soft-delete scope is lifted here.
+ * All records but someone else's Private ones: only the soft-delete scope is
+ * lifted here. The ownership scope (HasOwnershipVisibility) keeps applying,
+ * so a Private record stays its author's here too, a super admin's view
+ * included.
  *
  * A recordset whose model doesn't soft-delete gets the plain list: its own
  * filters in the funnel (a default of their own, such as Tasks' "Not closed",

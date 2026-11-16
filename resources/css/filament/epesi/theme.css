@@ -24,6 +24,7 @@
 @import './select-options.css';
 @import './badge-links.css';
 @import './support-modal.css';
+@import './notification-toast.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/**/*';

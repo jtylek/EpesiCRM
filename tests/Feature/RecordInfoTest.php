@@ -34,4 +34,21 @@ class RecordInfoTest extends TestCase
         // Then Watchdog's rows: the author watches the record they created.
         $this->assertSame(['Updated', 'Created', 'Watching'], array_column($viewData['rows'], 0));
     }
+
+    public function test_record_info_names_who_deleted_the_record(): void
+    {
+        Filament::setCurrentPanel('main');
+        $user = $this->userWithRole('manager');
+        Contact::create(['first_name' => 'Me', 'last_name' => 'Myself', 'user_id' => $user->id]);
+        $this->actingAs($user);
+
+        $record = Contact::create(['first_name' => 'Some', 'last_name' => 'One', 'permission' => RecordPermission::Public]);
+        $record->delete();
+
+        $component = RecordInfoEntries::components('contacts')[0];
+        $viewData = (fn () => ($this->viewData[0])($record))->call($component);
+        $deleted = collect($viewData['rows'])->firstWhere(0, 'Deleted');
+
+        $this->assertSame('Myself Me', $deleted[1]);
+    }
 }

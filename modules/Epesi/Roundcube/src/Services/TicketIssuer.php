@@ -92,8 +92,9 @@ class TicketIssuer
             // Mark as junk's folder; empty: epesi_sso finds it at login.
             'junk_folder' => (string) $account->junk_folder,
             'archive_on_sending' => (bool) $account->archive_on_sending,
-            // For the CRM address book's visibility rule.
-            'sees_all' => $user->hasAnyRole(['super_admin', 'manager']),
+            // For the CRM address book's visibility rule, which is the same
+            // for everyone: a manager or super admin doesn't see someone
+            // else's Private contact or company either.
             'company_id' => $user->companyId(),
             // Roundcube speaks the user's Epesi language, and the epesi_*
             // plugins' own labels come translated from here, with the rest.

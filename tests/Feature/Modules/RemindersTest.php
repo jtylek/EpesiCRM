@@ -158,7 +158,8 @@ class RemindersTest extends TestCase
         $this->actingAs($me);
         $task = Task::create(['title' => 'Mine', 'permission' => RecordPermission::Private]);
 
-        $this->assertEqualsCanonicalizing([$me->id, $manager->id], Reminders::eligibleRecipients($task)->modelKeys());
+        // A manager neither: a Private record is its author's alone.
+        $this->assertSame([$me->id], Reminders::eligibleRecipients($task)->modelKeys());
         $this->assertSame($me->id, auth()->id(), 'the visibility check restores the signed-in user');
     }
 
@@ -211,14 +212,15 @@ class RemindersTest extends TestCase
 
         $due = $this->remind($public, '2026-09-24 08:59:00', [$author, $colleague], ['message' => 'Account number!']);
         $this->remind($public, '2026-09-24 09:30:00', [$author]);
-        // Private since the reminder was set: the colleague must not learn of it.
+        // Private since the reminder was set: the colleague must not learn of
+        // it, nor the manager.
         $this->remind($private, '2026-09-24 08:00:00', [$colleague, $manager]);
 
-        $this->assertSame(3, Reminders::deliverDue());
+        $this->assertSame(2, Reminders::deliverDue());
 
         $this->assertSame(1, $author->notifications()->count());
         $this->assertSame(1, $colleague->notifications()->count());
-        $this->assertSame(1, $manager->notifications()->count());
+        $this->assertSame(0, $manager->notifications()->count());
 
         $data = $author->notifications()->first()->data;
         $this->assertSame('Reminder: Task: Call the bank', $data['title']);

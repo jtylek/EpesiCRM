@@ -14,19 +14,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * DownloadController this asks neither Auth::check() nor Gate::allows(),
  * deliberately, since the whole point is that it works without either.
  *
- * Attachment's HasOwnershipVisibility scope adds no constraint for a guest
- * (Auth::user() is null), so this reaches a Private note's files same as a
- * Public one's — the note's own permission never gated file access to begin
- * with (DownloadController itself asks only "may you view the note", not
- * "is it Public"), it's simply that only Gate::allows('view') callers could
- * reach this far before. Generating the link is what's gated: it's only ever
- * built into a page the viewer already had permission to see.
+ * So the note is found without its HasOwnershipVisibility scope: the link
+ * reaches a Private note's files same as a Public one's, for a guest and for
+ * a signed-in user who isn't the note's author alike (the scope would hide
+ * it from the latter, a super admin included). Generating the link is what's
+ * gated: it's only ever built into a page the viewer already had permission
+ * to see.
  */
 class SharedFileController
 {
     public function __invoke(int $attachment, int $file): StreamedResponse
     {
-        $note = Attachment::query()->findOrFail($attachment);
+        $note = Attachment::query()->withoutGlobalScope('ownership')->findOrFail($attachment);
 
         $stored = $note->storedFiles()->first(fn (StoredFile $candidate): bool => $candidate->getKey() === $file);
 

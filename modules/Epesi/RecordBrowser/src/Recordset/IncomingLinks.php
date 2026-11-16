@@ -2,6 +2,8 @@
 
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
+use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\LinkedRecordsRelationManager;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
@@ -98,6 +100,25 @@ class IncomingLinks
         );
     }
 
+    /**
+     * Customer and Customers links to $target. For a Company, links to its
+     * employees count too, as in Epesi 1.9.1: Contacts whose company or
+     * related companies include it (Contact::ofCompany()), through one
+     * subquery so a record linked to both still matches once.
+     */
+    protected static function matchTarget(Builder $query, string $typeColumn, string $idColumn, Model $target): void
+    {
+        $query->where(fn (Builder $direct) => $direct->where($typeColumn, $target->getMorphClass())->where($idColumn, $target->getKey()));
+
+        if ($target instanceof Company) {
+            $contact = new Contact;
+
+            $query->orWhere(fn (Builder $employee) => $employee
+                ->where($typeColumn, $contact->getMorphClass())
+                ->whereIn($idColumn, Contact::query()->ofCompany($target->getKey())->select($contact->getQualifiedKeyName())));
+        }
+    }
+
     /** @param list<Field> $fields */
     public static function query(string $resource, Model $target, array $fields): Builder
     {
@@ -111,11 +132,13 @@ class IncomingLinks
                     match ($field->type) {
                         FieldType::Relation => $query->where($query->qualifyColumn($field->name), $target->getKey()),
                         FieldType::Relations => $query->whereHas($field->getStateName(), fn (Builder $related) => $related->whereKey($target->getKey())),
-                        FieldType::Related, FieldType::Customers => $query->whereHas('recordLinks', fn (Builder $links) => $links
+                        FieldType::Related => $query->whereHas('recordLinks', fn (Builder $links) => $links
                             ->where('field', $field->name)->where('target_type', $target->getMorphClass())->where('target_id', $target->getKey())),
-                        FieldType::Customer => $query
-                            ->where($query->qualifyColumn("{$field->name}_type"), $target->getMorphClass())
-                            ->where($query->qualifyColumn("{$field->name}_id"), $target->getKey()),
+                        FieldType::Customers => $query->whereHas('recordLinks', fn (Builder $links) => $links
+                            ->where('field', $field->name)
+                            ->where(fn (Builder $link) => static::matchTarget($link, 'target_type', 'target_id', $target))),
+                        FieldType::Customer => $query->where(fn (Builder $customer) => static::matchTarget(
+                            $customer, $query->qualifyColumn("{$field->name}_type"), $query->qualifyColumn("{$field->name}_id"), $target)),
                         default => $query->whereRaw('1 = 0'),
                     };
                 });

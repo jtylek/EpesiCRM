@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Tasks\Policies;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from CRM_TasksInstall::install()'s ACL rules — see
@@ -20,7 +21,7 @@ class TaskPolicy
 
     public function view(User $user, Task $task): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && PrivateRecords::reachableBy($user, $task);
     }
 
     public function create(User $user): bool
@@ -31,7 +32,7 @@ class TaskPolicy
     public function update(User $user, Task $task): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $task);
         }
 
         // Not because it's Public: only what he created or works on.
@@ -55,7 +56,7 @@ class TaskPolicy
     public function delete(User $user, Task $task): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $task);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $task->created_by === $user->id;

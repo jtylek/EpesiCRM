@@ -6,6 +6,7 @@ use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from CRM_PhoneCallInstall::install()'s ACL rules — see
@@ -25,7 +26,7 @@ class PhoneCallPolicy
 
     public function view(User $user, PhoneCall $phoneCall): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && PrivateRecords::reachableBy($user, $phoneCall);
     }
 
     public function create(User $user): bool
@@ -36,7 +37,7 @@ class PhoneCallPolicy
     public function update(User $user, PhoneCall $phoneCall): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $phoneCall);
         }
 
         // Not because it's Public: only what he created or works on.
@@ -60,7 +61,7 @@ class PhoneCallPolicy
     public function delete(User $user, PhoneCall $phoneCall): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $phoneCall);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $phoneCall->created_by === $user->id;

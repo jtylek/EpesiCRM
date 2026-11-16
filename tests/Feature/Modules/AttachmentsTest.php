@@ -673,7 +673,7 @@ class AttachmentsTest extends TestCase
         $this->actingAs($other);
         $this->assertSame(0, $contact->attachments()->count());
         $this->get(route('epesi.attachments.download', ['attachment' => $note->id, 'file' => $file->id]))
-            ->assertNotFound();
+            ->assertForbidden();
     }
 
     public function test_guests_cannot_download(): void
@@ -787,7 +787,7 @@ class AttachmentsTest extends TestCase
 
         $this->actingAs($other);
         $this->get(route('epesi.attachments.html', ['attachment' => $note->id, 'file' => $html->id]))
-            ->assertNotFound();
+            ->assertForbidden();
     }
 
     public function test_someone_elses_private_notes_markdown_file_is_hidden(): void
@@ -803,7 +803,7 @@ class AttachmentsTest extends TestCase
 
         $this->actingAs($other);
         $this->get(route('epesi.attachments.markdown', ['attachment' => $note->id, 'file' => $md->id]))
-            ->assertNotFound();
+            ->assertForbidden();
     }
 
     public function test_the_view_page_shows_each_file_as_a_badge_with_view_only_where_it_can_be_viewed_and_a_link_of_its_own(): void

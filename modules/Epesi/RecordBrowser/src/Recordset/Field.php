@@ -15,6 +15,7 @@ use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\Forms\LinkedToField;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
+use Epesi\Modules\RecordBrowser\History\SaveActivity;
 use Epesi\Modules\RecordBrowser\History\TextDiff;
 use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
@@ -1280,7 +1281,27 @@ class Field
             );
         }
 
-        return $this->type === FieldType::Relations ? $select->multiple() : $select;
+        if ($this->type !== FieldType::Relations) {
+            return $select;
+        }
+
+        // Filament syncs the pivot, which fires no model event, so History
+        // would never see it: log the change around the sync.
+        return $select->multiple()->saveRelationshipsUsing(function (Select $component, Model $record): void {
+            $relation = $record->{(string) $this->getParam('relationship')}();
+            $ids = fn (): array => $relation->newPivotQuery()
+                ->where($relation->getQualifiedForeignPivotKeyName(), $record->getKey())
+                ->pluck($relation->getQualifiedRelatedPivotKeyName())
+                ->map(fn (mixed $id): string => (string) $id)->sort(SORT_NATURAL)->values()->all();
+
+            $before = $record->wasRecentlyCreated ? [] : $ids();
+            $component->saveStateToRelationship();
+            $after = $ids();
+
+            if ($before !== $after) {
+                app(SaveActivity::class)->logFieldChange($record, $this->name, $before, $after);
+            }
+        });
     }
 
     /**
@@ -2893,6 +2914,7 @@ class Field
             FieldType::Select, FieldType::Multiselect => implode(', ', array_map(fn (mixed $one): string => $this->optionLabel($one), (array) $value)),
             FieldType::CommonData => implode(', ', array_map(fn (mixed $one): string => $this->commonDataLabel($one), (array) $value)),
             FieldType::Relation => $this->loggedRelatedTitle($value),
+            FieldType::Relations => implode(', ', array_map($this->loggedRelatedTitle(...), (array) $value)),
             FieldType::Currency => $this->formatMoney($value, null) ?? '-',
             // A date is logged either as it was typed or as midnight UTC:
             // either way it is the day that was meant, so no time zone shift.
@@ -2951,6 +2973,10 @@ class Field
 
         if ($this->type === FieldType::Collection) {
             return $this->loggedCollectionChange($old, $new, $entry);
+        }
+
+        if ($this->type === FieldType::Relations) {
+            return $this->loggedRelationsChange($old, $new, $entry->event === 'created');
         }
 
         if (in_array($this->type, [FieldType::Related, FieldType::Customers], true)) {
@@ -3041,6 +3067,30 @@ class Field
         return new HtmlString(implode(' ', [
             ...array_map(fn (string $token): string => '<del class="epesi-history-old">− '.e($this->loggedLinkTitle($token)).'</del>', $removed),
             ...array_map(fn (string $token): string => '<ins class="epesi-history-new">+ '.e($this->loggedLinkTitle($token)).'</ins>', $added),
+        ]));
+    }
+
+    /**
+     * A change of a belongsToMany field (Employees): the records taken off,
+     * struck through, and the ones added, each by its title; a created record
+     * shows just the names (Field::relationSelect() logs the ids).
+     */
+    protected function loggedRelationsChange(mixed $old, mixed $new, bool $created): ?HtmlString
+    {
+        $old = $created ? [] : array_map('strval', (array) $old);
+        $new = array_map('strval', (array) $new);
+        $removed = array_diff($old, $new);
+        $added = array_diff($new, $old);
+
+        if ($removed === [] && $added === []) {
+            return null;
+        }
+
+        $sign = $created ? '' : '+ ';
+
+        return new HtmlString(implode(' ', [
+            ...array_map(fn (string $id): string => '<del class="epesi-history-old">− '.e($this->loggedRelatedTitle($id)).'</del>', $removed),
+            ...array_map(fn (string $id): string => '<ins class="epesi-history-new">'.$sign.e($this->loggedRelatedTitle($id)).'</ins>', $added),
         ]));
     }
 

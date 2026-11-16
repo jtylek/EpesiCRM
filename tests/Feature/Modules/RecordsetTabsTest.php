@@ -124,7 +124,8 @@ class RecordsetTabsTest extends TestCase
 
     public function test_the_records_tab_lists_every_record_active_and_deleted_in_the_recordsets_own_table(): void
     {
-        // Private, by someone else: an employee's list wouldn't show it to anyone but its author.
+        // Private, by someone else: no list shows it to anyone but its author,
+        // the administrator's Records tab neither.
         $this->actingAs($this->userWithRole('employee'));
         $private = Company::create(['company_name' => 'Private Co', 'permission' => RecordPermission::Private]);
 
@@ -137,7 +138,8 @@ class RecordsetTabsTest extends TestCase
         $page = Livewire::test(RecordsetRecords::class, ['alias' => 'company'])
             ->assertSuccessful()
             ->filterTable(RecordsetRecords::DELETED_FILTER, 'all')
-            ->assertCanSeeTableRecords([$active, $deleted, $private])
+            ->assertCanSeeTableRecords([$active, $deleted])
+            ->assertCanNotSeeTableRecords([$private])
             ->assertTableColumnExists('company_name')
             ->assertTableColumnExists('deleted_at')
             ->assertTableFilterExists(RecordsetRecords::DELETED_FILTER)

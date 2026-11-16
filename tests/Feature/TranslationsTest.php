@@ -255,8 +255,8 @@ class TranslationsTest extends TestCase
             $missing = array_diff_key($strings, $translated);
 
             $this->assertSame([], $missing, "Setup strings without a {$locale} translation (string => where):
-".implode("
-", array_map(fn ($key, $where) => "{$key} => {$where}", array_keys($missing), $missing)));
+".implode('
+', array_map(fn ($key, $where) => "{$key} => {$where}", array_keys($missing), $missing)));
         }
     }
 
@@ -343,7 +343,7 @@ class TranslationsTest extends TestCase
      */
     protected function crawlResource(string $resource, string $panelId): void
     {
-        $record = $resource::getModel()::query()->withoutGlobalScopes()->first();
+        $record = $resource::getModel()::query()->first();
 
         foreach ($resource::getPages() as $name => $registration) {
             $page = $registration->getPage();

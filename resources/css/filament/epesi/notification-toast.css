@@ -1,0 +1,24 @@
+/*
+ * Toast notifications appear in the centre of the screen (AppServiceProvider), so
+ * they must stand out from the page behind them in light and dark mode: a solid
+ * background, a primary-colour border and a strong shadow.
+ */
+.fi-no-notification {
+    border: 2px solid var(--primary-500);
+    border-radius: 0.75rem;
+    background-color: #fff;
+    --tw-ring-shadow: 0 0 #0000;
+    box-shadow:
+        0 10px 25px -5px rgb(0 0 0 / 0.3),
+        0 20px 50px -10px rgb(0 0 0 / 0.35),
+        0 0 0 4px color-mix(in srgb, var(--primary-500) 20%, transparent);
+}
+
+.dark .fi-no-notification {
+    background-color: var(--gray-800, #1f2937);
+    border-color: var(--primary-400);
+    box-shadow:
+        0 10px 25px -5px rgb(0 0 0 / 0.7),
+        0 20px 50px -10px rgb(0 0 0 / 0.8),
+        0 0 0 4px color-mix(in srgb, var(--primary-400) 25%, transparent);
+}

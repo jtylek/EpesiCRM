@@ -160,11 +160,8 @@ abstract class ViewRecord extends BaseViewRecord
             ? [Favorites::toggleAction()]
             : [];
         $clipboard = ($clipboardAction = $this->clipboardAction()) !== null ? [$clipboardAction] : [];
-        // Restore for a deleted record, only where the administrator opened it
-        // (RecordInAdministration); the action itself shows only while it is deleted.
-        $restore = RecordInAdministration::shows($this) ? [RecordInAdministration::restoreAction()] : [];
 
-        foreach ([...$restore, ...$favorites, ...$clipboard, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
+        foreach ([...$favorites, ...$clipboard, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
             if ($action instanceof ActionGroup) {
                 $action->livewire($this);
                 $this->mergeCachedActions($action->getFlatActions());
@@ -185,6 +182,28 @@ abstract class ViewRecord extends BaseViewRecord
 
             $this->cachedHeaderActions = [...$others, $edit, $kebab];
         }
+    }
+
+    /**
+     * A deleted record (reachable by a super admin, whom Shield lets past the
+     * policies, and under Administration → Recordsets) says so in a sticky red
+     * bar at the bottom of the page, with Restore.
+     */
+    public function getFooter(): ?ViewContract
+    {
+        $record = $this->getRecord();
+
+        if (! method_exists($record, 'trashed') || ! $record->trashed()) {
+            return parent::getFooter();
+        }
+
+        return view('filament.components.deleted-record-banner', ['restoreAction' => $this->restoreAction]);
+    }
+
+    /** Restore, in the deleted-record bar; Filament hides it while the record is not deleted. */
+    public function restoreAction(): Action
+    {
+        return RecordInAdministration::restoreAction();
     }
 
     /**
@@ -328,7 +347,8 @@ abstract class ViewRecord extends BaseViewRecord
             DeleteAction::make()
                 ->icon(Heroicon::OutlinedTrash)
                 // Shield's Gate::before lets super_admin past the policy, so a frozen record's own rule is asked here.
-                ->hidden(fn (Model $record): bool => method_exists($record, 'wasPosted') && $record->wasPosted()),
+                ->hidden(fn (Model $record): bool => (method_exists($record, 'trashed') && $record->trashed())
+                    || (method_exists($record, 'wasPosted') && $record->wasPosted())),
         ])->color('gray');
     }
 

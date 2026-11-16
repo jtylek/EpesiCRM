@@ -45,7 +45,7 @@ class RecordInfoEntries
                     [__('Updated'), self::name(self::updater($record)), RegionalSetting::display($record->updated_at)],
                     [__('Created'), self::name(self::creator($record)), RegionalSetting::display($record->created_at)],
                     method_exists($record, 'trashed') && $record->trashed()
-                        ? [__('Deleted'), null, RegionalSetting::display($record->deleted_at)]
+                        ? [__('Deleted'), self::name(self::deleter($record)), RegionalSetting::display($record->deleted_at)]
                         : null,
                     ...RecordExtensions::recordInfoRowsFor($record),
                 ])),
@@ -68,6 +68,18 @@ class RecordInfoEntries
     private static function creator(Model $record): ?User
     {
         return method_exists($record, 'creator') ? $record->creator : null;
+    }
+
+    /** Whoever caused the record's latest "deleted" History entry. */
+    private static function deleter(Model $record): ?User
+    {
+        if (! method_exists($record, 'activities')) {
+            return null;
+        }
+
+        $causer = $record->activities()->where('event', 'deleted')->latest('created_at')->latest('id')->first()?->causer;
+
+        return $causer instanceof User ? $causer : null;
     }
 
     private static function updater(Model $record): ?User

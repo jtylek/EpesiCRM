@@ -21,6 +21,7 @@ use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\Reminders\Reminders;
@@ -303,6 +304,12 @@ class DemoDataSeeder extends Seeder
     ];
 
     public function run(User $admin): void
+    {
+        // The admin is the signed-in author, but seeding must see every record it just made.
+        PrivateRecords::suspended(fn () => $this->seed($admin));
+    }
+
+    private function seed(User $admin): void
     {
         $this->notesCreated = 0;
 

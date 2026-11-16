@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RecordBrowser;
 
 use App\Console\Commands\CheckModule;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 use Epesi\Modules\RecordBrowser\Console\CustomFieldsSyncCommand;
 use Epesi\Modules\RecordBrowser\Console\MakeRecordsetCommand;
 use Epesi\Modules\RecordBrowser\Console\RecordsetCheckCommand;
@@ -25,6 +26,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -78,6 +80,12 @@ class RecordBrowserServiceProvider extends ServiceProvider
         $activity = ActivitylogServiceProvider::determineActivityModel();
         $activity::created(fn (Model $row) => app(SaveActivity::class)->remember($row));
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-recordbrowser');
+
+        // Someone else's Private record: a 403 saying so instead of a 404.
+        $handler = $this->app->make(ExceptionHandler::class);
+        if (method_exists($handler, 'renderable')) {
+            $handler->renderable(PrivateRecords::forbiddenResponse(...));
+        }
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
         // A record's View page under Administration → Recordsets: its Livewire

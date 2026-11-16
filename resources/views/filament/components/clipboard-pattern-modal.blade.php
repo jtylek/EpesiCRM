@@ -1,8 +1,9 @@
 {{--
     The View page's "Copy to clipboard" action (ViewRecord::clipboardAction()):
     the pattern rendered against this record, in a selectable box, and a Copy
-    button. navigator.clipboard needs HTTPS or localhost, so the box stays
-    selectable on click for a plain-HTTP install where that API doesn't exist.
+    button. navigator.clipboard needs HTTPS or localhost; on a plain-HTTP install
+    the button falls back to selecting the box and document.execCommand('copy'),
+    and the box stays selectable on click.
 
     The Copy button never puts $text into an attribute or a literal JS
     string — only into this textarea's own content, which Blade escapes as
@@ -24,10 +25,18 @@
         color="gray"
         icon="heroicon-o-clipboard-document"
         x-on:click="
-            navigator.clipboard.writeText($el.closest('[x-data]').querySelector('textarea').value).then(() => {
+            const box = $el.closest('[x-data]').querySelector('textarea');
+            const done = () => {
                 copied = true;
                 setTimeout(() => (copied = false), 2000);
-            })
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(box.value).then(done);
+            } else {
+                box.focus();
+                box.select();
+                if (document.execCommand('copy')) done();
+            }
         "
     >
         <span x-show="! copied">{{ __('Copy') }}</span>

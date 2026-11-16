@@ -24,6 +24,7 @@ use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailLink;
 use Epesi\Modules\Mail\Models\MailThread;
 use Epesi\Modules\PriorityList\PriorityList;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\Reminders\Models\Reminder;
@@ -96,7 +97,7 @@ class DemoDataTest extends TestCase
         $this->assertSame(5, PhoneCall::query()->withoutGlobalScopes()
             ->whereHas('employees', fn ($query) => $query->where('user_id', $this->admin->id))->count());
         $this->assertSame(30, $this->records(Meeting::class));
-        $this->assertSame(0, Meeting::query()->withoutGlobalScopes()->whereDoesntHave('customers')->whereDoesntHave('customerCompanies')->count(), 'every demo meeting has at least one customer');
+        $this->assertSame(0, PrivateRecords::suspended(fn () => Meeting::query()->withoutGlobalScopes()->whereDoesntHave('customers')->whereDoesntHave('customerCompanies')->count()), 'every demo meeting has at least one customer');
         $this->assertSame(25, Message::query()->count());
         $this->assertSame(100, $this->records(Attachment::class), 'notes: 7 on the hand-written records, 93 generated');
         $this->assertSame(100, Mail::query()->count());
@@ -254,6 +255,7 @@ class DemoDataTest extends TestCase
     public function test_every_user_has_ten_next_actions_on_their_priority_list(): void
     {
         foreach (User::query()->get() as $user) {
+            $this->actingAs($user); // each list is read by its owner
             $entries = PriorityList::entries($user)->with('record')->get();
 
             $this->assertCount(PriorityList::LIMIT, $entries, $user->email);
@@ -323,7 +325,7 @@ class DemoDataTest extends TestCase
     public function test_removing_it_keeps_you_and_what_you_added(): void
     {
         $demoContact = Contact::query()->withoutGlobalScopes()->whereHas('emails', fn ($q) => $q->where('value', 'bruce@wayne.test'))->sole();
-        $demoCompany = $demoContact->company;
+        $demoCompany = $demoContact->company()->withoutGlobalScopes()->first();
 
         // Something real, added after setup, that refers to demo records.
         $ownTask = Task::create(['title' => 'Call the bank', 'permission' => RecordPermission::Public]);

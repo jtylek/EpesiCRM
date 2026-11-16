@@ -58,6 +58,33 @@ class IncomingLinksTest extends TestCase
             ->assertCanNotSeeTableRecords([$private]);
     }
 
+    public function test_a_companys_tabs_also_list_records_linked_to_its_employees(): void
+    {
+        $this->actingAs($this->userWithRole('manager'));
+        $acme = Company::create(['company_name' => 'Acme']);
+        $beta = Company::create(['company_name' => 'Beta']);
+        $ann = Contact::create(['last_name' => 'Ann', 'first_name' => 'Ann', 'company_id' => $acme->id]);
+        $bob = Contact::create(['last_name' => 'Bob', 'first_name' => 'Bob', 'company_id' => $beta->id]);
+
+        $viaEmployee = Task::create(['title' => 'Employee only']);
+        $viaEmployee->syncRecordLinks('customers', ['contact:'.$ann->id]);
+        $viaBoth = Task::create(['title' => 'Company and employee']);
+        $viaBoth->syncRecordLinks('customers', ['company:'.$acme->id, 'contact:'.$ann->id]);
+        $viaOther = Task::create(['title' => 'Other company employee']);
+        $viaOther->syncRecordLinks('customers', ['contact:'.$bob->id]);
+
+        $ids = fn (Company $company): array => IncomingLinks::query(TaskResource::class, $company, IncomingLinks::for($company)[TaskResource::class])->pluck('id')->all();
+        $this->assertEqualsCanonicalizing([$viaEmployee->id, $viaBoth->id], $ids($acme));
+        $this->assertEqualsCanonicalizing([$viaOther->id], $ids($beta));
+
+        $callByEmployee = PhoneCall::create(['subject' => 'Call Ann', 'called_at' => '2026-09-27 10:00:00', 'customer_type' => 'contact', 'customer_id' => $ann->id]);
+        $callByBob = PhoneCall::create(['subject' => 'Call Bob', 'called_at' => '2026-09-27 11:00:00', 'customer_type' => 'contact', 'customer_id' => $bob->id]);
+
+        $calls = fn (Company $company): array => IncomingLinks::query(PhoneCallResource::class, $company, IncomingLinks::for($company)[PhoneCallResource::class])->pluck('id')->all();
+        $this->assertSame([$callByEmployee->id], $calls($acme));
+        $this->assertSame([$callByBob->id], $calls($beta));
+    }
+
     public function test_the_tab_has_no_filters(): void
     {
         $this->actingAs($this->userWithRole('employee'));

@@ -5,6 +5,7 @@ namespace Epesi\Modules\Attachments\Policies;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\Attachments\Models\Attachment;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from Utils_AttachmentInstall::install()'s ACL rules:
@@ -15,7 +16,9 @@ use Epesi\Modules\Attachments\Models\Attachment;
  *   add_access('utils_attachment', 'delete', ['ACCESS:employee', 'ACCESS:manager']);
  *
  * The private-note half of `view` is enforced by the model's ownership scope,
- * so a private note someone else wrote never loads in the first place.
+ * so a private note someone else wrote never loads in the first place, for a
+ * manager or super admin neither (unlike legacy's unrestricted grants); the
+ * policy asks PrivateRecords the same of a note loaded some other way.
  */
 class AttachmentPolicy
 {
@@ -30,9 +33,7 @@ class AttachmentPolicy
             return false;
         }
 
-        return $attachment->permission !== RecordPermission::Private
-            || $attachment->created_by === $user->id
-            || $user->hasAnyRole(['super_admin', 'manager']);
+        return PrivateRecords::reachableBy($user, $attachment);
     }
 
     public function create(User $user): bool
@@ -43,7 +44,7 @@ class AttachmentPolicy
     public function update(User $user, Attachment $attachment): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $attachment);
         }
 
         if ($user->isConsultant()) {
@@ -57,7 +58,7 @@ class AttachmentPolicy
     public function delete(User $user, Attachment $attachment): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $attachment);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $attachment->created_by === $user->id;

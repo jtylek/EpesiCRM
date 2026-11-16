@@ -202,7 +202,7 @@ class RoundcubeTest extends TestCase
         $this->assertSame('CRM Archive', $login['archive_folder']);
         $this->assertSame('INBOX.spam', $login['junk_folder']);
         $this->assertSame('Eli', $login['name']);
-        $this->assertFalse($login['sees_all']);
+        $this->assertArrayNotHasKey('sees_all', $login, 'the address book has one rule for every role');
 
         $this->assertNull($this->redeem($token), 'a ticket logs in once');
         $this->assertSame(0, DB::table('epesi_roundcube_tickets')->count());

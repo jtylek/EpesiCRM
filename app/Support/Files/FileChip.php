@@ -69,7 +69,11 @@ class FileChip
     public static function shareButton(string $url): string
     {
         $title = __('Get link (valid for 7 days)');
-        $onClick = "navigator.clipboard.writeText(this.dataset.url).then(()=>window.dispatchEvent(new CustomEvent('open-modal',{detail:{id:'epesi-link-copied'}})))";
+        // navigator.clipboard exists only on HTTPS/localhost; on plain HTTP fall back to execCommand.
+        $onClick = "var u=this.dataset.url,d=function(){window.dispatchEvent(new CustomEvent('open-modal',{detail:{id:'epesi-link-copied'}}))};"
+            ."if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(u).then(d)}"
+            ."else{var t=document.createElement('textarea');t.value=u;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();"
+            ."try{if(document.execCommand('copy'))d()}finally{document.body.removeChild(t)}}";
 
         return sprintf(
             '<button type="button" class="epesi-file-action" title="%s" data-url="%s" onclick="%s">%s</button>',

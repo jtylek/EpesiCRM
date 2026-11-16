@@ -76,7 +76,8 @@ abstract class EditRecord extends BaseEditRecord
             ViewAction::make()->label('Cancel')->color('gray')->icon(Heroicon::OutlinedXMark),
             DeleteAction::make()->icon(Heroicon::OutlinedTrash)
                 // Shield's Gate::before lets super_admin past the policy, so a frozen record's own rule is asked here.
-                ->hidden(fn (Model $record): bool => method_exists($record, 'wasPosted') && $record->wasPosted()),
+                ->hidden(fn (Model $record): bool => (method_exists($record, 'trashed') && $record->trashed())
+                    || (method_exists($record, 'wasPosted') && $record->wasPosted())),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

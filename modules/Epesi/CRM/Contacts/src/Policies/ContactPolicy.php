@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Contacts\Policies;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from CRM_ContactsInstall::install_permissions()'s contact rules —
@@ -21,7 +22,7 @@ class ContactPolicy
 
     public function view(User $user, Contact $contact): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && PrivateRecords::reachableBy($user, $contact);
     }
 
     public function create(User $user): bool
@@ -32,7 +33,7 @@ class ContactPolicy
     public function update(User $user, Contact $contact): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $contact);
         }
 
         if ($contact->user_id === $user->id) {
@@ -50,7 +51,7 @@ class ContactPolicy
     public function delete(User $user, Contact $contact): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $contact);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $contact->created_by === $user->id;

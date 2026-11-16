@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Companies\Policies;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 
 /**
  * Ported from CRM_ContactsInstall::install_permissions()'s company rules —
@@ -25,7 +26,7 @@ class CompanyPolicy
 
     public function view(User $user, Company $company): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && PrivateRecords::reachableBy($user, $company);
     }
 
     public function create(User $user): bool
@@ -36,7 +37,7 @@ class CompanyPolicy
     public function update(User $user, Company $company): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $company);
         }
 
         if ($company->id === $user->companyId()) {
@@ -54,7 +55,7 @@ class CompanyPolicy
     public function delete(User $user, Company $company): bool
     {
         if ($user->hasAnyRole(['super_admin', 'manager'])) {
-            return true;
+            return PrivateRecords::reachableBy($user, $company);
         }
 
         return $user->hasAnyRole(['employee', 'consultant']) && $company->created_by === $user->id;

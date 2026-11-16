@@ -25,8 +25,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 /**
  * One note — the port of a `utils_attachment` record. Visibility is the same
  * rule every CRM record follows (HasOwnershipVisibility): anyone may see it
- * unless it is Private, in which case only its author (and managers) can,
- * i.e. Epesi's `'(!permission' => 2, '|:Created_by' => 'USER_ID'` view crit.
+ * unless it is Private, in which case only its author can (not a manager or
+ * super admin either), i.e. Epesi's `'(!permission' => 2, '|:Created_by' => 'USER_ID'`
+ * view crit.
  */
 class Attachment extends Model
 {

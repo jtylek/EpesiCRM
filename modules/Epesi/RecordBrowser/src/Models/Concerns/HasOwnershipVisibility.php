@@ -5,6 +5,7 @@ namespace Epesi\Modules\RecordBrowser\Models\Concerns;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\RecordBrowser\Access\ConsultantLinks;
+use Epesi\Modules\RecordBrowser\Access\PrivateRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,14 +18,21 @@ use Illuminate\Support\Facades\Auth;
  *
  * i.e. a record is visible if it isn't Private, OR you created it, OR
  * (per-model, via applyExtraVisibility()) it's "yours" some other way — your
- * own company, or your own linked contact. Managers and super admins bypass
- * this entirely, mirroring Epesi's unrestricted ACCESS:manager/SUPERADMIN
- * grants. This is the AureusERP-style OwnershipScope pattern the port
- * analysis recommended over hand-rolling something bespoke.
+ * own company, or your own linked contact. This is the AureusERP-style
+ * OwnershipScope pattern the port analysis recommended over hand-rolling
+ * something bespoke.
+ *
+ * Unlike Epesi's unrestricted ACCESS:manager/SUPERADMIN grants, managers and
+ * super admins get the employee's rule too, in every panel (Administration
+ * included): someone else's Private record is hidden from them. Shield lets a
+ * super admin past every policy, so this scope is what keeps it from him
+ * (PrivateRecords asks the same of a single record, for the policies). With
+ * nobody signed in (console, queue, importers) the scope adds nothing.
  *
  * A consultant (no legacy counterpart) is narrower than an employee: Public
  * doesn't count for him. He sees what he created, plus what
- * applyConsultantVisibility() says is tied to him.
+ * applyConsultantVisibility() says is tied to him. A consultant who is also
+ * a manager or super admin gets the employee's rule.
  */
 trait HasOwnershipVisibility
 {
@@ -36,28 +44,37 @@ trait HasOwnershipVisibility
             /** @var User|null $user */
             $user = Auth::user();
 
-            if (! $user || $user->hasAnyRole(['super_admin', 'manager'])) {
+            if (! $user || PrivateRecords::isSuspended()) {
                 return;
             }
 
-            if ($user->isConsultant()) {
-                $builder->where(function (Builder $query) use ($user) {
-                    $query->where($query->qualifyColumn('created_by'), $user->id);
-
-                    static::applyConsultantVisibility($query, $user);
-                });
-
-                return;
-            }
-
-            $builder->where(function (Builder $query) use ($user) {
-                $query->where('permission', '!=', RecordPermission::Private->value)
-                    ->orWhere('created_by', $user->id);
-
-                static::applyExtraVisibility($query, $user);
-            });
+            static::applyOwnershipVisibility($builder, $user);
         });
 
+    }
+
+    /**
+     * The scope's rule for $user, on any query of this model — the scope
+     * itself for the signed-in user, PrivateRecords for one record.
+     */
+    public static function applyOwnershipVisibility(Builder $builder, User $user): void
+    {
+        if ($user->isConsultant() && ! $user->hasAnyRole(['super_admin', 'manager'])) {
+            $builder->where(function (Builder $query) use ($user) {
+                $query->where($query->qualifyColumn('created_by'), $user->id);
+
+                static::applyConsultantVisibility($query, $user);
+            });
+
+            return;
+        }
+
+        $builder->where(function (Builder $query) use ($user) {
+            $query->where('permission', '!=', RecordPermission::Private->value)
+                ->orWhere('created_by', $user->id);
+
+            static::applyExtraVisibility($query, $user);
+        });
     }
 
     /**

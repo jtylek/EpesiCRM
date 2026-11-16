@@ -4,6 +4,7 @@ namespace Epesi\Modules\RecordBrowser\History;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\ActivitylogServiceProvider;
+use Spatie\Activitylog\ActivityLogStatus;
 use Spatie\Activitylog\CauserResolver;
 use WeakMap;
 
@@ -76,5 +77,45 @@ class SaveActivity
             && (string) $activity->causer_id === (string) $causer?->getKey()
             ? $activity
             : null;
+    }
+
+    /**
+     * A change to $field that fires no model event (a belongsToMany synced by
+     * the form), in History: merged into the entry of the same save when
+     * there is one, else an entry of its own. Nothing when the log is off.
+     *
+     * @param  list<string>  $before
+     * @param  list<string>  $after
+     */
+    public function logFieldChange(Model $record, string $field, array $before, array $after): void
+    {
+        if (! method_exists($record, 'getActivitylogOptions') || ! ($record->enableLoggingModelsEvents ?? true) || app(ActivityLogStatus::class)->disabled()) {
+            return;
+        }
+
+        if ($entry = $this->entryFor($record)) {
+            $properties = $entry->properties->toArray();
+            $properties['attributes'] = [...($properties['attributes'] ?? []), $field => $after];
+
+            // A record just created had nothing before.
+            if ($entry->event === 'updated') {
+                $properties['old'] = [...($properties['old'] ?? []), $field => $before];
+            }
+
+            $entry->properties = collect($properties);
+            $entry->save();
+
+            return;
+        }
+
+        $logged = activity($record->getActivitylogOptions()->logName ?: config('activitylog.default_log_name'))
+            ->performedOn($record)
+            ->event('updated')
+            ->withProperties(['old' => [$field => $before], 'attributes' => [$field => $after]])
+            ->log('updated');
+
+        if ($logged !== null) {
+            $this->markCollectionEntry($record);
+        }
     }
 }
