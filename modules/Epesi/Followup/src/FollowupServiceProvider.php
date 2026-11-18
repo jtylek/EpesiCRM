@@ -15,6 +15,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
@@ -72,12 +73,24 @@ class FollowupServiceProvider extends ServiceProvider
             ->modalSubmitAction(fn (Action $action): Action => $action->keyBindings(['ctrl+s']))
             ->modalCancelAction(fn (Action $action): Action => $action->keyBindings(['ctrl+e']))
             ->modalSubmitActionLabel(__('Save'))
+            // At the right: Filament reverses the row for End, so the default
+            // Save, Cancel order reads Cancel, Save.
+            ->modalFooterActionsAlignment(Alignment::End)
             ->schema([
                 Select::make('status')
                     ->options(RecordStatus::class)
                     ->default(RecordStatus::Closed)
                     ->required()
-                    ->selectablePlaceholder(false),
+                    ->selectablePlaceholder(false)
+                    ->inlineLabel(),
+                // The title of the notes this leaves (the closing note and the
+                // trace on each record); not the follow-up record's title below.
+                TextInput::make('note_title')
+                    ->label('Title')
+                    ->default(fn (): string => Followup::defaultNoteTitle())
+                    ->maxLength(255)
+                    ->required()
+                    ->inlineLabel(),
                 Textarea::make('note')
                     ->rows(3),
                 Radio::make('followup')
@@ -90,14 +103,19 @@ class FollowupServiceProvider extends ServiceProvider
                     ])
                     ->default('none')
                     ->inline()
+                    ->inlineLabel()
+                    ->extraFieldWrapperAttributes(['style' => 'margin-top:1rem'])
                     ->live(),
                 TextInput::make('title')
+                    ->label('Follow-up title')
                     ->default(fn (Model $record): string => Followup::titleOf($record))
                     ->maxLength(255)
+                    ->inlineLabel()
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),
                 $when
                     ->label('When')
+                    ->inlineLabel()
                     ->default(now()->addDay()->setTime(9, 0))
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),
@@ -112,6 +130,7 @@ class FollowupServiceProvider extends ServiceProvider
                     ($data['followup'] ?? 'none') !== 'none' ? $data['followup'] : null,
                     $data['title'] ?? null,
                     filled($data['when'] ?? null) ? now()->parse($data['when']) : null,
+                    $data['note_title'] ?? null,
                 );
 
                 Notification::make()

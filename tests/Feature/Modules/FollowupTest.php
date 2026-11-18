@@ -17,6 +17,7 @@ use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Followup\Followup;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -53,6 +54,11 @@ class FollowupTest extends TestCase
 
         $this->assertSame(2, $task->attachments()->count(), 'the closing note and the forward trace');
         $this->assertStringContainsString('Follow-up after', $call->attachments()->sole()->note);
+        $this->assertSame(Followup::defaultNoteTitle(), $call->attachments()->sole()->title, 'notes get the default title');
+        $this->assertSame(['Follow up note'], $task->attachments()->pluck('title')->unique()->values()->all());
+        $this->assertStringContainsString('<a class="epesi-record-link" href="', $call->attachments()->sole()->note);
+        $this->assertStringContainsString('epesi-record-link', $call->attachments()->sole()->bodyHtml(), 'the sanitizer keeps the badge class');
+        $this->assertStringContainsString(Filament::getModelResource(Task::class)::getUrl('view', ['record' => $task], panel: 'main'), $call->attachments()->sole()->note);
     }
 
     public function test_meeting_follow_up(): void

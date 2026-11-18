@@ -13,6 +13,7 @@ use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
@@ -51,12 +52,16 @@ class Followup
         ?string $followupType = null,
         ?string $followupTitle = null,
         ?CarbonInterface $when = null,
+        ?string $noteTitle = null,
     ): ?Model {
-        return DB::transaction(function () use ($record, $status, $note, $followupType, $followupTitle, $when): ?Model {
+        // Notes need a title: the one given, else the default in the user's language.
+        $noteTitle = filled($noteTitle) ? $noteTitle : static::defaultNoteTitle();
+
+        return DB::transaction(function () use ($record, $status, $note, $followupType, $followupTitle, $when, $noteTitle): ?Model {
             $record->update(['status' => $status]);
 
             if (filled($note) && static::attachmentsAvailable()) {
-                Attachment::addTo($record, e($note));
+                Attachment::addTo($record, e($note), $noteTitle);
             }
 
             if ($followupType === null || ! isset(static::TYPES[$followupType])) {
@@ -66,12 +71,18 @@ class Followup
             $followup = static::schedule($record, $followupType, $followupTitle ?: static::titleOf($record), $when ?? now()->addDay());
 
             if (static::attachmentsAvailable()) {
-                Attachment::addTo($followup, __('Follow-up after: :record', ['record' => static::describe($record)]));
-                Attachment::addTo($record, __('Follow-up: :record', ['record' => static::describe($followup)]));
+                Attachment::addTo($followup, __('Follow-up after: :record', ['record' => static::describe($record)]), $noteTitle);
+                Attachment::addTo($record, __('Follow-up: :record', ['record' => static::describe($followup)]), $noteTitle);
             }
 
             return $followup;
         });
+    }
+
+    /** The title the Follow-up popup suggests for its notes, in the user's language. */
+    public static function defaultNoteTitle(): string
+    {
+        return __('Follow up note');
     }
 
     public static function titleOf(Model $record): string
@@ -94,7 +105,15 @@ class Followup
 
     protected static function describe(Model $record): string
     {
-        return LinkableRecordsets::label($record->getMorphClass()).' "'.e(static::titleOf($record)).'"';
+        $text = LinkableRecordsets::label($record->getMorphClass()).' "'.e(static::titleOf($record)).'"';
+        $resource = Filament::getModelResource($record::class);
+        $url = $resource && $resource::hasPage('view')
+            ? $resource::getUrl('view', ['record' => $record], panel: 'main')
+            : null;
+
+        // A link to the record, so the note leads to it; plain text if it has no View page.
+        // The class makes the Attachments module draw it as a badge with a link icon.
+        return $url ? '<a class="epesi-record-link" href="'.e($url).'">'.$text.'</a>' : $text;
     }
 
     protected static function createFollowup(Model $source, string $type, string $title, CarbonInterface $when): Model

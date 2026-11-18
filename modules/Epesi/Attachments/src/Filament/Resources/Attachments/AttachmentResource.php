@@ -863,7 +863,9 @@ class AttachmentResource extends Resource
         $body = Str::limit($record->plainText(), 600);
         $collapsed = implode('', array_filter([
             $title !== '' ? "<strong>{$title}</strong>" : '',
-            $body !== '' ? '<div class="epesi-note-preview-body">'.e($body).'</div>' : '',
+            // A note holding a record link (class epesi-record-link) keeps it
+            // in the collapsed row too, as a badge, not as flattened text.
+            $body !== '' ? '<div class="epesi-note-preview-body">'.(str_contains((string) $record->note, 'epesi-record-link') ? $record->bodyHtml() : e($body)).'</div>' : '',
         ]));
 
         $full = implode('', array_filter([
